@@ -6,6 +6,7 @@ import sys
 
 from .redconar import parse_pdf, parse_text
 from .rules import Config, evaluar
+from .comprobantes import cargar_manifiesto_redconar, cruzar
 
 
 def load(path: str):
@@ -26,6 +27,9 @@ def main(argv=None) -> int:
     a.add_argument("--anterior", help="Liquidación del mes anterior para comparar")
     a.add_argument("--json", help="Guardar el resultado completo en JSON")
     a.add_argument("--solo-cuadre", action="store_true", help="Solo mostrar las verificaciones de cuadre")
+    a.add_argument("--comprobantes", help="Carpeta con los comprobantes descargados del portal")
+    a.add_argument("--manifiesto", help="manifest.json de la descarga (formato Redconar)")
+    a.add_argument("--mes", help="Prefijo de mes del manifiesto a usar, por ejemplo 2026-08")
     args = ap.parse_args(argv)
 
     liq = load(args.liquidacion)
@@ -40,6 +44,17 @@ def main(argv=None) -> int:
     if args.solo_cuadre:
         return 0 if not bad else 1
     hs = evaluar(liq, prev, Config())
+    docs = []
+    if args.comprobantes and args.manifiesto:
+        items = cargar_manifiesto_redconar(args.manifiesto, args.comprobantes, mes=args.mes)
+        docs, hs2 = cruzar(liq, items)
+        tipos = {}
+        for d in docs:
+            tipos[d.tipo] = tipos.get(d.tipo, 0) + 1
+        print(f"Comprobantes: {len(docs)} documentos leídos ({', '.join(f'{k} {v}' for k, v in sorted(tipos.items()))})")
+        hs = hs + hs2
+        order = {"CRÍTICO": 0, "ALTO": 1, "MEDIO": 2, "BAJO": 3}
+        hs.sort(key=lambda h: (order.get(h.severidad, 9), -abs(h.monto)))
     print(f"\nHallazgos: {len(hs)}")
     for h in hs:
         print(f"\n[{h.severidad}] {h.area} · {h.titulo}")
@@ -50,7 +65,7 @@ def main(argv=None) -> int:
         if h.recomendacion:
             print("   Pedir:", h.recomendacion)
     if args.json:
-        out = dict(liquidacion=liq.to_dict(), anterior=prev.to_dict() if prev else None, hallazgos=[h.to_dict() for h in hs])
+        out = dict(liquidacion=liq.to_dict(), anterior=prev.to_dict() if prev else None, hallazgos=[h.to_dict() for h in hs], documentos=[d.to_dict() for d in docs])
         json.dump(out, open(args.json, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
         print("\nJSON guardado en", args.json)
     return 0

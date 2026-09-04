@@ -152,7 +152,8 @@ def r_fechas(liq, prev, cfg):
                             sum(g.importe for g in tarde), "Verificar que no se hayan liquidado en meses anteriores (riesgo de doble pago).", [str(g.n) for g in tarde]))
     antes = [g for g in liq.gastos if g.dias_factura_pago is not None and g.dias_factura_pago < -cfg.dias_factura_futura]
     for g in antes:
-        out.append(Hallazgo("fechas", "ALTO", "Obras / contratación", f"Factura de {g.proveedor} emitida {-g.dias_factura_pago} días después del pago",
+        sev = "ALTO" if -g.dias_factura_pago > 7 or g.importe >= 1_000_000 else "MEDIO"
+        out.append(Hallazgo("fechas", sev, "Obras / contratación", f"Factura de {g.proveedor} emitida {-g.dias_factura_pago} días después del pago",
                             f"Factura {g.factura_nro} fechada {g.factura_fecha:%d-%m-%Y}; pago del {g.fecha_pago:%d-%m-%Y} por {fmt(g.importe)}.",
                             g.importe, "Exigir factura antes del pago.", [str(g.n)]))
     # cargas sociales pagadas tarde: F.931 del período N pagado después del mes N+1

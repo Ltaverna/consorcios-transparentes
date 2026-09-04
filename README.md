@@ -12,6 +12,7 @@ engine/          motor de análisis (Python 3.10+)
   ct/model.py       modelo de datos de una liquidación, independiente del sistema que la emitió
   ct/redconar.py    parser de liquidaciones Redconar / "Mis Expensas" (2 plantillas), con verificaciones de cuadre
   ct/rules.py       catálogo de reglas de detección (ver docs/reglas.md)
+  ct/comprobantes.py cruce factura ↔ pago ↔ liquidación sobre los adjuntos del portal
   ct/cli.py         línea de comandos
   tests/            pruebas de regresión con 5 liquidaciones reales (2024, 2025, 2026)
 apps/asamblea/   app de asamblea (agenda, votación, preguntas, proposiciones) + script de Google Sheets
@@ -23,8 +24,13 @@ docs/            plan de producto, diseño de la app de asamblea, catálogo de r
 ```
 cd engine
 python3 -m ct analizar liquidacion.pdf --anterior liquidacion_mes_anterior.pdf --json salida.json
+python3 -m ct analizar liquidacion.pdf --comprobantes ./comprobantes --manifiesto manifest.json --mes 2026-08
 python3 -m pytest -q tests
 ```
+
+`--comprobantes` activa el cruce documental: lee cada factura y ticket de pago (pdftotext), identifica emisor, receptor, CUIT,
+cuenta de destino, fechas e importes, y detecta pagos a terceros, facturas a nombre de empleados o propietarios, comprobantes
+reutilizados, pagos en exceso, devoluciones, facturas emitidas después del pago y gastos sin respaldo.
 
 Requiere `pdftotext` (poppler-utils). Sin dependencias Python externas para el motor.
 
