@@ -1,4 +1,5 @@
 """Hashes (argon2), JWT en cookie httpOnly, dependencias de rol y rate limit simple."""
+import threading
 import time
 from datetime import datetime, timedelta, timezone
 
@@ -57,16 +58,25 @@ class RateLimiter:
     def __init__(self, maximo: int = 10, ventana: int = 300):
         self.maximo, self.ventana = maximo, ventana
         self._hits: dict[str, list[float]] = {}
+        self._lock = threading.Lock()
 
     def permitir(self, clave: str) -> bool:
-        ahora = time.monotonic()
-        hits = [t for t in self._hits.get(clave, []) if ahora - t < self.ventana]
-        if len(hits) >= self.maximo:
+        with self._lock:
+            ahora = time.monotonic()
+            # Desaloja claves vencidas de todo el diccionario: evita crecimiento sin
+            # límite si un atacante rota de clave (p. ej. IP) en cada intento.
+            for k in list(self._hits.keys()):
+                vigentes = [t for t in self._hits[k] if ahora - t < self.ventana]
+                if vigentes:
+                    self._hits[k] = vigentes
+                else:
+                    del self._hits[k]
+            hits = self._hits.get(clave, [])
+            if len(hits) >= self.maximo:
+                return False
+            hits.append(ahora)
             self._hits[clave] = hits
-            return False
-        hits.append(ahora)
-        self._hits[clave] = hits
-        return True
+            return True
 
 
 limiter_login = RateLimiter()

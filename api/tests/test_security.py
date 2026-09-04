@@ -27,3 +27,11 @@ def test_rate_limiter():
     assert all(rl.permitir("ip") for _ in range(3))
     assert not rl.permitir("ip")
     assert rl.permitir("otra-ip")
+
+
+def test_rate_limiter_desaloja_claves_vencidas():
+    rl = security.RateLimiter(maximo=2, ventana=0)  # todo vence al instante
+    rl.permitir("ip-1")
+    rl.permitir("ip-2")
+    rl.permitir("ip-3")
+    assert len(rl._hits) <= 1  # las claves vencidas no se acumulan
