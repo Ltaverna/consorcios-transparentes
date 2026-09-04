@@ -8,6 +8,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from .. import ingesta, models, security
+from .. import publicar as publicacion
 from ..db import SessionLocal, get_db
 
 router = APIRouter(prefix="/liquidaciones", tags=["liquidaciones"])
@@ -110,3 +111,16 @@ def subir_comprobantes(liq_id: int, request: Request, archivo: UploadFile,
     docs = db.query(models.Documento).filter_by(liquidacion_id=liq.id).count()
     cruce = db.query(models.Hallazgo).filter_by(liquidacion_id=liq.id, origen="comprobantes").count()
     return {"ok": True, "documentos": docs, "hallazgos_cruce": cruce}
+
+
+@router.post("/{liq_id}/publicar")
+def publicar_liquidacion(liq_id: int, request: Request, db: Session = Depends(get_db),
+                         s: dict = Depends(security.requiere("auditor"))):
+    liq = db.get(models.Liquidacion, liq_id)
+    if not liq:
+        raise HTTPException(404, "No existe esa liquidación")
+    try:
+        out = publicacion.publicar(db, liq.id, request.app.state.storage)
+    except ValueError as e:
+        raise HTTPException(409, str(e))
+    return {"ok": True, **out}
