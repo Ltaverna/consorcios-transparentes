@@ -1,5 +1,6 @@
 import re
 import uuid
+import zipfile
 
 from fastapi import (APIRouter, BackgroundTasks, Depends, HTTPException,
                      Request, UploadFile, Form)
@@ -85,3 +86,27 @@ def detalle(liq_id: int, db: Session = Depends(get_db),
                     "concepto": g.concepto, "columna": g.columna, "importe": g.importe,
                     "factura_nro": g.factura_nro, "pagos": g.pagos} for g in liq.gastos],
     }
+
+
+@router.post("/{liq_id}/comprobantes")
+def subir_comprobantes(liq_id: int, request: Request, archivo: UploadFile,
+                       db: Session = Depends(get_db),
+                       s: dict = Depends(security.requiere("auditor"))):
+    liq = db.get(models.Liquidacion, liq_id)
+    if not liq:
+        raise HTTPException(404, "No existe esa liquidación")
+    if liq.estado not in ("procesada", "publicada"):
+        raise HTTPException(409, f"La liquidación está en estado {liq.estado}; procesarla primero")
+    data = archivo.file.read(100 * 1024 * 1024 + 1)
+    if len(data) > 100 * 1024 * 1024:
+        raise HTTPException(413, "El ZIP supera los 100 MB")
+    try:
+        # sincrónico: son segundos, y así el error llega directo al auditor
+        ingesta.cruzar_comprobantes(db, liq.id, data, request.app.state.storage)
+    except ValueError as e:
+        raise HTTPException(422, str(e))
+    except zipfile.BadZipFile:
+        raise HTTPException(422, "El archivo no es un ZIP válido")
+    docs = db.query(models.Documento).filter_by(liquidacion_id=liq.id).count()
+    cruce = db.query(models.Hallazgo).filter_by(liquidacion_id=liq.id, origen="comprobantes").count()
+    return {"ok": True, "documentos": docs, "hallazgos_cruce": cruce}

@@ -1,12 +1,16 @@
 """Del PDF a la base: parseo, cuadre, reglas y sincronización. La regla de oro vive acá:
 si la liquidación no cuadra queda en `no_cuadra` y no se inserta ni publica nada."""
 import hashlib
+import io
 import logging
+import pathlib
 import re
 import tempfile
+import zipfile
 
 from sqlalchemy.orm import Session
 
+from ct.comprobantes import cargar_manifiesto_redconar, cruzar
 from ct.model import Liquidacion as LiqMotor
 from ct.redconar import parse_pdf, parse_text
 from ct.rules import Config, Hallazgo as HallazgoMotor, evaluar
@@ -212,4 +216,50 @@ def procesar(db: Session, liq_id: int, storage) -> None:
         liq_row = db.get(models.Liquidacion, liq_id)
         liq_row.estado = "error"
         liq_row.error = (str(e) if isinstance(e, ValueError) else f"{type(e).__name__}: {e}")[:2000]
+        db.commit()
+
+
+def _sin_rutas_invalidas(nombres: list[str]) -> bool:
+    for n in nombres:
+        p = pathlib.PurePosixPath(n)
+        if p.is_absolute() or ".." in p.parts:
+            return False
+    return True
+
+
+def cruzar_comprobantes(db: Session, liq_id: int, zip_bytes: bytes, storage) -> None:
+    """Descomprime el ZIP del portal (carpeta que genera `ct descargar`, con su manifest.json),
+    corre el cruce del motor contra la liquidación ya procesada y persiste documentos y
+    hallazgos (origen "comprobantes"). Reemplaza los documentos de una subida anterior."""
+    liq_row = db.get(models.Liquidacion, liq_id)
+    if liq_row is None:
+        raise ValueError("No existe esa liquidación")
+    with tempfile.TemporaryDirectory() as tmp:
+        with zipfile.ZipFile(io.BytesIO(zip_bytes)) as z:
+            if not _sin_rutas_invalidas(z.namelist()):
+                raise ValueError("ZIP con rutas inválidas")
+            z.extractall(tmp)
+        manifiestos = list(pathlib.Path(tmp).rglob("manifest.json"))
+        if not manifiestos:
+            raise ValueError("El ZIP no trae manifest.json (usar la carpeta que genera ct descargar)")
+        carpeta = manifiestos[0].parent
+        items = cargar_manifiesto_redconar(str(manifiestos[0]), str(carpeta), mes=liq_row.periodo)
+        liq = cargar_engine(storage, liq_row)
+        docs, hallazgos = cruzar(liq, items)
+        # `Documento.archivo` del motor es solo el basename (se calcula con os.path.basename);
+        # para poder leer los bytes y armar una clave sin colisiones hace falta la ruta
+        # original, que reconstruimos aplanando los adjuntos de `items` en el mismo orden
+        # en que `cruzar` los recorre (un item por gasto, sus adjuntos en orden).
+        rutas = [p for it in items for p in it.adjuntos]
+
+        db.query(models.Documento).filter_by(liquidacion_id=liq_row.id).delete()
+        for d, ruta in zip(docs, rutas):
+            origen_path = pathlib.Path(ruta)
+            rel = origen_path.relative_to(carpeta) if origen_path.is_relative_to(carpeta) else pathlib.PurePosixPath(origen_path.name)
+            key = f"comprobantes/{liq_row.periodo}/{pathlib.PurePosixPath(rel).as_posix()}"
+            if origen_path.exists():
+                storage.guardar(key, origen_path.read_bytes())
+            db.add(models.Documento(liquidacion_id=liq_row.id, gasto_n=d.gasto_n, tipo=d.tipo,
+                                    archivo_key=key, hash=d.hash, metadatos=d.to_dict()))
+        upsert_hallazgos(db, liq_row, hallazgos, origen="comprobantes")
         db.commit()
