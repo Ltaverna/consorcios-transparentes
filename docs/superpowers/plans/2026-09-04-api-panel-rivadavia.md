@@ -406,7 +406,7 @@ class Informe(Base):
     tipo: Mapped[str] = mapped_column(String(10))  # html | xlsx
     archivo_key: Mapped[str] = mapped_column(String(300))
     marca: Mapped[str] = mapped_column(String(120), default="")
-    publicado: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=ahora)
+    publicado_en: Mapped[datetime] = mapped_column(FechaUTC(), default=ahora)
 ```
 
 - [ ] **Step 6: Verificar que pasa**
@@ -1328,6 +1328,10 @@ app.include_router(auth.router)
 
 @app.on_event("startup")
 def arrancar():
+    # Guarda de producción: sin R2 no hay deploy real, pero si hay R2 configurado
+    # el secreto JWT por defecto es inaceptable (quedó en el historial de git).
+    if settings.r2_endpoint and settings.jwt_secret == "solo-para-desarrollo":
+        raise RuntimeError("CT_JWT_SECRET sin configurar: generar uno largo antes de desplegar")
     Base.metadata.create_all(engine)  # Alembic llega con el primer deploy (Plan 3)
     if not hasattr(app.state, "storage"):
         app.state.storage = storage_por_defecto()
@@ -1967,7 +1971,7 @@ def publicar(db: Session, liq_id: int, storage) -> dict:
             if not fila:
                 fila = models.Informe(liquidacion_id=liq_row.id, tipo=tipo, archivo_key=key)
                 db.add(fila)
-            fila.archivo_key, fila.marca, fila.publicado = key, marca, models.ahora()
+            fila.archivo_key, fila.marca, fila.publicado_en = key, marca, models.ahora()
     liq_row.estado = "publicada"
     db.commit()
     return {"hallazgos_publicados": len(hs)}

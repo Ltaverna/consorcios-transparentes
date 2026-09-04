@@ -8,8 +8,12 @@ Alcance: **un solo consorcio** (Rivadavia 2069). Multi-consorcio queda para cuan
 ## Decisiones tomadas (con Lucas, 04-09-2026)
 
 - En la nube desde el arranque (no panel local).
-- Front separado: **Next.js** (App Router, TypeScript, Tailwind + shadcn/ui) en **Cloudflare Workers (OpenNext)**, dominio tipo `panel.neuralcore.dev`.
-- API: **FastAPI + SQLAlchemy/Alembic** en contenedor Docker (Python + poppler) en **Fly.io región `eze`** (alternativa: Railway).
+- Front separado: **Next.js** (App Router, TypeScript, Tailwind + shadcn/ui) en **Cloudflare Workers (OpenNext)**, dominio tipo `panel-consorcio.neuralcore.dev`.
+- API: **FastAPI + SQLAlchemy/Alembic** con Python + poppler. Hosting (Plan 3): **máquina propia de Lucas con `cloudflared tunnel`**
+  como arranque (costo cero; cloudflared ya instalado), Fly.io región `eze` (o Railway) cuando haga falta 24/7,
+  publicada como **`api-consorcio.neuralcore.dev`** (ruta del tunnel cloudflared, o CNAME a Fly). Decisión del 04-09: front y API deben ser same-site
+  (`panel-consorcio.neuralcore.dev` ↔ `api-consorcio.neuralcore.dev`) para que la cookie de sesión `SameSite=Lax` viaje en los fetch;
+  con un dominio `*.fly.dev` el login no funcionaría. En el deploy, el rate limit debe tomar la IP real de `Fly-Client-IP`.
 - Base: **Neon Postgres** (AWS São Paulo). Documentos: **Cloudflare R2** privado con URL firmada.
 - **Auth completa ya**: roles auditor/consejo/moderador con email+contraseña, propietarios con código por unidad.
 - Primer entregable: **núcleo auditor** (ingesta + panel de hallazgos con estados). El propietario entra con código y ve solo el informe publicado. La app de asamblea actual no se toca.

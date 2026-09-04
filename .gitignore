@@ -8,3 +8,4 @@ node_modules/
 !engine/tests/fixtures/*
 .venv/
 .env
+.DS_Store
