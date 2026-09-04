@@ -40,6 +40,18 @@ def test_listar_requiere_sesion(cliente):
     assert cliente.get("/liquidaciones").status_code == 401
 
 
+def test_propietario_no_ve_el_listado(db, cliente, auditor):
+    """El listado de liquidaciones es una herramienta de auditoría (estado, cuadre, errores
+    de procesos que ni siquiera llegaron a publicarse); un propietario solo puede ver lo que
+    ya se publicó, vía /mi-unidad e /informes."""
+    from app import admin, models
+    subir(auditor)
+    uf = db.query(models.Unidad).first().uf
+    codigo = admin.generar_codigo(db, uf)
+    cliente.post("/auth/login-unidad", json={"uf": uf, "codigo": codigo})
+    assert cliente.get("/liquidaciones").status_code == 403
+
+
 def test_subida_demasiado_grande_413(auditor):
     r = auditor.post("/liquidaciones", data={"periodo": "2026-08"},
                      files={"archivo": ("x.txt", b"x" * (30 * 1024 * 1024 + 1), "text/plain")})

@@ -5,7 +5,7 @@
   liquidaciones, gastos, documentos y hallazgos con estados (pendiente/preguntado/respondido/descartado/cerrado) e
   historial; auth por roles (auditor/consejo/moderador) y por código de unidad; ingesta con cuadre obligatorio
   (también en el reproceso: no_cuadra limpia y despublica, reprocesar retira informes); comprobantes por ZIP con
-  cruce; publicación de informes HTML/Excel a storage (R2 o disco); vista del propietario. 72 pruebas de API +
+  cruce; publicación de informes HTML/Excel a storage (R2 o disco); vista del propietario. 88 pruebas de API +
   29 del motor. Ver `api/README.md`. Spec: `docs/superpowers/specs/2026-09-04-panel-rivadavia-design.md`.
 - **Motor** (`engine/ct`): parser de liquidaciones Redconar/"Mis Expensas" (formatos 2024 y 2025+), ~30 verificaciones de cuadre,
   reglas de detección (`rules.py`, catálogo en `docs/reglas.md`), cruce de comprobantes factura ↔ pago ↔ liquidación (`comprobantes.py`),

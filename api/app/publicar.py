@@ -96,6 +96,10 @@ def publicar(db: Session, liq_id: int, storage) -> dict:
     db.refresh(liq_row)
     if liq_row.estado not in ("procesada", "publicada") or liq_row.archivo_key != archivo_key_inicial:
         db.rollback()
+        # Los informes nuevos ya se escribieron en storage pero la fila que los referencia
+        # nunca se confirmó: no pueden quedar huérfanos.
+        for clave in claves_nuevas:
+            storage.borrar(clave)
         raise ValueError("La liquidación cambió mientras se publicaba; revisala y volvé a publicar")
     liq_row.estado = "publicada"
     db.commit()

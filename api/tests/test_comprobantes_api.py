@@ -146,7 +146,11 @@ def test_comprobantes_zip_slip_da_422(db, auditor):
         z.writestr("manifest.json", json.dumps([]))
     r = auditor.post(f"/liquidaciones/{liq_id}/comprobantes",
                      files={"archivo": ("slip.zip", buf.getvalue(), "application/zip")})
+    # No alcanza con el 422: el ZIP también trae un manifest.json vacío, que por su cuenta
+    # ya da 422 ("no trae comprobantes del período"). Sin este mensaje, el test pasaría
+    # igual aunque la validación de path traversal estuviera rota.
     assert r.status_code == 422
+    assert "rutas inválidas" in r.json()["detail"]
 
 
 def test_flujo_completo_subir_comprobantes_publicar(db, auditor, tmp_path):

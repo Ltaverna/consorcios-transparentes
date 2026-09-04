@@ -6,6 +6,13 @@ from .config import settings
 
 logger = logging.getLogger(__name__)
 
+MIME = {"html": "text/html", "xlsx": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        "pdf": "application/pdf", "jpg": "image/jpeg", "jpeg": "image/jpeg", "png": "image/png"}
+
+
+def mime_por_clave(key: str) -> str:
+    return MIME.get(key.rsplit(".", 1)[-1].lower(), "application/octet-stream")
+
 
 class LocalStorage:
     def __init__(self, base: str):
@@ -52,7 +59,7 @@ class R2Storage:
         )
 
     def guardar(self, key: str, data: bytes) -> None:
-        self.s3.put_object(Bucket=self.bucket, Key=key, Body=data)
+        self.s3.put_object(Bucket=self.bucket, Key=key, Body=data, ContentType=mime_por_clave(key))
 
     def leer(self, key: str) -> bytes:
         return self.s3.get_object(Bucket=self.bucket, Key=key)["Body"].read()

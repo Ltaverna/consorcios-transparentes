@@ -51,12 +51,19 @@ def parsear_bytes(nombre: str, data: bytes) -> LiqMotor:
 
 
 def clave_natural(h: HallazgoMotor) -> str:
-    """Estable entre reprocesos: regla + clave declarada por la regla (combinada con las
-    referencias si también las hay, para no confundir subcasos de una misma regla y el
-    mismo slug pero sobre gastos distintos); si no hay clave, regla + referencias; y si
-    tampoco hay refs, el título con las cifras borradas (para que una corrección de
-    montos no cambie la clave)."""
-    if h.clave and h.refs:
+    """Estable entre reprocesos: regla + clave declarada por la regla (combinada con la
+    referencia solo cuando hay exactamente una, el caso por-gasto, para no confundir
+    subcasos de una misma regla y el mismo slug pero sobre gastos distintos); si no hay
+    clave, regla + referencias; y si tampoco hay refs, el título con las cifras borradas
+    (para que una corrección de montos no cambie la clave).
+
+    Un hallazgo "agregado" (una fila que resume varios gastos u UFs, como obras en unidades
+    privadas o morosidad) trae más de una ref: ahí las refs son el detalle de qué entró en
+    la suma, no una forma de distinguir subcasos, así que NO entran en la clave — si una
+    liquidación corregida agrega o saca un elemento del agregado, el auditor no puede perder
+    el estado/respuesta que ya le había puesto a ese hallazgo. La colisión (dos agregados
+    con la misma regla+clave) la resuelve el desambiguador de `upsert_hallazgos`."""
+    if h.clave and len(h.refs) == 1:
         base = f"{h.regla}|{h.clave}|" + "|".join(sorted(str(r) for r in h.refs))
     elif h.clave:
         base = f"{h.regla}|{h.clave}"
@@ -104,7 +111,7 @@ def guardar_gastos(db: Session, liq_row: models.Liquidacion, liq: LiqMotor) -> N
                     "importe": p.importe, "caja": p.caja, "forma": p.forma} for p in g.pagos]))
 
 
-def limpiar_al_rechazar(db: Session, storage, liq_row: models.Liquidacion) -> None:
+def limpiar_al_rechazar(db: Session, liq_row: models.Liquidacion) -> list[str]:
     """No_cuadra: no puede quedar nada publicable de un proceso anterior. Se borran los gastos
     y los informes de esta liquidación (archivo incluido), y sus hallazgos (los de esta
     liquidación, no los de comprobantes) se despublican sin tocar estado/respuesta_admin/
@@ -184,7 +191,7 @@ def procesar(db: Session, liq_id: int, storage) -> None:
         # falta para mostrarle al auditor qué verificaciones fallaron.
         liq_row.datos, liq_row.sistema, liq_row.cuadra = liq.to_dict(), liq.sistema, liq.cuadra
         if not liq.cuadra:
-            claves = limpiar_al_rechazar(db, storage, liq_row)
+            claves = limpiar_al_rechazar(db, liq_row)
             liq_row.estado = "no_cuadra"
             db.commit()
             for clave in claves:
@@ -215,6 +222,9 @@ def procesar(db: Session, liq_id: int, storage) -> None:
         db.rollback()
         logger.exception("Falló la ingesta de la liquidación %s", liq_id)
         liq_row = db.get(models.Liquidacion, liq_id)
+        if liq_row is None:
+            logger.warning("La liquidación %s desapareció mientras se procesaba", liq_id)
+            return
         liq_row.estado = "error"
         liq_row.error = (str(e) if isinstance(e, ValueError) else f"{type(e).__name__}: {e}")[:2000]
         db.commit()
@@ -276,6 +286,11 @@ def cruzar_comprobantes(db: Session, liq_id: int, zip_bytes: bytes, storage) -> 
         nuevas = set()
         for d, ruta in zip(docs, rutas, strict=True):
             origen_path = pathlib.Path(ruta)
+            if origen_path.name != d.archivo:
+                # Guarda barata: si `cruzar` alguna vez reordenara sus resultados respecto de
+                # los adjuntos que recibió, esto lo detecta acá en vez de guardar un Documento
+                # con la clave de storage de otro archivo.
+                raise ValueError("Desalineación interna entre documentos y archivos del ZIP")
             key = f"comprobantes/{liq_row.periodo}/{origen_path.name}"
             storage.guardar(key, origen_path.read_bytes())
             nuevas.add(key)

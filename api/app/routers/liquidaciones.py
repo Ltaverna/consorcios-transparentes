@@ -65,7 +65,8 @@ def subir(request: Request, tareas: BackgroundTasks, archivo: UploadFile,
 
 
 @router.get("")
-def listar(db: Session = Depends(get_db), s: dict = Depends(security.sesion)):
+def listar(db: Session = Depends(get_db),
+           s: dict = Depends(security.requiere("auditor", "consejo", "moderador"))):
     filas = db.query(models.Liquidacion).order_by(models.Liquidacion.periodo.desc()).all()
     return [{"id": l.id, "periodo": l.periodo, "estado": l.estado, "cuadra": l.cuadra,
              "sistema": l.sistema, "error": l.error} for l in filas]

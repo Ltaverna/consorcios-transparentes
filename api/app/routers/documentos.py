@@ -3,21 +3,25 @@ from sqlalchemy.orm import Session
 
 from .. import models, security
 from ..db import get_db
+from ..storage import mime_por_clave
 
 router = APIRouter(tags=["documentos"])
-MIME = {"html": "text/html", "xlsx": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        "pdf": "application/pdf"}
 
 
-def _mime(key: str) -> str:
-    return MIME.get(key.rsplit(".", 1)[-1].lower(), "application/octet-stream")
-
-
-def _servir(request: Request, key: str) -> Response:
+def _servir(request: Request, key: str, attachment: bool = True) -> Response:
+    """`X-Content-Type-Options: nosniff` siempre: nada de lo que servimos acá lo tiene que
+    interpretar el navegador como HTML/script por más que el contenido se preste. Como
+    descarga (`Content-Disposition: attachment`) todo excepto los informes: un comprobante
+    de un tercero no se abre inline en la pestaña del auditor; el informe publicado sí, para
+    que el propietario lo pueda ver directamente."""
+    headers = {"X-Content-Type-Options": "nosniff"}
+    if attachment:
+        headers["Content-Disposition"] = f"attachment; filename={key.rsplit('/', 1)[-1]}"
     url = request.app.state.storage.url_firmada(key)
     if url:
-        return Response(status_code=307, headers={"Location": url})
-    return Response(request.app.state.storage.leer(key), media_type=_mime(key))
+        headers["Location"] = url
+        return Response(status_code=307, headers=headers)
+    return Response(request.app.state.storage.leer(key), media_type=mime_por_clave(key), headers=headers)
 
 
 @router.get("/documentos")
@@ -46,7 +50,7 @@ def informe(periodo: str, tipo: str, request: Request, db: Session = Depends(get
                       models.Informe.tipo == tipo).first())
     if not fila:
         raise HTTPException(404, "No hay informe publicado para ese período")
-    return _servir(request, fila.archivo_key)
+    return _servir(request, fila.archivo_key, attachment=False)
 
 
 @router.get("/mi-unidad")

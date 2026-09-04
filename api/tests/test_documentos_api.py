@@ -13,6 +13,8 @@ def test_descargar_documento_con_rol(db, auditor, tmp_path):
     db.commit()
     r = auditor.get(f"/documentos/{d.id}/contenido")
     assert r.status_code == 200 and r.content == b"pdf"
+    assert r.headers["x-content-type-options"] == "nosniff"
+    assert "attachment" in r.headers["content-disposition"]
 
 
 def test_propietario_no_ve_documentos(db, cliente, auditor, tmp_path):
@@ -39,6 +41,8 @@ def test_propietario_ve_informe_publicado(db, cliente, auditor):
     assert mi["uf"] == uf and mi["periodo"] == "2026-08"
     r = cliente.get(f"/informes/2026-08/html")
     assert r.status_code == 200 and b"Consorcio" in r.content
+    assert r.headers["x-content-type-options"] == "nosniff"
+    assert "content-disposition" not in r.headers
 
 
 def test_propietario_no_ve_informe_sin_publicar(db, cliente, auditor):

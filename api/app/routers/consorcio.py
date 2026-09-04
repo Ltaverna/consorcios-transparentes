@@ -11,6 +11,10 @@ from ..db import get_db
 
 router = APIRouter(tags=["consorcio"])
 UMBRALES_VALIDOS = {f.name for f in fields(Config)}
+# `Config` usa `from __future__ import annotations`, así que `f.type` es el string de la
+# anotación ("float"/"int"), no el tipo en sí; todos los umbrales son uno de esos dos.
+_TIPOS = {"float": float, "int": int}
+UMBRALES_TIPO = {f.name: _TIPOS.get(f.type, float) for f in fields(Config)}
 
 
 class CambioConsorcio(BaseModel):
@@ -45,7 +49,19 @@ def editar(cambio: CambioConsorcio, db: Session = Depends(get_db),
         raros = set(cambio.umbrales) - UMBRALES_VALIDOS
         if raros:
             raise HTTPException(422, f"Umbrales desconocidos: {', '.join(sorted(raros))}")
-        c.umbrales = cambio.umbrales
+        umbrales, invalidos = {}, []
+        for clave, valor in cambio.umbrales.items():
+            tipo = UMBRALES_TIPO[clave]
+            if valor is None or isinstance(valor, bool):
+                invalidos.append(clave)
+                continue
+            try:
+                umbrales[clave] = tipo(valor)
+            except (TypeError, ValueError):
+                invalidos.append(clave)
+        if invalidos:
+            raise HTTPException(422, f"Umbrales con un valor no numérico: {', '.join(sorted(invalidos))}")
+        c.umbrales = umbrales
     for campo in ("nombre", "direccion", "cuit", "admin_nombre", "admin_cuit", "marca"):
         valor = getattr(cambio, campo)
         if valor is not None:

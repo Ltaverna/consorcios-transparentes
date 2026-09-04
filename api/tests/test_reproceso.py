@@ -143,3 +143,18 @@ def test_clave_natural_combina_clave_y_refs_para_no_confundir_subcasos():
     b = HallazgoMotor("efectivo", "ALTO", "Área", "Pago en efectivo de $2 a Proveedor B", "ev",
                       refs=["2"], clave="efectivo-linea")
     assert ingesta.clave_natural(a) != ingesta.clave_natural(b)
+
+
+def test_clave_natural_de_un_agregado_no_depende_de_los_refs():
+    """Hallazgos "agregados" (una sola fila que resume varios gastos, como obras en unidades
+    privadas) llevan más de una ref: a diferencia del caso por-gasto (una única ref), acá las
+    refs no distinguen subcasos, son solo el detalle de cuáles gastos entraron en la suma. Si
+    una liquidación corregida agrega o saca un gasto del agregado, la clave no puede cambiar:
+    el auditor perdería el estado/respuesta que ya había puesto en ese hallazgo."""
+    from ct.rules import Hallazgo as HallazgoMotor
+
+    a = HallazgoMotor("obras", "ALTO", "Área", "Obras en unidades privadas: $100.000", "ev",
+                      refs=["1", "2", "3"], clave="obras-unidades")
+    b = HallazgoMotor("obras", "ALTO", "Área", "Obras en unidades privadas: $120.000", "ev",
+                      refs=["1", "2", "3", "4"], clave="obras-unidades")
+    assert ingesta.clave_natural(a) == ingesta.clave_natural(b)
