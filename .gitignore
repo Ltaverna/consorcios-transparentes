@@ -6,3 +6,6 @@ __pycache__/
 node_modules/
 *.xlsx
 !engine/tests/fixtures/*
+.venv/
+.env
+.DS_Store

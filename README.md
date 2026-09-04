@@ -3,7 +3,7 @@
 Plataforma de control de expensas y asambleas para propietarios de consorcios. Un motor que lee liquidaciones y comprobantes,
 verifica que cuadren al centavo, cruza factura con pago y detecta problemas; y una app de asamblea con votación por doble mayoría.
 
-Estado (4 de septiembre de 2026): semana 1 del plan. Caso piloto en producción: Consorcio Rivadavia 2069 (asamblea.neuralcore.dev).
+Estado (4 de septiembre de 2026): API del panel de auditoría completa en la rama `panel-api` (etapa 1). Caso piloto en producción: Consorcio Rivadavia 2069 (asamblea.neuralcore.dev).
 
 > Estado del proyecto, enlaces y próximos pasos: [`docs/ESTADO.md`](docs/ESTADO.md). Instrucciones para trabajar con Claude Code: [`CLAUDE.md`](CLAUDE.md).
 
@@ -17,8 +17,10 @@ engine/          motor de análisis (Python 3.10+)
   ct/comprobantes.py cruce factura ↔ pago ↔ liquidación sobre los adjuntos del portal
   ct/cli.py         línea de comandos
   tests/            pruebas de regresión con 5 liquidaciones reales (2024, 2025, 2026)
+api/             API del panel de auditoría (FastAPI + Postgres): liquidaciones, comprobantes, hallazgos con
+                 estados, publicación de informes, auth por rol y por código de unidad (ver api/README.md)
 apps/asamblea/   app de asamblea (agenda, votación, preguntas, proposiciones) + script de Google Sheets
-docs/            plan de producto, diseño de la app de asamblea, catálogo de reglas
+docs/            plan de producto, diseño de la app de asamblea, catálogo de reglas, estado del proyecto
 ```
 
 ## Uso
