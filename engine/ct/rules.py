@@ -5,7 +5,7 @@ Las reglas hablan de hechos documentados; la redacción evita conclusiones acusa
 """
 from __future__ import annotations
 import re
-from dataclasses import dataclass, field, asdict
+from dataclasses import dataclass, field, fields, asdict
 from datetime import date
 from typing import Callable, Optional
 
@@ -30,6 +30,11 @@ class Config:
     factura_nro_bajo: int = 20             # proveedor con numeración de factura muy baja
     interes_dispersion: float = 0.05       # diferencia entre tasas de interés a deudores
     cobertura_pendientes_min: float = 1.0  # disponibilidades / facturas pendientes
+
+    @classmethod
+    def desde_dict(cls, d: dict | None) -> "Config":
+        conocidos = {f.name for f in fields(cls)}
+        return cls(**{k: v for k, v in (d or {}).items() if k in conocidos})
 
 
 @dataclass
