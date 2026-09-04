@@ -20,6 +20,9 @@ FastAPI + Postgres. Importa el motor (`engine/`) como biblioteca; requiere `pdft
 Regla de oro: si la liquidación no cuadra (`no_cuadra`), no hay publicación posible — y reprocesar
 retira los informes emitidos hasta que el auditor vuelva a publicar.
 
+Nota para el front: `PUT /consorcio` reemplaza el dict de `umbrales` completo (semántica PUT); mandar
+siempre todos los valores (el `GET` devuelve `umbrales` + `umbrales_default` para el round-trip). `{}` = reset.
+
 ## Producción (Plan 3)
 Contenedor Docker (poppler incluido) o la máquina del auditor detrás de `cloudflared tunnel`
 como `api-consorcio.neuralcore.dev`. Postgres Neon + Cloudflare R2 por variables `CT_*` (ver `.env.example`).
