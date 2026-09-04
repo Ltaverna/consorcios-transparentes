@@ -37,3 +37,11 @@ def test_login_unidad_codigo_malo(db, cliente):
 def test_salir(auditor):
     auditor.post("/auth/salir")
     assert auditor.get("/auth/yo").status_code == 401
+
+
+def test_login_rate_limit_429(db, cliente):
+    admin.crear_usuario(db, "r@example.com", "R", "auditor", "clave-larga-1")
+    for _ in range(10):
+        cliente.post("/auth/login", json={"email": "r@example.com", "clave": "mala"})
+    r = cliente.post("/auth/login", json={"email": "r@example.com", "clave": "clave-larga-1"})
+    assert r.status_code == 429

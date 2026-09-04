@@ -3,7 +3,7 @@ import pathlib
 import pytest
 from fastapi.testclient import TestClient
 
-from app import admin
+from app import admin, security
 from app.db import Base, SessionLocal, engine, get_db
 from app.storage import LocalStorage
 
@@ -25,6 +25,7 @@ def cliente(db, tmp_path):
     app.dependency_overrides[get_db] = lambda: db
     app.state.storage = LocalStorage(str(tmp_path))
     with TestClient(app) as c:
+        security.limiter_login._hits.clear()
         yield c
     app.dependency_overrides.clear()
 

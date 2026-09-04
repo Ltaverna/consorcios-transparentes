@@ -8,6 +8,8 @@ from ..db import get_db
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
+_DUMMY_HASH = security.hashear("dummy-para-tiempos-constantes")
+
 
 class LoginUsuario(BaseModel):
     email: str
@@ -30,7 +32,8 @@ def login(datos: LoginUsuario, request: Request, response: Response, db: Session
     if not security.limiter_login.permitir(f"{request.client.host}|{datos.email.lower()}"):
         raise HTTPException(429, "Demasiados intentos; probá de nuevo en unos minutos")
     u = db.query(models.Usuario).filter_by(email=datos.email.lower()).first()
-    if not u or not security.verificar(u.clave_hash, datos.clave):
+    ok = security.verificar(u.clave_hash if u else _DUMMY_HASH, datos.clave)
+    if not u or not ok:
         raise HTTPException(401, "Email o clave incorrectos")
     _entrar(response, f"u:{u.id}", u.rol)
     return {"rol": u.rol, "nombre": u.nombre}
@@ -41,7 +44,9 @@ def login_unidad(datos: LoginUnidad, request: Request, response: Response, db: S
     if not security.limiter_login.permitir(f"{request.client.host}|uf:{datos.uf}"):
         raise HTTPException(429, "Demasiados intentos; probá de nuevo en unos minutos")
     unidad = db.query(models.Unidad).filter_by(uf=datos.uf).first()
-    if not unidad or not unidad.codigo_hash or not security.verificar(unidad.codigo_hash, datos.codigo):
+    hash_ = unidad.codigo_hash if unidad and unidad.codigo_hash else _DUMMY_HASH
+    ok = security.verificar(hash_, datos.codigo)
+    if not unidad or not unidad.codigo_hash or not ok:
         raise HTTPException(401, "Unidad o código incorrectos")
     _entrar(response, f"uf:{unidad.uf}", "propietario")
     return {"rol": "propietario", "uf": unidad.uf, "piso_depto": unidad.piso_depto}
@@ -49,7 +54,7 @@ def login_unidad(datos: LoginUnidad, request: Request, response: Response, db: S
 
 @router.post("/salir")
 def salir(response: Response):
-    response.delete_cookie(security.COOKIE)
+    response.delete_cookie(security.COOKIE, samesite="lax", secure=settings.cookie_segura)
     return {"ok": True}
 
 
