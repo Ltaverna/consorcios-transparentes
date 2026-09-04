@@ -126,3 +126,23 @@ def test_upsert_hallazgos_desambigua_colisiones_sin_romper_unicidad(db):
     filas = db.query(models.Hallazgo).filter_by(liquidacion_id=liq.id).all()
     assert len(filas) == 3
     assert len({f.clave for f in filas}) == 3
+
+
+def test_upsert_hallazgos_desambigua_clave_de_exactamente_500_caracteres(db):
+    """Regresión: si la clave de base mide exactamente 500 caracteres, la vieja
+    desambiguación (agregar '~' y truncar a 500) devolvía la MISMA cadena (el '~' quedaba
+    afuera del corte) y el bucle no terminaba nunca. La desambiguación por contador debe
+    terminar y producir tres claves distintas."""
+    from ct.rules import Hallazgo as HallazgoMotor
+    liq = models.Liquidacion(periodo="2026-08", archivo_key="x.txt")
+    db.add(liq)
+    db.commit()
+    regla = "r"
+    clave_larga = "x" * (500 - len(regla) - 1)  # "regla|clave" da exactamente 500 caracteres
+    assert len(f"{regla}|{clave_larga}") == 500
+    hs = [HallazgoMotor(regla, "ALTO", "Área", "Título", "evidencia", clave=clave_larga) for _ in range(3)]
+    ingesta.upsert_hallazgos(db, liq, hs, origen="liquidacion")
+    db.commit()
+    filas = db.query(models.Hallazgo).filter_by(liquidacion_id=liq.id).all()
+    assert len(filas) == 3
+    assert len({f.clave for f in filas}) == 3

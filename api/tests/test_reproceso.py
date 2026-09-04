@@ -107,6 +107,18 @@ def test_reprocesar_publicada_retira_los_informes(db, tmp_path):
     assert db.query(models.Informe).filter_by(liquidacion_id=liq.id).count() == 0
 
 
+def test_resubir_por_el_endpoint_retira_informes(db, auditor, tmp_path):
+    from .test_liquidaciones_api import subir
+    liq_id = subir(auditor).json()["id"]
+    liq = db.get(models.Liquidacion, liq_id)
+    liq.estado = "publicada"
+    db.add(models.Informe(liquidacion_id=liq_id, tipo="html", archivo_key="informes/2026-08.html"))
+    db.commit()
+    r = subir(auditor)  # re-subida real por HTTP (estado publicada, no procesando → permitida)
+    assert r.status_code == 200
+    assert db.query(models.Informe).filter_by(liquidacion_id=liq_id).count() == 0
+
+
 def test_clave_natural_es_estable_ante_cambios_de_cifras_en_el_titulo():
     """La clave no puede depender de las cifras del título: una corrección de montos no
     debe hacer que el hallazgo se vea como uno nuevo."""
@@ -119,3 +131,15 @@ def test_clave_natural_es_estable_ante_cambios_de_cifras_en_el_titulo():
     c = HallazgoMotor("morosidad", "ALTO", "Área", "Deuda concentrada: UC-1 debe $100", "ev", clave="concentracion")
     d = HallazgoMotor("morosidad", "ALTO", "Área", "Deuda concentrada: UC-9 debe $999.999", "ev", clave="concentracion")
     assert ingesta.clave_natural(c) == ingesta.clave_natural(d)
+
+
+def test_clave_natural_combina_clave_y_refs_para_no_confundir_subcasos():
+    """Dos hallazgos de la misma regla y el mismo slug de clave, pero sobre gastos distintos
+    (refs distintos), no pueden colapsar en la misma identidad."""
+    from ct.rules import Hallazgo as HallazgoMotor
+
+    a = HallazgoMotor("efectivo", "ALTO", "Área", "Pago en efectivo de $1 a Proveedor A", "ev",
+                      refs=["1"], clave="efectivo-linea")
+    b = HallazgoMotor("efectivo", "ALTO", "Área", "Pago en efectivo de $2 a Proveedor B", "ev",
+                      refs=["2"], clave="efectivo-linea")
+    assert ingesta.clave_natural(a) != ingesta.clave_natural(b)

@@ -25,6 +25,9 @@ class LocalStorage:
     def existe(self, key: str) -> bool:
         return self._ruta(key).exists()
 
+    def borrar(self, key: str) -> None:
+        self._ruta(key).unlink(missing_ok=True)
+
     def url_firmada(self, key: str, segundos: int = 900) -> str | None:
         return None  # sin URL directa: la API sirve el archivo por streaming
 
@@ -54,6 +57,12 @@ class R2Storage:
             return True
         except Exception:
             return False
+
+    def borrar(self, key: str) -> None:
+        try:
+            self.s3.delete_object(Bucket=self.bucket, Key=key)
+        except Exception:
+            pass
 
     def url_firmada(self, key: str, segundos: int = 900) -> str | None:
         return self.s3.generate_presigned_url(

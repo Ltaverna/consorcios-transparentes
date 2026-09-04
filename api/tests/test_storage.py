@@ -17,3 +17,16 @@ def test_local_no_escapa_del_directorio(tmp_path):
         assert False, "debería rechazar rutas fuera del directorio"
     except ValueError:
         pass
+
+
+def test_local_borrar(tmp_path):
+    st = LocalStorage(str(tmp_path))
+    st.guardar("informes/2026-08.html", b"contenido")
+    assert st.existe("informes/2026-08.html")
+    st.borrar("informes/2026-08.html")
+    assert not st.existe("informes/2026-08.html")
+
+
+def test_local_borrar_archivo_inexistente_no_falla(tmp_path):
+    st = LocalStorage(str(tmp_path))
+    st.borrar("informes/no-existe.html")  # no debe tirar excepción

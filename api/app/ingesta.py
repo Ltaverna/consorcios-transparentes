@@ -46,10 +46,14 @@ def parsear_bytes(nombre: str, data: bytes) -> LiqMotor:
 
 
 def clave_natural(h: HallazgoMotor) -> str:
-    """Estable entre reprocesos: regla + clave declarada por la regla, si no hay clave
-    entonces regla + referencias (gastos o unidades), y si tampoco hay refs, el título
-    con las cifras borradas (para que una corrección de montos no cambie la clave)."""
-    if h.clave:
+    """Estable entre reprocesos: regla + clave declarada por la regla (combinada con las
+    referencias si también las hay, para no confundir subcasos de una misma regla y el
+    mismo slug pero sobre gastos distintos); si no hay clave, regla + referencias; y si
+    tampoco hay refs, el título con las cifras borradas (para que una corrección de
+    montos no cambie la clave)."""
+    if h.clave and h.refs:
+        base = f"{h.regla}|{h.clave}|" + "|".join(sorted(str(r) for r in h.refs))
+    elif h.clave:
         base = f"{h.regla}|{h.clave}"
     elif h.refs:
         base = f"{h.regla}|" + "|".join(sorted(str(r) for r in h.refs))
@@ -95,13 +99,16 @@ def guardar_gastos(db: Session, liq_row: models.Liquidacion, liq: LiqMotor) -> N
                     "importe": p.importe, "caja": p.caja, "forma": p.forma} for p in g.pagos]))
 
 
-def limpiar_al_rechazar(db: Session, liq_row: models.Liquidacion) -> None:
+def limpiar_al_rechazar(db: Session, storage, liq_row: models.Liquidacion) -> None:
     """No_cuadra: no puede quedar nada publicable de un proceso anterior. Se borran los gastos
-    y los informes de esta liquidación, y sus hallazgos (los de esta liquidación, no los de
-    comprobantes) se despublican sin tocar estado/respuesta_admin/historial: el auditor no
-    pierde su trabajo, pero el hallazgo deja de estar visible hasta que la liquidación cuadre."""
+    y los informes de esta liquidación (archivo incluido), y sus hallazgos (los de esta
+    liquidación, no los de comprobantes) se despublican sin tocar estado/respuesta_admin/
+    historial: el auditor no pierde su trabajo, pero el hallazgo deja de estar visible
+    hasta que la liquidación cuadre."""
     db.query(models.Gasto).filter_by(liquidacion_id=liq_row.id).delete()
-    db.query(models.Informe).filter_by(liquidacion_id=liq_row.id).delete()
+    for inf in db.query(models.Informe).filter_by(liquidacion_id=liq_row.id).all():
+        storage.borrar(inf.archivo_key)
+        db.delete(inf)
     for h in db.query(models.Hallazgo).filter_by(liquidacion_id=liq_row.id, origen="liquidacion").all():
         h.publicado = False
 
@@ -128,8 +135,11 @@ def upsert_hallazgos(db: Session, liq_row: models.Liquidacion,
     vistos = set()
     for h in hallazgos:
         clave = clave_natural(h)
-        while clave in vistos:      # colisión (misma regla y clave/refs/título): desambiguar
-            clave = (clave + "~")[:500]
+        if clave in vistos:      # colisión (misma regla y clave/refs/título): desambiguar
+            i, base_clave = 2, clave
+            while clave in vistos:
+                clave = f"{base_clave[:490]}~{i}"
+                i += 1
         vistos.add(clave)
         row = existentes.get(clave)
         if not row:
@@ -149,7 +159,6 @@ def procesar(db: Session, liq_id: int, storage) -> None:
     if liq_row is None:
         logger.warning("Se pidió procesar la liquidación %s pero no existe", liq_id)
         return
-    estaba_publicada = liq_row.estado == "publicada"
     try:
         liq = parsear_bytes(liq_row.archivo_key, storage.leer(liq_row.archivo_key))
         detectado = periodo_iso(liq.periodo)
@@ -164,7 +173,7 @@ def procesar(db: Session, liq_id: int, storage) -> None:
         # falta para mostrarle al auditor qué verificaciones fallaron.
         liq_row.datos, liq_row.sistema, liq_row.cuadra = liq.to_dict(), liq.sistema, liq.cuadra
         if not liq.cuadra:
-            limpiar_al_rechazar(db, liq_row)
+            limpiar_al_rechazar(db, storage, liq_row)
             liq_row.estado = "no_cuadra"
             db.commit()
             return
@@ -177,10 +186,13 @@ def procesar(db: Session, liq_id: int, storage) -> None:
         if not mas_reciente or liq_row.periodo >= mas_reciente[0]:
             sincronizar_unidades(db, liq)
         upsert_hallazgos(db, liq_row, hs, origen="liquidacion")
-        if estaba_publicada:
-            # Los datos cambiaron: el informe publicado ya no es válido. El auditor vuelve a
-            # publicar después de revisar; no se auto-publica un informe nuevo acá.
-            db.query(models.Informe).filter_by(liquidacion_id=liq_row.id).delete()
+        # Los datos cambiaron: cualquier informe ya generado para esta liquidación (publicada
+        # o no; el endpoint de subida resetea el estado a "procesando" antes de llegar acá, así
+        # que no sirve mirar el estado) queda inválido. El auditor revisa y vuelve a publicar;
+        # acá no se auto-publica un informe nuevo.
+        for inf in db.query(models.Informe).filter_by(liquidacion_id=liq_row.id).all():
+            storage.borrar(inf.archivo_key)
+            db.delete(inf)
         liq_row.estado, liq_row.error = "procesada", ""
         db.commit()
     except Exception as e:
@@ -188,5 +200,5 @@ def procesar(db: Session, liq_id: int, storage) -> None:
         logger.exception("Falló la ingesta de la liquidación %s", liq_id)
         liq_row = db.get(models.Liquidacion, liq_id)
         liq_row.estado = "error"
-        liq_row.error = str(e) if isinstance(e, ValueError) else f"{type(e).__name__}: {e}"[:2000]
+        liq_row.error = (str(e) if isinstance(e, ValueError) else f"{type(e).__name__}: {e}")[:2000]
         db.commit()
