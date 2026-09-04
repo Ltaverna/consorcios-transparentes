@@ -5,6 +5,8 @@ verifica que cuadren al centavo, cruza factura con pago y detecta problemas; y u
 
 Estado (4 de septiembre de 2026): semana 1 del plan. Caso piloto en producción: Consorcio Rivadavia 2069 (asamblea.neuralcore.dev).
 
+> Estado del proyecto, enlaces y próximos pasos: [`docs/ESTADO.md`](docs/ESTADO.md). Instrucciones para trabajar con Claude Code: [`CLAUDE.md`](CLAUDE.md).
+
 ## Estructura
 
 ```

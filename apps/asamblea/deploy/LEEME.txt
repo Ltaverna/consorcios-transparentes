@@ -1,0 +1,26 @@
+VOTACION RIVADAVIA 2069 - publicar en votacion.neuralcore.dev (Cloudflare Pages)
+================================================================================
+
+Contenido de esta carpeta
+  index.html            la app completa (un solo archivo, sin dependencias de servidor)
+  apps-script/Code.gs   backend opcional en Google Sheets (historial + sincronizacion entre telefonos)
+
+OPCION A - desde la terminal de esta sesion (2 comandos)
+  1) Iniciar sesion en Cloudflare (abre el navegador, no hace falta pegar claves):
+       npx wrangler login
+  2) Publicar:
+       npx wrangler pages deploy "/home/novakorp/Descargas/votacion-deploy" --project-name votacion-rivadavia --branch main
+     La primera vez crea el proyecto y devuelve una URL *.pages.dev.
+  3) Dominio propio: Cloudflare Dashboard -> Workers & Pages -> votacion-rivadavia -> Custom domains
+     -> Set up a custom domain -> votacion.neuralcore.dev (el DNS lo crea solo porque el dominio esta en Cloudflare).
+
+OPCION B - sin terminal (arrastrar y soltar, 2 minutos)
+  Cloudflare Dashboard -> Workers & Pages -> Create -> Pages -> Upload assets
+  -> nombre del proyecto: votacion-rivadavia -> arrastrar la carpeta votacion-deploy (o solo index.html)
+  -> Deploy. Despues, Custom domains -> votacion.neuralcore.dev.
+
+Cada vez que haya una version nueva del index.html, repetir el deploy (opcion A paso 2 u opcion B "Create new deployment").
+
+SINCRONIZACION Y HISTORIAL EN GOOGLE SHEETS
+  Ver las instrucciones al principio de apps-script/Code.gs. Con eso, todos los telefonos que abran la app
+  con la misma URL de Apps Script ven y cargan lo mismo, y la hoja guarda el historial de cada toque.

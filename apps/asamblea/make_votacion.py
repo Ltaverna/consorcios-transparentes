@@ -1,5 +1,9 @@
+import os
+HERE = os.path.dirname(os.path.abspath(__file__))
+DATOS = os.path.join(HERE, "datos") + "/"
+PRIVADO = os.environ.get("CT_PRIVADO", os.path.expanduser("~/consorcio-transparente-privado")) + "/"
 import json
-SC = "/tmp/claude-1000/-tmp-expensa/6a21c58a-78d1-4c71-bbae-3c304135eb13/scratchpad/"
+SC = HERE + "/"
 UNITS = json.load(open(SC + "votacion_units.json"))
 from asamblea_content import AGENDA, PREGUNTAS, CONVOCATORIA, PODER
 CONTENT = json.dumps(dict(agenda=AGENDA, preguntas=PREGUNTAS, convocatoria=CONVOCATORIA, poder=PODER), ensure_ascii=False).replace("</", "<\\/")

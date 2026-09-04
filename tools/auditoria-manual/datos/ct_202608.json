@@ -1,0 +1,8372 @@
+{
+ "liquidacion": {
+  "sistema": "redconar",
+  "periodo": "Agosto 2026",
+  "consorcio": "RIVADAVIA 2069. BALVANERA, C.A.B.A.",
+  "cuit_consorcio": "33-60039145-9",
+  "administracion": "Administracion Almazare",
+  "cuit_administracion": "27-06254638-2",
+  "venc1": "2026-09-10",
+  "venc2": "2026-09-20",
+  "gastos": [
+   {
+    "n": 1,
+    "categoria": "SUELDOS Y CARGAS SOCIALES",
+    "proveedor": "ARCA",
+    "concepto": "AGENCIA DE RECAUDACIÃ​N Y CONTROL ADUANERO - RETENCIÓN SOBRE FACTURA COOPETATIVA C.S.I FC Nº 4833 PERIODO JUNIO 2026. SIRE IVA $256.260,11 YTOTAL DE RETENCIONES PAGADAS A AFIP: $256.260,11.",
+    "columna": "A",
+    "importe": 256260.11,
+    "pct_inc": 0.86,
+    "factura_fecha": null,
+    "factura_nro": null,
+    "factura_importe": null,
+    "periodo": null,
+    "pagos": [
+     {
+      "fecha": "2026-08-05",
+      "importe": 256260.11,
+      "caja": "BANCO",
+      "forma": "Transferencia"
+     }
+    ]
+   },
+   {
+    "n": 2,
+    "categoria": "SUELDOS Y CARGAS SOCIALES",
+    "proveedor": "ARCA",
+    "concepto": "AGENCIA DE RECAUDACIÃ​N Y CONTROL ADUANERO - FORM. 931. CONTRIBUCIONES SEGURIDAD SOCIAL $770.237,88/ APORTE DE SEGURIDAD SOCIAL $592.189,46/ CONTRIBUCIONES DE OBRA SOCIAL $209.008,04/ APORTES DE OBRA SOCIAL $104.504,02/ L.R.T $243.422,52/ SEGURO COLECTIVO DE VIDA OBLIGATORIO $849,24. - Período: Junio 2026",
+    "columna": "A",
+    "importe": 1920211.16,
+    "pct_inc": 6.43,
+    "factura_fecha": null,
+    "factura_nro": null,
+    "factura_importe": null,
+    "periodo": "Junio 2026",
+    "pagos": [
+     {
+      "fecha": "2026-08-10",
+      "importe": 1920211.16,
+      "caja": "BANCO",
+      "forma": "Transferencia"
+     }
+    ]
+   },
+   {
+    "n": 3,
+    "categoria": "SUELDOS Y CARGAS SOCIALES",
+    "proveedor": "FATERYH",
+    "concepto": "DÉBITO AUTOMÁTICO. APORTE. CONTRIBUCIÓN SOLIDARIA OS CCT 589/10. ART. 27 BIS APORTE. ART. 27 BIS CONTRIBUCIÓN. - Período: Julio 2026",
+    "columna": "A",
+    "importe": 365166.81,
+    "pct_inc": 1.22,
+    "factura_fecha": null,
+    "factura_nro": null,
+    "factura_importe": null,
+    "periodo": "Julio 2026",
+    "pagos": [
+     {
+      "fecha": "2026-08-12",
+      "importe": 365166.81,
+      "caja": "BANCO",
+      "forma": "Debito Automatico"
+     }
+    ]
+   },
+   {
+    "n": 4,
+    "categoria": "SUELDOS Y CARGAS SOCIALES",
+    "proveedor": "SERACARH",
+    "concepto": "DÉBITO AUTOMÁTICO. CONTRIBUCIÓN. - Período: Julio 2026",
+    "columna": "A",
+    "importe": 20490.98,
+    "pct_inc": 0.07,
+    "factura_fecha": null,
+    "factura_nro": null,
+    "factura_importe": null,
+    "periodo": "Julio 2026",
+    "pagos": [
+     {
+      "fecha": "2026-08-12",
+      "importe": 20490.98,
+      "caja": "BANCO",
+      "forma": "Debito Automatico"
+     }
+    ]
+   },
+   {
+    "n": 5,
+    "categoria": "SUELDOS Y CARGAS SOCIALES",
+    "proveedor": "SUTERH",
+    "concepto": "DÉBITO AUTOMÁTICO.APORTE, CONTRIBUCIÓN Y APORTE SINDICAL . - Período: Julio 2026",
+    "columna": "A",
+    "importe": 184418.86,
+    "pct_inc": 0.62,
+    "factura_fecha": null,
+    "factura_nro": null,
+    "factura_importe": null,
+    "periodo": "Julio 2026",
+    "pagos": [
+     {
+      "fecha": "2026-08-12",
+      "importe": 184418.86,
+      "caja": "BANCO",
+      "forma": "Debito Automatico"
+     }
+    ]
+   },
+   {
+    "n": 6,
+    "categoria": "SUELDOS Y CARGAS SOCIALES",
+    "proveedor": "Consorcio RIVADAVIA 2069",
+    "concepto": "Sueldo Heres Miguel Angel - Nro: 584766 - Tipo: Sueldo - Período: Julio 2026",
+    "columna": "A",
+    "importe": 1424799.0,
+    "pct_inc": 4.77,
+    "factura_fecha": null,
+    "factura_nro": null,
+    "factura_importe": null,
+    "periodo": "Julio 2026",
+    "pagos": [
+     {
+      "fecha": "2026-08-04",
+      "importe": 1424799.0,
+      "caja": "BANCO",
+      "forma": "Transferencia"
+     }
+    ]
+   },
+   {
+    "n": 7,
+    "categoria": "SUELDOS Y CARGAS SOCIALES",
+    "proveedor": "Consorcio RIVADAVIA 2069",
+    "concepto": "Sueldo Gonzales Ramon - Nro: 584774 - Tipo: Sueldo - Período: Julio 2026",
+    "columna": "A",
+    "importe": 1774010.0,
+    "pct_inc": 5.94,
+    "factura_fecha": null,
+    "factura_nro": null,
+    "factura_importe": null,
+    "periodo": "Julio 2026",
+    "pagos": [
+     {
+      "fecha": "2026-08-04",
+      "importe": 1774010.0,
+      "caja": "BANCO",
+      "forma": "Transferencia"
+     }
+    ]
+   },
+   {
+    "n": 8,
+    "categoria": "MANTENIMIENTOS EN UNIDADES",
+    "proveedor": "PEÑALOZA ALEJANDRO ROBERTO",
+    "concepto": "TRABAJOS DE CALEFACCIÓN CAMBIO DE COLUMNA VERTICAL Y SUS HORIZONT. CORRESPONDIENTES DE CALEFACCIÓN SECTOR \"F\" PISOS 8/ 9/10/11/12 CON ALBAÑILERÍA TERMINACIÓN CON YESO. FINAL DEL ANTICIPO MAS LA CUOTA 1/3.(2.333.333,33) .- TOTAL DEL TRABAJO 14.000.000 PAGADOS HASTA AHORA 7.000.000 Y PRIMER CUOTA DE TRES DEL SALDO RESTANTE.",
+    "columna": "D",
+    "importe": 4333333.33,
+    "pct_inc": 14.5,
+    "factura_fecha": "2026-08-12",
+    "factura_nro": "00003-00000202",
+    "factura_importe": 9000000.0,
+    "periodo": null,
+    "pagos": [
+     {
+      "fecha": "2026-08-12",
+      "importe": 4333333.33,
+      "caja": "BANCO",
+      "forma": "Transferencia"
+     }
+    ]
+   },
+   {
+    "n": 9,
+    "categoria": "MANTENIMIENTOS EN UNIDADES",
+    "proveedor": "SACZEWICZYK MARIA EUGENIA",
+    "concepto": "SALDO POR TRABAJO REALIZADO EN AVENIDA RIVADAVIA 2069 DEPARTAMENTO B, PISO 13, ROMPER MANUALMENTE, SACAR PORCELANATO PREEXISTENTE, EMPAREJAR, Y COLOCAR PORCELANATO DE 1,20 MTS X 60 CM APROX 50 MTRS CUADRADO CON MATERIAL INCLUIDO, A EXCEPCIÓN DEL PORCELANATO Y PASTINA. SALDO $2.552.000.",
+    "columna": "A",
+    "importe": 2552000.0,
+    "pct_inc": 8.54,
+    "factura_fecha": "2026-07-27",
+    "factura_nro": "00001-00000007",
+    "factura_importe": 4552000.0,
+    "periodo": null,
+    "pagos": [
+     {
+      "fecha": "2026-08-12",
+      "importe": 2552000.0,
+      "caja": "BANCO",
+      "forma": "Transferencia"
+     }
+    ]
+   },
+   {
+    "n": 10,
+    "categoria": "MANTENIMIENTOS EN UNIDADES",
+    "proveedor": "SACZEWICZYK MARIA EUGENIA",
+    "concepto": "PINTURA EL PISO 13 DPTO B. REPARACION DE PARED Y PINTURA",
+    "columna": "A",
+    "importe": 700000.0,
+    "pct_inc": 2.34,
+    "factura_fecha": "2026-08-31",
+    "factura_nro": "00001-00000008",
+    "factura_importe": 700000.0,
+    "periodo": null,
+    "pagos": [
+     {
+      "fecha": "2026-08-31",
+      "importe": 700000.0,
+      "caja": "BANCO",
+      "forma": "Transferencia"
+     }
+    ]
+   },
+   {
+    "n": 11,
+    "categoria": "IMPUESTOS",
+    "proveedor": "AGIP-ABL",
+    "concepto": "PAGO ABL PARTIDA 2813079. - Período: Agosto 2026",
+    "columna": "B",
+    "importe": 350657.78,
+    "pct_inc": 1.17,
+    "factura_fecha": null,
+    "factura_nro": null,
+    "factura_importe": null,
+    "periodo": "Agosto 2026",
+    "pagos": [
+     {
+      "fecha": "2026-08-04",
+      "importe": 350657.78,
+      "caja": "BANCO",
+      "forma": "Transferencia"
+     }
+    ]
+   },
+   {
+    "n": 12,
+    "categoria": "SERVICIOS PUBLICOS",
+    "proveedor": "EDESUR",
+    "concepto": "PERIODO LIQUIDADO 16/07/2026 AL 14/08/2026 .CLIENTE: 80052153. MEDIDOR Nº 15013075.",
+    "columna": "A",
+    "importe": 1465080.2,
+    "pct_inc": 4.9,
+    "factura_fecha": "2026-07-16",
+    "factura_nro": "9905-02077599",
+    "factura_importe": 1465080.2,
+    "periodo": null,
+    "pagos": [
+     {
+      "fecha": "2026-08-13",
+      "importe": 1465080.2,
+      "caja": "BANCO",
+      "forma": "Transferencia"
+     }
+    ]
+   },
+   {
+    "n": 13,
+    "categoria": "SERVICIOS PUBLICOS",
+    "proveedor": "METROGAS",
+    "concepto": "CLIENTE Nº 10821849500 PERIODO DE LIQUIDACION 1 DE 2 DEL BIMESTRE 04/2026. - Período: Agosto 2026",
+    "columna": "D",
+    "importe": 3482893.85,
+    "pct_inc": 11.66,
+    "factura_fecha": "2026-07-30",
+    "factura_nro": "0064-70457249",
+    "factura_importe": 3482893.85,
+    "periodo": "Agosto 2026",
+    "pagos": [
+     {
+      "fecha": "2026-08-10",
+      "importe": 3482893.85,
+      "caja": "BANCO",
+      "forma": "Debito Automatico"
+     }
+    ]
+   },
+   {
+    "n": 14,
+    "categoria": "SERVICIOS PUBLICOS",
+    "proveedor": "AYSA",
+    "concepto": "CUENTA DE SERVICIO: 1409553 PERIODO LIQUIDADO 06/08/2026 AL 04/09/2026",
+    "columna": "B",
+    "importe": 236758.89,
+    "pct_inc": 0.79,
+    "factura_fecha": "2026-07-11",
+    "factura_nro": "0111-20383378",
+    "factura_importe": 236758.89,
+    "periodo": null,
+    "pagos": [
+     {
+      "fecha": "2026-08-10",
+      "importe": 236758.89,
+      "caja": "BANCO",
+      "forma": "Debito Automatico"
+     }
+    ]
+   },
+   {
+    "n": 15,
+    "categoria": "ABONOS Y SERVICIOS",
+    "proveedor": "ASCENSORES LAUFKEN",
+    "concepto": "ABONO ASCENSORES JULIO. - Período: Julio 2026",
+    "columna": "A",
+    "importe": 442000.0,
+    "pct_inc": 1.48,
+    "factura_fecha": "2026-08-02",
+    "factura_nro": "31282",
+    "factura_importe": 442000.0,
+    "periodo": "Julio 2026",
+    "pagos": [
+     {
+      "fecha": "2026-08-10",
+      "importe": 442000.0,
+      "caja": "BANCO",
+      "forma": "Transferencia"
+     }
+    ]
+   },
+   {
+    "n": 16,
+    "categoria": "ABONOS Y SERVICIOS",
+    "proveedor": "CERRAJERIA MATHEU",
+    "concepto": "SERVICE REALIZADO EN PUERTA ENTRADA PRINCIPAL: SACAR RESORTE A CIERRAPUERTA MH N° 3 DE PUERTA ACCESO DE HALL A GARAJE Y COLOCACIÓN EN CIERRAPUERTA TRIAL N° 3, REGULACIÓN Y AJUSTES VARIOS.",
+    "columna": "A",
+    "importe": 48000.0,
+    "pct_inc": 0.16,
+    "factura_fecha": "2026-07-30",
+    "factura_nro": "00001-00000401",
+    "factura_importe": 48000.0,
+    "periodo": null,
+    "pagos": [
+     {
+      "fecha": "2026-08-04",
+      "importe": 48000.0,
+      "caja": "BANCO",
+      "forma": "Transferencia"
+     }
+    ]
+   },
+   {
+    "n": 17,
+    "categoria": "ABONOS Y SERVICIOS",
+    "proveedor": "COOPERATIVA DE TRABAJO C.S.I LIMITADA -",
+    "concepto": "SERVICIO DE SEGURIDAD FACTURA Nº 4925 MES DE JULIO. TOTAL DE $ $3.166.031,55 A ESTA SUMA SE DESCUENTAN RETENCIONES, SIRE IVA $ $ 274.811,54. SE PAGA A LA EMPRESA UN TOTAL DE $2.891.220,01 - Período: Junio 2026",
+    "columna": "A",
+    "importe": 2891220.01,
+    "pct_inc": 9.68,
+    "factura_fecha": null,
+    "factura_nro": null,
+    "factura_importe": null,
+    "periodo": "Junio 2026",
+    "pagos": [
+     {
+      "fecha": "2026-08-21",
+      "importe": 2891220.01,
+      "caja": "BANCO",
+      "forma": "Transferencia"
+     }
+    ]
+   },
+   {
+    "n": 18,
+    "categoria": "ABONOS Y SERVICIOS",
+    "proveedor": "DESTAPACIONES EL LEON",
+    "concepto": "ABONO DESTAPACIONES MENSUAL AGOSTO. - Período: Agosto 2026",
+    "columna": "A",
+    "importe": 416200.0,
+    "pct_inc": 1.39,
+    "factura_fecha": "2026-08-03",
+    "factura_nro": "8675",
+    "factura_importe": 416200.0,
+    "periodo": "Agosto 2026",
+    "pagos": [
+     {
+      "fecha": "2026-08-11",
+      "importe": 416200.0,
+      "caja": "BANCO",
+      "forma": "Transferencia"
+     }
+    ]
+   },
+   {
+    "n": 19,
+    "categoria": "ABONOS Y SERVICIOS",
+    "proveedor": "FLOW",
+    "concepto": "SERVICIO INTERNET CAMARAS. PERIODO: AGOSTO - Período: Agosto 2026",
+    "columna": "A",
+    "importe": 80440.21,
+    "pct_inc": 0.27,
+    "factura_fecha": null,
+    "factura_nro": null,
+    "factura_importe": null,
+    "periodo": "Agosto 2026",
+    "pagos": [
+     {
+      "fecha": "2026-08-10",
+      "importe": 80440.21,
+      "caja": "BANCO",
+      "forma": "Transferencia"
+     }
+    ]
+   },
+   {
+    "n": 20,
+    "categoria": "ABONOS Y SERVICIOS",
+    "proveedor": "GESTION CONTINUA",
+    "concepto": "CAT C. MEDICIÓN CERTIFICADA DE PUESTA A TIERRA/CONT DE MASAS CABA.",
+    "columna": "A",
+    "importe": 313000.0,
+    "pct_inc": 1.05,
+    "factura_fecha": "2026-08-18",
+    "factura_nro": "00005-00051325",
+    "factura_importe": 313000.0,
+    "periodo": null,
+    "pagos": [
+     {
+      "fecha": "2026-08-27",
+      "importe": 313000.0,
+      "caja": "BANCO",
+      "forma": "Transferencia"
+     }
+    ]
+   },
+   {
+    "n": 21,
+    "categoria": "ABONOS Y SERVICIOS",
+    "proveedor": "GESTION CONTINUA",
+    "concepto": "DECLARACIÓN JURADA ANUAL CABA 2025.",
+    "columna": "A",
+    "importe": 305000.0,
+    "pct_inc": 1.02,
+    "factura_fecha": "2026-08-07",
+    "factura_nro": "51300",
+    "factura_importe": 305000.0,
+    "periodo": null,
+    "pagos": [
+     {
+      "fecha": "2026-08-27",
+      "importe": 305000.0,
+      "caja": "BANCO",
+      "forma": "Transferencia"
+     }
+    ]
+   },
+   {
+    "n": 22,
+    "categoria": "ABONOS Y SERVICIOS",
+    "proveedor": "GRUPO CONTROLSEG",
+    "concepto": "ABONO DE CONTROL DE ACCESO. - Período: Agosto 2026",
+    "columna": "A",
+    "importe": 55000.0,
+    "pct_inc": 0.18,
+    "factura_fecha": "2026-08-01",
+    "factura_nro": "00002-00037163",
+    "factura_importe": 55000.0,
+    "periodo": "Agosto 2026",
+    "pagos": [
+     {
+      "fecha": "2026-08-04",
+      "importe": 55000.0,
+      "caja": "BANCO",
+      "forma": "Transferencia"
+     }
+    ]
+   },
+   {
+    "n": 23,
+    "categoria": "ABONOS Y SERVICIOS",
+    "proveedor": "MARCELO LUIS ESCUCHURI",
+    "concepto": "MAGNUM FUMIGACIONES - ABONO DESINSECTACION. DESRATIZACION PREVENTIVA EN ESPACIOS COMUNES, COCHERAS Y SUBSUELO. - Período: Agosto 2026",
+    "columna": "A",
+    "importe": 233000.0,
+    "pct_inc": 0.78,
+    "factura_fecha": "2026-08-09",
+    "factura_nro": "6494",
+    "factura_importe": 233000.0,
+    "periodo": "Agosto 2026",
+    "pagos": [
+     {
+      "fecha": "2026-08-09",
+      "importe": 233000.0,
+      "caja": "BANCO",
+      "forma": "Transferencia"
+     }
+    ]
+   },
+   {
+    "n": 24,
+    "categoria": "ABONOS Y SERVICIOS",
+    "proveedor": "MARIO LEONARDO ROTH",
+    "concepto": "CERTIFICACION DE EQUIPOS TERMICOS. AGOSTO. - Período: Agosto 2026",
+    "columna": "D",
+    "importe": 90000.0,
+    "pct_inc": 0.3,
+    "factura_fecha": "2026-08-12",
+    "factura_nro": "4417",
+    "factura_importe": 90000.0,
+    "periodo": "Agosto 2026",
+    "pagos": [
+     {
+      "fecha": "2026-08-18",
+      "importe": 90000.0,
+      "caja": "BANCO",
+      "forma": "Transferencia"
+     }
+    ]
+   },
+   {
+    "n": 25,
+    "categoria": "ABONOS Y SERVICIOS",
+    "proveedor": "MARIO LEONARDO ROTH",
+    "concepto": "Fact 4182:cambio de serpentina con caño pex de diametro 20mm depto 12 B Total $2.900.000; Fact 4183 Reparacion cupla en 1º para dar servicio se anulo un engamche $150.000; y Fact 4191 cambio de serpentina de calefacciòn en depto 13 B caño pex de 20 mm extensión 20 mts $4.900.000 Trabajo total $7.950.000 pagado en 3 cuotas de $2.650.000 c/u",
+    "columna": "D",
+    "importe": 2650000.0,
+    "pct_inc": 8.87,
+    "factura_fecha": "2026-05-29",
+    "factura_nro": "4182-4183-4191",
+    "factura_importe": 7950000.0,
+    "periodo": null,
+    "pagos": [
+     {
+      "fecha": "2026-08-21",
+      "importe": 2650000.0,
+      "caja": "BANCO",
+      "forma": "Transferencia"
+     }
+    ]
+   },
+   {
+    "n": 26,
+    "categoria": "ABONOS Y SERVICIOS",
+    "proveedor": "MATHIL",
+    "concepto": "MANT.INSTALACION S/RES. N°405/AGC/19- ANEXO IV ABONO MENSUAL DICIEMBRE 2025.",
+    "columna": "A",
+    "importe": 75000.0,
+    "pct_inc": 0.25,
+    "factura_fecha": "2025-12-01",
+    "factura_nro": "0008-00033655",
+    "factura_importe": 75000.0,
+    "periodo": null,
+    "pagos": [
+     {
+      "fecha": "2026-08-09",
+      "importe": 75000.0,
+      "caja": "BANCO",
+      "forma": "Transferencia"
+     }
+    ]
+   },
+   {
+    "n": 27,
+    "categoria": "ABONOS Y SERVICIOS",
+    "proveedor": "MATHIL",
+    "concepto": "MANT.INSTALACION S/RES. N°405/AGC/19- ANEXO IV ABONO MENSUAL NOVIEMBRE 2025.",
+    "columna": "A",
+    "importe": 75000.0,
+    "pct_inc": 0.25,
+    "factura_fecha": "2025-11-07",
+    "factura_nro": "0008-00033304",
+    "factura_importe": 75000.0,
+    "periodo": null,
+    "pagos": [
+     {
+      "fecha": "2026-08-09",
+      "importe": 75000.0,
+      "caja": "BANCO",
+      "forma": "Transferencia"
+     }
+    ]
+   },
+   {
+    "n": 28,
+    "categoria": "ABONOS Y SERVICIOS",
+    "proveedor": "METROGAS",
+    "concepto": "CLIENTE Nº 10614995000 PERIODO DE LIQUIDACION 1 DE 2 DEL BIMESTRE 04/2026",
+    "columna": "D",
+    "importe": 43014.59,
+    "pct_inc": 0.14,
+    "factura_fecha": "2026-07-30",
+    "factura_nro": "0064-70504785",
+    "factura_importe": 43014.59,
+    "periodo": null,
+    "pagos": [
+     {
+      "fecha": "2026-08-10",
+      "importe": 43014.59,
+      "caja": "BANCO",
+      "forma": "Debito Automatico"
+     }
+    ]
+   },
+   {
+    "n": 29,
+    "categoria": "ABONOS Y SERVICIOS",
+    "proveedor": "SOLUCIONES EN EXTINGUIDORES S.R.L.",
+    "concepto": "MANT. INSTALACION S/RES. N°405/AGC/19-ANEXO IV.",
+    "columna": "A",
+    "importe": 99750.74,
+    "pct_inc": 0.33,
+    "factura_fecha": "2026-08-07",
+    "factura_nro": "00002-00002612",
+    "factura_importe": 99750.74,
+    "periodo": null,
+    "pagos": [
+     {
+      "fecha": "2026-08-11",
+      "importe": 99750.74,
+      "caja": "BANCO",
+      "forma": "Transferencia"
+     }
+    ]
+   },
+   {
+    "n": 30,
+    "categoria": "GASTOS CONTABLES",
+    "proveedor": "LUIS BELTRAN MONTASTRUC",
+    "concepto": "HONORARIOS PROFESIONALES RÉGIMEN DE RETENCIONES DDJJ DE SIRE DE IVA Y SEG. SOCIAL ARCA SICORE . HONORARIOS PROFESIONALES LIQUIDACIÓN DE SUELDOS DDJJ CARGAS SOCIALES ARCA Y APORTES Y CONTRIBUCIONES SINDICALES. - Período: Julio 2026",
+    "columna": "A",
+    "importe": 84900.0,
+    "pct_inc": 0.28,
+    "factura_fecha": "2026-08-11",
+    "factura_nro": "1167",
+    "factura_importe": 84900.0,
+    "periodo": "Julio 2026",
+    "pagos": [
+     {
+      "fecha": "2026-08-11",
+      "importe": 84900.0,
+      "caja": "BANCO",
+      "forma": "Transferencia"
+     }
+    ]
+   },
+   {
+    "n": 31,
+    "categoria": "MANTENIMIENTO DE PARTES COMUNES",
+    "proveedor": "LEV RENTAL SRL",
+    "concepto": "BOMBA SUMERGIBLE DESAGOTE AGUA SUCIA SM INOX 1100 1.5HP AZUL",
+    "columna": "A",
+    "importe": 205392.0,
+    "pct_inc": 0.69,
+    "factura_fecha": "2026-08-03",
+    "factura_nro": "0021-00028257",
+    "factura_importe": 205392.0,
+    "periodo": null,
+    "pagos": [
+     {
+      "fecha": "2026-08-12",
+      "importe": 205392.0,
+      "caja": "BANCO",
+      "forma": "Transferencia"
+     }
+    ]
+   },
+   {
+    "n": 32,
+    "categoria": "GASTOS BANCARIOS",
+    "proveedor": "BANCO DE GALICIA",
+    "concepto": "GASTOS BANCARIOS DESDE EL 21/07/2026 A 21/08/2026. - Período: Agosto 2026",
+    "columna": "A",
+    "importe": 452336.93,
+    "pct_inc": 1.51,
+    "factura_fecha": null,
+    "factura_nro": null,
+    "factura_importe": null,
+    "periodo": "Agosto 2026",
+    "pagos": [
+     {
+      "fecha": "2026-08-21",
+      "importe": 452336.93,
+      "caja": "BANCO",
+      "forma": "Debito Automatico"
+     }
+    ]
+   },
+   {
+    "n": 33,
+    "categoria": "GASTOS DE LIMPIEZA",
+    "proveedor": "SOLVER",
+    "concepto": "ART LIMPIEZA. LAVANDINA 5L 4U. LIMPIADOR PISOS 5L LIMON 2U. LIMPIADOR PISOS 5L CHERRY 2U. LIMPIAVIDRIOS REP 450 4U. BOLSA COMPACTADORA 80 x 110 100U. TRAPO DE PISO GRANDE REFORZADO 2U. REPUESTO ESCOBILLON CANDY 2U. LUSTRAMUEBLES AEROSOL ORIGINAL 420 CC 2U. LIMPIA ACERO 283 ML 1U. DESODORANTE AMB AEROSOL 8U. BARREDOR 100 CM REPUESTO 1U.",
+    "columna": "A",
+    "importe": 259944.0,
+    "pct_inc": 0.87,
+    "factura_fecha": "2026-03-31",
+    "factura_nro": "00002-00014560",
+    "factura_importe": 259944.0,
+    "periodo": null,
+    "pagos": [
+     {
+      "fecha": "2026-08-04",
+      "importe": 259944.0,
+      "caja": "BANCO",
+      "forma": "Transferencia"
+     }
+    ]
+   },
+   {
+    "n": 34,
+    "categoria": "GASTOS DE ADMINISTRACION",
+    "proveedor": "GRACIELA MARTA CROCAMO",
+    "concepto": "DISPOSICION 856 DEL GOB. DE Bs. As. ESCANEO DE LA DOCUMENTACIÒN DEL CONSORCIO Y SUBIDA A LA PLATAFORMA DEL SISTEMA. - Período: Agosto 2026",
+    "columna": "A",
+    "importe": 99000.0,
+    "pct_inc": 0.33,
+    "factura_fecha": null,
+    "factura_nro": null,
+    "factura_importe": null,
+    "periodo": "Agosto 2026",
+    "pagos": [
+     {
+      "fecha": "2026-08-28",
+      "importe": 99000.0,
+      "caja": "BANCO",
+      "forma": "Transferencia"
+     }
+    ]
+   },
+   {
+    "n": 35,
+    "categoria": "GASTOS DE ADMINISTRACION",
+    "proveedor": "GRACIELA MARTA CROCAMO",
+    "concepto": "HONORARIOS ADMINISTRACIÓN AGOSTO. - Período: Agosto 2026",
+    "columna": "A",
+    "importe": 775799.0,
+    "pct_inc": 2.6,
+    "factura_fecha": "2026-08-18",
+    "factura_nro": "1642",
+    "factura_importe": 775799.0,
+    "periodo": "Agosto 2026",
+    "pagos": [
+     {
+      "fecha": "2026-08-28",
+      "importe": 775799.0,
+      "caja": "BANCO",
+      "forma": "Transferencia"
+     }
+    ]
+   },
+   {
+    "n": 36,
+    "categoria": "SEGUROS",
+    "proveedor": "ALLIANZ SEGUROS",
+    "concepto": "SEGURO INTEGRAL DEL CONSORCIO PÓLIZA Nº 250230772503. VIGENCIA DESDE 29/11/2025 HASTA EL 29/11/2026. COBERTURA: RESPONSABILIDAD CIVIL COMPRENSIVA: COBERTURA BASE + ASCENSORES + GUARDA DE VEHICULOSSIN FRANQUICIA A PRIMER RIESGO ABSOLUTO 210.000.000,00. INCENDIO: CONTENIDO GENERAL EN PARTES COMUNESBASICA CON HVCT Y GRANIZO A PRIMER RIESGO ABSOLUTO 19.000.000,00. EDIFICIOBASICA CON HURACAN, VENDAVAL, CICLON Y/O TORNADO, GRANIZO A PRORRATA 6.000.000.000,00. GASTOS EXTRAORDINARIOS A PRIMER RIESGO ABSOLUTO 100.000.000,00. GASTOS DE LIMPIEZA Y REMOCION DE ESCOMBROS A PRIMER RIESGO ABSOLUTO 300.000.000,00. RESPONSABILIDAD CIVIL LINDEROS A PRIMER RIESGO ABSOLUTO 50.000.000,00. CRISTALES, VIDRIOS Y ESPEJOS: 4.200.000,00. ROBO: CONTENIDO GENERAL EN PARTES COMUNES A PRIMER RIESGO ABSOLUTO 420.000,00. 1 MATAFUEGOS 600.000,00 DAÑOS POR ACCION DEL AGUA: 5.000.000,00 - Cuota: 8/10",
+    "columna": "A",
+    "importe": 268652.0,
+    "pct_inc": 0.9,
+    "factura_fecha": null,
+    "factura_nro": null,
+    "factura_importe": null,
+    "periodo": null,
+    "pagos": [
+     {
+      "fecha": "2026-08-06",
+      "importe": 268652.0,
+      "caja": "BANCO",
+      "forma": "Debito Automatico"
+     }
+    ]
+   },
+   {
+    "n": 37,
+    "categoria": "SEGUROS",
+    "proveedor": "ALLIANZ SEGUROS",
+    "concepto": "SEGURO INTEGRAL DEL CONSORCIO PÓLIZA Nº 250230772503. ENDOSO Nº1 VIGENCIA DESDE 03/03/2026 HASTA EL 29/11/2026. AUMENTO Y/O REDUCCION DE SUMA/S ASEGURADA/S SE HACE CONSTAR POR ESTE ENDOSO QUE A PARTIR DE LA FECHA ARRIBA INDICADA LA/S SUMA/S ASEGURADA/S POR LA POLIZA DEL RUBRO SE AUMENTA/N Y/O REDUCE/N, EN LA UBICACION DEL RIESGO ESPECIFICADA A CONTINUACION, SEGUN EL SIGUIENTE DETALLE: CLASE DE RIESGO: CONSORCIO, FAMILIAS Y/U OFICINAS UBICACIÓN: AVDA RIVADAVIA 2067 - CAPITAL FEDERAL RESPONSABILIDAD CIVIL COMPRENSIVA COBERTURA BASE + ASCENSORES + GUARDA DE VEHICULOS SIN FRANQUICIA A PRIMER RIESGO ABSOLUTO 39.900.000,00 - Cuota: 5/7",
+    "columna": "A",
+    "importe": 8128.0,
+    "pct_inc": 0.03,
+    "factura_fecha": null,
+    "factura_nro": null,
+    "factura_importe": null,
+    "periodo": null,
+    "pagos": [
+     {
+      "fecha": "2026-08-06",
+      "importe": 8128.0,
+      "caja": "BANCO",
+      "forma": "Debito Automatico"
+     }
+    ]
+   },
+   {
+    "n": 38,
+    "categoria": "SEGUROS",
+    "proveedor": "ALLIANZ SEGUROS",
+    "concepto": "SEGURO INTEGRAL DEL CONSORCIO PÓLIZA Nº 250230772503. ENDOSO Nº2 VIGENCIA DESDE 08/04/2026 HASTA EL 29/11/2026. CLASE DE RIESGO: CONSORCIO, FAMILIAS Y/U OFICINAS UBICACIÓN: AVDA RIVADAVIA 2067 - CAPITAL FEDERAL RESPONSABILIDAD CIVIL COMPRENSIVA COBERTURA BASE + ASCENSORES + GUARDA DE VEHICULOS SIN FRANQUICIA A PRIMER RIESGO ABSOLUTO 650.100.000,00 INCENDIO EDIFICIO BASICA CON HURACAN, VENDAVAL, CICLON Y/O TORNADO, GRANIZO A PRORRATA 6.000.000.000,00 GASTOS DE LIMPIEZA Y REMOCION DE ESCOMBROS A PRIMER RIESGO ABSOLUTO 300.000.000,00 GASTOS EXTRAORDINARIOS A PRIMER RIESGO ABSOLUTO 0,00 RESPONSABILIDAD CIVIL LINDEROS A PRIMER RIESGO ABSOLUTO 0,00 CONTENIDO GENERAL EN PARTES COMUNES BASICA CON HVCT Y GRANIZO A PRIMER RIESGO ABSOLUTO 0,00 CRISTALES, VIDRIOS Y ESPEJOS COLOCADOS VERTICALMENTE EN PARTES COMUNES BASICA CON HVCT, GRANIZO Y TERREMOTO A PRIMER RIESGO ABSOLUTO 4.800.000,00 ROBO CONTENIDO GENERAL EN PARTES COMUNES A PRIMER RIESGO ABSOLUTO 11.580.000,00 OBJETO - Cuota: 4/6",
+    "columna": "A",
+    "importe": 382377.0,
+    "pct_inc": 1.28,
+    "factura_fecha": null,
+    "factura_nro": null,
+    "factura_importe": null,
+    "periodo": null,
+    "pagos": [
+     {
+      "fecha": "2026-08-06",
+      "importe": 382377.0,
+      "caja": "BANCO",
+      "forma": "Debito Automatico"
+     }
+    ]
+   },
+   {
+    "n": 39,
+    "categoria": "SEGUROS",
+    "proveedor": "BERKLEY CIA DE SEGUROS",
+    "concepto": "POLIZA Nº 17- 35287 SEGURO DE VIDA COLECTIVO. ASEGURADO :2 VIDAS. GONZALEZ RAMON. SUELDO: $1.810.000,00 CAPITAL: $11.765.000,00 HERES MIGUEL ANGEL SUELDO: $1.300.000,00 CAPITAL: $5.850.000,00 - Cuota: 7/10",
+    "columna": "A",
+    "importe": 39711.71,
+    "pct_inc": 0.13,
+    "factura_fecha": null,
+    "factura_nro": null,
+    "factura_importe": null,
+    "periodo": null,
+    "pagos": [
+     {
+      "fecha": "2026-08-05",
+      "importe": 39711.71,
+      "caja": "BANCO",
+      "forma": "Debito Automatico"
+     }
+    ]
+   },
+   {
+    "n": 40,
+    "categoria": "GASTOS GENERALES",
+    "proveedor": "KEVIN LUCAS AVALOS",
+    "concepto": "POR ARREGLO CAMARAS",
+    "columna": "A",
+    "importe": 70000.0,
+    "pct_inc": 0.23,
+    "factura_fecha": "2026-07-22",
+    "factura_nro": "00001-00000005",
+    "factura_importe": 70000.0,
+    "periodo": null,
+    "pagos": [
+     {
+      "fecha": "2026-08-01",
+      "importe": 70000.0,
+      "caja": "CAJA",
+      "forma": "Efectivo"
+     }
+    ]
+   },
+   {
+    "n": 41,
+    "categoria": "GASTOS GENERALES",
+    "proveedor": "NAVARRO FERNANDEZ RICARDO ESTEBAN -",
+    "concepto": "HONORARIOS CONTESTACIÓN CARTA DOCUMENTO.",
+    "columna": "A",
+    "importe": 135000.0,
+    "pct_inc": 0.45,
+    "factura_fecha": "2026-07-29",
+    "factura_nro": "00003-00000268",
+    "factura_importe": 135000.0,
+    "periodo": null,
+    "pagos": [
+     {
+      "fecha": "2026-08-10",
+      "importe": 135000.0,
+      "caja": "BANCO",
+      "forma": "Transferencia"
+     }
+    ]
+   },
+   {
+    "n": 42,
+    "categoria": "GASTOS GENERALES",
+    "proveedor": "NAVARRO FERNANDEZ RICARDO ESTEBAN -",
+    "concepto": "ANTICIPO MEDIACION CON PROPIETARIO DE LA UNIDAD FUNCIONAL Nº 68. - Ufs afectadas:(68-10 E)",
+    "columna": "A",
+    "importe": 29000.0,
+    "pct_inc": 0.1,
+    "factura_fecha": null,
+    "factura_nro": null,
+    "factura_importe": null,
+    "periodo": null,
+    "pagos": [
+     {
+      "fecha": "2026-08-12",
+      "importe": 29000.0,
+      "caja": "BANCO",
+      "forma": "Transferencia"
+     }
+    ]
+   },
+   {
+    "n": 43,
+    "categoria": "GASTOS GENERALES",
+    "proveedor": "REDCONAR",
+    "concepto": "PLATAFORMA SISTEMA GESTION",
+    "columna": "A",
+    "importe": 183976.0,
+    "pct_inc": 0.62,
+    "factura_fecha": "2026-08-07",
+    "factura_nro": "00001-00053308",
+    "factura_importe": 183976.0,
+    "periodo": null,
+    "pagos": [
+     {
+      "fecha": "2026-08-12",
+      "importe": 183976.0,
+      "caja": "BANCO",
+      "forma": "Debito Automatico"
+     }
+    ]
+   }
+  ],
+  "totales_categoria": {
+   "SUELDOS Y CARGAS SOCIALES": 5945356.92,
+   "MANTENIMIENTOS EN UNIDADES": 7585333.33,
+   "IMPUESTOS": 350657.78,
+   "SERVICIOS PUBLICOS": 5184732.94,
+   "ABONOS Y SERVICIOS": 7816625.55,
+   "GASTOS CONTABLES": 84900.0,
+   "MANTENIMIENTO DE PARTES COMUNES": 205392.0,
+   "GASTOS BANCARIOS": 452336.93,
+   "GASTOS DE LIMPIEZA": 259944.0,
+   "GASTOS DE ADMINISTRACION": 874799.0,
+   "SEGUROS": 698868.71,
+   "GASTOS GENERALES": 417976.0
+  },
+  "totales_columna": {
+   "A": 18690264.72,
+   "B": 587416.67,
+   "D": 10599241.77
+  },
+  "total_gastos": 29876923.16,
+  "deudores": [
+   {
+    "uf": 23,
+    "piso_depto": "4-B",
+    "propietario": "CONTRERAS",
+    "deuda": 644682.23
+   },
+   {
+    "uf": 24,
+    "piso_depto": "4-A",
+    "propietario": "ASOCARG, J BASQUE",
+    "deuda": 200000.0
+   },
+   {
+    "uf": 27,
+    "piso_depto": "4-D",
+    "propietario": "VALDES, ARIEL",
+    "deuda": 18000.0
+   },
+   {
+    "uf": 31,
+    "piso_depto": "5-A",
+    "propietario": "SINGLAR",
+    "deuda": 227857.31
+   },
+   {
+    "uf": 35,
+    "piso_depto": "5-F",
+    "propietario": "CARRIZO, ELBIO",
+    "deuda": 258849.35
+   },
+   {
+    "uf": 37,
+    "piso_depto": "6-B",
+    "propietario": "BERHO, MARCELO OMAR",
+    "deuda": 60000.0
+   },
+   {
+    "uf": 55,
+    "piso_depto": "8-D",
+    "propietario": "SARFIEL, CARLOS",
+    "deuda": 829878.55
+   },
+   {
+    "uf": 78,
+    "piso_depto": "11-G",
+    "propietario": "CATTANEO, PEDRO",
+    "deuda": 363253.78
+   },
+   {
+    "uf": 201,
+    "piso_depto": "UC-1",
+    "propietario": "DEL, VALLE",
+    "deuda": 1425249.01
+   }
+  ],
+  "total_deudores": 4027770.23,
+  "estado": {
+   "saldo_anterior": 923626.64,
+   "ing_termino": 28388508.69,
+   "ing_adeudadas": 2224515.54,
+   "ing_intereses": 234785.54,
+   "ing_adelantadas": 46873.06,
+   "otros_ingresos": 0.0,
+   "egresos": 29876923.16,
+   "saldo_cierre": 1941386.31
+  },
+  "cuentas": [
+   {
+    "nombre": "BANCO - 17758-6 001-1",
+    "saldo_ant": 882050.53,
+    "ingresos": 29550976.89,
+    "egresos": 29806923.16,
+    "saldo_cierre": 626104.26
+   },
+   {
+    "nombre": "CAJA",
+    "saldo_ant": 41576.11,
+    "ingresos": 1343705.94,
+    "egresos": 70000.0,
+    "saldo_cierre": 1315282.05
+   }
+  ],
+  "patrimonial": {
+   "disponibilidades": 1941386.31,
+   "a_cobrar": 35768236.91,
+   "devengados_pend": 0.0,
+   "facturas_pend": -4806666.67,
+   "total": 32902956.55
+  },
+  "unidades": [
+   {
+    "uf": 1,
+    "piso_depto": "LOC-",
+    "propietario": "SEGUROS EVOLUCION",
+    "tipo": "Local",
+    "saldo_ant": 1517850.01,
+    "pagos": 1517850.01,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 576050.0,
+     "D": 326626.23
+    },
+    "pcts": {
+     "A": 2.81,
+     "D": 3.08
+    },
+    "total_mes": 902676.23,
+    "redondeo": -0.22,
+    "a_pagar": 902676.01,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 2,
+    "piso_depto": "PB-E",
+    "propietario": "CARLUCCIO STELLA",
+    "tipo": "Departamento",
+    "saldo_ant": 446450.02,
+    "pagos": 446450.02,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 297004.0,
+     "D": 168400.75
+    },
+    "pcts": {
+     "A": 1.44,
+     "D": 1.58
+    },
+    "total_mes": 465404.75,
+    "redondeo": -0.73,
+    "a_pagar": 465404.02,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 3,
+    "piso_depto": "1-B",
+    "propietario": "TCHERCANSKY",
+    "tipo": "Departamento",
+    "saldo_ant": 363188.03,
+    "pagos": 363200.0,
+    "cred_deb": 0.0,
+    "deuda": -11.97,
+    "interes": 0.0,
+    "expensas": {
+     "A": 241613.0,
+     "D": 136995.2
+    },
+    "pcts": {
+     "A": 1.17,
+     "D": 1.29
+    },
+    "total_mes": 378608.2,
+    "redondeo": -0.2,
+    "a_pagar": 378596.03,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 4,
+    "piso_depto": "1-A",
+    "propietario": "TCHERCANSKY",
+    "tipo": "Departamento",
+    "saldo_ant": 355085.04,
+    "pagos": 355085.04,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 236221.5,
+     "D": 133942.62
+    },
+    "pcts": {
+     "A": 1.15,
+     "D": 1.26
+    },
+    "total_mes": 370164.12,
+    "redondeo": -0.08,
+    "a_pagar": 370164.04,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 5,
+    "piso_depto": "1-C",
+    "propietario": "SEGUROS EVOLUTIOÇN",
+    "tipo": "Departamento",
+    "saldo_ant": 260138.05,
+    "pagos": 260138.05,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 13634.69,
+    "expensas": {
+     "A": 167054.5,
+     "D": 94725.42
+    },
+    "pcts": {
+     "A": 0.81,
+     "D": 0.89
+    },
+    "total_mes": 261779.92,
+    "redondeo": -0.56,
+    "a_pagar": 275414.05,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 6,
+    "piso_depto": "1-E",
+    "propietario": "EVOLUCION SEGURO",
+    "tipo": "Departamento",
+    "saldo_ant": 234780.06,
+    "pagos": 246519.06,
+    "cred_deb": 0.0,
+    "deuda": -11739.0,
+    "interes": 11739.0,
+    "expensas": {
+     "A": 156189.5,
+     "D": 88556.66
+    },
+    "pcts": {
+     "A": 0.76,
+     "D": 0.83
+    },
+    "total_mes": 244746.16,
+    "redondeo": -0.1,
+    "a_pagar": 244746.06,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 7,
+    "piso_depto": "1-F",
+    "propietario": "EVOLUCION SEGURO",
+    "tipo": "Departamento",
+    "saldo_ant": 258448.07,
+    "pagos": 258448.07,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 171933.5,
+     "D": 97491.83
+    },
+    "pcts": {
+     "A": 0.83,
+     "D": 0.91
+    },
+    "total_mes": 269425.33,
+    "redondeo": -0.26,
+    "a_pagar": 269425.07,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 8,
+    "piso_depto": "1-G",
+    "propietario": "CASTELLS CARLOS",
+    "tipo": "Departamento",
+    "saldo_ant": 256168.08,
+    "pagos": 256168.08,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 170416.5,
+     "D": 96633.29
+    },
+    "pcts": {
+     "A": 0.83,
+     "D": 0.91
+    },
+    "total_mes": 267049.79,
+    "redondeo": -0.71,
+    "a_pagar": 267049.08,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 9,
+    "piso_depto": "2-B",
+    "propietario": "OCAMPO",
+    "tipo": "Departamento",
+    "saldo_ant": 367781.09,
+    "pagos": 367781.09,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 244667.5,
+     "D": 138733.48
+    },
+    "pcts": {
+     "A": 1.19,
+     "D": 1.3
+    },
+    "total_mes": 383400.98,
+    "redondeo": -0.89,
+    "a_pagar": 383400.09,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 10,
+    "piso_depto": "2-A",
+    "propietario": "YANG BETTINA",
+    "tipo": "Departamento",
+    "saldo_ant": 362788.1,
+    "pagos": 362788.1,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 241346.5,
+     "D": 136846.81
+    },
+    "pcts": {
+     "A": 1.17,
+     "D": 1.29
+    },
+    "total_mes": 378193.31,
+    "redondeo": -0.21,
+    "a_pagar": 378193.1,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 11,
+    "piso_depto": "2-C",
+    "propietario": "COLAFIGLIO",
+    "tipo": "Departamento",
+    "saldo_ant": 260247.11,
+    "pagos": 260247.11,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 166788.0,
+     "D": 94566.44
+    },
+    "pcts": {
+     "A": 0.81,
+     "D": 0.89
+    },
+    "total_mes": 261354.44,
+    "redondeo": -0.33,
+    "a_pagar": 261354.11,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 12,
+    "piso_depto": "2-E",
+    "propietario": "LOVEY",
+    "tipo": "Departamento",
+    "saldo_ant": 234780.12,
+    "pagos": 234780.12,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 156189.5,
+     "D": 88556.66
+    },
+    "pcts": {
+     "A": 0.76,
+     "D": 0.83
+    },
+    "total_mes": 244746.16,
+    "redondeo": -0.04,
+    "a_pagar": 244746.12,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 13,
+    "piso_depto": "2-D",
+    "propietario": "NEDER ANTONELLA BALBIANI",
+    "tipo": "Departamento",
+    "saldo_ant": 233394.13,
+    "pagos": 233394.13,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 155267.0,
+     "D": 88037.3
+    },
+    "pcts": {
+     "A": 0.75,
+     "D": 0.83
+    },
+    "total_mes": 243304.3,
+    "redondeo": -0.17,
+    "a_pagar": 243304.13,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 14,
+    "piso_depto": "2-F",
+    "propietario": "ALCIVAR NAVARRETE GLADYS ALICIA",
+    "tipo": "Departamento",
+    "saldo_ant": 258448.14,
+    "pagos": 258448.14,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 171933.5,
+     "D": 97491.83
+    },
+    "pcts": {
+     "A": 0.83,
+     "D": 0.91
+    },
+    "total_mes": 269425.33,
+    "redondeo": -0.19,
+    "a_pagar": 269425.14,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 15,
+    "piso_depto": "2-G",
+    "propietario": "CONELLI ELBA",
+    "tipo": "Departamento",
+    "saldo_ant": 256168.15,
+    "pagos": 256168.15,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 170416.5,
+     "D": 96633.29
+    },
+    "pcts": {
+     "A": 0.83,
+     "D": 0.91
+    },
+    "total_mes": 267049.79,
+    "redondeo": -0.64,
+    "a_pagar": 267049.15,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 16,
+    "piso_depto": "3-B",
+    "propietario": "ESCUREDO LUISA",
+    "tipo": "Departamento",
+    "saldo_ant": 367781.16,
+    "pagos": 367781.16,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 244667.5,
+     "D": 138733.48
+    },
+    "pcts": {
+     "A": 1.19,
+     "D": 1.3
+    },
+    "total_mes": 383400.98,
+    "redondeo": -0.82,
+    "a_pagar": 383400.16,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 17,
+    "piso_depto": "3-A",
+    "propietario": "ESCUREDO LUISA",
+    "tipo": "Departamento",
+    "saldo_ant": 362788.17,
+    "pagos": 362788.17,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 241346.5,
+     "D": 136846.81
+    },
+    "pcts": {
+     "A": 1.17,
+     "D": 1.29
+    },
+    "total_mes": 378193.31,
+    "redondeo": -0.14,
+    "a_pagar": 378193.17,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 18,
+    "piso_depto": "3-C",
+    "propietario": "CASSELLA MARIA",
+    "tipo": "Departamento",
+    "saldo_ant": 250711.18,
+    "pagos": 250711.18,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 13162.34,
+    "expensas": {
+     "A": 166788.0,
+     "D": 94566.44
+    },
+    "pcts": {
+     "A": 0.81,
+     "D": 0.89
+    },
+    "total_mes": 261354.44,
+    "redondeo": -0.6,
+    "a_pagar": 274516.18,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 19,
+    "piso_depto": "3-E",
+    "propietario": "RIOS BERTA LUCIA",
+    "tipo": "Departamento",
+    "saldo_ant": 234750.19,
+    "pagos": 234750.19,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 156189.5,
+     "D": 88556.66
+    },
+    "pcts": {
+     "A": 0.76,
+     "D": 0.83
+    },
+    "total_mes": 244746.16,
+    "redondeo": 0.03,
+    "a_pagar": 244746.19,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 20,
+    "piso_depto": "3-D",
+    "propietario": "VILLALBA",
+    "tipo": "Departamento",
+    "saldo_ant": 233394.2,
+    "pagos": 233394.2,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 155267.0,
+     "D": 88037.3
+    },
+    "pcts": {
+     "A": 0.75,
+     "D": 0.83
+    },
+    "total_mes": 243304.3,
+    "redondeo": -0.1,
+    "a_pagar": 243304.2,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 21,
+    "piso_depto": "3-F",
+    "propietario": "CLOCK SA",
+    "tipo": "Departamento",
+    "saldo_ant": 258448.21,
+    "pagos": 258448.21,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 171933.5,
+     "D": 97491.83
+    },
+    "pcts": {
+     "A": 0.83,
+     "D": 0.91
+    },
+    "total_mes": 269425.33,
+    "redondeo": -0.12,
+    "a_pagar": 269425.21,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 22,
+    "piso_depto": "3-G",
+    "propietario": "SINGLAR MARIANA",
+    "tipo": "Departamento",
+    "saldo_ant": 256168.22,
+    "pagos": 256168.22,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 170416.5,
+     "D": 96633.29
+    },
+    "pcts": {
+     "A": 0.83,
+     "D": 0.91
+    },
+    "total_mes": 267049.79,
+    "redondeo": -0.57,
+    "a_pagar": 267049.22,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 23,
+    "piso_depto": "4-B",
+    "propietario": "CONTRERAS",
+    "tipo": "Departamento",
+    "saldo_ant": 644682.23,
+    "pagos": 0.0,
+    "cred_deb": 0.0,
+    "deuda": 644682.23,
+    "interes": 61950.97,
+    "expensas": {
+     "A": 244667.5,
+     "D": 138733.48
+    },
+    "pcts": {
+     "A": 1.19,
+     "D": 1.3
+    },
+    "total_mes": 383400.98,
+    "redondeo": 0.05,
+    "a_pagar": 1090034.23,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 24,
+    "piso_depto": "4-A",
+    "propietario": "ASOCARG J BASQUE",
+    "tipo": "Departamento",
+    "saldo_ant": 547930.24,
+    "pagos": 347930.24,
+    "cred_deb": 0.0,
+    "deuda": 200000.0,
+    "interes": 20000.02,
+    "expensas": {
+     "A": 241346.5,
+     "D": 136846.81
+    },
+    "pcts": {
+     "A": 1.17,
+     "D": 1.29
+    },
+    "total_mes": 378193.31,
+    "redondeo": -0.09,
+    "a_pagar": 598193.24,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 25,
+    "piso_depto": "4-C",
+    "propietario": "MAZZOCONI",
+    "tipo": "Departamento",
+    "saldo_ant": 439473.25,
+    "pagos": 439473.25,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 22171.44,
+    "expensas": {
+     "A": 166788.0,
+     "D": 94566.44
+    },
+    "pcts": {
+     "A": 0.81,
+     "D": 0.89
+    },
+    "total_mes": 261354.44,
+    "redondeo": -0.63,
+    "a_pagar": 283525.25,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 26,
+    "piso_depto": "4-E",
+    "propietario": "BAUTISTA DELIA",
+    "tipo": "Departamento",
+    "saldo_ant": 234476.26,
+    "pagos": 234476.26,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 156189.5,
+     "D": 88556.66
+    },
+    "pcts": {
+     "A": 0.76,
+     "D": 0.83
+    },
+    "total_mes": 244746.16,
+    "redondeo": 0.1,
+    "a_pagar": 244746.26,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 27,
+    "piso_depto": "4-D",
+    "propietario": "VALDES ARIEL",
+    "tipo": "Departamento",
+    "saldo_ant": 233394.27,
+    "pagos": 233394.27,
+    "cred_deb": 18000.0,
+    "deuda": 18000.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 155267.0,
+     "D": 88037.3
+    },
+    "pcts": {
+     "A": 0.75,
+     "D": 0.83
+    },
+    "total_mes": 243304.3,
+    "redondeo": -0.03,
+    "a_pagar": 261304.27,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 28,
+    "piso_depto": "4-F",
+    "propietario": "TASSARA MARIA ANA",
+    "tipo": "Departamento",
+    "saldo_ant": 258448.28,
+    "pagos": 258448.28,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 171933.5,
+     "D": 97491.83
+    },
+    "pcts": {
+     "A": 0.83,
+     "D": 0.91
+    },
+    "total_mes": 269425.33,
+    "redondeo": -0.05,
+    "a_pagar": 269425.28,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 29,
+    "piso_depto": "4-G",
+    "propietario": "ROTHER",
+    "tipo": "Departamento",
+    "saldo_ant": 256168.29,
+    "pagos": 256168.29,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 170416.5,
+     "D": 96633.29
+    },
+    "pcts": {
+     "A": 0.83,
+     "D": 0.91
+    },
+    "total_mes": 267049.79,
+    "redondeo": -0.5,
+    "a_pagar": 267049.29,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 30,
+    "piso_depto": "5-B",
+    "propietario": "BAEZA",
+    "tipo": "Departamento",
+    "saldo_ant": 367781.3,
+    "pagos": 367781.3,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 244667.5,
+     "D": 138733.48
+    },
+    "pcts": {
+     "A": 1.19,
+     "D": 1.3
+    },
+    "total_mes": 383400.98,
+    "redondeo": -0.68,
+    "a_pagar": 383400.3,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 31,
+    "piso_depto": "5-A",
+    "propietario": "SINGLAR",
+    "tipo": "Departamento",
+    "saldo_ant": 977857.31,
+    "pagos": 750000.0,
+    "cred_deb": 0.0,
+    "deuda": 227857.31,
+    "interes": 58434.92,
+    "expensas": {
+     "A": 241346.5,
+     "D": 136846.81
+    },
+    "pcts": {
+     "A": 1.17,
+     "D": 1.29
+    },
+    "total_mes": 378193.31,
+    "redondeo": -0.23,
+    "a_pagar": 664485.31,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 32,
+    "piso_depto": "5-C",
+    "propietario": "KOHAN BERTA",
+    "tipo": "Departamento",
+    "saldo_ant": 250711.32,
+    "pagos": 250711.32,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 166788.0,
+     "D": 94566.44
+    },
+    "pcts": {
+     "A": 0.81,
+     "D": 0.89
+    },
+    "total_mes": 261354.44,
+    "redondeo": -0.12,
+    "a_pagar": 261354.32,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 33,
+    "piso_depto": "5-E",
+    "propietario": "BIAGETTI FERNANDO",
+    "tipo": "Departamento",
+    "saldo_ant": 234197.33,
+    "pagos": 234197.33,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 155800.0,
+     "D": 88344.68
+    },
+    "pcts": {
+     "A": 0.76,
+     "D": 0.83
+    },
+    "total_mes": 244144.68,
+    "redondeo": -0.35,
+    "a_pagar": 244144.33,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 34,
+    "piso_depto": "5-D",
+    "propietario": "ALVAREZ",
+    "tipo": "Departamento",
+    "saldo_ant": 234197.34,
+    "pagos": 234197.34,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 155800.0,
+     "D": 88344.68
+    },
+    "pcts": {
+     "A": 0.76,
+     "D": 0.83
+    },
+    "total_mes": 244144.68,
+    "redondeo": -0.34,
+    "a_pagar": 244144.34,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 35,
+    "piso_depto": "5-F",
+    "propietario": "CARRIZO ELBIO",
+    "tipo": "Departamento",
+    "saldo_ant": 258849.35,
+    "pagos": 0.0,
+    "cred_deb": 0.0,
+    "deuda": 258849.35,
+    "interes": 25884.9,
+    "expensas": {
+     "A": 172200.0,
+     "D": 97640.22
+    },
+    "pcts": {
+     "A": 0.84,
+     "D": 0.92
+    },
+    "total_mes": 269840.22,
+    "redondeo": -0.12,
+    "a_pagar": 554574.35,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 36,
+    "piso_depto": "5-G",
+    "propietario": "DOLINSKY BERNARDO SAUL",
+    "tipo": "Departamento",
+    "saldo_ant": 255766.36,
+    "pagos": 255766.36,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 170150.0,
+     "D": 96474.3
+    },
+    "pcts": {
+     "A": 0.83,
+     "D": 0.91
+    },
+    "total_mes": 266624.3,
+    "redondeo": 0.06,
+    "a_pagar": 266624.36,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 37,
+    "piso_depto": "6-B",
+    "propietario": "BERHO MARCELO OMAR",
+    "tipo": "Departamento",
+    "saldo_ant": 366701.37,
+    "pagos": 306701.37,
+    "cred_deb": 0.0,
+    "deuda": 60000.0,
+    "interes": 5999.97,
+    "expensas": {
+     "A": 243950.0,
+     "D": 138320.11
+    },
+    "pcts": {
+     "A": 1.19,
+     "D": 1.3
+    },
+    "total_mes": 382270.11,
+    "redondeo": 0.29,
+    "a_pagar": 448270.37,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 38,
+    "piso_depto": "6-A",
+    "propietario": "DANIELA MARÍA",
+    "tipo": "Departamento",
+    "saldo_ant": 377418.38,
+    "pagos": 377418.38,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 19779.97,
+    "expensas": {
+     "A": 241900.0,
+     "D": 137164.79
+    },
+    "pcts": {
+     "A": 1.18,
+     "D": 1.29
+    },
+    "total_mes": 379064.79,
+    "redondeo": -0.38,
+    "a_pagar": 398844.38,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 39,
+    "piso_depto": "6-C",
+    "propietario": "SACCO ADELINA",
+    "tipo": "Departamento",
+    "saldo_ant": 249603.39,
+    "pagos": 249603.39,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 166050.0,
+     "D": 94153.06
+    },
+    "pcts": {
+     "A": 0.81,
+     "D": 0.88
+    },
+    "total_mes": 260203.06,
+    "redondeo": 0.33,
+    "a_pagar": 260203.39,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 40,
+    "piso_depto": "6-E",
+    "propietario": "NEMETH CARLOS",
+    "tipo": "Departamento",
+    "saldo_ant": 198651.4,
+    "pagos": 208583.4,
+    "cred_deb": 0.0,
+    "deuda": -9932.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 155800.0,
+     "D": 88344.68
+    },
+    "pcts": {
+     "A": 0.76,
+     "D": 0.83
+    },
+    "total_mes": 244144.68,
+    "redondeo": -0.28,
+    "a_pagar": 234212.4,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 41,
+    "piso_depto": "6-D",
+    "propietario": "CARAZO DARIO",
+    "tipo": "Departamento",
+    "saldo_ant": 234197.41,
+    "pagos": 234197.41,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 155800.0,
+     "D": 88344.68
+    },
+    "pcts": {
+     "A": 0.76,
+     "D": 0.83
+    },
+    "total_mes": 244144.68,
+    "redondeo": -0.27,
+    "a_pagar": 244144.41,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 42,
+    "piso_depto": "6-F",
+    "propietario": "CARBALLEDO",
+    "tipo": "Departamento",
+    "saldo_ant": 453734.42,
+    "pagos": 453734.42,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 172200.0,
+     "D": 97640.22
+    },
+    "pcts": {
+     "A": 0.84,
+     "D": 0.92
+    },
+    "total_mes": 269840.22,
+    "redondeo": 0.2,
+    "a_pagar": 269840.42,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 43,
+    "piso_depto": "6-G",
+    "propietario": "SANCHEZ GLADYS",
+    "tipo": "Departamento",
+    "saldo_ant": 255766.43,
+    "pagos": 255766.43,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 170150.0,
+     "D": 96474.3
+    },
+    "pcts": {
+     "A": 0.83,
+     "D": 0.91
+    },
+    "total_mes": 266624.3,
+    "redondeo": 0.13,
+    "a_pagar": 266624.43,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 44,
+    "piso_depto": "7-B",
+    "propietario": "TEICHMAN",
+    "tipo": "Departamento",
+    "saldo_ant": 366701.44,
+    "pagos": 366701.44,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 243950.0,
+     "D": 138320.11
+    },
+    "pcts": {
+     "A": 1.19,
+     "D": 1.3
+    },
+    "total_mes": 382270.11,
+    "redondeo": 0.33,
+    "a_pagar": 382270.44,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 45,
+    "piso_depto": "7-A",
+    "propietario": "CORI MARTA JUANA",
+    "tipo": "Departamento",
+    "saldo_ant": 363621.45,
+    "pagos": 363621.45,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 241900.0,
+     "D": 137164.79
+    },
+    "pcts": {
+     "A": 1.18,
+     "D": 1.29
+    },
+    "total_mes": 379064.79,
+    "redondeo": -0.34,
+    "a_pagar": 379064.45,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 46,
+    "piso_depto": "7-C",
+    "propietario": "Horowicz Laura",
+    "tipo": "Departamento",
+    "saldo_ant": 249603.46,
+    "pagos": 249603.46,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 166050.0,
+     "D": 94153.06
+    },
+    "pcts": {
+     "A": 0.81,
+     "D": 0.88
+    },
+    "total_mes": 260203.06,
+    "redondeo": 0.4,
+    "a_pagar": 260203.46,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 47,
+    "piso_depto": "7-E",
+    "propietario": "CARRASCO RODOLFO CARLOS",
+    "tipo": "Departamento",
+    "saldo_ant": 234197.47,
+    "pagos": 235197.47,
+    "cred_deb": 0.0,
+    "deuda": -1000.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 155800.0,
+     "D": 88344.68
+    },
+    "pcts": {
+     "A": 0.76,
+     "D": 0.83
+    },
+    "total_mes": 244144.68,
+    "redondeo": -0.21,
+    "a_pagar": 243144.47,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 48,
+    "piso_depto": "7-D",
+    "propietario": "ELBEY",
+    "tipo": "Departamento",
+    "saldo_ant": 234197.48,
+    "pagos": 234197.48,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 155800.0,
+     "D": 88344.68
+    },
+    "pcts": {
+     "A": 0.76,
+     "D": 0.83
+    },
+    "total_mes": 244144.68,
+    "redondeo": -0.2,
+    "a_pagar": 244144.48,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 49,
+    "piso_depto": "7-F",
+    "propietario": "MENENDEZ ALBERTO",
+    "tipo": "Departamento",
+    "saldo_ant": 258848.49,
+    "pagos": 258848.49,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 172200.0,
+     "D": 97640.22
+    },
+    "pcts": {
+     "A": 0.84,
+     "D": 0.92
+    },
+    "total_mes": 269840.22,
+    "redondeo": 0.27,
+    "a_pagar": 269840.49,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 50,
+    "piso_depto": "7-G",
+    "propietario": "GRIJALBA MARIA",
+    "tipo": "Departamento",
+    "saldo_ant": 255766.5,
+    "pagos": 255766.5,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 170150.0,
+     "D": 96474.3
+    },
+    "pcts": {
+     "A": 0.83,
+     "D": 0.91
+    },
+    "total_mes": 266624.3,
+    "redondeo": 0.2,
+    "a_pagar": 266624.5,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 51,
+    "piso_depto": "8-B",
+    "propietario": "BOLOTNER ISABEL",
+    "tipo": "Departamento",
+    "saldo_ant": 366701.51,
+    "pagos": 366701.51,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 19251.79,
+    "expensas": {
+     "A": 243950.0,
+     "D": 138320.11
+    },
+    "pcts": {
+     "A": 1.19,
+     "D": 1.3
+    },
+    "total_mes": 382270.11,
+    "redondeo": -0.39,
+    "a_pagar": 401521.51,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 52,
+    "piso_depto": "8-A",
+    "propietario": "MAZZOLA MARIA",
+    "tipo": "Departamento",
+    "saldo_ant": 363621.52,
+    "pagos": 363621.52,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 241900.0,
+     "D": 137164.79
+    },
+    "pcts": {
+     "A": 1.18,
+     "D": 1.29
+    },
+    "total_mes": 379064.79,
+    "redondeo": -0.27,
+    "a_pagar": 379064.52,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 53,
+    "piso_depto": "8-C",
+    "propietario": "VALDOVINO",
+    "tipo": "Departamento",
+    "saldo_ant": 249603.53,
+    "pagos": 262083.53,
+    "cred_deb": 0.0,
+    "deuda": -12480.0,
+    "interes": 12480.19,
+    "expensas": {
+     "A": 166050.0,
+     "D": 94153.06
+    },
+    "pcts": {
+     "A": 0.81,
+     "D": 0.88
+    },
+    "total_mes": 260203.06,
+    "redondeo": 0.29,
+    "a_pagar": 260203.53,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 54,
+    "piso_depto": "8-E",
+    "propietario": "DIEGUEZ",
+    "tipo": "Departamento",
+    "saldo_ant": 234197.54,
+    "pagos": 234197.54,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 155800.0,
+     "D": 88344.68
+    },
+    "pcts": {
+     "A": 0.76,
+     "D": 0.83
+    },
+    "total_mes": 244144.68,
+    "redondeo": -0.14,
+    "a_pagar": 244144.54,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 55,
+    "piso_depto": "8-D",
+    "propietario": "SARFIEL CARLOS",
+    "tipo": "Departamento",
+    "saldo_ant": 829878.55,
+    "pagos": 0.0,
+    "cred_deb": 0.0,
+    "deuda": 829878.55,
+    "interes": 73086.15,
+    "expensas": {
+     "A": 155800.0,
+     "D": 88344.68
+    },
+    "pcts": {
+     "A": 0.76,
+     "D": 0.83
+    },
+    "total_mes": 244144.68,
+    "redondeo": 0.17,
+    "a_pagar": 1147109.55,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 56,
+    "piso_depto": "8-F",
+    "propietario": "MAGNATERRA RODO",
+    "tipo": "Departamento",
+    "saldo_ant": 258848.56,
+    "pagos": 258848.56,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 172200.0,
+     "D": 97640.22
+    },
+    "pcts": {
+     "A": 0.84,
+     "D": 0.92
+    },
+    "total_mes": 269840.22,
+    "redondeo": 0.34,
+    "a_pagar": 269840.56,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 57,
+    "piso_depto": "8-G",
+    "propietario": "MALDONADO MALDONADO",
+    "tipo": "Departamento",
+    "saldo_ant": 255766.57,
+    "pagos": 255766.57,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 170150.0,
+     "D": 96474.3
+    },
+    "pcts": {
+     "A": 0.83,
+     "D": 0.91
+    },
+    "total_mes": 266624.3,
+    "redondeo": 0.27,
+    "a_pagar": 266624.57,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 58,
+    "piso_depto": "9-B",
+    "propietario": "CLOCK SA",
+    "tipo": "Departamento",
+    "saldo_ant": 366701.58,
+    "pagos": 366701.58,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 243950.0,
+     "D": 138320.11
+    },
+    "pcts": {
+     "A": 1.19,
+     "D": 1.3
+    },
+    "total_mes": 382270.11,
+    "redondeo": 0.47,
+    "a_pagar": 382270.58,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 59,
+    "piso_depto": "9-A",
+    "propietario": "INGRISANI MARTIN",
+    "tipo": "Departamento",
+    "saldo_ant": 363621.59,
+    "pagos": 363621.59,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 241900.0,
+     "D": 137164.79
+    },
+    "pcts": {
+     "A": 1.18,
+     "D": 1.29
+    },
+    "total_mes": 379064.79,
+    "redondeo": -0.2,
+    "a_pagar": 379064.59,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 60,
+    "piso_depto": "9-C",
+    "propietario": "TAUIL CARLOS",
+    "tipo": "Departamento",
+    "saldo_ant": 249603.6,
+    "pagos": 249603.6,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 166050.0,
+     "D": 94153.06
+    },
+    "pcts": {
+     "A": 0.81,
+     "D": 0.88
+    },
+    "total_mes": 260203.06,
+    "redondeo": 0.54,
+    "a_pagar": 260203.6,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 61,
+    "piso_depto": "9-E",
+    "propietario": "SINGLAR",
+    "tipo": "Departamento",
+    "saldo_ant": 234226.61,
+    "pagos": 234226.61,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 155800.0,
+     "D": 88344.68
+    },
+    "pcts": {
+     "A": 0.76,
+     "D": 0.83
+    },
+    "total_mes": 244144.68,
+    "redondeo": -0.07,
+    "a_pagar": 244144.61,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 62,
+    "piso_depto": "9-D",
+    "propietario": "FRAIRE SANDRA",
+    "tipo": "Departamento",
+    "saldo_ant": 234197.62,
+    "pagos": 234197.62,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 155800.0,
+     "D": 88344.68
+    },
+    "pcts": {
+     "A": 0.76,
+     "D": 0.83
+    },
+    "total_mes": 244144.68,
+    "redondeo": -0.06,
+    "a_pagar": 244144.62,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 63,
+    "piso_depto": "9-F",
+    "propietario": "GALLEGUILLO EDIT",
+    "tipo": "Departamento",
+    "saldo_ant": 258848.63,
+    "pagos": 258848.63,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 172200.0,
+     "D": 97640.22
+    },
+    "pcts": {
+     "A": 0.84,
+     "D": 0.92
+    },
+    "total_mes": 269840.22,
+    "redondeo": 0.41,
+    "a_pagar": 269840.63,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 64,
+    "piso_depto": "9-G",
+    "propietario": "BARCONES",
+    "tipo": "Departamento",
+    "saldo_ant": 255766.64,
+    "pagos": 255766.64,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 170150.0,
+     "D": 96474.3
+    },
+    "pcts": {
+     "A": 0.83,
+     "D": 0.91
+    },
+    "total_mes": 266624.3,
+    "redondeo": 0.34,
+    "a_pagar": 266624.64,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 65,
+    "piso_depto": "10-B",
+    "propietario": "LEDEZMA",
+    "tipo": "Departamento",
+    "saldo_ant": 366701.65,
+    "pagos": 366701.65,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 243950.0,
+     "D": 138320.11
+    },
+    "pcts": {
+     "A": 1.19,
+     "D": 1.3
+    },
+    "total_mes": 382270.11,
+    "redondeo": 0.54,
+    "a_pagar": 382270.65,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 66,
+    "piso_depto": "10-A",
+    "propietario": "TAUIL JACOBO",
+    "tipo": "Departamento",
+    "saldo_ant": 363621.66,
+    "pagos": 363621.66,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 241900.0,
+     "D": 137164.79
+    },
+    "pcts": {
+     "A": 1.18,
+     "D": 1.29
+    },
+    "total_mes": 379064.79,
+    "redondeo": -0.13,
+    "a_pagar": 379064.66,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 67,
+    "piso_depto": "10-C",
+    "propietario": "PUGNALONI MARÍA JOSÉ",
+    "tipo": "Departamento",
+    "saldo_ant": 249603.67,
+    "pagos": 249603.67,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 166050.0,
+     "D": 94153.06
+    },
+    "pcts": {
+     "A": 0.81,
+     "D": 0.88
+    },
+    "total_mes": 260203.06,
+    "redondeo": 0.61,
+    "a_pagar": 260203.67,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 68,
+    "piso_depto": "10-E",
+    "propietario": "RODRIGUEZ ALEJANDRO",
+    "tipo": "Departamento",
+    "saldo_ant": 234197.68,
+    "pagos": 234197.68,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 155800.0,
+     "D": 88344.68
+    },
+    "pcts": {
+     "A": 0.76,
+     "D": 0.83
+    },
+    "total_mes": 244144.68,
+    "redondeo": 0.0,
+    "a_pagar": 244144.68,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 69,
+    "piso_depto": "10-D",
+    "propietario": "NASTRO MARIA CARMELA",
+    "tipo": "Departamento",
+    "saldo_ant": 234197.69,
+    "pagos": 245907.69,
+    "cred_deb": 0.0,
+    "deuda": -11710.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 155800.0,
+     "D": 88344.68
+    },
+    "pcts": {
+     "A": 0.76,
+     "D": 0.83
+    },
+    "total_mes": 244144.68,
+    "redondeo": 0.01,
+    "a_pagar": 232434.69,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 70,
+    "piso_depto": "10-F",
+    "propietario": "DEL CAST GABRIELA",
+    "tipo": "Departamento",
+    "saldo_ant": 258848.7,
+    "pagos": 258848.7,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 172200.0,
+     "D": 97640.22
+    },
+    "pcts": {
+     "A": 0.84,
+     "D": 0.92
+    },
+    "total_mes": 269840.22,
+    "redondeo": 0.48,
+    "a_pagar": 269840.7,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 71,
+    "piso_depto": "10-G",
+    "propietario": "ACCETTA",
+    "tipo": "Departamento",
+    "saldo_ant": 255766.71,
+    "pagos": 255766.71,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 170150.0,
+     "D": 96474.3
+    },
+    "pcts": {
+     "A": 0.83,
+     "D": 0.91
+    },
+    "total_mes": 266624.3,
+    "redondeo": 0.41,
+    "a_pagar": 266624.71,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 72,
+    "piso_depto": "11-B",
+    "propietario": "TAVERNA HUGO",
+    "tipo": "Departamento",
+    "saldo_ant": 366701.72,
+    "pagos": 366701.72,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 243950.0,
+     "D": 138320.11
+    },
+    "pcts": {
+     "A": 1.19,
+     "D": 1.3
+    },
+    "total_mes": 382270.11,
+    "redondeo": 0.61,
+    "a_pagar": 382270.72,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 73,
+    "piso_depto": "11-A",
+    "propietario": "VARELA MARIA",
+    "tipo": "Departamento",
+    "saldo_ant": 363621.73,
+    "pagos": 363621.73,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 241900.0,
+     "D": 137164.79
+    },
+    "pcts": {
+     "A": 1.18,
+     "D": 1.29
+    },
+    "total_mes": 379064.79,
+    "redondeo": -0.06,
+    "a_pagar": 379064.73,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 74,
+    "piso_depto": "11-C",
+    "propietario": "VARELA MARIA",
+    "tipo": "Departamento",
+    "saldo_ant": 249603.74,
+    "pagos": 249603.74,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 166050.0,
+     "D": 94153.06
+    },
+    "pcts": {
+     "A": 0.81,
+     "D": 0.88
+    },
+    "total_mes": 260203.06,
+    "redondeo": 0.68,
+    "a_pagar": 260203.74,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 75,
+    "piso_depto": "11-E",
+    "propietario": "SIERRO CLAUDIA",
+    "tipo": "Departamento",
+    "saldo_ant": 234197.75,
+    "pagos": 234197.75,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 155800.0,
+     "D": 88344.68
+    },
+    "pcts": {
+     "A": 0.76,
+     "D": 0.83
+    },
+    "total_mes": 244144.68,
+    "redondeo": 0.07,
+    "a_pagar": 244144.75,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 76,
+    "piso_depto": "11-D",
+    "propietario": "HERNANDEZ Manuel ramon",
+    "tipo": "Departamento",
+    "saldo_ant": 234197.76,
+    "pagos": 234197.76,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 155800.0,
+     "D": 88344.68
+    },
+    "pcts": {
+     "A": 0.76,
+     "D": 0.83
+    },
+    "total_mes": 244144.68,
+    "redondeo": 0.08,
+    "a_pagar": 244144.76,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 77,
+    "piso_depto": "11-F",
+    "propietario": "TIMMER",
+    "tipo": "Departamento",
+    "saldo_ant": 258848.77,
+    "pagos": 258848.77,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 172200.0,
+     "D": 97640.22
+    },
+    "pcts": {
+     "A": 0.84,
+     "D": 0.92
+    },
+    "total_mes": 269840.22,
+    "redondeo": 0.55,
+    "a_pagar": 269840.77,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 78,
+    "piso_depto": "11-G",
+    "propietario": "CATTANEO PEDRO",
+    "tipo": "Departamento",
+    "saldo_ant": 713253.78,
+    "pagos": 350000.0,
+    "cred_deb": 0.0,
+    "deuda": 363253.78,
+    "interes": 36325.31,
+    "expensas": {
+     "A": 170150.0,
+     "D": 96474.3
+    },
+    "pcts": {
+     "A": 0.83,
+     "D": 0.91
+    },
+    "total_mes": 266624.3,
+    "redondeo": 0.39,
+    "a_pagar": 666203.78,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 79,
+    "piso_depto": "12-B",
+    "propietario": "LOPEZ ARIAS",
+    "tipo": "Departamento",
+    "saldo_ant": 326588.79,
+    "pagos": 326588.79,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 243950.0,
+     "D": 138320.11
+    },
+    "pcts": {
+     "A": 1.19,
+     "D": 1.3
+    },
+    "total_mes": 382270.11,
+    "redondeo": 0.68,
+    "a_pagar": 382270.79,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 80,
+    "piso_depto": "12-A",
+    "propietario": "VERCESI Liliana",
+    "tipo": "Departamento",
+    "saldo_ant": 363621.8,
+    "pagos": 363621.8,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 241900.0,
+     "D": 137164.79
+    },
+    "pcts": {
+     "A": 1.18,
+     "D": 1.29
+    },
+    "total_mes": 379064.79,
+    "redondeo": 0.01,
+    "a_pagar": 379064.8,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 81,
+    "piso_depto": "12-C",
+    "propietario": "LORES CARLOTA",
+    "tipo": "Departamento",
+    "saldo_ant": 437530.81,
+    "pagos": 437530.81,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 166050.0,
+     "D": 94153.06
+    },
+    "pcts": {
+     "A": 0.81,
+     "D": 0.88
+    },
+    "total_mes": 260203.06,
+    "redondeo": 0.75,
+    "a_pagar": 260203.81,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 82,
+    "piso_depto": "12-E",
+    "propietario": "LIPARI JUAN",
+    "tipo": "Departamento",
+    "saldo_ant": 234197.82,
+    "pagos": 234197.82,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 155800.0,
+     "D": 88344.68
+    },
+    "pcts": {
+     "A": 0.76,
+     "D": 0.83
+    },
+    "total_mes": 244144.68,
+    "redondeo": 0.14,
+    "a_pagar": 244144.82,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 83,
+    "piso_depto": "12-D",
+    "propietario": "SUBIAR PAULA VALERIA",
+    "tipo": "Departamento",
+    "saldo_ant": 234197.83,
+    "pagos": 234197.83,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 155800.0,
+     "D": 88344.68
+    },
+    "pcts": {
+     "A": 0.76,
+     "D": 0.83
+    },
+    "total_mes": 244144.68,
+    "redondeo": 0.15,
+    "a_pagar": 244144.83,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 84,
+    "piso_depto": "12-F",
+    "propietario": "PALOMBO ADA",
+    "tipo": "Departamento",
+    "saldo_ant": 258848.84,
+    "pagos": 258848.84,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 172200.0,
+     "D": 97640.22
+    },
+    "pcts": {
+     "A": 0.84,
+     "D": 0.92
+    },
+    "total_mes": 269840.22,
+    "redondeo": 0.62,
+    "a_pagar": 269840.84,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 85,
+    "piso_depto": "12-G",
+    "propietario": "DEL CASTIL MARTIN",
+    "tipo": "Departamento",
+    "saldo_ant": 255766.85,
+    "pagos": 255766.85,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 170150.0,
+     "D": 96474.3
+    },
+    "pcts": {
+     "A": 0.83,
+     "D": 0.91
+    },
+    "total_mes": 266624.3,
+    "redondeo": 0.55,
+    "a_pagar": 266624.85,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 86,
+    "piso_depto": "13-B",
+    "propietario": "ACOSTA ROSANA",
+    "tipo": "Departamento",
+    "saldo_ant": -421815.14,
+    "pagos": 0.0,
+    "cred_deb": 0.0,
+    "deuda": -421815.14,
+    "interes": 0.0,
+    "expensas": {
+     "A": 510450.0,
+     "D": 289433.5
+    },
+    "pcts": {
+     "A": 2.49,
+     "D": 2.73
+    },
+    "total_mes": 799883.5,
+    "redondeo": 0.5,
+    "a_pagar": 378068.86,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 87,
+    "piso_depto": "13-A",
+    "propietario": "TASSARA MARIA ANA",
+    "tipo": "Departamento",
+    "saldo_ant": 754973.87,
+    "pagos": 754973.87,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 502250.0,
+     "D": 284780.43
+    },
+    "pcts": {
+     "A": 2.45,
+     "D": 2.68
+    },
+    "total_mes": 787030.43,
+    "redondeo": 0.44,
+    "a_pagar": 787030.87,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 88,
+    "piso_depto": "13-E",
+    "propietario": "MIRANDA",
+    "tipo": "Departamento",
+    "saldo_ant": 234197.88,
+    "pagos": 234197.88,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 155800.0,
+     "D": 88344.68
+    },
+    "pcts": {
+     "A": 0.76,
+     "D": 0.83
+    },
+    "total_mes": 244144.68,
+    "redondeo": 0.2,
+    "a_pagar": 244144.88,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 89,
+    "piso_depto": "13-D",
+    "propietario": "IRRAZABAL MARIANA Y EMILIANO",
+    "tipo": "Departamento",
+    "saldo_ant": 234094.89,
+    "pagos": 234094.89,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 155800.0,
+     "D": 88344.68
+    },
+    "pcts": {
+     "A": 0.76,
+     "D": 0.83
+    },
+    "total_mes": 244144.68,
+    "redondeo": 0.21,
+    "a_pagar": 244144.89,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 90,
+    "piso_depto": "13-F",
+    "propietario": "TORRESI RUBENS",
+    "tipo": "Departamento",
+    "saldo_ant": 258848.9,
+    "pagos": 258848.9,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 172200.0,
+     "D": 97640.22
+    },
+    "pcts": {
+     "A": 0.84,
+     "D": 0.92
+    },
+    "total_mes": 269840.22,
+    "redondeo": 0.68,
+    "a_pagar": 269840.9,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 91,
+    "piso_depto": "13-G",
+    "propietario": "MOLINI LAURA MARIA",
+    "tipo": "Departamento",
+    "saldo_ant": 255765.91,
+    "pagos": 255766.0,
+    "cred_deb": 0.0,
+    "deuda": -0.09,
+    "interes": 0.0,
+    "expensas": {
+     "A": 170150.0,
+     "D": 96474.3
+    },
+    "pcts": {
+     "A": 0.83,
+     "D": 0.91
+    },
+    "total_mes": 266624.3,
+    "redondeo": 0.7,
+    "a_pagar": 266624.91,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 92,
+    "piso_depto": "14-E",
+    "propietario": "CASOLA ALEJANDRO",
+    "tipo": "Departamento",
+    "saldo_ant": 234197.92,
+    "pagos": 234197.92,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 155800.0,
+     "D": 88344.68
+    },
+    "pcts": {
+     "A": 0.76,
+     "D": 0.83
+    },
+    "total_mes": 244144.68,
+    "redondeo": 0.24,
+    "a_pagar": 244144.92,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 93,
+    "piso_depto": "14-D",
+    "propietario": "BICHARA ALFREDO",
+    "tipo": "Departamento",
+    "saldo_ant": 234197.93,
+    "pagos": 234197.93,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 155800.0,
+     "D": 88344.68
+    },
+    "pcts": {
+     "A": 0.76,
+     "D": 0.83
+    },
+    "total_mes": 244144.68,
+    "redondeo": 0.25,
+    "a_pagar": 244144.93,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 94,
+    "piso_depto": "14-F",
+    "propietario": "CARRO",
+    "tipo": "Departamento",
+    "saldo_ant": 258848.94,
+    "pagos": 258848.94,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 172200.0,
+     "D": 97640.22
+    },
+    "pcts": {
+     "A": 0.84,
+     "D": 0.92
+    },
+    "total_mes": 269840.22,
+    "redondeo": 0.72,
+    "a_pagar": 269840.94,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 95,
+    "piso_depto": "14-G",
+    "propietario": "FORTUNATO CECILIA",
+    "tipo": "Departamento",
+    "saldo_ant": 255766.95,
+    "pagos": 255766.95,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 13427.67,
+    "expensas": {
+     "A": 170150.0,
+     "D": 96474.3
+    },
+    "pcts": {
+     "A": 0.83,
+     "D": 0.91
+    },
+    "total_mes": 266624.3,
+    "redondeo": -0.02,
+    "a_pagar": 280051.95,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 201,
+    "piso_depto": "UC-1",
+    "propietario": "DEL VALLE",
+    "tipo": "Cochera",
+    "saldo_ant": 1425249.01,
+    "pagos": 0.0,
+    "cred_deb": 0.0,
+    "deuda": 1425249.01,
+    "interes": 102971.68,
+    "expensas": {
+     "A": 86100.0,
+     "B": 27972.19
+    },
+    "pcts": {
+     "A": 0.42,
+     "B": 4.76
+    },
+    "total_mes": 114072.19,
+    "redondeo": 1.13,
+    "a_pagar": 1642294.01,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 202,
+    "piso_depto": "UC-2",
+    "propietario": "DEL CASTIL MARTIN",
+    "tipo": "Cochera",
+    "saldo_ant": 143150.02,
+    "pagos": 143150.02,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 86100.0,
+     "B": 27972.19
+    },
+    "pcts": {
+     "A": 0.42,
+     "B": 4.76
+    },
+    "total_mes": 114072.19,
+    "redondeo": 1.83,
+    "a_pagar": 114074.02,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 203,
+    "piso_depto": "UC-3",
+    "propietario": "BOLOTNER ISABEL",
+    "tipo": "Cochera",
+    "saldo_ant": 143150.03,
+    "pagos": 143150.03,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 86100.0,
+     "B": 27972.19
+    },
+    "pcts": {
+     "A": 0.42,
+     "B": 4.76
+    },
+    "total_mes": 114072.19,
+    "redondeo": 1.84,
+    "a_pagar": 114074.03,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 204,
+    "piso_depto": "UC-4",
+    "propietario": "CONTRERAS",
+    "tipo": "Cochera",
+    "saldo_ant": 143150.04,
+    "pagos": 143150.04,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 86100.0,
+     "B": 27972.19
+    },
+    "pcts": {
+     "A": 0.42,
+     "B": 4.76
+    },
+    "total_mes": 114072.19,
+    "redondeo": 1.85,
+    "a_pagar": 114074.04,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 205,
+    "piso_depto": "UC-5",
+    "propietario": "ROSANA ACOSTA",
+    "tipo": "Cochera",
+    "saldo_ant": -32352.95,
+    "pagos": 0.0,
+    "cred_deb": 0.0,
+    "deuda": -32352.95,
+    "interes": 0.0,
+    "expensas": {
+     "A": 86100.0,
+     "B": 27972.19
+    },
+    "pcts": {
+     "A": 0.42,
+     "B": 4.76
+    },
+    "total_mes": 114072.19,
+    "redondeo": 1.81,
+    "a_pagar": 81721.05,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 206,
+    "piso_depto": "UC-6",
+    "propietario": "YANG BETTINA",
+    "tipo": "Cochera",
+    "saldo_ant": 143150.06,
+    "pagos": 143150.06,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 86100.0,
+     "B": 27972.19
+    },
+    "pcts": {
+     "A": 0.42,
+     "B": 4.76
+    },
+    "total_mes": 114072.19,
+    "redondeo": 1.87,
+    "a_pagar": 114074.06,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 207,
+    "piso_depto": "UC-7",
+    "propietario": "CARLUCCIO STELLA MARIS",
+    "tipo": "Cochera",
+    "saldo_ant": 143150.07,
+    "pagos": 143150.07,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 86100.0,
+     "B": 27972.19
+    },
+    "pcts": {
+     "A": 0.42,
+     "B": 4.76
+    },
+    "total_mes": 114072.19,
+    "redondeo": 1.88,
+    "a_pagar": 114074.07,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 208,
+    "piso_depto": "UC-8",
+    "propietario": "ROTHER DIEGO ROB",
+    "tipo": "Cochera",
+    "saldo_ant": 143150.08,
+    "pagos": 143150.08,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 86100.0,
+     "B": 27972.19
+    },
+    "pcts": {
+     "A": 0.42,
+     "B": 4.76
+    },
+    "total_mes": 114072.19,
+    "redondeo": 1.89,
+    "a_pagar": 114074.08,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 209,
+    "piso_depto": "UC-9",
+    "propietario": "ROTHER DIEGO ROB",
+    "tipo": "Cochera",
+    "saldo_ant": 143150.09,
+    "pagos": 143150.09,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 86100.0,
+     "B": 27972.19
+    },
+    "pcts": {
+     "A": 0.42,
+     "B": 4.76
+    },
+    "total_mes": 114072.19,
+    "redondeo": 1.9,
+    "a_pagar": 114074.09,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 210,
+    "piso_depto": "UC-10",
+    "propietario": "BERHO",
+    "tipo": "Cochera",
+    "saldo_ant": 143150.1,
+    "pagos": 143150.1,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 86100.0,
+     "B": 27972.19
+    },
+    "pcts": {
+     "A": 0.42,
+     "B": 4.76
+    },
+    "total_mes": 114072.19,
+    "redondeo": 1.91,
+    "a_pagar": 114074.1,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 211,
+    "piso_depto": "UC-11",
+    "propietario": "CLOCK SA",
+    "tipo": "Cochera",
+    "saldo_ant": 143150.11,
+    "pagos": 143150.11,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 86100.0,
+     "B": 27972.19
+    },
+    "pcts": {
+     "A": 0.42,
+     "B": 4.76
+    },
+    "total_mes": 114072.19,
+    "redondeo": 1.92,
+    "a_pagar": 114074.11,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 212,
+    "piso_depto": "UC-12",
+    "propietario": "OCAMPO",
+    "tipo": "Cochera",
+    "saldo_ant": 143150.12,
+    "pagos": 143150.12,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 86100.0,
+     "B": 27972.19
+    },
+    "pcts": {
+     "A": 0.42,
+     "B": 4.76
+    },
+    "total_mes": 114072.19,
+    "redondeo": 1.93,
+    "a_pagar": 114074.12,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 213,
+    "piso_depto": "UC-13",
+    "propietario": "ESCUREDO LUISA",
+    "tipo": "Cochera",
+    "saldo_ant": 143150.13,
+    "pagos": 143150.13,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 86100.0,
+     "B": 27972.19
+    },
+    "pcts": {
+     "A": 0.42,
+     "B": 4.76
+    },
+    "total_mes": 114072.19,
+    "redondeo": 1.94,
+    "a_pagar": 114074.13,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 214,
+    "piso_depto": "UC-14",
+    "propietario": "TASSARA MARIA ANA",
+    "tipo": "Cochera",
+    "saldo_ant": 143150.14,
+    "pagos": 143150.14,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 86100.0,
+     "B": 27972.19
+    },
+    "pcts": {
+     "A": 0.42,
+     "B": 4.76
+    },
+    "total_mes": 114072.19,
+    "redondeo": 1.95,
+    "a_pagar": 114074.14,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 215,
+    "piso_depto": "UC-15",
+    "propietario": "SEGURO EVOLUCION",
+    "tipo": "Cochera",
+    "saldo_ant": 149117.15,
+    "pagos": 149117.15,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 7813.56,
+    "expensas": {
+     "A": 86100.0,
+     "B": 27972.19
+    },
+    "pcts": {
+     "A": 0.42,
+     "B": 4.76
+    },
+    "total_mes": 114072.19,
+    "redondeo": 1.4,
+    "a_pagar": 121887.15,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 216,
+    "piso_depto": "UC-16",
+    "propietario": "SEGUROS EVOLUCION",
+    "tipo": "Cochera",
+    "saldo_ant": 149117.16,
+    "pagos": 149117.16,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 7813.56,
+    "expensas": {
+     "A": 86100.0,
+     "B": 27972.19
+    },
+    "pcts": {
+     "A": 0.42,
+     "B": 4.76
+    },
+    "total_mes": 114072.19,
+    "redondeo": 1.41,
+    "a_pagar": 121887.16,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 217,
+    "piso_depto": "UC-17",
+    "propietario": "TAUIL CARLOS",
+    "tipo": "Cochera",
+    "saldo_ant": 143150.17,
+    "pagos": 143150.17,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 86100.0,
+     "B": 27972.19
+    },
+    "pcts": {
+     "A": 0.42,
+     "B": 4.76
+    },
+    "total_mes": 114072.19,
+    "redondeo": 1.98,
+    "a_pagar": 114074.17,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 218,
+    "piso_depto": "UC-18",
+    "propietario": "VERCESI LILIANA",
+    "tipo": "Cochera",
+    "saldo_ant": 143150.18,
+    "pagos": 143150.18,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 86100.0,
+     "B": 27972.19
+    },
+    "pcts": {
+     "A": 0.42,
+     "B": 4.76
+    },
+    "total_mes": 114072.19,
+    "redondeo": 1.99,
+    "a_pagar": 114074.18,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 219,
+    "piso_depto": "UC-19",
+    "propietario": "TORRESI RUBENS",
+    "tipo": "Cochera",
+    "saldo_ant": 143150.19,
+    "pagos": 143150.19,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 86100.0,
+     "B": 27972.19
+    },
+    "pcts": {
+     "A": 0.42,
+     "B": 4.76
+    },
+    "total_mes": 114072.19,
+    "redondeo": 2.0,
+    "a_pagar": 114074.19,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 220,
+    "piso_depto": "UC-20",
+    "propietario": "SEGURO EVOLUCION",
+    "tipo": "Cochera",
+    "saldo_ant": 184404.2,
+    "pagos": 184404.2,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 9578.07,
+    "expensas": {
+     "A": 86100.0,
+     "B": 27972.19
+    },
+    "pcts": {
+     "A": 0.42,
+     "B": 4.76
+    },
+    "total_mes": 114072.19,
+    "redondeo": 1.94,
+    "a_pagar": 123652.2,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 221,
+    "piso_depto": "UC-21",
+    "propietario": "TASSARA MARIA ANA",
+    "tipo": "Cochera",
+    "saldo_ant": 143150.21,
+    "pagos": 143150.21,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 86100.0,
+     "B": 27972.19
+    },
+    "pcts": {
+     "A": 0.42,
+     "B": 4.76
+    },
+    "total_mes": 114072.19,
+    "redondeo": 2.02,
+    "a_pagar": 114074.21,
+    "gastos_part": 0.0
+   }
+  ],
+  "prorrateo_total": {
+   "A": 20512710.0,
+   "B": 587415.99,
+   "D": 10605834.61,
+   "_a_pagar": 35768236.91,
+   "_total_mes": 31705960.6,
+   "_gpart": 0.0,
+   "_pagos": 30894682.83,
+   "_deuda": 3526729.08,
+   "_interes": 535506.21
+  },
+  "evolucion": [
+   {
+    "mes": "Marzo 2026",
+    "a_cobrar": 21230111.67,
+    "gastos": 22957337.77,
+    "cobrado": 21106008.12
+   },
+   {
+    "mes": "Abril 2026",
+    "a_cobrar": 21235633.48,
+    "gastos": 16429951.61,
+    "cobrado": 21825519.12
+   },
+   {
+    "mes": "Mayo 2026",
+    "a_cobrar": 23897542.24,
+    "gastos": 20717051.97,
+    "cobrado": 19391756.78
+   },
+   {
+    "mes": "Junio 2026",
+    "a_cobrar": 21631133.72,
+    "gastos": 20199290.17,
+    "cobrado": 27014721.69
+   },
+   {
+    "mes": "Julio 2026",
+    "a_cobrar": 31122626.83,
+    "gastos": 32543124.9,
+    "cobrado": 21466527.2
+   },
+   {
+    "mes": "Agosto 2026",
+    "a_cobrar": 31705960.6,
+    "gastos": 29876923.16,
+    "cobrado": 30894682.83
+   }
+  ],
+  "checks": [
+   {
+    "nombre": "Suma de líneas = total de gastos",
+    "ok": true,
+    "esperado": 29876923.16,
+    "obtenido": 29876923.16,
+    "detalle": ""
+   },
+   {
+    "nombre": "Rubro SUELDOS Y CARGAS SOCIALES",
+    "ok": true,
+    "esperado": 5945356.92,
+    "obtenido": 5945356.92,
+    "detalle": ""
+   },
+   {
+    "nombre": "Rubro MANTENIMIENTOS EN UNIDADES",
+    "ok": true,
+    "esperado": 7585333.33,
+    "obtenido": 7585333.33,
+    "detalle": ""
+   },
+   {
+    "nombre": "Rubro IMPUESTOS",
+    "ok": true,
+    "esperado": 350657.78,
+    "obtenido": 350657.78,
+    "detalle": ""
+   },
+   {
+    "nombre": "Rubro SERVICIOS PUBLICOS",
+    "ok": true,
+    "esperado": 5184732.94,
+    "obtenido": 5184732.94,
+    "detalle": ""
+   },
+   {
+    "nombre": "Rubro ABONOS Y SERVICIOS",
+    "ok": true,
+    "esperado": 7816625.55,
+    "obtenido": 7816625.55,
+    "detalle": ""
+   },
+   {
+    "nombre": "Rubro GASTOS CONTABLES",
+    "ok": true,
+    "esperado": 84900.0,
+    "obtenido": 84900.0,
+    "detalle": ""
+   },
+   {
+    "nombre": "Rubro MANTENIMIENTO DE PARTES COMUNES",
+    "ok": true,
+    "esperado": 205392.0,
+    "obtenido": 205392.0,
+    "detalle": ""
+   },
+   {
+    "nombre": "Rubro GASTOS BANCARIOS",
+    "ok": true,
+    "esperado": 452336.93,
+    "obtenido": 452336.93,
+    "detalle": ""
+   },
+   {
+    "nombre": "Rubro GASTOS DE LIMPIEZA",
+    "ok": true,
+    "esperado": 259944.0,
+    "obtenido": 259944.0,
+    "detalle": ""
+   },
+   {
+    "nombre": "Rubro GASTOS DE ADMINISTRACION",
+    "ok": true,
+    "esperado": 874799.0,
+    "obtenido": 874799.0,
+    "detalle": ""
+   },
+   {
+    "nombre": "Rubro SEGUROS",
+    "ok": true,
+    "esperado": 698868.71,
+    "obtenido": 698868.71,
+    "detalle": ""
+   },
+   {
+    "nombre": "Rubro GASTOS GENERALES",
+    "ok": true,
+    "esperado": 417976.0,
+    "obtenido": 417976.0,
+    "detalle": ""
+   },
+   {
+    "nombre": "Columna A",
+    "ok": true,
+    "esperado": 18690264.72,
+    "obtenido": 18690264.72,
+    "detalle": ""
+   },
+   {
+    "nombre": "Columna B",
+    "ok": true,
+    "esperado": 587416.67,
+    "obtenido": 587416.67,
+    "detalle": ""
+   },
+   {
+    "nombre": "Columna D",
+    "ok": true,
+    "esperado": 10599241.77,
+    "obtenido": 10599241.77,
+    "detalle": ""
+   },
+   {
+    "nombre": "Estado financiero: saldo anterior + ingresos - egresos = cierre",
+    "ok": true,
+    "esperado": 1941386.31,
+    "obtenido": 1941386.31,
+    "detalle": ""
+   },
+   {
+    "nombre": "Egresos del estado financiero = total de gastos",
+    "ok": true,
+    "esperado": 29876923.16,
+    "obtenido": 29876923.16,
+    "detalle": ""
+   },
+   {
+    "nombre": "Cuenta BANCO - 17758-6 001-1: saldo anterior + ingresos - egresos = cierre",
+    "ok": true,
+    "esperado": 626104.26,
+    "obtenido": 626104.26,
+    "detalle": ""
+   },
+   {
+    "nombre": "Cuenta CAJA: saldo anterior + ingresos - egresos = cierre",
+    "ok": true,
+    "esperado": 1315282.05,
+    "obtenido": 1315282.05,
+    "detalle": ""
+   },
+   {
+    "nombre": "Suma de cuentas = disponibilidades",
+    "ok": true,
+    "esperado": 1941386.31,
+    "obtenido": 1941386.31,
+    "detalle": ""
+   },
+   {
+    "nombre": "Deudores: suma = total",
+    "ok": true,
+    "esperado": 4027770.23,
+    "obtenido": 4027770.23,
+    "detalle": ""
+   },
+   {
+    "nombre": "Estado de cuentas: suma de 'a pagar' = total",
+    "ok": true,
+    "esperado": 35768236.91,
+    "obtenido": 35768236.91,
+    "detalle": ""
+   },
+   {
+    "nombre": "Estado de cuentas: suma de deuda = total",
+    "ok": true,
+    "esperado": 3526729.08,
+    "obtenido": 3526729.08,
+    "detalle": ""
+   },
+   {
+    "nombre": "Estado de cuentas: suma de pagos = total",
+    "ok": true,
+    "esperado": 30894682.83,
+    "obtenido": 30894682.83,
+    "detalle": ""
+   },
+   {
+    "nombre": "Prorrateo clase A: suma de unidades = total",
+    "ok": true,
+    "esperado": 20512710.0,
+    "obtenido": 20512710.0,
+    "detalle": ""
+   },
+   {
+    "nombre": "Prorrateo clase B: suma de unidades = total",
+    "ok": true,
+    "esperado": 587415.99,
+    "obtenido": 587415.99,
+    "detalle": ""
+   },
+   {
+    "nombre": "Prorrateo clase D: suma de unidades = total",
+    "ok": true,
+    "esperado": 10605834.61,
+    "obtenido": 10605834.61,
+    "detalle": ""
+   },
+   {
+    "nombre": "A cobrar (patrimonial) = total a pagar de unidades",
+    "ok": true,
+    "esperado": 35768236.91,
+    "obtenido": 35768236.91,
+    "detalle": ""
+   },
+   {
+    "nombre": "Expensas cobradas (estado financiero) = pagos de unidades",
+    "ok": true,
+    "esperado": 30894682.83,
+    "obtenido": 30894682.83,
+    "detalle": ""
+   }
+  ],
+  "avisos": []
+ },
+ "anterior": {
+  "sistema": "redconar",
+  "periodo": "Julio 2026",
+  "consorcio": "RIVADAVIA 2069. BALVANERA, C.A.B.A.",
+  "cuit_consorcio": "33-60039145-9",
+  "administracion": "Administracion Almazare",
+  "cuit_administracion": "27-06254638-2",
+  "venc1": "2026-08-10",
+  "venc2": "2026-08-20",
+  "gastos": [
+   {
+    "n": 1,
+    "categoria": "SUELDOS Y CARGAS SOCIALES",
+    "proveedor": "ARCA",
+    "concepto": "AGENCIA DE RECAUDACIÃ​N Y CONTROL ADUANERO - RETENCIÓN SOBRE FACTURA COOPETATIVA C.S.I FC Nº 4776 PERIODO MAYO 2026. SIRE IVA $255,132.48 YTOTAL DE RETENCIONES PAGADAS A AFIP: $255,132.48.",
+    "columna": "A",
+    "importe": 255132.48,
+    "pct_inc": 0.78,
+    "factura_fecha": null,
+    "factura_nro": null,
+    "factura_importe": null,
+    "periodo": null,
+    "pagos": [
+     {
+      "fecha": "2026-07-02",
+      "importe": 255132.48,
+      "caja": "BANCO",
+      "forma": "Transferencia"
+     }
+    ]
+   },
+   {
+    "n": 2,
+    "categoria": "SUELDOS Y CARGAS SOCIALES",
+    "proveedor": "ARCA",
+    "concepto": "AGENCIA DE RECAUDACIÃ​N Y CONTROL ADUANERO - FORM. 931. CONTRIBUCIONES SEGURIDAD SOCIAL $1.232.539,99 / APORTE DE SEGURIDAD SOCIAL $945.642,65/ CONTRIBUCIONES DE OBRA SOCIAL $333.756,23/ APORTES DE OBRA SOCIAL $166.878,11/ L.R.T $386.492,03/ SEGURO COLECTIVO DE VIDA OBLIGATORIO $849,24. - Período: Mayo 2026",
+    "columna": "A",
+    "importe": 3066158.25,
+    "pct_inc": 9.42,
+    "factura_fecha": null,
+    "factura_nro": null,
+    "factura_importe": null,
+    "periodo": "Mayo 2026",
+    "pagos": [
+     {
+      "fecha": "2026-07-15",
+      "importe": 3066158.25,
+      "caja": "BANCO",
+      "forma": "Transferencia"
+     }
+    ]
+   },
+   {
+    "n": 3,
+    "categoria": "SUELDOS Y CARGAS SOCIALES",
+    "proveedor": "FATERYH",
+    "concepto": "DÉBITO AUTOMÁTICO. APORTE. CONTRIBUCIÓN SOLIDARIA OS CCT 589/10. ART. 27 BIS APORTE. ART. 27 BIS CONTRIBUCIÓN. - Período: Junio 2026",
+    "columna": "A",
+    "importe": 570647.58,
+    "pct_inc": 1.75,
+    "factura_fecha": null,
+    "factura_nro": null,
+    "factura_importe": null,
+    "periodo": "Junio 2026",
+    "pagos": [
+     {
+      "fecha": "2026-07-13",
+      "importe": 570647.58,
+      "caja": "BANCO",
+      "forma": "Transferencia"
+     }
+    ]
+   },
+   {
+    "n": 4,
+    "categoria": "SUELDOS Y CARGAS SOCIALES",
+    "proveedor": "SERACARH",
+    "concepto": "DÉBITO AUTOMÁTICO. CONTRIBUCIÓN. - Período: Junio 2026",
+    "columna": "A",
+    "importe": 32721.2,
+    "pct_inc": 0.1,
+    "factura_fecha": null,
+    "factura_nro": null,
+    "factura_importe": null,
+    "periodo": "Junio 2026",
+    "pagos": [
+     {
+      "fecha": "2026-07-13",
+      "importe": 32721.2,
+      "caja": "BANCO",
+      "forma": "Transferencia"
+     }
+    ]
+   },
+   {
+    "n": 5,
+    "categoria": "SUELDOS Y CARGAS SOCIALES",
+    "proveedor": "SUTERH",
+    "concepto": "DÉBITO AUTOMÁTICO.APORTE, CONTRIBUCIÓN Y APORTE SINDICAL . - Período: Junio 2026",
+    "columna": "A",
+    "importe": 294490.78,
+    "pct_inc": 0.9,
+    "factura_fecha": null,
+    "factura_nro": null,
+    "factura_importe": null,
+    "periodo": "Junio 2026",
+    "pagos": [
+     {
+      "fecha": "2026-07-13",
+      "importe": 294490.78,
+      "caja": "BANCO",
+      "forma": "Transferencia"
+     }
+    ]
+   },
+   {
+    "n": 6,
+    "categoria": "SUELDOS Y CARGAS SOCIALES",
+    "proveedor": "Consorcio RIVADAVIA 2069",
+    "concepto": "SUELDO Y SAC. HERES MIGUEL ANGEL - Nro: 576592 - Período: Junio 2026",
+    "columna": "A",
+    "importe": 2370332.0,
+    "pct_inc": 7.28,
+    "factura_fecha": null,
+    "factura_nro": null,
+    "factura_importe": null,
+    "periodo": "Junio 2026",
+    "pagos": [
+     {
+      "fecha": "2026-07-01",
+      "importe": 2370332.0,
+      "caja": "BANCO",
+      "forma": "Transferencia"
+     }
+    ]
+   },
+   {
+    "n": 7,
+    "categoria": "SUELDOS Y CARGAS SOCIALES",
+    "proveedor": "Consorcio RIVADAVIA 2069",
+    "concepto": "SUELDO Y SAC GONZALEZ RAMON - Nro: 576596 - Período: Junio 2026",
+    "columna": "A",
+    "importe": 2750537.0,
+    "pct_inc": 8.45,
+    "factura_fecha": null,
+    "factura_nro": null,
+    "factura_importe": null,
+    "periodo": "Junio 2026",
+    "pagos": [
+     {
+      "fecha": "2026-07-01",
+      "importe": 2750537.0,
+      "caja": "BANCO",
+      "forma": "Transferencia"
+     }
+    ]
+   },
+   {
+    "n": 8,
+    "categoria": "MANTENIMIENTOS EN UNIDADES",
+    "proveedor": "GOMEZ PABLO RODOLFO",
+    "concepto": "MAMPOSTERÍA Y COLOCACIÓN DE VENEZITAS. TRABAJO CON MATERIALES INCLUÍDOS. EN EL DEPARTAMENTO 14ºF",
+    "columna": "A",
+    "importe": 320000.0,
+    "pct_inc": 0.98,
+    "factura_fecha": "2026-07-01",
+    "factura_nro": "00002-00000105",
+    "factura_importe": 320000.0,
+    "periodo": null,
+    "pagos": [
+     {
+      "fecha": "2026-07-02",
+      "importe": 320000.0,
+      "caja": "BANCO",
+      "forma": "Transferencia"
+     }
+    ]
+   },
+   {
+    "n": 9,
+    "categoria": "MANTENIMIENTOS EN UNIDADES",
+    "proveedor": "LO & CO S.A",
+    "concepto": "BALDOSAS DE PORCELANATO ABONADAS POR DPTO 13ºB. S.L. 60X120 MARM.STRAZZA NAT.PUL X M2.",
+    "columna": "A",
+    "importe": 2003457.01,
+    "pct_inc": 6.16,
+    "factura_fecha": "2026-07-11",
+    "factura_nro": "00024-00000092",
+    "factura_importe": 2003457.01,
+    "periodo": null,
+    "pagos": [
+     {
+      "fecha": "2026-07-11",
+      "importe": 2003457.01,
+      "caja": "CAJA",
+      "forma": "Efectivo"
+     }
+    ]
+   },
+   {
+    "n": 10,
+    "categoria": "MANTENIMIENTOS EN UNIDADES",
+    "proveedor": "LOPEZ RAMIREZ VIDAL",
+    "concepto": "SERVICE POR LIJADO Y PLASTIFICADO EN PISOS EN PISO 12º B. SALDO.",
+    "columna": "A",
+    "importe": 200000.0,
+    "pct_inc": 0.61,
+    "factura_fecha": "2026-06-23",
+    "factura_nro": "00003-00000233",
+    "factura_importe": 400000.0,
+    "periodo": null,
+    "pagos": [
+     {
+      "fecha": "2026-07-01",
+      "importe": 200000.0,
+      "caja": "BANCO",
+      "forma": "Transferencia"
+     }
+    ]
+   },
+   {
+    "n": 11,
+    "categoria": "MANTENIMIENTOS EN UNIDADES",
+    "proveedor": "PEÑALOZA ALEJANDRO ROBERTO",
+    "concepto": "ANTICIPO PARA ACOPIOS DE MATERIALES TRABAJOS DE CALEFACION COLUMNA SECTOR. F TRABAJOS A REALIZARCE EN DEPTOS 8° F, 9° F, 10° F, 11° F Y 12° F.",
+    "columna": "A",
+    "importe": 5000000.0,
+    "pct_inc": 15.36,
+    "factura_fecha": "2026-07-24",
+    "factura_nro": "00003-00000201",
+    "factura_importe": 5000000.0,
+    "periodo": null,
+    "pagos": [
+     {
+      "fecha": "2026-07-13",
+      "importe": 3500000.0,
+      "caja": "BANCO",
+      "forma": "Transferencia"
+     },
+     {
+      "fecha": "2026-07-13",
+      "importe": 1500000.0,
+      "caja": "BANCO",
+      "forma": "Transferencia"
+     }
+    ]
+   },
+   {
+    "n": 12,
+    "categoria": "MANTENIMIENTOS EN UNIDADES",
+    "proveedor": "SACZEWICZYK MARIA EUGENIA",
+    "concepto": "TRABAJO REALIZADO EN AVENIDA RIVADAVIA 2069 DEPARTAMENTO B, PISO 13, ROMPER MANUALMENTE, SACAR PORCELANATO PREEXISTENTE, EMPAREJAR, Y COLOCAR PORCELANATO DE 1,20 MTS X 60 CM APROX 50 MTRS CUADRADO CON MATERIAL INCLUIDO, A EXCEPCIÓN DEL PORCELANATO Y PASTINA. PAGO A CUENTA $2.000.000.",
+    "columna": "A",
+    "importe": 2000000.0,
+    "pct_inc": 6.15,
+    "factura_fecha": "2026-07-27",
+    "factura_nro": "00001-00000007",
+    "factura_importe": 4552000.0,
+    "periodo": null,
+    "pagos": [
+     {
+      "fecha": "2026-07-23",
+      "importe": 2000000.0,
+      "caja": "CAJA",
+      "forma": "Efectivo"
+     }
+    ]
+   },
+   {
+    "n": 13,
+    "categoria": "MANTENIMIENTOS EN UNIDADES",
+    "proveedor": "VARAS GILBERTO GABRIEL",
+    "concepto": "ROMPER PARED EN BAÑO Y CAMBIAR COLUMNA DE ALIMENTACIÓN AGUA FRÍA DESDE EL ENTREPISO HASTA LA LLAVE DE PASO INCLUSIVE DEL DEPARTAMENTO 14 E Y ALIMENTACIÓN AL BAÑO DEPARTAMENTO 14 F REEMPLAZANDO CAÑERÍA DE GALVANIZADO POR CAÑERÍA DE TERMOFUSIÓN CON CONEXIONES EN HB TOTAL MANO DE OBRA Y MATERIALES",
+    "columna": "A",
+    "importe": 680000.0,
+    "pct_inc": 2.09,
+    "factura_fecha": "2026-06-30",
+    "factura_nro": "00004-00000361",
+    "factura_importe": 680000.0,
+    "periodo": null,
+    "pagos": [
+     {
+      "fecha": "2026-07-02",
+      "importe": 680000.0,
+      "caja": "BANCO",
+      "forma": "Transferencia"
+     }
+    ]
+   },
+   {
+    "n": 14,
+    "categoria": "IMPUESTOS",
+    "proveedor": "AGIP-ABL",
+    "concepto": "PAGO ABL PARTIDA 2813079. - Período: Julio 2026",
+    "columna": "B",
+    "importe": 350657.78,
+    "pct_inc": 1.08,
+    "factura_fecha": null,
+    "factura_nro": null,
+    "factura_importe": null,
+    "periodo": "Julio 2026",
+    "pagos": [
+     {
+      "fecha": "2026-07-02",
+      "importe": 350657.78,
+      "caja": "BANCO",
+      "forma": "Transferencia"
+     }
+    ]
+   },
+   {
+    "n": 15,
+    "categoria": "SERVICIOS PUBLICOS",
+    "proveedor": "EDESUR",
+    "concepto": "PERIODO LIQUIDADO 11/06/2026 AL 15/07/2026 .CLIENTE: 80052153. MEDIDOR Nº 15013075.",
+    "columna": "A",
+    "importe": 1582033.54,
+    "pct_inc": 4.86,
+    "factura_fecha": "2026-07-15",
+    "factura_nro": "0206463618",
+    "factura_importe": 1582033.54,
+    "periodo": null,
+    "pagos": [
+     {
+      "fecha": "2026-07-20",
+      "importe": 1582033.54,
+      "caja": "BANCO",
+      "forma": "Transferencia"
+     }
+    ]
+   },
+   {
+    "n": 16,
+    "categoria": "SERVICIOS PUBLICOS",
+    "proveedor": "METROGAS",
+    "concepto": "CLIENTE Nº 10614995000 PERIODO DE LIQUIDACION 2 DE 2 DEL BIMESTRE 03/2026. - Período: Julio 2026",
+    "columna": "D",
+    "importe": 373073.82,
+    "pct_inc": 1.15,
+    "factura_fecha": "2026-06-30",
+    "factura_nro": "0064-68068209",
+    "factura_importe": 373073.82,
+    "periodo": "Julio 2026",
+    "pagos": [
+     {
+      "fecha": "2026-07-13",
+      "importe": 373073.82,
+      "caja": "",
+      "forma": ""
+     }
+    ]
+   },
+   {
+    "n": 17,
+    "categoria": "SERVICIOS PUBLICOS",
+    "proveedor": "AYSA",
+    "concepto": "CUENTA DE SERVICIO: 1409553 PERIODO LIQUIDADO 07/07/2026 AL 05/08/2026",
+    "columna": "B",
+    "importe": 229965.57,
+    "pct_inc": 0.71,
+    "factura_fecha": "2026-06-06",
+    "factura_nro": "011116133040",
+    "factura_importe": 229965.57,
+    "periodo": null,
+    "pagos": [
+     {
+      "fecha": "2026-07-06",
+      "importe": 229965.57,
+      "caja": "",
+      "forma": ""
+     }
+    ]
+   },
+   {
+    "n": 18,
+    "categoria": "SERVICIOS PUBLICOS",
+    "proveedor": "EDESUR",
+    "concepto": "PERIODO LIQUIDADO 7º. CLIENTE: 50788. MEDIDOR Nº 4570615 - Período: Julio 2026",
+    "columna": "A",
+    "importe": 255952.3,
+    "pct_inc": 0.79,
+    "factura_fecha": "2026-07-15",
+    "factura_nro": "0501-85417827",
+    "factura_importe": 255952.3,
+    "periodo": "Julio 2026",
+    "pagos": [
+     {
+      "fecha": "2026-07-30",
+      "importe": 255952.3,
+      "caja": "",
+      "forma": ""
+     }
+    ]
+   },
+   {
+    "n": 19,
+    "categoria": "ABONOS Y SERVICIOS",
+    "proveedor": "ASCENSORES LAUFKEN",
+    "concepto": "ABONO ASCENSORES JUNIO. - Período: Junio 2026",
+    "columna": "A",
+    "importe": 442000.0,
+    "pct_inc": 1.36,
+    "factura_fecha": "2026-07-02",
+    "factura_nro": "30862",
+    "factura_importe": 442000.0,
+    "periodo": "Junio 2026",
+    "pagos": [
+     {
+      "fecha": "2026-07-10",
+      "importe": 442000.0,
+      "caja": "BANCO",
+      "forma": "Transferencia"
+     }
+    ]
+   },
+   {
+    "n": 20,
+    "categoria": "ABONOS Y SERVICIOS",
+    "proveedor": "ASCENSORES LAUFKEN",
+    "concepto": "ASCENSOR 4: POR SALDO 50% POR TRABAJO DE ACUERDO A PRESUPUESTO 40595 REPARACION DE PUERTA.",
+    "columna": "A",
+    "importe": 605000.0,
+    "pct_inc": 1.86,
+    "factura_fecha": "2026-07-02",
+    "factura_nro": "00001-00031101",
+    "factura_importe": 605000.0,
+    "periodo": null,
+    "pagos": [
+     {
+      "fecha": "2026-07-10",
+      "importe": 605000.0,
+      "caja": "BANCO",
+      "forma": "Transferencia"
+     }
+    ]
+   },
+   {
+    "n": 21,
+    "categoria": "ABONOS Y SERVICIOS",
+    "proveedor": "COOPERATIVA DE TRABAJO C.S.I LIMITADA -",
+    "concepto": "SERVICIO DE SEGURIDAD FACTURA Nº 44833 MES DE JUNIO. TOTAL DE $ $2.952.305,40 A ESTA SUMA SE DESCUENTAN RETENCIONES, SIRE IVA $ $ 256.260,11. SE PAGA A LA EMPRESA UN TOTAL DE $2.696.045,29. - Período: Mayo 2026",
+    "columna": "A",
+    "importe": 2696045.29,
+    "pct_inc": 8.28,
+    "factura_fecha": null,
+    "factura_nro": null,
+    "factura_importe": null,
+    "periodo": "Mayo 2026",
+    "pagos": [
+     {
+      "fecha": "2026-07-29",
+      "importe": 2696045.29,
+      "caja": "CAJA",
+      "forma": "Efectivo"
+     }
+    ]
+   },
+   {
+    "n": 22,
+    "categoria": "ABONOS Y SERVICIOS",
+    "proveedor": "DESTAPACIONES EL LEON",
+    "concepto": "ABONO DESTAPACIONES MENSUAL. - Período: Julio 2026",
+    "columna": "A",
+    "importe": 389000.0,
+    "pct_inc": 1.2,
+    "factura_fecha": "2026-07-01",
+    "factura_nro": "0005-00008238",
+    "factura_importe": 389000.0,
+    "periodo": "Julio 2026",
+    "pagos": [
+     {
+      "fecha": "2026-07-03",
+      "importe": 389000.0,
+      "caja": "BANCO",
+      "forma": "Transferencia"
+     }
+    ]
+   },
+   {
+    "n": 23,
+    "categoria": "ABONOS Y SERVICIOS",
+    "proveedor": "FLOW",
+    "concepto": "SERVICIO INTERNET CAMARAS. PERIODO: FEBRERO JULIO. - Período: Julio 2026",
+    "columna": "A",
+    "importe": 78966.19,
+    "pct_inc": 0.24,
+    "factura_fecha": null,
+    "factura_nro": null,
+    "factura_importe": null,
+    "periodo": "Julio 2026",
+    "pagos": [
+     {
+      "fecha": "2026-07-02",
+      "importe": 78966.19,
+      "caja": "BANCO",
+      "forma": "Transferencia"
+     }
+    ]
+   },
+   {
+    "n": 24,
+    "categoria": "ABONOS Y SERVICIOS",
+    "proveedor": "GRUPO CONTROLSEG",
+    "concepto": "ABONO DE CONTROL DE ACCESO. - Período: Julio 2026",
+    "columna": "A",
+    "importe": 55000.0,
+    "pct_inc": 0.17,
+    "factura_fecha": "2026-07-01",
+    "factura_nro": "00002-00035895",
+    "factura_importe": 55000.0,
+    "periodo": "Julio 2026",
+    "pagos": [
+     {
+      "fecha": "2026-07-02",
+      "importe": 55000.0,
+      "caja": "BANCO",
+      "forma": "Transferencia"
+     }
+    ]
+   },
+   {
+    "n": 25,
+    "categoria": "ABONOS Y SERVICIOS",
+    "proveedor": "MARCELO LUIS ESCUCHURI",
+    "concepto": "MAGNUM FUMIGACIONES - ABONO DESINSECTACION ABRIL 2 VISITAS. DESRATIZACION PREVENTIVA EN ESPACIOS COMUNES, COCHERAS.",
+    "columna": "A",
+    "importe": 229000.0,
+    "pct_inc": 0.7,
+    "factura_fecha": "2026-07-14",
+    "factura_nro": "6361",
+    "factura_importe": 229000.0,
+    "periodo": null,
+    "pagos": [
+     {
+      "fecha": "2026-07-10",
+      "importe": 229000.0,
+      "caja": "BANCO",
+      "forma": "Transferencia"
+     }
+    ]
+   },
+   {
+    "n": 26,
+    "categoria": "ABONOS Y SERVICIOS",
+    "proveedor": "MARIO LEONARDO ROTH",
+    "concepto": "CERTIFICACION DE EQUIPOS TERMICOS. JULIO. - Período: Julio 2026",
+    "columna": "A",
+    "importe": 90000.0,
+    "pct_inc": 0.28,
+    "factura_fecha": "2026-07-16",
+    "factura_nro": "00002-00004331",
+    "factura_importe": 90000.0,
+    "periodo": "Julio 2026",
+    "pagos": [
+     {
+      "fecha": "2026-07-20",
+      "importe": 90000.0,
+      "caja": "BANCO",
+      "forma": "Transferencia"
+     }
+    ]
+   },
+   {
+    "n": 27,
+    "categoria": "ABONOS Y SERVICIOS",
+    "proveedor": "MARIO LEONARDO ROTH",
+    "concepto": "FACT 4182:CAMBIO DE SERPENTINA CON CAÑO PEX DE DIAMETRO 20MM DEPTO 12 B TOTAL $2.900.000; FACT 4183 REPARACION CUPLA EN 1º PARA DAR SERVICIO SE ANULO UN ENGAMCHE $150.000; Y FACT 4191 CAMBIO DE SERPENTINA DE CALEFACCIÒN EN DEPTO 13 B CAÑO PEX DE 20 MM EXTENSIÓN 20 MTS $4.900.000 TRABAJO TOTAL $7.950.000 PAGADO EN 3 CUOTAS DE $2.650.000 C/U",
+    "columna": "D",
+    "importe": 2650000.0,
+    "pct_inc": 8.14,
+    "factura_fecha": "2026-05-29",
+    "factura_nro": "4182-4183-4191",
+    "factura_importe": 7950000.0,
+    "periodo": null,
+    "pagos": [
+     {
+      "fecha": "2026-07-13",
+      "importe": 2650000.0,
+      "caja": "BANCO",
+      "forma": "Transferencia"
+     }
+    ]
+   },
+   {
+    "n": 28,
+    "categoria": "ABONOS Y SERVICIOS",
+    "proveedor": "METROGAS",
+    "concepto": "CLIENTE Nº 10614995000 PERIODO DE LIQUIDACION 2 DE 2 DEL BIMESTRE 03/2026",
+    "columna": "A",
+    "importe": 39970.43,
+    "pct_inc": 0.12,
+    "factura_fecha": "2026-06-30",
+    "factura_nro": "0064-68050204",
+    "factura_importe": 39970.43,
+    "periodo": null,
+    "pagos": [
+     {
+      "fecha": "2026-07-13",
+      "importe": 39970.43,
+      "caja": "",
+      "forma": ""
+     }
+    ]
+   },
+   {
+    "n": 29,
+    "categoria": "ABONOS Y SERVICIOS",
+    "proveedor": "SOLUCIONES EN EXTINGUIDORES S.R.L.",
+    "concepto": "MANT. INSTALACION S/RES. N°405/AGC/19-ANEXO IV",
+    "columna": "A",
+    "importe": 93224.99,
+    "pct_inc": 0.29,
+    "factura_fecha": "2026-07-08",
+    "factura_nro": "00002-00002217",
+    "factura_importe": 93224.99,
+    "periodo": null,
+    "pagos": [
+     {
+      "fecha": "2026-07-16",
+      "importe": 93224.99,
+      "caja": "BANCO",
+      "forma": "Transferencia"
+     }
+    ]
+   },
+   {
+    "n": 30,
+    "categoria": "GASTOS CONTABLES",
+    "proveedor": "LUIS BELTRAN MONTASTRUC",
+    "concepto": "HONORARIOS PROFESIONALES RÉGIMEN DE RETENCIONES DDJJ DE SIRE DE IVA Y SEG. SOCIAL ARCA SICORE . HONORARIOS PROFESIONALES LIQUIDACIÓN DE SUELDOS DDJJ CARGAS SOCIALES ARCA Y APORTES Y CONTRIBUCIONES SINDICALES. - Período: Junio 2026",
+    "columna": "A",
+    "importe": 79600.0,
+    "pct_inc": 0.24,
+    "factura_fecha": "2026-07-15",
+    "factura_nro": "1153",
+    "factura_importe": 79600.0,
+    "periodo": "Junio 2026",
+    "pagos": [
+     {
+      "fecha": "2026-07-10",
+      "importe": 79600.0,
+      "caja": "BANCO",
+      "forma": "Transferencia"
+     }
+    ]
+   },
+   {
+    "n": 31,
+    "categoria": "GASTOS CONTABLES",
+    "proveedor": "LUIS BELTRAN MONTASTRUC",
+    "concepto": "HONORARIOS PROFESIONALES PRESENTACION Y RUBRICA LIBRO SUELDO DIGITAL DEL ART 52 LCT - PERIODO 09- 2025 HASTA 03-2026.",
+    "columna": "A",
+    "importe": 56000.0,
+    "pct_inc": 0.17,
+    "factura_fecha": "2026-05-07",
+    "factura_nro": "00003-00001124",
+    "factura_importe": 56000.0,
+    "periodo": null,
+    "pagos": [
+     {
+      "fecha": "2026-07-17",
+      "importe": 56000.0,
+      "caja": "BANCO",
+      "forma": "Transferencia"
+     }
+    ]
+   },
+   {
+    "n": 32,
+    "categoria": "GASTOS BANCARIOS",
+    "proveedor": "BANCO DE GALICIA",
+    "concepto": "GASTOS BANCARIOS DESDE EL 22/06/2026 A 21/07/2026. - Período: Julio 2026",
+    "columna": "A",
+    "importe": 394545.83,
+    "pct_inc": 1.21,
+    "factura_fecha": null,
+    "factura_nro": null,
+    "factura_importe": null,
+    "periodo": "Julio 2026",
+    "pagos": [
+     {
+      "fecha": "2026-07-21",
+      "importe": 394545.83,
+      "caja": "",
+      "forma": ""
+     }
+    ]
+   },
+   {
+    "n": 33,
+    "categoria": "GASTOS DE LIMPIEZA",
+    "proveedor": "SOLVER",
+    "concepto": "ART LIMPIEZA. LIMPIADOR PISOS 5L PINO 1U, LIMPIADOR PISOS 5L FLORAL 1U, LIMPIAVIDRIOS REP 450 5U, BOLSA COMPACTADORA 80 X 110 (U) 35 MIC 300U, TRAPO DE PISO GRANDE REFORZADO 2U, DESODORANTE AMB AEROSOL 10U, DESINFECTANTE AEROSOL LYSOFORM 360CM3 3U, ESPONJA CUADRICULADA 5U, LAMP DICROICA LED GU10 7 W FRIA 5U, LAMP LED 6 /7W FRIA 10U.",
+    "columna": "A",
+    "importe": 359992.0,
+    "pct_inc": 1.11,
+    "factura_fecha": "2026-07-06",
+    "factura_nro": "00002-00017822",
+    "factura_importe": 359992.0,
+    "periodo": null,
+    "pagos": [
+     {
+      "fecha": "2026-07-07",
+      "importe": 359992.0,
+      "caja": "BANCO",
+      "forma": "Transferencia"
+     }
+    ]
+   },
+   {
+    "n": 34,
+    "categoria": "GASTOS DE ADMINISTRACION",
+    "proveedor": "GRACIELA MARTA CROCAMO",
+    "concepto": "DISPOSICION 856 DEL GOB. DE Bs. As. ESCANEO DE LA DOCUMENTACIÒN DEL CONSORCIO Y SUBIDA A LA PLATAFORMA DEL SISTEMA. - Período: Julio 2026",
+    "columna": "A",
+    "importe": 95000.0,
+    "pct_inc": 0.29,
+    "factura_fecha": null,
+    "factura_nro": null,
+    "factura_importe": null,
+    "periodo": "Julio 2026",
+    "pagos": [
+     {
+      "fecha": "2026-07-28",
+      "importe": 95000.0,
+      "caja": "BANCO",
+      "forma": "Transferencia"
+     }
+    ]
+   },
+   {
+    "n": 35,
+    "categoria": "GASTOS DE ADMINISTRACION",
+    "proveedor": "GRACIELA MARTA CROCAMO",
+    "concepto": "HONORARIOS ADMINISTRACIÓN JULIO. - Período: Julio 2026",
+    "columna": "A",
+    "importe": 711980.0,
+    "pct_inc": 2.19,
+    "factura_fecha": "2026-07-22",
+    "factura_nro": "00010-00001627",
+    "factura_importe": 711980.0,
+    "periodo": "Julio 2026",
+    "pagos": [
+     {
+      "fecha": "2026-07-28",
+      "importe": 711980.0,
+      "caja": "BANCO",
+      "forma": "Transferencia"
+     }
+    ]
+   },
+   {
+    "n": 36,
+    "categoria": "SEGUROS",
+    "proveedor": "ALLIANZ SEGUROS",
+    "concepto": "SEGURO INTEGRAL DEL CONSORCIO PÓLIZA Nº 250230772503. VIGENCIA DESDE 29/11/2025 HASTA EL 29/11/2026. COBERTURA: RESPONSABILIDAD CIVIL COMPRENSIVA: COBERTURA BASE + ASCENSORES + GUARDA DE VEHICULOSSIN FRANQUICIA A PRIMER RIESGO ABSOLUTO 210.000.000,00. INCENDIO: CONTENIDO GENERAL EN PARTES COMUNESBASICA CON HVCT Y GRANIZO A PRIMER RIESGO ABSOLUTO 19.000.000,00. EDIFICIOBASICA CON HURACAN, VENDAVAL, CICLON Y/O TORNADO, GRANIZO A PRORRATA 6.000.000.000,00. GASTOS EXTRAORDINARIOS A PRIMER RIESGO ABSOLUTO 100.000.000,00. GASTOS DE LIMPIEZA Y REMOCION DE ESCOMBROS A PRIMER RIESGO ABSOLUTO 300.000.000,00. RESPONSABILIDAD CIVIL LINDEROS A PRIMER RIESGO ABSOLUTO 50.000.000,00. CRISTALES, VIDRIOS Y ESPEJOS: 4.200.000,00. ROBO: CONTENIDO GENERAL EN PARTES COMUNES A PRIMER RIESGO ABSOLUTO 420.000,00. 1 MATAFUEGOS 600.000,00 DAÑOS POR ACCION DEL AGUA: 5.000.000,00 - Cuota: 7/10",
+    "columna": "A",
+    "importe": 268652.0,
+    "pct_inc": 0.83,
+    "factura_fecha": null,
+    "factura_nro": null,
+    "factura_importe": null,
+    "periodo": null,
+    "pagos": [
+     {
+      "fecha": "2026-07-06",
+      "importe": 268652.0,
+      "caja": "",
+      "forma": ""
+     }
+    ]
+   },
+   {
+    "n": 37,
+    "categoria": "SEGUROS",
+    "proveedor": "ALLIANZ SEGUROS",
+    "concepto": "SEGURO INTEGRAL DEL CONSORCIO PÓLIZA Nº 250230772503. ENDOSO Nº1 VIGENCIA DESDE 03/03/2026 HASTA EL 29/11/2026. AUMENTO Y/O REDUCCION DE SUMA/S ASEGURADA/S SE HACE CONSTAR POR ESTE ENDOSO QUE A PARTIR DE LA FECHA ARRIBA INDICADA LA/S SUMA/S ASEGURADA/S POR LA POLIZA DEL RUBRO SE AUMENTA/N Y/O REDUCE/N, EN LA UBICACION DEL RIESGO ESPECIFICADA A CONTINUACION, SEGUN EL SIGUIENTE DETALLE: CLASE DE RIESGO: CONSORCIO, FAMILIAS Y/U OFICINAS UBICACIÓN: AVDA RIVADAVIA 2067 - CAPITAL FEDERAL RESPONSABILIDAD CIVIL COMPRENSIVA COBERTURA BASE + ASCENSORES + GUARDA DE VEHICULOS SIN FRANQUICIA A PRIMER RIESGO ABSOLUTO 39.900.000,00 - Cuota: 4/7",
+    "columna": "A",
+    "importe": 8128.0,
+    "pct_inc": 0.02,
+    "factura_fecha": null,
+    "factura_nro": null,
+    "factura_importe": null,
+    "periodo": null,
+    "pagos": [
+     {
+      "fecha": "2026-07-06",
+      "importe": 8128.0,
+      "caja": "",
+      "forma": ""
+     }
+    ]
+   },
+   {
+    "n": 38,
+    "categoria": "SEGUROS",
+    "proveedor": "ALLIANZ SEGUROS",
+    "concepto": "SEGURO INTEGRAL DEL CONSORCIO PÓLIZA Nº 250230772503. ENDOSO Nº2 VIGENCIA DESDE 08/04/2026 HASTA EL 29/11/2026. CLASE DE RIESGO: CONSORCIO, FAMILIAS Y/U OFICINAS UBICACIÓN: AVDA RIVADAVIA 2067 - CAPITAL FEDERAL RESPONSABILIDAD CIVIL COMPRENSIVA COBERTURA BASE + ASCENSORES + GUARDA DE VEHICULOS SIN FRANQUICIA A PRIMER RIESGO ABSOLUTO 650.100.000,00 INCENDIO EDIFICIO BASICA CON HURACAN, VENDAVAL, CICLON Y/O TORNADO, GRANIZO A PRORRATA 6.000.000.000,00 GASTOS DE LIMPIEZA Y REMOCION DE ESCOMBROS A PRIMER RIESGO ABSOLUTO 300.000.000,00 GASTOS EXTRAORDINARIOS A PRIMER RIESGO ABSOLUTO 0,00 RESPONSABILIDAD CIVIL LINDEROS A PRIMER RIESGO ABSOLUTO 0,00 CONTENIDO GENERAL EN PARTES COMUNES BASICA CON HVCT Y GRANIZO A PRIMER RIESGO ABSOLUTO 0,00 CRISTALES, VIDRIOS Y ESPEJOS COLOCADOS VERTICALMENTE EN PARTES COMUNES BASICA CON HVCT, GRANIZO Y TERREMOTO A PRIMER RIESGO ABSOLUTO 4.800.000,00 ROBO CONTENIDO GENERAL EN PARTES COMUNES A PRIMER RIESGO ABSOLUTO 11.580.000,00 OBJETO - Cuota: 3/6",
+    "columna": "A",
+    "importe": 382377.0,
+    "pct_inc": 1.17,
+    "factura_fecha": null,
+    "factura_nro": null,
+    "factura_importe": null,
+    "periodo": null,
+    "pagos": [
+     {
+      "fecha": "2026-07-06",
+      "importe": 382377.0,
+      "caja": "",
+      "forma": ""
+     }
+    ]
+   },
+   {
+    "n": 39,
+    "categoria": "SEGUROS",
+    "proveedor": "ALLIANZ SEGUROS",
+    "concepto": "SEGURO INTEGRAL DEL CONSORCIO PÓLIZA Nº 250230772503. ENDOSO Nº5 VIGENCIA DESDE 01/03/2026 HASTA EL 29/11/2026. AUMENTO Y/O REDUCCION DE SUMA/S ASEGURADA/S SE HACE CONSTAR POR ESTE ENDOSO QUE A PARTIR DE LA FECHA ARRIBA INDICADA LA/S SUMA/S ASEGURADA/S POR LA POLIZA DEL RUBRO SE AUMENTA/N Y/O REDUCE/N, EN LA UBICACION DEL RIESGO ESPECIFICADA A CONTINUACION, SEGUN EL SIGUIENTE DETALLE: CLASE DE RIESGO: CONSORCIO, FAMILIAS Y/U OFICINAS UBICACIÓN: AVDA RIVADAVIA 2067 - CAPITAL FEDERAL CRISTALES, VIDRIOS Y ESPEJOS COLOCADOS VERTICALMENTE EN PARTES COMUNES BASICA CON HVCT, GRANIZO Y TERREMOTO A PRIMER RIESGO ABSOLUTO $ 8.620.705,00 COLOCADOS VERTICALMENTE EN PARTES COMUNES BASICA CON HVCT, GRANIZO Y TERREMOTO A PRIMER RIESGO ABSOLUTO $ 9.000.000,00",
+    "columna": "A",
+    "importe": 39136.15,
+    "pct_inc": 0.12,
+    "factura_fecha": null,
+    "factura_nro": null,
+    "factura_importe": null,
+    "periodo": null,
+    "pagos": [
+     {
+      "fecha": "2026-07-15",
+      "importe": 39136.15,
+      "caja": "",
+      "forma": ""
+     }
+    ]
+   },
+   {
+    "n": 40,
+    "categoria": "SEGUROS",
+    "proveedor": "BERKLEY CIA DE SEGUROS",
+    "concepto": "POLIZA Nº 17- 35287 SEGURO DE VIDA COLECTIVO. ASEGURADO :2 VIDAS. GONZALEZ RAMON. SUELDO: $1.810.000,00 CAPITAL: $11.765.000,00 HERES MIGUEL ANGEL SUELDO: $1.300.000,00 CAPITAL: $5.850.000,00 - Cuota: 6/10",
+    "columna": "A",
+    "importe": 39711.71,
+    "pct_inc": 0.12,
+    "factura_fecha": null,
+    "factura_nro": null,
+    "factura_importe": null,
+    "periodo": null,
+    "pagos": [
+     {
+      "fecha": "2026-07-03",
+      "importe": 39711.71,
+      "caja": "",
+      "forma": ""
+     }
+    ]
+   },
+   {
+    "n": 41,
+    "categoria": "GASTOS GENERALES",
+    "proveedor": "CENTRO GRÁFICO MAXICOPY",
+    "concepto": "ART LIBRERIA",
+    "columna": "A",
+    "importe": 7200.0,
+    "pct_inc": 0.02,
+    "factura_fecha": "2026-07-03",
+    "factura_nro": "0005-00001117",
+    "factura_importe": 7200.0,
+    "periodo": null,
+    "pagos": [
+     {
+      "fecha": "2026-07-03",
+      "importe": 7200.0,
+      "caja": "CAJA",
+      "forma": "Efectivo"
+     }
+    ]
+   },
+   {
+    "n": 42,
+    "categoria": "GASTOS GENERALES",
+    "proveedor": "CORREO ARGENTINO",
+    "concepto": "CARTA DOCUMENTO PARA DEPARTAMENTO PB E.",
+    "columna": "A",
+    "importe": 23900.0,
+    "pct_inc": 0.07,
+    "factura_fecha": "2026-07-27",
+    "factura_nro": "00376311",
+    "factura_importe": 23900.0,
+    "periodo": null,
+    "pagos": [
+     {
+      "fecha": "2026-07-27",
+      "importe": 23900.0,
+      "caja": "CAJA",
+      "forma": "Efectivo"
+     }
+    ]
+   },
+   {
+    "n": 43,
+    "categoria": "GASTOS GENERALES",
+    "proveedor": "NAVARRO FERNANDEZ RICARDO ESTEBAN -",
+    "concepto": "HONORARIOS POR ASESORAMIENTO Y PATROCINIO LETRADO AUDIENCIA POR DENUNCIA EN DEFENSA DEL CONSUMIDOR",
+    "columna": "A",
+    "importe": 200000.0,
+    "pct_inc": 0.61,
+    "factura_fecha": "2026-07-03",
+    "factura_nro": "00003-00000262",
+    "factura_importe": 200000.0,
+    "periodo": null,
+    "pagos": [
+     {
+      "fecha": "2026-07-03",
+      "importe": 200000.0,
+      "caja": "BANCO",
+      "forma": "Transferencia"
+     }
+    ]
+   },
+   {
+    "n": 44,
+    "categoria": "GASTOS GENERALES",
+    "proveedor": "REDCONAR",
+    "concepto": "PLATAFORMA SISTEMA GESTION",
+    "columna": "A",
+    "importe": 173536.0,
+    "pct_inc": 0.53,
+    "factura_fecha": "2026-07-07",
+    "factura_nro": "00001-00049582",
+    "factura_importe": 173536.0,
+    "periodo": null,
+    "pagos": [
+     {
+      "fecha": "2026-07-13",
+      "importe": 173536.0,
+      "caja": "",
+      "forma": ""
+     }
+    ]
+   }
+  ],
+  "totales_categoria": {
+   "SUELDOS Y CARGAS SOCIALES": 9340019.29,
+   "MANTENIMIENTOS EN UNIDADES": 10203457.01,
+   "IMPUESTOS": 350657.78,
+   "SERVICIOS PUBLICOS": 2441025.23,
+   "ABONOS Y SERVICIOS": 7368206.9,
+   "GASTOS CONTABLES": 135600.0,
+   "GASTOS BANCARIOS": 394545.83,
+   "GASTOS DE LIMPIEZA": 359992.0,
+   "GASTOS DE ADMINISTRACION": 806980.0,
+   "SEGUROS": 738004.86,
+   "GASTOS GENERALES": 404636.0
+  },
+  "totales_columna": {
+   "A": 28939427.73,
+   "B": 580623.35,
+   "D": 3023073.82
+  },
+  "total_gastos": 32543124.9,
+  "deudores": [
+   {
+    "uf": 1,
+    "piso_depto": "LOC-",
+    "propietario": "SEGUROS, EVOLUCION",
+    "deuda": 592674.01
+   },
+   {
+    "uf": 23,
+    "piso_depto": "4-B",
+    "propietario": "CONTRERAS",
+    "deuda": 251728.23
+   },
+   {
+    "uf": 24,
+    "piso_depto": "4-A",
+    "propietario": "ASOCARG, J BASQUE",
+    "deuda": 168311.24
+   },
+   {
+    "uf": 25,
+    "piso_depto": "4-C",
+    "propietario": "MAZZOCONI",
+    "deuda": 171601.25
+   },
+   {
+    "uf": 31,
+    "piso_depto": "5-A",
+    "propietario": "SINGLAR",
+    "deuda": 561744.31
+   },
+   {
+    "uf": 42,
+    "piso_depto": "6-F",
+    "propietario": "CARBALLEDO",
+    "deuda": 177169.42
+   },
+   {
+    "uf": 55,
+    "piso_depto": "8-D",
+    "propietario": "SARFIEL, CARLOS",
+    "deuda": 546014.55
+   },
+   {
+    "uf": 78,
+    "piso_depto": "11-G",
+    "propietario": "CATTANEO, PEDRO",
+    "deuda": 417676.78
+   },
+   {
+    "uf": 81,
+    "piso_depto": "12-C",
+    "propietario": "LORES, CARLOTA",
+    "deuda": 170842.81
+   },
+   {
+    "uf": 201,
+    "piso_depto": "UC-1",
+    "propietario": "DEL, VALLE",
+    "deuda": 1193442.01
+   },
+   {
+    "uf": 220,
+    "piso_depto": "UC-20",
+    "propietario": "SEGURO, EVOLUCION",
+    "deuda": 32145.5
+   }
+  ],
+  "total_deudores": 4283350.11,
+  "estado": {
+   "saldo_anterior": 12000224.34,
+   "ing_termino": 18850757.09,
+   "ing_adeudadas": 1060660.45,
+   "ing_intereses": 172441.82,
+   "ing_adelantadas": 1382667.85,
+   "otros_ingresos": 0.0,
+   "egresos": 32543124.9,
+   "saldo_cierre": 923626.64
+  },
+  "cuentas": [
+   {
+    "nombre": "BANCO - 17758-6 001-1",
+    "saldo_ant": 8151887.61,
+    "ingresos": 18542685.52,
+    "egresos": 25812522.6,
+    "saldo_cierre": 882050.53
+   },
+   {
+    "nombre": "CAJA",
+    "saldo_ant": 3848336.73,
+    "ingresos": 2923841.68,
+    "egresos": 6730602.3,
+    "saldo_cierre": 41576.11
+   }
+  ],
+  "patrimonial": {
+   "disponibilidades": 923626.64,
+   "a_cobrar": 34403411.91,
+   "devengados_pend": 0.0,
+   "facturas_pend": -5342000.0,
+   "total": 29985038.55
+  },
+  "unidades": [
+   {
+    "uf": 1,
+    "piso_depto": "LOC-",
+    "propietario": "SEGUROS EVOLUCION",
+    "tipo": "Local",
+    "saldo_ant": 592674.01,
+    "pagos": 0.0,
+    "cred_deb": 0.0,
+    "deuda": 592674.01,
+    "interes": 59267.4,
+    "expensas": {
+     "A": 576050.0,
+     "C": 196700.0,
+     "D": 93159.04
+    },
+    "pcts": {
+     "A": 2.81,
+     "C": 2.81,
+     "D": 3.08
+    },
+    "total_mes": 865909.04,
+    "redondeo": -0.44,
+    "a_pagar": 1517850.01,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 2,
+    "piso_depto": "PB-E",
+    "propietario": "CARLUCCIO STELLA",
+    "tipo": "Departamento",
+    "saldo_ant": 305574.02,
+    "pagos": 305574.02,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 297004.0,
+     "C": 101416.0,
+     "D": 48030.6
+    },
+    "pcts": {
+     "A": 1.44,
+     "C": 1.44,
+     "D": 1.58
+    },
+    "total_mes": 446450.6,
+    "redondeo": -0.58,
+    "a_pagar": 446450.02,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 3,
+    "piso_depto": "1-B",
+    "propietario": "TCHERCANSKY",
+    "tipo": "Departamento",
+    "saldo_ant": 248585.03,
+    "pagos": 248585.03,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 241613.0,
+     "C": 82502.0,
+     "D": 39073.23
+    },
+    "pcts": {
+     "A": 1.17,
+     "C": 1.17,
+     "D": 1.29
+    },
+    "total_mes": 363188.23,
+    "redondeo": -0.2,
+    "a_pagar": 363188.03,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 4,
+    "piso_depto": "1-A",
+    "propietario": "TCHERCANSKY",
+    "tipo": "Departamento",
+    "saldo_ant": 243038.04,
+    "pagos": 243038.04,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 236221.5,
+     "C": 80661.0,
+     "D": 38202.58
+    },
+    "pcts": {
+     "A": 1.15,
+     "C": 1.15,
+     "D": 1.26
+    },
+    "total_mes": 355085.08,
+    "redondeo": -0.04,
+    "a_pagar": 355085.04,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 5,
+    "piso_depto": "1-C",
+    "propietario": "SEGUROS EVOLUTIOÇN",
+    "tipo": "Departamento",
+    "saldo_ant": 171875.05,
+    "pagos": 171875.05,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 9023.44,
+    "expensas": {
+     "A": 167054.5,
+     "C": 57043.0,
+     "D": 27017.21
+    },
+    "pcts": {
+     "A": 0.81,
+     "C": 0.81,
+     "D": 0.89
+    },
+    "total_mes": 251114.71,
+    "redondeo": -0.1,
+    "a_pagar": 260138.05,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 6,
+    "piso_depto": "1-E",
+    "propietario": "EVOLUCION SEGURO",
+    "tipo": "Departamento",
+    "saldo_ant": 160696.06,
+    "pagos": 160696.06,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 156189.5,
+     "C": 53333.0,
+     "D": 25257.78
+    },
+    "pcts": {
+     "A": 0.76,
+     "C": 0.76,
+     "D": 0.83
+    },
+    "total_mes": 234780.28,
+    "redondeo": -0.22,
+    "a_pagar": 234780.06,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 7,
+    "piso_depto": "1-F",
+    "propietario": "EVOLUCION SEGURO",
+    "tipo": "Departamento",
+    "saldo_ant": 176895.07,
+    "pagos": 176895.07,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 171933.5,
+     "C": 58709.0,
+     "D": 27806.23
+    },
+    "pcts": {
+     "A": 0.83,
+     "C": 0.83,
+     "D": 0.91
+    },
+    "total_mes": 258448.73,
+    "redondeo": -0.66,
+    "a_pagar": 258448.07,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 8,
+    "piso_depto": "1-G",
+    "propietario": "CASTELLS CARLOS",
+    "tipo": "Departamento",
+    "saldo_ant": 175334.08,
+    "pagos": 175334.08,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 170416.5,
+     "C": 58191.0,
+     "D": 27561.36
+    },
+    "pcts": {
+     "A": 0.83,
+     "C": 0.83,
+     "D": 0.91
+    },
+    "total_mes": 256168.86,
+    "redondeo": -0.78,
+    "a_pagar": 256168.08,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 9,
+    "piso_depto": "2-B",
+    "propietario": "OCAMPO",
+    "tipo": "Departamento",
+    "saldo_ant": 251727.09,
+    "pagos": 251727.09,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 244667.5,
+     "C": 83545.0,
+     "D": 39569.01
+    },
+    "pcts": {
+     "A": 1.19,
+     "C": 1.19,
+     "D": 1.3
+    },
+    "total_mes": 367781.51,
+    "redondeo": -0.42,
+    "a_pagar": 367781.09,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 10,
+    "piso_depto": "2-A",
+    "propietario": "YANG BETTINA",
+    "tipo": "Departamento",
+    "saldo_ant": 248311.1,
+    "pagos": 248311.1,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 241346.5,
+     "C": 82411.0,
+     "D": 39030.91
+    },
+    "pcts": {
+     "A": 1.17,
+     "C": 1.17,
+     "D": 1.29
+    },
+    "total_mes": 362788.41,
+    "redondeo": -0.31,
+    "a_pagar": 362788.1,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 11,
+    "piso_depto": "2-C",
+    "propietario": "COLAFIGLIO",
+    "tipo": "Departamento",
+    "saldo_ant": 182138.11,
+    "pagos": 182138.11,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 9535.95,
+    "expensas": {
+     "A": 166788.0,
+     "C": 56952.0,
+     "D": 26971.86
+    },
+    "pcts": {
+     "A": 0.81,
+     "C": 0.81,
+     "D": 0.89
+    },
+    "total_mes": 250711.86,
+    "redondeo": -0.7,
+    "a_pagar": 260247.11,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 12,
+    "piso_depto": "2-E",
+    "propietario": "LOVEY",
+    "tipo": "Departamento",
+    "saldo_ant": 160696.12,
+    "pagos": 160696.12,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 156189.5,
+     "C": 53333.0,
+     "D": 25257.78
+    },
+    "pcts": {
+     "A": 0.76,
+     "C": 0.76,
+     "D": 0.83
+    },
+    "total_mes": 234780.28,
+    "redondeo": -0.16,
+    "a_pagar": 234780.12,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 13,
+    "piso_depto": "2-D",
+    "propietario": "NEDER ANTONELLA BALBIANI",
+    "tipo": "Departamento",
+    "saldo_ant": 159747.13,
+    "pagos": 159747.13,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 155267.0,
+     "C": 53018.0,
+     "D": 25109.65
+    },
+    "pcts": {
+     "A": 0.75,
+     "C": 0.75,
+     "D": 0.83
+    },
+    "total_mes": 233394.65,
+    "redondeo": -0.52,
+    "a_pagar": 233394.13,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 14,
+    "piso_depto": "2-F",
+    "propietario": "ALCIVAR NAVARRETE GLADYS ALICIA",
+    "tipo": "Departamento",
+    "saldo_ant": 176895.14,
+    "pagos": 176895.14,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 171933.5,
+     "C": 58709.0,
+     "D": 27806.23
+    },
+    "pcts": {
+     "A": 0.83,
+     "C": 0.83,
+     "D": 0.91
+    },
+    "total_mes": 258448.73,
+    "redondeo": -0.59,
+    "a_pagar": 258448.14,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 15,
+    "piso_depto": "2-G",
+    "propietario": "CONELLI ELBA",
+    "tipo": "Departamento",
+    "saldo_ant": 175381.15,
+    "pagos": 175381.15,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 170416.5,
+     "C": 58191.0,
+     "D": 27561.36
+    },
+    "pcts": {
+     "A": 0.83,
+     "C": 0.83,
+     "D": 0.91
+    },
+    "total_mes": 256168.86,
+    "redondeo": -0.71,
+    "a_pagar": 256168.15,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 16,
+    "piso_depto": "3-B",
+    "propietario": "ESCUREDO LUISA",
+    "tipo": "Departamento",
+    "saldo_ant": 266505.16,
+    "pagos": 266505.16,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 244667.5,
+     "C": 83545.0,
+     "D": 39569.01
+    },
+    "pcts": {
+     "A": 1.19,
+     "C": 1.19,
+     "D": 1.3
+    },
+    "total_mes": 367781.51,
+    "redondeo": -0.35,
+    "a_pagar": 367781.16,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 17,
+    "piso_depto": "3-A",
+    "propietario": "ESCUREDO LUISA",
+    "tipo": "Departamento",
+    "saldo_ant": 262887.17,
+    "pagos": 262887.17,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 241346.5,
+     "C": 82411.0,
+     "D": 39030.91
+    },
+    "pcts": {
+     "A": 1.17,
+     "C": 1.17,
+     "D": 1.29
+    },
+    "total_mes": 362788.41,
+    "redondeo": -0.24,
+    "a_pagar": 362788.17,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 18,
+    "piso_depto": "3-C",
+    "propietario": "CASSELLA MARIA",
+    "tipo": "Departamento",
+    "saldo_ant": 181674.18,
+    "pagos": 181674.18,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 166788.0,
+     "C": 56952.0,
+     "D": 26971.86
+    },
+    "pcts": {
+     "A": 0.81,
+     "C": 0.81,
+     "D": 0.89
+    },
+    "total_mes": 250711.86,
+    "redondeo": -0.68,
+    "a_pagar": 250711.18,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 19,
+    "piso_depto": "3-E",
+    "propietario": "RIOS BERTA LUCIA",
+    "tipo": "Departamento",
+    "saldo_ant": 160370.19,
+    "pagos": 160400.0,
+    "cred_deb": 0.0,
+    "deuda": -29.81,
+    "interes": 0.0,
+    "expensas": {
+     "A": 156189.5,
+     "C": 53333.0,
+     "D": 25257.78
+    },
+    "pcts": {
+     "A": 0.76,
+     "C": 0.76,
+     "D": 0.83
+    },
+    "total_mes": 234780.28,
+    "redondeo": -0.28,
+    "a_pagar": 234750.19,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 20,
+    "piso_depto": "3-D",
+    "propietario": "VILLALBA",
+    "tipo": "Departamento",
+    "saldo_ant": 159747.2,
+    "pagos": 159747.2,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 155267.0,
+     "C": 53018.0,
+     "D": 25109.65
+    },
+    "pcts": {
+     "A": 0.75,
+     "C": 0.75,
+     "D": 0.83
+    },
+    "total_mes": 233394.65,
+    "redondeo": -0.45,
+    "a_pagar": 233394.2,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 21,
+    "piso_depto": "3-F",
+    "propietario": "CLOCK SA",
+    "tipo": "Departamento",
+    "saldo_ant": 176895.21,
+    "pagos": 176895.21,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 171933.5,
+     "C": 58709.0,
+     "D": 27806.23
+    },
+    "pcts": {
+     "A": 0.83,
+     "C": 0.83,
+     "D": 0.91
+    },
+    "total_mes": 258448.73,
+    "redondeo": -0.52,
+    "a_pagar": 258448.21,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 22,
+    "piso_depto": "3-G",
+    "propietario": "SINGLAR MARIANA",
+    "tipo": "Departamento",
+    "saldo_ant": 820713.22,
+    "pagos": 715161.96,
+    "cred_deb": -105551.56,
+    "deuda": -0.3,
+    "interes": 0.0,
+    "expensas": {
+     "A": 170416.5,
+     "C": 58191.0,
+     "D": 27561.36
+    },
+    "pcts": {
+     "A": 0.83,
+     "C": 0.83,
+     "D": 0.91
+    },
+    "total_mes": 256168.86,
+    "redondeo": -0.34,
+    "a_pagar": 256168.22,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 23,
+    "piso_depto": "4-B",
+    "propietario": "CONTRERAS",
+    "tipo": "Departamento",
+    "saldo_ant": 251728.23,
+    "pagos": 0.0,
+    "cred_deb": 0.0,
+    "deuda": 251728.23,
+    "interes": 25172.82,
+    "expensas": {
+     "A": 244667.5,
+     "C": 83545.0,
+     "D": 39569.01
+    },
+    "pcts": {
+     "A": 1.19,
+     "C": 1.19,
+     "D": 1.3
+    },
+    "total_mes": 367781.51,
+    "redondeo": -0.33,
+    "a_pagar": 644682.23,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 24,
+    "piso_depto": "4-A",
+    "propietario": "ASOCARG J BASQUE",
+    "tipo": "Departamento",
+    "saldo_ant": 468311.24,
+    "pagos": 300000.0,
+    "cred_deb": 0.0,
+    "deuda": 168311.24,
+    "interes": 16831.15,
+    "expensas": {
+     "A": 241346.5,
+     "C": 82411.0,
+     "D": 39030.91
+    },
+    "pcts": {
+     "A": 1.17,
+     "C": 1.17,
+     "D": 1.29
+    },
+    "total_mes": 362788.41,
+    "redondeo": -0.56,
+    "a_pagar": 547930.24,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 25,
+    "piso_depto": "4-C",
+    "propietario": "MAZZOCONI",
+    "tipo": "Departamento",
+    "saldo_ant": 171601.25,
+    "pagos": 0.0,
+    "cred_deb": 0.0,
+    "deuda": 171601.25,
+    "interes": 17160.12,
+    "expensas": {
+     "A": 166788.0,
+     "C": 56952.0,
+     "D": 26971.86
+    },
+    "pcts": {
+     "A": 0.81,
+     "C": 0.81,
+     "D": 0.89
+    },
+    "total_mes": 250711.86,
+    "redondeo": 0.02,
+    "a_pagar": 439473.25,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 26,
+    "piso_depto": "4-E",
+    "propietario": "BAUTISTA DELIA",
+    "tipo": "Departamento",
+    "saldo_ant": 160696.26,
+    "pagos": 161000.0,
+    "cred_deb": 0.0,
+    "deuda": -303.74,
+    "interes": 0.0,
+    "expensas": {
+     "A": 156189.5,
+     "C": 53333.0,
+     "D": 25257.78
+    },
+    "pcts": {
+     "A": 0.76,
+     "C": 0.76,
+     "D": 0.83
+    },
+    "total_mes": 234780.28,
+    "redondeo": -0.28,
+    "a_pagar": 234476.26,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 27,
+    "piso_depto": "4-D",
+    "propietario": "VALDES ARIEL",
+    "tipo": "Departamento",
+    "saldo_ant": 158361.27,
+    "pagos": 158361.27,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 155267.0,
+     "C": 53018.0,
+     "D": 25109.65
+    },
+    "pcts": {
+     "A": 0.75,
+     "C": 0.75,
+     "D": 0.83
+    },
+    "total_mes": 233394.65,
+    "redondeo": -0.38,
+    "a_pagar": 233394.27,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 28,
+    "piso_depto": "4-F",
+    "propietario": "TASSARA MARIA ANA",
+    "tipo": "Departamento",
+    "saldo_ant": 176895.28,
+    "pagos": 176895.28,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 171933.5,
+     "C": 58709.0,
+     "D": 27806.23
+    },
+    "pcts": {
+     "A": 0.83,
+     "C": 0.83,
+     "D": 0.91
+    },
+    "total_mes": 258448.73,
+    "redondeo": -0.45,
+    "a_pagar": 258448.28,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 29,
+    "piso_depto": "4-G",
+    "propietario": "ROTHER",
+    "tipo": "Departamento",
+    "saldo_ant": 175334.29,
+    "pagos": 175334.29,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 170416.5,
+     "C": 58191.0,
+     "D": 27561.36
+    },
+    "pcts": {
+     "A": 0.83,
+     "C": 0.83,
+     "D": 0.91
+    },
+    "total_mes": 256168.86,
+    "redondeo": -0.57,
+    "a_pagar": 256168.29,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 30,
+    "piso_depto": "5-B",
+    "propietario": "BAEZA",
+    "tipo": "Departamento",
+    "saldo_ant": 251728.3,
+    "pagos": 251728.3,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 244667.5,
+     "C": 83545.0,
+     "D": 39569.01
+    },
+    "pcts": {
+     "A": 1.19,
+     "C": 1.19,
+     "D": 1.3
+    },
+    "total_mes": 367781.51,
+    "redondeo": -0.21,
+    "a_pagar": 367781.3,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 31,
+    "piso_depto": "5-A",
+    "propietario": "SINGLAR",
+    "tipo": "Departamento",
+    "saldo_ant": 561744.31,
+    "pagos": 0.0,
+    "cred_deb": 0.0,
+    "deuda": 561744.31,
+    "interes": 53325.08,
+    "expensas": {
+     "A": 241346.5,
+     "C": 82411.0,
+     "D": 39030.91
+    },
+    "pcts": {
+     "A": 1.17,
+     "C": 1.17,
+     "D": 1.29
+    },
+    "total_mes": 362788.41,
+    "redondeo": -0.49,
+    "a_pagar": 977857.31,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 32,
+    "piso_depto": "5-C",
+    "propietario": "KOHAN BERTA",
+    "tipo": "Departamento",
+    "saldo_ant": 171581.32,
+    "pagos": 171581.32,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 166788.0,
+     "C": 56952.0,
+     "D": 26971.86
+    },
+    "pcts": {
+     "A": 0.81,
+     "C": 0.81,
+     "D": 0.89
+    },
+    "total_mes": 250711.86,
+    "redondeo": -0.54,
+    "a_pagar": 250711.32,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 33,
+    "piso_depto": "5-E",
+    "propietario": "BIAGETTI FERNANDO",
+    "tipo": "Departamento",
+    "saldo_ant": 160296.33,
+    "pagos": 160296.33,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 155800.0,
+     "C": 53200.0,
+     "D": 25197.32
+    },
+    "pcts": {
+     "A": 0.76,
+     "C": 0.76,
+     "D": 0.83
+    },
+    "total_mes": 234197.32,
+    "redondeo": 0.01,
+    "a_pagar": 234197.33,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 34,
+    "piso_depto": "5-D",
+    "propietario": "ALVAREZ",
+    "tipo": "Departamento",
+    "saldo_ant": 160296.34,
+    "pagos": 160296.34,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 155800.0,
+     "C": 53200.0,
+     "D": 25197.32
+    },
+    "pcts": {
+     "A": 0.76,
+     "C": 0.76,
+     "D": 0.83
+    },
+    "total_mes": 234197.32,
+    "redondeo": 0.02,
+    "a_pagar": 234197.34,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 35,
+    "piso_depto": "5-F",
+    "propietario": "CARRIZO ELBIO",
+    "tipo": "Departamento",
+    "saldo_ant": 177169.35,
+    "pagos": 186027.35,
+    "cred_deb": 0.0,
+    "deuda": -8858.0,
+    "interes": 8858.49,
+    "expensas": {
+     "A": 172200.0,
+     "C": 58800.0,
+     "D": 27848.56
+    },
+    "pcts": {
+     "A": 0.84,
+     "C": 0.84,
+     "D": 0.92
+    },
+    "total_mes": 258848.56,
+    "redondeo": 0.3,
+    "a_pagar": 258849.35,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 36,
+    "piso_depto": "5-G",
+    "propietario": "DOLINSKY BERNARDO SAUL",
+    "tipo": "Departamento",
+    "saldo_ant": 175060.36,
+    "pagos": 175060.36,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 170150.0,
+     "C": 58100.0,
+     "D": 27516.02
+    },
+    "pcts": {
+     "A": 0.83,
+     "C": 0.83,
+     "D": 0.91
+    },
+    "total_mes": 255766.02,
+    "redondeo": 0.34,
+    "a_pagar": 255766.36,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 37,
+    "piso_depto": "6-B",
+    "propietario": "BERHO MARCELO OMAR",
+    "tipo": "Departamento",
+    "saldo_ant": 250989.37,
+    "pagos": 250989.37,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 243950.0,
+     "C": 83300.0,
+     "D": 39451.11
+    },
+    "pcts": {
+     "A": 1.19,
+     "C": 1.19,
+     "D": 1.3
+    },
+    "total_mes": 366701.11,
+    "redondeo": 0.26,
+    "a_pagar": 366701.37,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 38,
+    "piso_depto": "6-A",
+    "propietario": "DANIELA MARÍA",
+    "tipo": "Departamento",
+    "saldo_ant": 263490.38,
+    "pagos": 263490.38,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 13796.73,
+    "expensas": {
+     "A": 241900.0,
+     "C": 82600.0,
+     "D": 39121.6
+    },
+    "pcts": {
+     "A": 1.18,
+     "C": 1.18,
+     "D": 1.29
+    },
+    "total_mes": 363621.6,
+    "redondeo": 0.05,
+    "a_pagar": 377418.38,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 39,
+    "piso_depto": "6-C",
+    "propietario": "SACCO ADELINA",
+    "tipo": "Departamento",
+    "saldo_ant": 170842.39,
+    "pagos": 170842.39,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 166050.0,
+     "C": 56700.0,
+     "D": 26853.96
+    },
+    "pcts": {
+     "A": 0.81,
+     "C": 0.81,
+     "D": 0.88
+    },
+    "total_mes": 249603.96,
+    "redondeo": -0.57,
+    "a_pagar": 249603.39,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 40,
+    "piso_depto": "6-E",
+    "propietario": "NEMETH CARLOS",
+    "tipo": "Departamento",
+    "saldo_ant": -35545.6,
+    "pagos": 0.0,
+    "cred_deb": 0.0,
+    "deuda": -35545.6,
+    "interes": 0.0,
+    "expensas": {
+     "A": 155800.0,
+     "C": 53200.0,
+     "D": 25197.32
+    },
+    "pcts": {
+     "A": 0.76,
+     "C": 0.76,
+     "D": 0.83
+    },
+    "total_mes": 234197.32,
+    "redondeo": -0.32,
+    "a_pagar": 198651.4,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 41,
+    "piso_depto": "6-D",
+    "propietario": "CARAZO DARIO",
+    "tipo": "Departamento",
+    "saldo_ant": 160296.41,
+    "pagos": 160296.41,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 155800.0,
+     "C": 53200.0,
+     "D": 25197.32
+    },
+    "pcts": {
+     "A": 0.76,
+     "C": 0.76,
+     "D": 0.83
+    },
+    "total_mes": 234197.32,
+    "redondeo": 0.09,
+    "a_pagar": 234197.41,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 42,
+    "piso_depto": "6-F",
+    "propietario": "CARBALLEDO",
+    "tipo": "Departamento",
+    "saldo_ant": 177169.42,
+    "pagos": 0.0,
+    "cred_deb": 0.0,
+    "deuda": 177169.42,
+    "interes": 17716.94,
+    "expensas": {
+     "A": 172200.0,
+     "C": 58800.0,
+     "D": 27848.56
+    },
+    "pcts": {
+     "A": 0.84,
+     "C": 0.84,
+     "D": 0.92
+    },
+    "total_mes": 258848.56,
+    "redondeo": -0.5,
+    "a_pagar": 453734.42,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 43,
+    "piso_depto": "6-G",
+    "propietario": "SANCHEZ GLADYS",
+    "tipo": "Departamento",
+    "saldo_ant": 175060.43,
+    "pagos": 175060.43,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 170150.0,
+     "C": 58100.0,
+     "D": 27516.02
+    },
+    "pcts": {
+     "A": 0.83,
+     "C": 0.83,
+     "D": 0.91
+    },
+    "total_mes": 255766.02,
+    "redondeo": 0.41,
+    "a_pagar": 255766.43,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 44,
+    "piso_depto": "7-B",
+    "propietario": "TEICHMAN",
+    "tipo": "Departamento",
+    "saldo_ant": 250989.44,
+    "pagos": 250989.44,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 243950.0,
+     "C": 83300.0,
+     "D": 39451.11
+    },
+    "pcts": {
+     "A": 1.19,
+     "C": 1.19,
+     "D": 1.3
+    },
+    "total_mes": 366701.11,
+    "redondeo": 0.33,
+    "a_pagar": 366701.44,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 45,
+    "piso_depto": "7-A",
+    "propietario": "CORI MARTA JUANA",
+    "tipo": "Departamento",
+    "saldo_ant": 248881.45,
+    "pagos": 248881.45,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 241900.0,
+     "C": 82600.0,
+     "D": 39121.6
+    },
+    "pcts": {
+     "A": 1.18,
+     "C": 1.18,
+     "D": 1.29
+    },
+    "total_mes": 363621.6,
+    "redondeo": -0.15,
+    "a_pagar": 363621.45,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 46,
+    "piso_depto": "7-C",
+    "propietario": "Horowicz Laura",
+    "tipo": "Departamento",
+    "saldo_ant": 170842.46,
+    "pagos": 170842.46,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 166050.0,
+     "C": 56700.0,
+     "D": 26853.96
+    },
+    "pcts": {
+     "A": 0.81,
+     "C": 0.81,
+     "D": 0.88
+    },
+    "total_mes": 249603.96,
+    "redondeo": -0.5,
+    "a_pagar": 249603.46,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 47,
+    "piso_depto": "7-E",
+    "propietario": "CARRASCO RODOLFO CARLOS",
+    "tipo": "Departamento",
+    "saldo_ant": 160296.47,
+    "pagos": 160296.47,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 155800.0,
+     "C": 53200.0,
+     "D": 25197.32
+    },
+    "pcts": {
+     "A": 0.76,
+     "C": 0.76,
+     "D": 0.83
+    },
+    "total_mes": 234197.32,
+    "redondeo": 0.15,
+    "a_pagar": 234197.47,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 48,
+    "piso_depto": "7-D",
+    "propietario": "ELBEY",
+    "tipo": "Departamento",
+    "saldo_ant": 160296.48,
+    "pagos": 160296.48,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 155800.0,
+     "C": 53200.0,
+     "D": 25197.32
+    },
+    "pcts": {
+     "A": 0.76,
+     "C": 0.76,
+     "D": 0.83
+    },
+    "total_mes": 234197.32,
+    "redondeo": 0.16,
+    "a_pagar": 234197.48,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 49,
+    "piso_depto": "7-F",
+    "propietario": "MENENDEZ ALBERTO",
+    "tipo": "Departamento",
+    "saldo_ant": 177169.49,
+    "pagos": 177169.49,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 172200.0,
+     "C": 58800.0,
+     "D": 27848.56
+    },
+    "pcts": {
+     "A": 0.84,
+     "C": 0.84,
+     "D": 0.92
+    },
+    "total_mes": 258848.56,
+    "redondeo": -0.07,
+    "a_pagar": 258848.49,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 50,
+    "piso_depto": "7-G",
+    "propietario": "GRIJALBA MARIA",
+    "tipo": "Departamento",
+    "saldo_ant": 175060.5,
+    "pagos": 175060.5,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 170150.0,
+     "C": 58100.0,
+     "D": 27516.02
+    },
+    "pcts": {
+     "A": 0.83,
+     "C": 0.83,
+     "D": 0.91
+    },
+    "total_mes": 255766.02,
+    "redondeo": 0.48,
+    "a_pagar": 255766.5,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 51,
+    "piso_depto": "8-B",
+    "propietario": "BOLOTNER ISABEL",
+    "tipo": "Departamento",
+    "saldo_ant": 265723.51,
+    "pagos": 265723.51,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 243950.0,
+     "C": 83300.0,
+     "D": 39451.11
+    },
+    "pcts": {
+     "A": 1.19,
+     "C": 1.19,
+     "D": 1.3
+    },
+    "total_mes": 366701.11,
+    "redondeo": 0.4,
+    "a_pagar": 366701.51,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 52,
+    "piso_depto": "8-A",
+    "propietario": "MAZZOLA MARIA",
+    "tipo": "Departamento",
+    "saldo_ant": 248881.52,
+    "pagos": 248881.52,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 241900.0,
+     "C": 82600.0,
+     "D": 39121.6
+    },
+    "pcts": {
+     "A": 1.18,
+     "C": 1.18,
+     "D": 1.29
+    },
+    "total_mes": 363621.6,
+    "redondeo": -0.08,
+    "a_pagar": 363621.52,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 53,
+    "piso_depto": "8-C",
+    "propietario": "VALDOVINO",
+    "tipo": "Departamento",
+    "saldo_ant": 170842.53,
+    "pagos": 170842.53,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 166050.0,
+     "C": 56700.0,
+     "D": 26853.96
+    },
+    "pcts": {
+     "A": 0.81,
+     "C": 0.81,
+     "D": 0.88
+    },
+    "total_mes": 249603.96,
+    "redondeo": -0.43,
+    "a_pagar": 249603.53,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 54,
+    "piso_depto": "8-E",
+    "propietario": "DIEGUEZ",
+    "tipo": "Departamento",
+    "saldo_ant": 160296.54,
+    "pagos": 160296.54,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 155800.0,
+     "C": 53200.0,
+     "D": 25197.32
+    },
+    "pcts": {
+     "A": 0.76,
+     "C": 0.76,
+     "D": 0.83
+    },
+    "total_mes": 234197.32,
+    "redondeo": 0.22,
+    "a_pagar": 234197.54,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 55,
+    "piso_depto": "8-D",
+    "propietario": "SARFIEL CARLOS",
+    "tipo": "Departamento",
+    "saldo_ant": 546014.55,
+    "pagos": 0.0,
+    "cred_deb": 0.0,
+    "deuda": 546014.55,
+    "interes": 49666.42,
+    "expensas": {
+     "A": 155800.0,
+     "C": 53200.0,
+     "D": 25197.32
+    },
+    "pcts": {
+     "A": 0.76,
+     "C": 0.76,
+     "D": 0.83
+    },
+    "total_mes": 234197.32,
+    "redondeo": 0.26,
+    "a_pagar": 829878.55,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 56,
+    "piso_depto": "8-F",
+    "propietario": "MAGNATERRA RODO",
+    "tipo": "Departamento",
+    "saldo_ant": 177169.56,
+    "pagos": 177169.56,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 172200.0,
+     "C": 58800.0,
+     "D": 27848.56
+    },
+    "pcts": {
+     "A": 0.84,
+     "C": 0.84,
+     "D": 0.92
+    },
+    "total_mes": 258848.56,
+    "redondeo": 0.0,
+    "a_pagar": 258848.56,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 57,
+    "piso_depto": "8-G",
+    "propietario": "MALDONADO MALDONADO",
+    "tipo": "Departamento",
+    "saldo_ant": 175060.57,
+    "pagos": 175060.57,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 170150.0,
+     "C": 58100.0,
+     "D": 27516.02
+    },
+    "pcts": {
+     "A": 0.83,
+     "C": 0.83,
+     "D": 0.91
+    },
+    "total_mes": 255766.02,
+    "redondeo": 0.55,
+    "a_pagar": 255766.57,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 58,
+    "piso_depto": "9-B",
+    "propietario": "CLOCK SA",
+    "tipo": "Departamento",
+    "saldo_ant": 250989.58,
+    "pagos": 250989.58,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 243950.0,
+     "C": 83300.0,
+     "D": 39451.11
+    },
+    "pcts": {
+     "A": 1.19,
+     "C": 1.19,
+     "D": 1.3
+    },
+    "total_mes": 366701.11,
+    "redondeo": 0.47,
+    "a_pagar": 366701.58,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 59,
+    "piso_depto": "9-A",
+    "propietario": "INGRISANI MARTIN",
+    "tipo": "Departamento",
+    "saldo_ant": 248881.59,
+    "pagos": 248881.59,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 241900.0,
+     "C": 82600.0,
+     "D": 39121.6
+    },
+    "pcts": {
+     "A": 1.18,
+     "C": 1.18,
+     "D": 1.29
+    },
+    "total_mes": 363621.6,
+    "redondeo": -0.01,
+    "a_pagar": 363621.59,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 60,
+    "piso_depto": "9-C",
+    "propietario": "TAUIL CARLOS",
+    "tipo": "Departamento",
+    "saldo_ant": 170842.6,
+    "pagos": 170842.6,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 166050.0,
+     "C": 56700.0,
+     "D": 26853.96
+    },
+    "pcts": {
+     "A": 0.81,
+     "C": 0.81,
+     "D": 0.88
+    },
+    "total_mes": 249603.96,
+    "redondeo": -0.36,
+    "a_pagar": 249603.6,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 61,
+    "piso_depto": "9-E",
+    "propietario": "SINGLAR",
+    "tipo": "Departamento",
+    "saldo_ant": 160296.61,
+    "pagos": 160269.61,
+    "cred_deb": 0.0,
+    "deuda": 27.0,
+    "interes": 2.68,
+    "expensas": {
+     "A": 155800.0,
+     "C": 53200.0,
+     "D": 25197.32
+    },
+    "pcts": {
+     "A": 0.76,
+     "C": 0.76,
+     "D": 0.83
+    },
+    "total_mes": 234197.32,
+    "redondeo": -0.39,
+    "a_pagar": 234226.61,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 62,
+    "piso_depto": "9-D",
+    "propietario": "FRAIRE SANDRA",
+    "tipo": "Departamento",
+    "saldo_ant": 160296.62,
+    "pagos": 160296.62,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 155800.0,
+     "C": 53200.0,
+     "D": 25197.32
+    },
+    "pcts": {
+     "A": 0.76,
+     "C": 0.76,
+     "D": 0.83
+    },
+    "total_mes": 234197.32,
+    "redondeo": 0.3,
+    "a_pagar": 234197.62,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 63,
+    "piso_depto": "9-F",
+    "propietario": "GALLEGUILLO EDIT",
+    "tipo": "Departamento",
+    "saldo_ant": 177169.63,
+    "pagos": 177169.63,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 172200.0,
+     "C": 58800.0,
+     "D": 27848.56
+    },
+    "pcts": {
+     "A": 0.84,
+     "C": 0.84,
+     "D": 0.92
+    },
+    "total_mes": 258848.56,
+    "redondeo": 0.07,
+    "a_pagar": 258848.63,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 64,
+    "piso_depto": "9-G",
+    "propietario": "BARCONES",
+    "tipo": "Departamento",
+    "saldo_ant": 175060.64,
+    "pagos": 175060.64,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 170150.0,
+     "C": 58100.0,
+     "D": 27516.02
+    },
+    "pcts": {
+     "A": 0.83,
+     "C": 0.83,
+     "D": 0.91
+    },
+    "total_mes": 255766.02,
+    "redondeo": 0.62,
+    "a_pagar": 255766.64,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 65,
+    "piso_depto": "10-B",
+    "propietario": "LEDEZMA",
+    "tipo": "Departamento",
+    "saldo_ant": 250989.65,
+    "pagos": 250989.65,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 243950.0,
+     "C": 83300.0,
+     "D": 39451.11
+    },
+    "pcts": {
+     "A": 1.19,
+     "C": 1.19,
+     "D": 1.3
+    },
+    "total_mes": 366701.11,
+    "redondeo": 0.54,
+    "a_pagar": 366701.65,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 66,
+    "piso_depto": "10-A",
+    "propietario": "TAUIL JACOBO",
+    "tipo": "Departamento",
+    "saldo_ant": 248881.66,
+    "pagos": 248881.66,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 241900.0,
+     "C": 82600.0,
+     "D": 39121.6
+    },
+    "pcts": {
+     "A": 1.18,
+     "C": 1.18,
+     "D": 1.29
+    },
+    "total_mes": 363621.6,
+    "redondeo": 0.06,
+    "a_pagar": 363621.66,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 67,
+    "piso_depto": "10-C",
+    "propietario": "PUGNALONI MARÍA JOSÉ",
+    "tipo": "Departamento",
+    "saldo_ant": 170842.67,
+    "pagos": 170842.67,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 166050.0,
+     "C": 56700.0,
+     "D": 26853.96
+    },
+    "pcts": {
+     "A": 0.81,
+     "C": 0.81,
+     "D": 0.88
+    },
+    "total_mes": 249603.96,
+    "redondeo": -0.29,
+    "a_pagar": 249603.67,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 68,
+    "piso_depto": "10-E",
+    "propietario": "RODRIGUEZ ALEJANDRO",
+    "tipo": "Departamento",
+    "saldo_ant": 160296.68,
+    "pagos": 160296.68,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 155800.0,
+     "C": 53200.0,
+     "D": 25197.32
+    },
+    "pcts": {
+     "A": 0.76,
+     "C": 0.76,
+     "D": 0.83
+    },
+    "total_mes": 234197.32,
+    "redondeo": 0.36,
+    "a_pagar": 234197.68,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 69,
+    "piso_depto": "10-D",
+    "propietario": "NASTRO MARIA CARMELA",
+    "tipo": "Departamento",
+    "saldo_ant": 160296.69,
+    "pagos": 160296.69,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 155800.0,
+     "C": 53200.0,
+     "D": 25197.32
+    },
+    "pcts": {
+     "A": 0.76,
+     "C": 0.76,
+     "D": 0.83
+    },
+    "total_mes": 234197.32,
+    "redondeo": 0.37,
+    "a_pagar": 234197.69,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 70,
+    "piso_depto": "10-F",
+    "propietario": "DEL CAST GABRIELA",
+    "tipo": "Departamento",
+    "saldo_ant": 177169.7,
+    "pagos": 177169.7,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 172200.0,
+     "C": 58800.0,
+     "D": 27848.56
+    },
+    "pcts": {
+     "A": 0.84,
+     "C": 0.84,
+     "D": 0.92
+    },
+    "total_mes": 258848.56,
+    "redondeo": 0.14,
+    "a_pagar": 258848.7,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 71,
+    "piso_depto": "10-G",
+    "propietario": "ACCETTA",
+    "tipo": "Departamento",
+    "saldo_ant": 175060.71,
+    "pagos": 183813.71,
+    "cred_deb": 0.0,
+    "deuda": -8753.0,
+    "interes": 8753.01,
+    "expensas": {
+     "A": 170150.0,
+     "C": 58100.0,
+     "D": 27516.02
+    },
+    "pcts": {
+     "A": 0.83,
+     "C": 0.83,
+     "D": 0.91
+    },
+    "total_mes": 255766.02,
+    "redondeo": 0.68,
+    "a_pagar": 255766.71,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 72,
+    "piso_depto": "11-B",
+    "propietario": "TAVERNA HUGO",
+    "tipo": "Departamento",
+    "saldo_ant": 250989.72,
+    "pagos": 250989.72,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 243950.0,
+     "C": 83300.0,
+     "D": 39451.11
+    },
+    "pcts": {
+     "A": 1.19,
+     "C": 1.19,
+     "D": 1.3
+    },
+    "total_mes": 366701.11,
+    "redondeo": 0.61,
+    "a_pagar": 366701.72,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 73,
+    "piso_depto": "11-A",
+    "propietario": "VARELA MARIA",
+    "tipo": "Departamento",
+    "saldo_ant": 248881.73,
+    "pagos": 248881.73,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 241900.0,
+     "C": 82600.0,
+     "D": 39121.6
+    },
+    "pcts": {
+     "A": 1.18,
+     "C": 1.18,
+     "D": 1.29
+    },
+    "total_mes": 363621.6,
+    "redondeo": 0.13,
+    "a_pagar": 363621.73,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 74,
+    "piso_depto": "11-C",
+    "propietario": "VARELA MARIA",
+    "tipo": "Departamento",
+    "saldo_ant": 170842.74,
+    "pagos": 170842.74,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 166050.0,
+     "C": 56700.0,
+     "D": 26853.96
+    },
+    "pcts": {
+     "A": 0.81,
+     "C": 0.81,
+     "D": 0.88
+    },
+    "total_mes": 249603.96,
+    "redondeo": -0.22,
+    "a_pagar": 249603.74,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 75,
+    "piso_depto": "11-E",
+    "propietario": "SIERRO CLAUDIA",
+    "tipo": "Departamento",
+    "saldo_ant": 160296.75,
+    "pagos": 160296.75,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 155800.0,
+     "C": 53200.0,
+     "D": 25197.32
+    },
+    "pcts": {
+     "A": 0.76,
+     "C": 0.76,
+     "D": 0.83
+    },
+    "total_mes": 234197.32,
+    "redondeo": 0.43,
+    "a_pagar": 234197.75,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 76,
+    "piso_depto": "11-D",
+    "propietario": "HERNANDEZ Manuel ramon",
+    "tipo": "Departamento",
+    "saldo_ant": 160278.76,
+    "pagos": 160278.76,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 155800.0,
+     "C": 53200.0,
+     "D": 25197.32
+    },
+    "pcts": {
+     "A": 0.76,
+     "C": 0.76,
+     "D": 0.83
+    },
+    "total_mes": 234197.32,
+    "redondeo": 0.44,
+    "a_pagar": 234197.76,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 77,
+    "piso_depto": "11-F",
+    "propietario": "TIMMER",
+    "tipo": "Departamento",
+    "saldo_ant": 177169.77,
+    "pagos": 177169.77,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 172200.0,
+     "C": 58800.0,
+     "D": 27848.56
+    },
+    "pcts": {
+     "A": 0.84,
+     "C": 0.84,
+     "D": 0.92
+    },
+    "total_mes": 258848.56,
+    "redondeo": 0.21,
+    "a_pagar": 258848.77,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 78,
+    "piso_depto": "11-G",
+    "propietario": "CATTANEO PEDRO",
+    "tipo": "Departamento",
+    "saldo_ant": 657676.78,
+    "pagos": 240000.0,
+    "cred_deb": 0.0,
+    "deuda": 417676.78,
+    "interes": 39810.28,
+    "expensas": {
+     "A": 170150.0,
+     "C": 58100.0,
+     "D": 27516.02
+    },
+    "pcts": {
+     "A": 0.83,
+     "C": 0.83,
+     "D": 0.91
+    },
+    "total_mes": 255766.02,
+    "redondeo": 0.71,
+    "a_pagar": 713253.78,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 79,
+    "piso_depto": "12-B",
+    "propietario": "LOPEZ ARIAS",
+    "tipo": "Departamento",
+    "saldo_ant": -40112.21,
+    "pagos": 0.0,
+    "cred_deb": 0.0,
+    "deuda": -40112.21,
+    "interes": 0.0,
+    "expensas": {
+     "A": 243950.0,
+     "C": 83300.0,
+     "D": 39451.11
+    },
+    "pcts": {
+     "A": 1.19,
+     "C": 1.19,
+     "D": 1.3
+    },
+    "total_mes": 366701.11,
+    "redondeo": -0.11,
+    "a_pagar": 326588.79,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 80,
+    "piso_depto": "12-A",
+    "propietario": "VERCESI Liliana",
+    "tipo": "Departamento",
+    "saldo_ant": 248881.8,
+    "pagos": 248881.8,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 241900.0,
+     "C": 82600.0,
+     "D": 39121.6
+    },
+    "pcts": {
+     "A": 1.18,
+     "C": 1.18,
+     "D": 1.29
+    },
+    "total_mes": 363621.6,
+    "redondeo": 0.2,
+    "a_pagar": 363621.8,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 81,
+    "piso_depto": "12-C",
+    "propietario": "LORES CARLOTA",
+    "tipo": "Departamento",
+    "saldo_ant": 170842.81,
+    "pagos": 0.0,
+    "cred_deb": 0.0,
+    "deuda": 170842.81,
+    "interes": 17084.2,
+    "expensas": {
+     "A": 166050.0,
+     "C": 56700.0,
+     "D": 26853.96
+    },
+    "pcts": {
+     "A": 0.81,
+     "C": 0.81,
+     "D": 0.88
+    },
+    "total_mes": 249603.96,
+    "redondeo": -0.16,
+    "a_pagar": 437530.81,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 82,
+    "piso_depto": "12-E",
+    "propietario": "LIPARI JUAN",
+    "tipo": "Departamento",
+    "saldo_ant": 160296.82,
+    "pagos": 160296.82,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 155800.0,
+     "C": 53200.0,
+     "D": 25197.32
+    },
+    "pcts": {
+     "A": 0.76,
+     "C": 0.76,
+     "D": 0.83
+    },
+    "total_mes": 234197.32,
+    "redondeo": 0.5,
+    "a_pagar": 234197.82,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 83,
+    "piso_depto": "12-D",
+    "propietario": "SUBIAR PAULA VALERIA",
+    "tipo": "Departamento",
+    "saldo_ant": 160296.83,
+    "pagos": 160296.83,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 155800.0,
+     "C": 53200.0,
+     "D": 25197.32
+    },
+    "pcts": {
+     "A": 0.76,
+     "C": 0.76,
+     "D": 0.83
+    },
+    "total_mes": 234197.32,
+    "redondeo": 0.51,
+    "a_pagar": 234197.83,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 84,
+    "piso_depto": "12-F",
+    "propietario": "PALOMBO ADA",
+    "tipo": "Departamento",
+    "saldo_ant": 177169.84,
+    "pagos": 177169.84,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 172200.0,
+     "C": 58800.0,
+     "D": 27848.56
+    },
+    "pcts": {
+     "A": 0.84,
+     "C": 0.84,
+     "D": 0.92
+    },
+    "total_mes": 258848.56,
+    "redondeo": 0.28,
+    "a_pagar": 258848.84,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 85,
+    "piso_depto": "12-G",
+    "propietario": "DEL CASTIL MARTIN",
+    "tipo": "Departamento",
+    "saldo_ant": 175060.85,
+    "pagos": 175060.85,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 170150.0,
+     "C": 58100.0,
+     "D": 27516.02
+    },
+    "pcts": {
+     "A": 0.83,
+     "C": 0.83,
+     "D": 0.91
+    },
+    "total_mes": 255766.02,
+    "redondeo": 0.83,
+    "a_pagar": 255766.85,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 86,
+    "piso_depto": "13-B",
+    "propietario": "ACOSTA ROSANA",
+    "tipo": "Departamento",
+    "saldo_ant": 525181.86,
+    "pagos": 1714298.27,
+    "cred_deb": 0.0,
+    "deuda": -1189116.41,
+    "interes": 0.0,
+    "expensas": {
+     "A": 510450.0,
+     "C": 174300.0,
+     "D": 82551.08
+    },
+    "pcts": {
+     "A": 2.49,
+     "C": 2.49,
+     "D": 2.73
+    },
+    "total_mes": 767301.08,
+    "redondeo": 0.19,
+    "a_pagar": -421815.14,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 87,
+    "piso_depto": "13-A",
+    "propietario": "TASSARA MARIA ANA",
+    "tipo": "Departamento",
+    "saldo_ant": 516744.87,
+    "pagos": 516744.87,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 502250.0,
+     "C": 171500.0,
+     "D": 81223.95
+    },
+    "pcts": {
+     "A": 2.45,
+     "C": 2.45,
+     "D": 2.68
+    },
+    "total_mes": 754973.95,
+    "redondeo": -0.08,
+    "a_pagar": 754973.87,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 88,
+    "piso_depto": "13-E",
+    "propietario": "MIRANDA",
+    "tipo": "Departamento",
+    "saldo_ant": 160296.88,
+    "pagos": 160296.88,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 155800.0,
+     "C": 53200.0,
+     "D": 25197.32
+    },
+    "pcts": {
+     "A": 0.76,
+     "C": 0.76,
+     "D": 0.83
+    },
+    "total_mes": 234197.32,
+    "redondeo": 0.56,
+    "a_pagar": 234197.88,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 89,
+    "piso_depto": "13-D",
+    "propietario": "IRRAZABAL MARIANA Y EMILIANO",
+    "tipo": "Departamento",
+    "saldo_ant": 160296.89,
+    "pagos": 160400.0,
+    "cred_deb": 0.0,
+    "deuda": -103.11,
+    "interes": 0.0,
+    "expensas": {
+     "A": 155800.0,
+     "C": 53200.0,
+     "D": 25197.32
+    },
+    "pcts": {
+     "A": 0.76,
+     "C": 0.76,
+     "D": 0.83
+    },
+    "total_mes": 234197.32,
+    "redondeo": 0.68,
+    "a_pagar": 234094.89,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 90,
+    "piso_depto": "13-F",
+    "propietario": "TORRESI RUBENS",
+    "tipo": "Departamento",
+    "saldo_ant": 177169.9,
+    "pagos": 177169.9,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 172200.0,
+     "C": 58800.0,
+     "D": 27848.56
+    },
+    "pcts": {
+     "A": 0.84,
+     "C": 0.84,
+     "D": 0.92
+    },
+    "total_mes": 258848.56,
+    "redondeo": 0.34,
+    "a_pagar": 258848.9,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 91,
+    "piso_depto": "13-G",
+    "propietario": "MOLINI LAURA MARIA",
+    "tipo": "Departamento",
+    "saldo_ant": 175059.91,
+    "pagos": 175060.0,
+    "cred_deb": 0.0,
+    "deuda": -0.09,
+    "interes": 0.0,
+    "expensas": {
+     "A": 170150.0,
+     "C": 58100.0,
+     "D": 27516.02
+    },
+    "pcts": {
+     "A": 0.83,
+     "C": 0.83,
+     "D": 0.91
+    },
+    "total_mes": 255766.02,
+    "redondeo": -0.02,
+    "a_pagar": 255765.91,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 92,
+    "piso_depto": "14-E",
+    "propietario": "CASOLA ALEJANDRO",
+    "tipo": "Departamento",
+    "saldo_ant": 160296.92,
+    "pagos": 160296.92,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 155800.0,
+     "C": 53200.0,
+     "D": 25197.32
+    },
+    "pcts": {
+     "A": 0.76,
+     "C": 0.76,
+     "D": 0.83
+    },
+    "total_mes": 234197.32,
+    "redondeo": 0.6,
+    "a_pagar": 234197.92,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 93,
+    "piso_depto": "14-D",
+    "propietario": "BICHARA ALFREDO",
+    "tipo": "Departamento",
+    "saldo_ant": 160296.93,
+    "pagos": 160296.93,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 155800.0,
+     "C": 53200.0,
+     "D": 25197.32
+    },
+    "pcts": {
+     "A": 0.76,
+     "C": 0.76,
+     "D": 0.83
+    },
+    "total_mes": 234197.32,
+    "redondeo": 0.61,
+    "a_pagar": 234197.93,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 94,
+    "piso_depto": "14-F",
+    "propietario": "CARRO",
+    "tipo": "Departamento",
+    "saldo_ant": 177169.94,
+    "pagos": 177169.94,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 172200.0,
+     "C": 58800.0,
+     "D": 27848.56
+    },
+    "pcts": {
+     "A": 0.84,
+     "C": 0.84,
+     "D": 0.92
+    },
+    "total_mes": 258848.56,
+    "redondeo": 0.38,
+    "a_pagar": 258848.94,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 95,
+    "piso_depto": "14-G",
+    "propietario": "FORTUNATO CECILIA",
+    "tipo": "Departamento",
+    "saldo_ant": 185336.95,
+    "pagos": 185336.95,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 170150.0,
+     "C": 58100.0,
+     "D": 27516.02
+    },
+    "pcts": {
+     "A": 0.83,
+     "C": 0.83,
+     "D": 0.91
+    },
+    "total_mes": 255766.02,
+    "redondeo": 0.93,
+    "a_pagar": 255766.95,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 201,
+    "piso_depto": "UC-1",
+    "propietario": "DEL VALLE",
+    "tipo": "Cochera",
+    "saldo_ant": 1193442.01,
+    "pagos": 0.0,
+    "cred_deb": 0.0,
+    "deuda": 1193442.01,
+    "interes": 88656.69,
+    "expensas": {
+     "A": 86100.0,
+     "B": 27648.7,
+     "C": 29400.0
+    },
+    "pcts": {
+     "A": 0.42,
+     "B": 4.76,
+     "C": 0.42
+    },
+    "total_mes": 143148.7,
+    "redondeo": 1.61,
+    "a_pagar": 1425249.01,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 202,
+    "piso_depto": "UC-2",
+    "propietario": "DEL CASTIL MARTIN",
+    "tipo": "Cochera",
+    "saldo_ant": 113655.02,
+    "pagos": 113655.02,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 86100.0,
+     "B": 27648.7,
+     "C": 29400.0
+    },
+    "pcts": {
+     "A": 0.42,
+     "B": 4.76,
+     "C": 0.42
+    },
+    "total_mes": 143148.7,
+    "redondeo": 1.32,
+    "a_pagar": 143150.02,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 203,
+    "piso_depto": "UC-3",
+    "propietario": "BOLOTNER ISABEL",
+    "tipo": "Cochera",
+    "saldo_ant": 113655.03,
+    "pagos": 113655.03,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 86100.0,
+     "B": 27648.7,
+     "C": 29400.0
+    },
+    "pcts": {
+     "A": 0.42,
+     "B": 4.76,
+     "C": 0.42
+    },
+    "total_mes": 143148.7,
+    "redondeo": 1.33,
+    "a_pagar": 143150.03,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 204,
+    "piso_depto": "UC-4",
+    "propietario": "CONTRERAS",
+    "tipo": "Cochera",
+    "saldo_ant": 113655.04,
+    "pagos": 113655.04,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 86100.0,
+     "B": 27648.7,
+     "C": 29400.0
+    },
+    "pcts": {
+     "A": 0.42,
+     "B": 4.76,
+     "C": 0.42
+    },
+    "total_mes": 143148.7,
+    "redondeo": 1.34,
+    "a_pagar": 143150.04,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 205,
+    "piso_depto": "UC-5",
+    "propietario": "ROSANA ACOSTA",
+    "tipo": "Cochera",
+    "saldo_ant": 113655.05,
+    "pagos": 289158.74,
+    "cred_deb": 0.0,
+    "deuda": -175503.69,
+    "interes": 0.0,
+    "expensas": {
+     "A": 86100.0,
+     "B": 27648.7,
+     "C": 29400.0
+    },
+    "pcts": {
+     "A": 0.42,
+     "B": 4.76,
+     "C": 0.42
+    },
+    "total_mes": 143148.7,
+    "redondeo": 2.04,
+    "a_pagar": -32352.95,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 206,
+    "piso_depto": "UC-6",
+    "propietario": "YANG BETTINA",
+    "tipo": "Cochera",
+    "saldo_ant": 113655.06,
+    "pagos": 113655.06,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 86100.0,
+     "B": 27648.7,
+     "C": 29400.0
+    },
+    "pcts": {
+     "A": 0.42,
+     "B": 4.76,
+     "C": 0.42
+    },
+    "total_mes": 143148.7,
+    "redondeo": 1.36,
+    "a_pagar": 143150.06,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 207,
+    "piso_depto": "UC-7",
+    "propietario": "CARLUCCIO STELLA MARIS",
+    "tipo": "Cochera",
+    "saldo_ant": 113655.07,
+    "pagos": 113655.07,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 86100.0,
+     "B": 27648.7,
+     "C": 29400.0
+    },
+    "pcts": {
+     "A": 0.42,
+     "B": 4.76,
+     "C": 0.42
+    },
+    "total_mes": 143148.7,
+    "redondeo": 1.37,
+    "a_pagar": 143150.07,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 208,
+    "piso_depto": "UC-8",
+    "propietario": "ROTHER DIEGO ROB",
+    "tipo": "Cochera",
+    "saldo_ant": 113655.08,
+    "pagos": 113655.08,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 86100.0,
+     "B": 27648.7,
+     "C": 29400.0
+    },
+    "pcts": {
+     "A": 0.42,
+     "B": 4.76,
+     "C": 0.42
+    },
+    "total_mes": 143148.7,
+    "redondeo": 1.38,
+    "a_pagar": 143150.08,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 209,
+    "piso_depto": "UC-9",
+    "propietario": "ROTHER DIEGO ROB",
+    "tipo": "Cochera",
+    "saldo_ant": 113655.09,
+    "pagos": 113655.09,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 86100.0,
+     "B": 27648.7,
+     "C": 29400.0
+    },
+    "pcts": {
+     "A": 0.42,
+     "B": 4.76,
+     "C": 0.42
+    },
+    "total_mes": 143148.7,
+    "redondeo": 1.39,
+    "a_pagar": 143150.09,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 210,
+    "piso_depto": "UC-10",
+    "propietario": "BERHO",
+    "tipo": "Cochera",
+    "saldo_ant": 113655.1,
+    "pagos": 113655.1,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 86100.0,
+     "B": 27648.7,
+     "C": 29400.0
+    },
+    "pcts": {
+     "A": 0.42,
+     "B": 4.76,
+     "C": 0.42
+    },
+    "total_mes": 143148.7,
+    "redondeo": 1.4,
+    "a_pagar": 143150.1,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 211,
+    "piso_depto": "UC-11",
+    "propietario": "CLOCK SA",
+    "tipo": "Cochera",
+    "saldo_ant": 113655.11,
+    "pagos": 113655.11,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 86100.0,
+     "B": 27648.7,
+     "C": 29400.0
+    },
+    "pcts": {
+     "A": 0.42,
+     "B": 4.76,
+     "C": 0.42
+    },
+    "total_mes": 143148.7,
+    "redondeo": 1.41,
+    "a_pagar": 143150.11,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 212,
+    "piso_depto": "UC-12",
+    "propietario": "OCAMPO",
+    "tipo": "Cochera",
+    "saldo_ant": 113655.12,
+    "pagos": 113655.12,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 86100.0,
+     "B": 27648.7,
+     "C": 29400.0
+    },
+    "pcts": {
+     "A": 0.42,
+     "B": 4.76,
+     "C": 0.42
+    },
+    "total_mes": 143148.7,
+    "redondeo": 1.42,
+    "a_pagar": 143150.12,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 213,
+    "piso_depto": "UC-13",
+    "propietario": "ESCUREDO LUISA",
+    "tipo": "Cochera",
+    "saldo_ant": 119606.13,
+    "pagos": 119606.13,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 86100.0,
+     "B": 27648.7,
+     "C": 29400.0
+    },
+    "pcts": {
+     "A": 0.42,
+     "B": 4.76,
+     "C": 0.42
+    },
+    "total_mes": 143148.7,
+    "redondeo": 1.43,
+    "a_pagar": 143150.13,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 214,
+    "piso_depto": "UC-14",
+    "propietario": "TASSARA MARIA ANA",
+    "tipo": "Cochera",
+    "saldo_ant": 113655.14,
+    "pagos": 113655.14,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 86100.0,
+     "B": 27648.7,
+     "C": 29400.0
+    },
+    "pcts": {
+     "A": 0.42,
+     "B": 4.76,
+     "C": 0.42
+    },
+    "total_mes": 143148.7,
+    "redondeo": 1.44,
+    "a_pagar": 143150.14,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 215,
+    "piso_depto": "UC-15",
+    "propietario": "SEGURO EVOLUCION",
+    "tipo": "Cochera",
+    "saldo_ant": 113655.15,
+    "pagos": 113655.15,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 5966.75,
+    "expensas": {
+     "A": 86100.0,
+     "B": 27648.7,
+     "C": 29400.0
+    },
+    "pcts": {
+     "A": 0.42,
+     "B": 4.76,
+     "C": 0.42
+    },
+    "total_mes": 143148.7,
+    "redondeo": 1.7,
+    "a_pagar": 149117.15,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 216,
+    "piso_depto": "UC-16",
+    "propietario": "SEGUROS EVOLUCION",
+    "tipo": "Cochera",
+    "saldo_ant": 113655.16,
+    "pagos": 113655.16,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 5966.75,
+    "expensas": {
+     "A": 86100.0,
+     "B": 27648.7,
+     "C": 29400.0
+    },
+    "pcts": {
+     "A": 0.42,
+     "B": 4.76,
+     "C": 0.42
+    },
+    "total_mes": 143148.7,
+    "redondeo": 1.71,
+    "a_pagar": 149117.16,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 217,
+    "piso_depto": "UC-17",
+    "propietario": "TAUIL CARLOS",
+    "tipo": "Cochera",
+    "saldo_ant": 113655.17,
+    "pagos": 113655.17,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 86100.0,
+     "B": 27648.7,
+     "C": 29400.0
+    },
+    "pcts": {
+     "A": 0.42,
+     "B": 4.76,
+     "C": 0.42
+    },
+    "total_mes": 143148.7,
+    "redondeo": 1.47,
+    "a_pagar": 143150.17,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 218,
+    "piso_depto": "UC-18",
+    "propietario": "VERCESI LILIANA",
+    "tipo": "Cochera",
+    "saldo_ant": 113655.18,
+    "pagos": 113655.18,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 86100.0,
+     "B": 27648.7,
+     "C": 29400.0
+    },
+    "pcts": {
+     "A": 0.42,
+     "B": 4.76,
+     "C": 0.42
+    },
+    "total_mes": 143148.7,
+    "redondeo": 1.48,
+    "a_pagar": 143150.18,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 219,
+    "piso_depto": "UC-19",
+    "propietario": "TORRESI RUBENS",
+    "tipo": "Cochera",
+    "saldo_ant": 113655.19,
+    "pagos": 113655.19,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 86100.0,
+     "B": 27648.7,
+     "C": 29400.0
+    },
+    "pcts": {
+     "A": 0.42,
+     "B": 4.76,
+     "C": 0.42
+    },
+    "total_mes": 143148.7,
+    "redondeo": 1.49,
+    "a_pagar": 143150.19,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 220,
+    "piso_depto": "UC-20",
+    "propietario": "SEGURO EVOLUCION",
+    "tipo": "Cochera",
+    "saldo_ant": 145799.2,
+    "pagos": 113653.7,
+    "cred_deb": 0.0,
+    "deuda": 32145.5,
+    "interes": 9108.35,
+    "expensas": {
+     "A": 86100.0,
+     "B": 27648.7,
+     "C": 29400.0
+    },
+    "pcts": {
+     "A": 0.42,
+     "B": 4.76,
+     "C": 0.42
+    },
+    "total_mes": 143148.7,
+    "redondeo": 1.65,
+    "a_pagar": 184404.2,
+    "gastos_part": 0.0
+   },
+   {
+    "uf": 221,
+    "piso_depto": "UC-21",
+    "propietario": "TASSARA MARIA ANA",
+    "tipo": "Cochera",
+    "saldo_ant": 113655.21,
+    "pagos": 113655.21,
+    "cred_deb": 0.0,
+    "deuda": 0.0,
+    "interes": 0.0,
+    "expensas": {
+     "A": 86100.0,
+     "B": 27648.7,
+     "C": 29400.0
+    },
+    "pcts": {
+     "A": 0.42,
+     "B": 4.76,
+     "C": 0.42
+    },
+    "total_mes": 143148.7,
+    "redondeo": 1.51,
+    "a_pagar": 143150.21,
+    "gastos_part": 0.0
+   }
+  ],
+  "prorrateo_total": {
+   "A": 20512710.0,
+   "B": 580622.7,
+   "C": 7004340.0,
+   "D": 3024954.13,
+   "_a_pagar": 34403411.91,
+   "_total_mes": 31122626.83,
+   "_gpart": 0.0,
+   "_pagos": 21466527.2,
+   "_deuda": 2825051.15,
+   "_interes": 455703.24
+  },
+  "evolucion": [
+   {
+    "mes": "Febrero 2026",
+    "a_cobrar": 21134517.12,
+    "gastos": 19521427.25,
+    "cobrado": 18592951.79
+   },
+   {
+    "mes": "Marzo 2026",
+    "a_cobrar": 21230111.67,
+    "gastos": 22957337.77,
+    "cobrado": 21106008.12
+   },
+   {
+    "mes": "Abril 2026",
+    "a_cobrar": 21235633.48,
+    "gastos": 16429951.61,
+    "cobrado": 21825519.12
+   },
+   {
+    "mes": "Mayo 2026",
+    "a_cobrar": 23897542.24,
+    "gastos": 20717051.97,
+    "cobrado": 19391756.78
+   },
+   {
+    "mes": "Junio 2026",
+    "a_cobrar": 21631133.72,
+    "gastos": 20199290.17,
+    "cobrado": 27014721.69
+   },
+   {
+    "mes": "Julio 2026",
+    "a_cobrar": 31122626.83,
+    "gastos": 32543124.9,
+    "cobrado": 21466527.2
+   }
+  ],
+  "checks": [
+   {
+    "nombre": "Suma de líneas = total de gastos",
+    "ok": true,
+    "esperado": 32543124.9,
+    "obtenido": 32543124.9,
+    "detalle": ""
+   },
+   {
+    "nombre": "Rubro SUELDOS Y CARGAS SOCIALES",
+    "ok": true,
+    "esperado": 9340019.29,
+    "obtenido": 9340019.29,
+    "detalle": ""
+   },
+   {
+    "nombre": "Rubro MANTENIMIENTOS EN UNIDADES",
+    "ok": true,
+    "esperado": 10203457.01,
+    "obtenido": 10203457.01,
+    "detalle": ""
+   },
+   {
+    "nombre": "Rubro IMPUESTOS",
+    "ok": true,
+    "esperado": 350657.78,
+    "obtenido": 350657.78,
+    "detalle": ""
+   },
+   {
+    "nombre": "Rubro SERVICIOS PUBLICOS",
+    "ok": true,
+    "esperado": 2441025.23,
+    "obtenido": 2441025.23,
+    "detalle": ""
+   },
+   {
+    "nombre": "Rubro ABONOS Y SERVICIOS",
+    "ok": true,
+    "esperado": 7368206.9,
+    "obtenido": 7368206.9,
+    "detalle": ""
+   },
+   {
+    "nombre": "Rubro GASTOS CONTABLES",
+    "ok": true,
+    "esperado": 135600.0,
+    "obtenido": 135600.0,
+    "detalle": ""
+   },
+   {
+    "nombre": "Rubro GASTOS BANCARIOS",
+    "ok": true,
+    "esperado": 394545.83,
+    "obtenido": 394545.83,
+    "detalle": ""
+   },
+   {
+    "nombre": "Rubro GASTOS DE LIMPIEZA",
+    "ok": true,
+    "esperado": 359992.0,
+    "obtenido": 359992.0,
+    "detalle": ""
+   },
+   {
+    "nombre": "Rubro GASTOS DE ADMINISTRACION",
+    "ok": true,
+    "esperado": 806980.0,
+    "obtenido": 806980.0,
+    "detalle": ""
+   },
+   {
+    "nombre": "Rubro SEGUROS",
+    "ok": true,
+    "esperado": 738004.86,
+    "obtenido": 738004.86,
+    "detalle": ""
+   },
+   {
+    "nombre": "Rubro GASTOS GENERALES",
+    "ok": true,
+    "esperado": 404636.0,
+    "obtenido": 404636.0,
+    "detalle": ""
+   },
+   {
+    "nombre": "Columna A",
+    "ok": true,
+    "esperado": 28939427.73,
+    "obtenido": 28939427.73,
+    "detalle": ""
+   },
+   {
+    "nombre": "Columna B",
+    "ok": true,
+    "esperado": 580623.35,
+    "obtenido": 580623.35,
+    "detalle": ""
+   },
+   {
+    "nombre": "Columna D",
+    "ok": true,
+    "esperado": 3023073.82,
+    "obtenido": 3023073.82,
+    "detalle": ""
+   },
+   {
+    "nombre": "Estado financiero: saldo anterior + ingresos - egresos = cierre",
+    "ok": true,
+    "esperado": 923626.64,
+    "obtenido": 923626.65,
+    "detalle": ""
+   },
+   {
+    "nombre": "Egresos del estado financiero = total de gastos",
+    "ok": true,
+    "esperado": 32543124.9,
+    "obtenido": 32543124.9,
+    "detalle": ""
+   },
+   {
+    "nombre": "Cuenta BANCO - 17758-6 001-1: saldo anterior + ingresos - egresos = cierre",
+    "ok": true,
+    "esperado": 882050.53,
+    "obtenido": 882050.53,
+    "detalle": ""
+   },
+   {
+    "nombre": "Cuenta CAJA: saldo anterior + ingresos - egresos = cierre",
+    "ok": true,
+    "esperado": 41576.11,
+    "obtenido": 41576.11,
+    "detalle": ""
+   },
+   {
+    "nombre": "Suma de cuentas = disponibilidades",
+    "ok": true,
+    "esperado": 923626.64,
+    "obtenido": 923626.64,
+    "detalle": ""
+   },
+   {
+    "nombre": "Deudores: suma = total",
+    "ok": true,
+    "esperado": 4283350.11,
+    "obtenido": 4283350.11,
+    "detalle": ""
+   },
+   {
+    "nombre": "Estado de cuentas: suma de 'a pagar' = total",
+    "ok": true,
+    "esperado": 34403411.91,
+    "obtenido": 34403411.91,
+    "detalle": ""
+   },
+   {
+    "nombre": "Estado de cuentas: suma de deuda = total",
+    "ok": true,
+    "esperado": 2825051.15,
+    "obtenido": 2825051.15,
+    "detalle": ""
+   },
+   {
+    "nombre": "Estado de cuentas: suma de pagos = total",
+    "ok": true,
+    "esperado": 21466527.2,
+    "obtenido": 21466527.2,
+    "detalle": ""
+   },
+   {
+    "nombre": "Prorrateo clase A: suma de unidades = total",
+    "ok": true,
+    "esperado": 20512710.0,
+    "obtenido": 20512710.0,
+    "detalle": ""
+   },
+   {
+    "nombre": "Prorrateo clase B: suma de unidades = total",
+    "ok": true,
+    "esperado": 580622.7,
+    "obtenido": 580622.7,
+    "detalle": ""
+   },
+   {
+    "nombre": "Prorrateo clase C: suma de unidades = total",
+    "ok": true,
+    "esperado": 7004340.0,
+    "obtenido": 7004340.0,
+    "detalle": ""
+   },
+   {
+    "nombre": "Prorrateo clase D: suma de unidades = total",
+    "ok": true,
+    "esperado": 3024954.13,
+    "obtenido": 3024954.13,
+    "detalle": ""
+   },
+   {
+    "nombre": "A cobrar (patrimonial) = total a pagar de unidades",
+    "ok": true,
+    "esperado": 34403411.91,
+    "obtenido": 34403411.91,
+    "detalle": ""
+   },
+   {
+    "nombre": "Expensas cobradas (estado financiero) = pagos de unidades",
+    "ok": true,
+    "esperado": 21466527.21,
+    "obtenido": 21466527.2,
+    "detalle": ""
+   }
+  ],
+  "avisos": []
+ },
+ "hallazgos": [
+  {
+   "regla": "obras_unidades",
+   "severidad": "CRÍTICO",
+   "area": "Obras / contratación",
+   "titulo": "El 34,3 % del gasto del mes son trabajos dentro de unidades privadas, liquidados como expensas ordinarias",
+   "evidencia": "PEÑALOZA ALEJANDRO ROBERTO: TRABAJOS DE CALEFACCIÓN CAMBIO DE COLUMNA VERTICAL Y SUS HORIZONT. CORRESPONDIENTES DE CAL ($4.333.333); MARIO LEONARDO ROTH: Fact 4182:cambio de serpentina con caño pex de diametro 20mm depto 12 B Total $2.900.000;  ($2.650.000); SACZEWICZYK MARIA EUGENIA: SALDO POR TRABAJO REALIZADO EN AVENIDA RIVADAVIA 2069 DEPARTAMENTO B, PISO 13, ROMPER MANU ($2.552.000); SACZEWICZYK MARIA EUGENIA: PINTURA EL PISO 13 DPTO B. REPARACION DE PARED Y PINTURA ($700.000)",
+   "monto": 10235333.33,
+   "recomendacion": "Pedir acta de asamblea que aprueba las obras, presupuestos comparativos, informe técnico que justifique la responsabilidad del consorcio y denuncia al seguro.",
+   "refs": [
+    "8",
+    "9",
+    "10",
+    "25"
+   ]
+  },
+  {
+   "regla": "liquidez",
+   "severidad": "CRÍTICO",
+   "area": "Liquidez",
+   "titulo": "Las disponibilidades no cubren las facturas pendientes",
+   "evidencia": "Disponibilidades $1.941.386 vs. facturas pendientes $4.806.667: déficit de $2.865.280.",
+   "monto": -2865280.36,
+   "recomendacion": "Proyectar el flujo de caja del mes siguiente y definir si hace falta una expensa extraordinaria explícita.",
+   "refs": []
+  },
+  {
+   "regla": "efectivo",
+   "severidad": "CRÍTICO",
+   "area": "Control interno / caja",
+   "titulo": "El 67,7 % de las disponibilidades está en efectivo",
+   "evidencia": "Caja cierra con $1.315.282 sobre disponibilidades de $1.941.386. Ingresos en efectivo del mes: $1.343.706. La Ley 941 (CABA) exige depositar los fondos en cuenta bancaria del consorcio.",
+   "monto": 1315282.05,
+   "recomendacion": "Exigir depósito del efectivo y conciliación de caja contra comprobantes de cobro.",
+   "refs": []
+  },
+  {
+   "regla": "prorrateo",
+   "severidad": "ALTO",
+   "area": "Prorrateo",
+   "titulo": "PEÑALOZA ALEJANDRO ROBERTO: prorrateado en clase D este mes y en clase A el anterior",
+   "evidencia": "Este mes $4.333.333 (TRABAJOS DE CALEFACCIÓN CAMBIO DE COLUMNA VERTICAL Y SUS HORIZONT. CORRESPONDIEN); mes anterior $5.000.000 (ANTICIPO PARA ACOPIOS DE MATERIALES TRABAJOS DE CALEFACION COLUMNA SECTOR. F TRA). Cambia quién paga (por ejemplo, cocheras exentas o no).",
+   "monto": 4333333.33,
+   "recomendacion": "Exigir criterio de prorrateo estable por obra.",
+   "refs": [
+    "8"
+   ]
+  },
+  {
+   "regla": "morosidad",
+   "severidad": "ALTO",
+   "area": "Morosidad",
+   "titulo": "Deuda concentrada: UC-1 (DEL VALLE) debe $1.425.249, equivalente a 12.5 meses de expensa y al 35,4 % de la deuda total",
+   "evidencia": "9 unidades deudoras por $4.027.770; 4 no pagaron nada en el mes: 4-B, 5-F, 8-D, UC-1",
+   "monto": 4027770.2300000004,
+   "recomendacion": "Pedir estado de intimaciones y juicios por unidad; iniciar acciones sobre los mayores deudores.",
+   "refs": [
+    "23",
+    "24",
+    "27",
+    "31",
+    "35",
+    "37",
+    "55",
+    "78",
+    "201"
+   ]
+  },
+  {
+   "regla": "proveedor_nuevo",
+   "severidad": "ALTO",
+   "area": "Obras / contratación",
+   "titulo": "SACZEWICZYK MARIA EUGENIA factura con numeración N° 7: proveedor casi sin actividad previa, por $2.552.000",
+   "evidencia": "SALDO POR TRABAJO REALIZADO EN AVENIDA RIVADAVIA 2069 DEPARTAMENTO B, PISO 13, ROMPER MANUALMENTE, SACAR PORCELANATO PREEXISTENTE, EMPAREJAR, Y COLOCAR PORCELAN",
+   "monto": 2552000.0,
+   "recomendacion": "Verificar inscripción en ARCA, antecedentes y presupuestos comparativos.",
+   "refs": [
+    "9"
+   ]
+  },
+  {
+   "regla": "prorrateo",
+   "severidad": "ALTO",
+   "area": "Prorrateo",
+   "titulo": "Se prorratea $1.829.037 más que el gasto del mes sin concepto informado",
+   "evidencia": "Importe a cobrar $31.705.961 vs. gastos $29.876.923. Diferencia por clase: A $1.822.445, B -$1, D $6.593",
+   "monto": 1829037.4400000013,
+   "recomendacion": "Exigir que el excedente se identifique como fondo de reserva o expensa extraordinaria con saldo informado.",
+   "refs": []
+  },
+  {
+   "regla": "proveedor_nuevo",
+   "severidad": "ALTO",
+   "area": "Obras / contratación",
+   "titulo": "SACZEWICZYK MARIA EUGENIA factura con numeración N° 8: proveedor casi sin actividad previa, por $700.000",
+   "evidencia": "PINTURA EL PISO 13 DPTO B. REPARACION DE PARED Y PINTURA",
+   "monto": 700000.0,
+   "recomendacion": "Verificar inscripción en ARCA, antecedentes y presupuestos comparativos.",
+   "refs": [
+    "10"
+   ]
+  },
+  {
+   "regla": "legales",
+   "severidad": "ALTO",
+   "area": "Contingencias legales",
+   "titulo": "Gastos legales por $164.000 sin explicación del reclamo",
+   "evidencia": "NAVARRO FERNANDEZ RICARDO ESTEBAN -: HONORARIOS CONTESTACIÓN CARTA DOCUMENTO. ($135.000); NAVARRO FERNANDEZ RICARDO ESTEBAN -: ANTICIPO MEDIACION CON PROPIETARIO DE LA UNIDAD FUNCIONAL Nº 68. - Ufs afectadas:(68-10 E) ($29.000)",
+   "monto": 164000.0,
+   "recomendacion": "Pedir informe del asesor legal: partes, objeto, estado y contingencia estimada.",
+   "refs": [
+    "41",
+    "42"
+   ]
+  },
+  {
+   "regla": "fechas",
+   "severidad": "MEDIO",
+   "area": "Pagos atrasados / duplicación",
+   "titulo": "4 factura(s) pagadas con más de 60 días de atraso",
+   "evidencia": "MARIO LEONARDO ROTH factura 4182-4183-4191 del 29-05-2026 pagada el 21-08-2026 (84 días); MATHIL factura 0008-00033655 del 01-12-2025 pagada el 09-08-2026 (251 días); MATHIL factura 0008-00033304 del 07-11-2025 pagada el 09-08-2026 (275 días); SOLVER factura 00002-00014560 del 31-03-2026 pagada el 04-08-2026 (126 días)",
+   "monto": 3059944.0,
+   "recomendacion": "Verificar que no se hayan liquidado en meses anteriores (riesgo de doble pago).",
+   "refs": [
+    "25",
+    "26",
+    "27",
+    "33"
+   ]
+  },
+  {
+   "regla": "fechas",
+   "severidad": "MEDIO",
+   "area": "Pagos atrasados / duplicación",
+   "titulo": "Cargas sociales (F.931) de Junio 2026 pagadas el 10-08-2026, fuera de término",
+   "evidencia": "El F.931 vence el mes siguiente al período; el pago tardío genera intereses resarcitorios.",
+   "monto": 1920211.16,
+   "recomendacion": "Pedir el comprobante y verificar si se pagaron intereses.",
+   "refs": [
+    "2"
+   ]
+  },
+  {
+   "regla": "costos",
+   "severidad": "MEDIO",
+   "area": "Costos",
+   "titulo": "Gastos bancarios de $452.337 (1,5 % del gasto del mes)",
+   "evidencia": "Impuesto a débitos y créditos estimado (0,6 % de los movimientos) más comisiones; no se informa el detalle.",
+   "monto": 452336.93,
+   "recomendacion": "Pedir el resumen bancario y renegociar comisiones.",
+   "refs": []
+  },
+  {
+   "regla": "morosidad",
+   "severidad": "MEDIO",
+   "area": "Morosidad",
+   "titulo": "Criterio de intereses a deudores no uniforme",
+   "evidencia": "Interés del mes sobre la deuda: 5-A 25,6 %, 4-A 10,0 %, 5-F 10,0 %, 11-G 10,0 %, 6-B 10,0 %, 4-B 9,6 %, 8-D 8,8 %, UC-1 7,2 %",
+   "monto": 384653.92,
+   "recomendacion": "Solicitar la fórmula de cálculo de intereses y su respaldo en el reglamento.",
+   "refs": []
+  },
+  {
+   "regla": "clasificacion",
+   "severidad": "MEDIO",
+   "area": "Clasificación",
+   "titulo": "Retención sobre factura de un proveedor ($256.260) incluida en 'Sueldos y cargas sociales'",
+   "evidencia": "AGENCIA DE RECAUDACIÃ​N Y CONTROL ADUANERO - RETENCIÓN SOBRE FACTURA COOPETATIVA C.S.I FC Nº 4833 PERIODO JUNIO 2026. SIRE IVA $256.260,11 YTOTAL DE RETENCIONES",
+   "monto": 256260.11,
+   "recomendacion": "Reclasificar: corresponde al servicio del proveedor retenido.",
+   "refs": [
+    "1"
+   ]
+  },
+  {
+   "regla": "costos",
+   "severidad": "MEDIO",
+   "area": "Costos",
+   "titulo": "Honorarios de administración suben 8,4 % respecto del mes anterior",
+   "evidencia": "GRACIELA MARTA CROCAMO: $806.980 → $874.799.",
+   "monto": 67819.0,
+   "recomendacion": "Pedir la base del aumento (índice o acuerdo de asamblea).",
+   "refs": []
+  }
+ ]
+}

@@ -11,8 +11,8 @@ from ct.comprobantes import cuit_valido, nombre_vinculado, cargar_manifiesto_red
 from ct.redconar import parse_text
 
 FIX = os.path.join(os.path.dirname(__file__), "fixtures")
-CARPETA = os.path.expanduser("~/Descargas/Comprobantes Rivadavia 2069")
-MANIFEST = "/tmp/claude-1000/-tmp-expensa/6a21c58a-78d1-4c71-bbae-3c304135eb13/scratchpad/manifest.json"
+CARPETA = os.path.join(os.environ.get("CT_PRIVADO", os.path.expanduser("~/consorcio-transparente-privado")), "Comprobantes Rivadavia 2069")
+MANIFEST = os.path.join(CARPETA, "manifest.json")
 
 
 def test_cuit_valido():
