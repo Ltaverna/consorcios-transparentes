@@ -7,7 +7,8 @@ Dueño: Lucas Taverna (repo personal `Ltaverna/consorcios-transparentes`, no el 
 
 ## Estructura
 - `engine/` motor Python (sin dependencias salvo openpyxl para Excel; `pdftotext` de poppler para PDF). CLI: `python -m ct`.
-- `engine/tests/` 27 pruebas; correr con `cd engine && python3 -m pytest -q tests`. Las de comprobantes se saltean si no está la carpeta privada.
+- `engine/tests/` correr con `cd engine && .venv/bin/python -m pytest -q tests` (29 passed, 2 skipped: las de comprobantes se saltean sin la carpeta privada).
+- `api/` API del panel (FastAPI + SQLAlchemy; importa el motor). Tests: `cd api && .venv/bin/python -m pytest -q` (SQLite en memoria, sin servicios externos). Ver `api/README.md`. Los venvs (`engine/.venv`, `api/.venv`) están gitignoreados; el Python de Homebrew bloquea pip global (PEP 668).
 - `apps/asamblea/` app de asamblea (un solo HTML generado por `make_votacion.py` + `asamblea_content.py`), backend `Code.gs` en Apps Script.
 - `tools/auditoria-manual/` scripts de la primera auditoría (agosto 2026, Rivadavia 2069): generan el Excel y la presentación a mano. Referencia histórica; el motor reproduce sus hallazgos.
 - `docs/` plan de producto, catálogo de reglas, diseño de la app de asamblea, estado.

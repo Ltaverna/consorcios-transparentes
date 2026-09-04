@@ -1,7 +1,9 @@
 # Catálogo de reglas de detección
 
 Cada regla produce hallazgos con severidad (CRÍTICO, ALTO, MEDIO, BAJO), área, título, evidencia, monto involucrado y qué pedir.
-Los umbrales están en `engine/ct/rules.py` (`Config`) y se ajustan por consorcio. Redacción: hechos con documento, sin conclusiones acusatorias.
+Los umbrales están en `engine/ct/rules.py` (`Config`) y se ajustan por consorcio (en la API, JSONB por consorcio vía `Config.desde_dict`).
+Cada hallazgo declara además una `clave` estable (más sus `refs`) para que el panel conserve el estado del auditor al reprocesar
+una liquidación corregida. Redacción: hechos con documento, sin conclusiones acusatorias.
 
 ## Sobre la liquidación (`ct/rules.py`)
 
