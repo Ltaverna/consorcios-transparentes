@@ -43,6 +43,18 @@ def test_republicar_actualiza_sin_duplicar(db, auditor):
     assert db.query(models.Informe).filter_by(liquidacion_id=liq_id).count() == 2  # html y xlsx, una vez
 
 
+def test_republicar_en_el_mismo_segundo_no_borra_el_informe_vivo(db, auditor, tmp_path):
+    """El sello de versión de la clave tiene que sobrevivir a dos publicaciones en el mismo
+    segundo (resolución de `strftime` de a un segundo): si la clave nueva coincide con la
+    vieja, el borrado post-commit de "la clave vieja" no puede llevarse puesto el archivo
+    recién escrito."""
+    liq_id = subir(auditor).json()["id"]
+    auditor.post(f"/liquidaciones/{liq_id}/publicar")
+    auditor.post(f"/liquidaciones/{liq_id}/publicar")
+    for i in db.query(models.Informe).filter_by(liquidacion_id=liq_id):
+        assert (tmp_path / i.archivo_key).exists()
+
+
 def test_solo_se_publica_evidencia_de_hallazgos_publicados(db, auditor, tmp_path):
     """Decisión de producto: el informe publicado solo muestra los documentos (comprobantes)
     referenciados por hallazgos que el auditor efectivamente publicó. La tabla de deudores
@@ -85,3 +97,37 @@ def test_publicar_incluye_evidencia_de_hallazgos_publicados(db, auditor, tmp_pat
     assert "Hallazgo NO publicado" not in html
     assert "GASTO-PUBLICADO" in html
     assert "GASTO-NO-PUBLICADO" not in html
+
+
+def test_refs_de_hallazgo_de_liquidacion_no_habilitan_evidencia_de_comprobantes(db, auditor, tmp_path):
+    """Las refs del motor son un espacio de nombres compartido: en un hallazgo de origen
+    "liquidacion" (p. ej. morosidad) son UFs de deudores, no números de gasto; en uno de
+    origen "comprobantes" son números de gasto. Si no se distingue por origen, publicar un
+    hallazgo de morosidad con ref "1" filtraría por error la evidencia del gasto n=1."""
+    liq_id = subir(auditor).json()["id"]
+    h_liquidacion = models.Hallazgo(liquidacion_id=liq_id, clave="morosidad|1", origen="liquidacion",
+                                    regla="morosidad", severidad="ALTO", area="Cobranza",
+                                    titulo="UF con deuda", evidencia="e", publicado=True, refs=["1"])
+    db.add(h_liquidacion)
+    db.add(models.Documento(liquidacion_id=liq_id, gasto_n=1, tipo="factura",
+                            archivo_key="comprobantes/2026-08/g1.pdf",
+                            metadatos={"archivo": "g1.pdf", "gasto_n": 1, "receptor": "NO-DEBE-APARECER"}))
+    db.commit()
+    r = auditor.post(f"/liquidaciones/{liq_id}/publicar")
+    assert r.status_code == 200
+    informe = db.query(models.Informe).filter_by(liquidacion_id=liq_id, tipo="html").one()
+    html = (tmp_path / informe.archivo_key).read_text()
+    assert "NO-DEBE-APARECER" not in html
+
+    h_comprobantes = models.Hallazgo(liquidacion_id=liq_id, clave="cruce|1", origen="comprobantes",
+                                     regla="cruce", severidad="ALTO", area="Comprobantes",
+                                     titulo="Hallazgo del cruce sobre el gasto 1", evidencia="e",
+                                     publicado=True, refs=["1"])
+    db.add(h_comprobantes)
+    db.commit()
+    r = auditor.post(f"/liquidaciones/{liq_id}/publicar")
+    assert r.status_code == 200
+    db.expire_all()
+    informe = db.query(models.Informe).filter_by(liquidacion_id=liq_id, tipo="html").one()
+    html = (tmp_path / informe.archivo_key).read_text()
+    assert "NO-DEBE-APARECER" in html

@@ -7,6 +7,7 @@ import pathlib
 import re
 import tempfile
 import zipfile
+from collections.abc import Iterable
 
 from sqlalchemy.orm import Session
 
@@ -219,7 +220,7 @@ def procesar(db: Session, liq_id: int, storage) -> None:
         db.commit()
 
 
-def _sin_rutas_invalidas(nombres: list[str]) -> bool:
+def _sin_rutas_invalidas(nombres: Iterable[str]) -> bool:
     for n in nombres:
         p = pathlib.PurePosixPath(n)
         if p.is_absolute() or ".." in p.parts:

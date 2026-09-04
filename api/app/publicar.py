@@ -2,6 +2,7 @@
 import dataclasses
 import pathlib
 import tempfile
+import uuid
 from datetime import date
 
 from sqlalchemy.orm import Session
@@ -29,8 +30,14 @@ def _documentos_motor(db: Session, liq_row: models.Liquidacion) -> list[Document
     publicó: publicar hallazgos "no" no puede filtrar los documentos que los respaldan pero
     dejar la evidencia cruda disponible en el informe igual. La tabla de deudores del motor
     no pasa por acá: es parte de la liquidación mensual que los propietarios ya reciben, no
-    evidencia del cruce de comprobantes."""
-    ns = {int(r) for h in liq_row.hallazgos if h.publicado for r in h.refs if str(r).isdigit()}
+    evidencia del cruce de comprobantes.
+
+    Las refs son un espacio de nombres compartido entre orígenes: en un hallazgo "comprobantes"
+    (el que arma `cruzar`) siempre son números de gasto, pero en uno "liquidacion" pueden ser
+    UFs de deudores (morosidad) u otra cosa que casualmente coincida con un n de gasto. Por eso
+    solo se toman refs de hallazgos origen="comprobantes"."""
+    ns = {int(r) for h in liq_row.hallazgos if h.publicado and h.origen == "comprobantes"
+          for r in h.refs if str(r).isdigit()}
     docs = []
     for d in db.query(models.Documento).filter_by(liquidacion_id=liq_row.id):
         if d.gasto_n not in ns:
@@ -58,12 +65,18 @@ def publicar(db: Session, liq_id: int, storage) -> dict:
     hs = _hallazgos_motor(liq_row)
     docs = _documentos_motor(db, liq_row)
 
-    # Claves versionadas con el timestamp de esta publicación: una resubida de comprobantes que
+    # Claves versionadas con un sello único por publicación: una resubida de comprobantes que
     # dispare una republicación mientras alguien está leyendo el informe anterior no le pisa el
-    # archivo por debajo; las claves viejas se borran recién después del commit.
-    sello = models.ahora().strftime("%Y%m%d%H%M%S")
-    claves_viejas = [inf.archivo_key for inf in
-                     db.query(models.Informe).filter_by(liquidacion_id=liq_row.id).all()]
+    # archivo por debajo. El sello lleva un uuid además del timestamp porque `strftime` tiene
+    # resolución de un segundo: dos publicaciones seguidas (republicar, o el test) caen fácil en
+    # el mismo segundo, y una clave repetida + "borrar las claves viejas" borraría el archivo
+    # recién escrito. Por las dudas, además, solo se borra lo que quedó huérfano de verdad
+    # (mismo patrón que en `cruzar_comprobantes`): la intersección con las claves nuevas nunca
+    # se toca.
+    sello = f"{models.ahora().strftime('%Y%m%d%H%M%S')}-{uuid.uuid4().hex[:8]}"
+    claves_viejas = {inf.archivo_key for inf in
+                     db.query(models.Informe).filter_by(liquidacion_id=liq_row.id).all()}
+    claves_nuevas = set()
     with tempfile.TemporaryDirectory() as tmp:
         rutas = {"html": pathlib.Path(tmp) / "informe.html", "xlsx": pathlib.Path(tmp) / "informe.xlsx"}
         informe_html(liq, hs, str(rutas["html"]), prev, docs, marca)
@@ -71,6 +84,7 @@ def publicar(db: Session, liq_id: int, storage) -> dict:
         for tipo, ruta in rutas.items():
             key = f"informes/{liq_row.periodo}-{sello}.{tipo}"
             storage.guardar(key, ruta.read_bytes())
+            claves_nuevas.add(key)
             fila = db.query(models.Informe).filter_by(liquidacion_id=liq_row.id, tipo=tipo).first()
             if not fila:
                 fila = models.Informe(liquidacion_id=liq_row.id, tipo=tipo, archivo_key=key)
@@ -85,6 +99,6 @@ def publicar(db: Session, liq_id: int, storage) -> dict:
         raise ValueError("La liquidación cambió mientras se publicaba; revisala y volvé a publicar")
     liq_row.estado = "publicada"
     db.commit()
-    for clave in claves_viejas:
+    for clave in claves_viejas - claves_nuevas:
         storage.borrar(clave)
     return {"hallazgos_publicados": len(hs)}
