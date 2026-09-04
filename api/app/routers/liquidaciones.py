@@ -2,6 +2,7 @@ import re
 
 from fastapi import (APIRouter, BackgroundTasks, Depends, HTTPException,
                      Request, UploadFile, Form)
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from .. import ingesta, models, security
@@ -25,13 +26,25 @@ def subir(request: Request, tareas: BackgroundTasks, archivo: UploadFile,
           s: dict = Depends(security.requiere("auditor"))):
     if not PERIODO.match(periodo):
         raise HTTPException(422, "El período debe ser AAAA-MM, por ejemplo 2026-08")
+    data = archivo.file.read(30 * 1024 * 1024 + 1)
+    if len(data) > 30 * 1024 * 1024:
+        raise HTTPException(413, "El archivo supera los 30 MB")
+    liq = db.query(models.Liquidacion).filter_by(periodo=periodo).first()
+    if liq and liq.estado == "procesando":
+        raise HTTPException(409, "Esa liquidación ya se está procesando; esperá a que termine")
     sufijo = ".pdf" if (archivo.filename or "").lower().endswith(".pdf") else ".txt"
     key = f"liquidaciones/{periodo}{sufijo}"
-    request.app.state.storage.guardar(key, archivo.file.read())
-    liq = db.query(models.Liquidacion).filter_by(periodo=periodo).first()
+    request.app.state.storage.guardar(key, data)
     if not liq:
         liq = models.Liquidacion(periodo=periodo, archivo_key=key)
         db.add(liq)
+        try:
+            db.commit()
+        except IntegrityError:
+            db.rollback()
+            liq = db.query(models.Liquidacion).filter_by(periodo=periodo).first()
+            if liq.estado == "procesando":
+                raise HTTPException(409, "Esa liquidación ya se está procesando; esperá a que termine")
     liq.archivo_key, liq.estado, liq.error = key, "procesando", ""
     db.commit()
     tareas.add_task(_procesar_en_background, liq.id, request.app.state.storage)

@@ -56,8 +56,9 @@ def detalle(h_id: int, db: Session = Depends(get_db),
     h = db.get(models.Hallazgo, h_id)
     if not h:
         raise HTTPException(404, "No existe ese hallazgo")
-    eventos = sorted(h.eventos, key=lambda e: e.ts, reverse=True)
-    usuarios = {u.id: u.nombre for u in db.query(models.Usuario).all()}
+    eventos = sorted(h.eventos, key=lambda e: (e.ts, e.id), reverse=True)
+    ids = {e.usuario_id for e in h.eventos if e.usuario_id}
+    usuarios = {u.id: u.nombre for u in db.query(models.Usuario).filter(models.Usuario.id.in_(ids))} if ids else {}
     return {**_resumen(h), "evidencia": h.evidencia, "recomendacion": h.recomendacion,
             "refs": h.refs, "respuesta_admin": h.respuesta_admin,
             "eventos": [{"de": e.de, "a": e.a, "nota": e.nota, "ts": e.ts.isoformat(),

@@ -38,3 +38,19 @@ def test_solo_auditor_sube(db, cliente):
 
 def test_listar_requiere_sesion(cliente):
     assert cliente.get("/liquidaciones").status_code == 401
+
+
+def test_subida_demasiado_grande_413(auditor):
+    r = auditor.post("/liquidaciones", data={"periodo": "2026-08"},
+                     files={"archivo": ("x.txt", b"x" * (30 * 1024 * 1024 + 1), "text/plain")})
+    assert r.status_code == 413
+
+
+def test_resubir_mientras_procesa_409(db, auditor):
+    from app import models
+    liq = models.Liquidacion(periodo="2026-06", archivo_key="liquidaciones/2026-06.txt", estado="procesando")
+    db.add(liq)
+    db.commit()
+    r = auditor.post("/liquidaciones", data={"periodo": "2026-06"},
+                     files={"archivo": ("x.txt", b"da igual", "text/plain")})
+    assert r.status_code == 409
