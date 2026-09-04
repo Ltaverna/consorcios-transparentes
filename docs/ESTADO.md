@@ -14,8 +14,7 @@
     Deploy: `npx wrangler login` y luego `npx wrangler pages deploy apps/asamblea --project-name votacion-rivadavia --branch main`
     (subir solo `index.html`; ver `apps/asamblea/deploy/LEEME.txt`).
   - Sheet de datos: https://docs.google.com/spreadsheets/d/1_FDA3-h5mtFomq_cERUPTrWFgaYHF2G1Fap_G2Xo-Tw/edit
-  - Apps Script /exec: la URL está embebida en `index.html`. Pendiente del usuario: volver a pegar el `Code.gs` actualizado y crear una
-    nueva versión de implementación para que agenda y objeciones se sincronicen (la app avisa "script anterior" mientras tanto).
+  - Apps Script /exec: la URL está embebida en `index.html`. El `Code.gs` vigente ya está pegado en Apps Script (4/09/2026).
 - **Plan de producto**: `docs/plan-producto.html`. Tres puertas: consejo de propietarios (autoservicio), servicio de auditoría, administrador
   transparente. Competencia relevada (Octopus, Redconar, ConsorcioAbierto, Dominium, AsambleasVirtuales, etc.): nadie cruza comprobantes ni
   trabaja para el propietario. Ventaja: independencia + del hallazgo a la decisión en asamblea.
@@ -37,7 +36,8 @@
    Orden acordado: empezar por el modelo de datos.
 2. Segundo sistema de liquidación (hace falta un PDF de una administración que no use Redconar).
 3. Reglas por comparación con mercado (escala SUTERH, honorarios de referencia, abonos).
-4. Del lado del usuario: cambiar la contraseña de Redconar (la que se usó en la sesión seguía activa el 4/09), re-pegar `Code.gs`.
+4. La contraseña de Redconar se cambia al terminar el proyecto (decisión del usuario); mientras tanto `ct descargar` la pide por consola o
+   la toma de `CT_REDCONAR_USUARIO` / `CT_REDCONAR_CLAVE`, sin guardarla.
 
 ## Cómo correr
 ```bash
