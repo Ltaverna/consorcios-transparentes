@@ -54,3 +54,13 @@ def test_resubir_mientras_procesa_409(db, auditor):
     r = auditor.post("/liquidaciones", data={"periodo": "2026-06"},
                      files={"archivo": ("x.txt", b"da igual", "text/plain")})
     assert r.status_code == 409
+
+
+def test_cada_subida_usa_clave_de_storage_propia(db, auditor):
+    from app import models
+    subir(auditor)
+    key1 = db.query(models.Liquidacion).filter_by(periodo="2026-08").one().archivo_key
+    subir(auditor)
+    db.expire_all()
+    key2 = db.query(models.Liquidacion).filter_by(periodo="2026-08").one().archivo_key
+    assert key1 != key2 and key2.startswith("liquidaciones/2026-08-")
