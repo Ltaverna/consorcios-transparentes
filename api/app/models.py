@@ -113,7 +113,7 @@ class Documento(Base):
 
 class Hallazgo(Base):
     __tablename__ = "hallazgos"
-    __table_args__ = (UniqueConstraint("liquidacion_id", "clave"),)
+    __table_args__ = (UniqueConstraint("liquidacion_id", "origen", "clave"),)
     id: Mapped[int] = mapped_column(primary_key=True)
     liquidacion_id: Mapped[int] = mapped_column(ForeignKey("liquidaciones.id", ondelete="CASCADE"))
     clave: Mapped[str] = mapped_column(String(500))       # clave natural: sobrevive al reproceso
