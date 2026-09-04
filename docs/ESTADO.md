@@ -1,6 +1,12 @@
 # Estado del proyecto (4 de septiembre de 2026)
 
 ## Qué existe y funciona
+- **API del panel** (`api/`, rama `panel-api`): FastAPI + SQLAlchemy sobre Postgres (SQLite en dev/tests). Persiste
+  liquidaciones, gastos, documentos y hallazgos con estados (pendiente/preguntado/respondido/descartado/cerrado) e
+  historial; auth por roles (auditor/consejo/moderador) y por código de unidad; ingesta con cuadre obligatorio
+  (también en el reproceso: no_cuadra limpia y despublica, reprocesar retira informes); comprobantes por ZIP con
+  cruce; publicación de informes HTML/Excel a storage (R2 o disco); vista del propietario. 72 pruebas de API +
+  29 del motor. Ver `api/README.md`. Spec: `docs/superpowers/specs/2026-09-04-panel-rivadavia-design.md`.
 - **Motor** (`engine/ct`): parser de liquidaciones Redconar/"Mis Expensas" (formatos 2024 y 2025+), ~30 verificaciones de cuadre,
   reglas de detección (`rules.py`, catálogo en `docs/reglas.md`), cruce de comprobantes factura ↔ pago ↔ liquidación (`comprobantes.py`),
   descarga de comprobantes desde el portal (`portal.py`, comando `ct descargar`), informe Excel y HTML con marca (`informe.py`).
@@ -26,14 +32,19 @@
 - Backend del motor en Python; la generación de informes sale del modelo, no de datos a mano.
 - Hallazgos = hechos con documento + qué pedir. Sin conclusiones acusatorias.
 - Nombre "Consorcio Transparente" es provisorio.
+- Etapa 1 (4/09/2026): panel solo para Rivadavia 2069; multi-consorcio después. Dominios same-site:
+  `panel-consorcio.neuralcore.dev` (front, Plan 2) y `api-consorcio.neuralcore.dev` (API; arranca en máquina
+  propia con cloudflared tunnel, Fly.io `eze` como upgrade). Los hallazgos declaran clave estable en el motor
+  para sobrevivir reprocesos. Diferidos conscientes: revocación de tokens, Alembic y lock por período (van con el deploy/multiusuario).
+- El reglamento de copropiedad (escaneado, 38 págs) está bajado del portal y digitalizado por OCR en
+  `~/consorcio-transparente-privado/reglamento/` (4/09/2026).
 
 ## Artefactos publicados en claude.ai (referencia)
 - Informe de expensas agosto 2026 (id 376c810b…), app votación/asamblea (64d40cb3…), plan de producto (50335d0b…).
 
 ## Pendientes inmediatos
-1. **Admin / panel interno** (próximo paso acordado, semanas 2 y 3 del plan): modelo de datos multi-consorcio → ingesta que guarda en base →
-   panel de hallazgos con estados (pendiente, preguntado, respondido, cerrado) → informes y app de asamblea desde la base → usuarios y roles.
-   Orden acordado: empezar por el modelo de datos.
+1. **Plan 2: front Next.js del panel** (`panel-consorcio.neuralcore.dev`, usar la skill ui-ux-pro-max) y
+   **Plan 3: deploy** (tunnel cloudflared o Fly, Neon, R2, Alembic, IP real en rate limit). La API (Plan 1) está hecha en la rama `panel-api`.
 2. Segundo sistema de liquidación (hace falta un PDF de una administración que no use Redconar).
 3. Reglas por comparación con mercado (escala SUTERH, honorarios de referencia, abonos).
 4. La contraseña de Redconar se cambia al terminar el proyecto (decisión del usuario); mientras tanto `ct descargar` la pide por consola o
