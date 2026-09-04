@@ -73,7 +73,7 @@ class Liquidacion(Base):
     sistema: Mapped[str] = mapped_column(String(40), default="")
     # procesando | no_cuadra | error | procesada | publicada
     estado: Mapped[str] = mapped_column(String(20), default="procesando")
-    archivo_key: Mapped[str] = mapped_column(String(300))
+    archivo_key: Mapped[str] = mapped_column(String(500))
     datos: Mapped[dict | None] = mapped_column(JSONDict, default=None)  # Liquidacion.to_dict() completo
     cuadra: Mapped[bool] = mapped_column(Boolean, default=False)
     error: Mapped[str] = mapped_column(Text, default="")
@@ -106,7 +106,7 @@ class Documento(Base):
     liquidacion_id: Mapped[int] = mapped_column(ForeignKey("liquidaciones.id", ondelete="CASCADE"))
     gasto_n: Mapped[int | None] = mapped_column(Integer, default=None)
     tipo: Mapped[str] = mapped_column(String(20), default="otro")  # factura | pago | recibo | imagen | otro
-    archivo_key: Mapped[str] = mapped_column(String(300))
+    archivo_key: Mapped[str] = mapped_column(String(500))
     hash: Mapped[str] = mapped_column(String(64), default="")
     metadatos: Mapped[dict] = mapped_column(JSONDict, default=dict)  # Documento.to_dict() del motor
 
@@ -151,6 +151,6 @@ class Informe(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     liquidacion_id: Mapped[int] = mapped_column(ForeignKey("liquidaciones.id", ondelete="CASCADE"))
     tipo: Mapped[str] = mapped_column(String(10))  # html | xlsx
-    archivo_key: Mapped[str] = mapped_column(String(300))
+    archivo_key: Mapped[str] = mapped_column(String(500))
     marca: Mapped[str] = mapped_column(String(120), default="")
     publicado_en: Mapped[datetime] = mapped_column(FechaUTC(), default=ahora)

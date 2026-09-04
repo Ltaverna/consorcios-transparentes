@@ -227,39 +227,63 @@ def _sin_rutas_invalidas(nombres: list[str]) -> bool:
     return True
 
 
+MAX_ARCHIVOS_ZIP = 1000
+MAX_BYTES_ZIP_DESCOMPRIMIDO = 500 * 1024 * 1024
+
+
 def cruzar_comprobantes(db: Session, liq_id: int, zip_bytes: bytes, storage) -> None:
     """Descomprime el ZIP del portal (carpeta que genera `ct descargar`, con su manifest.json),
     corre el cruce del motor contra la liquidación ya procesada y persiste documentos y
-    hallazgos (origen "comprobantes"). Reemplaza los documentos de una subida anterior."""
+    hallazgos (origen "comprobantes"). Reemplaza los documentos de una subida anterior.
+
+    Nada se toca en la base hasta validar el ZIP entero: manifiesto presente, con filas del
+    período de esta liquidación, y con todos los archivos que cita realmente adentro. Así un
+    ZIP equivocado (otro mes, o incompleto) nunca deja la liquidación sin evidencia."""
     liq_row = db.get(models.Liquidacion, liq_id)
     if liq_row is None:
         raise ValueError("No existe esa liquidación")
     with tempfile.TemporaryDirectory() as tmp:
         with zipfile.ZipFile(io.BytesIO(zip_bytes)) as z:
-            if not _sin_rutas_invalidas(z.namelist()):
+            infos = z.infolist()
+            if not _sin_rutas_invalidas(i.filename for i in infos):
                 raise ValueError("ZIP con rutas inválidas")
+            if len(infos) > MAX_ARCHIVOS_ZIP:
+                raise ValueError("El ZIP trae demasiados archivos")
+            if sum(i.file_size for i in infos) > MAX_BYTES_ZIP_DESCOMPRIMIDO:
+                raise ValueError("El ZIP descomprimido supera los 500 MB")
             z.extractall(tmp)
         manifiestos = list(pathlib.Path(tmp).rglob("manifest.json"))
         if not manifiestos:
             raise ValueError("El ZIP no trae manifest.json (usar la carpeta que genera ct descargar)")
         carpeta = manifiestos[0].parent
         items = cargar_manifiesto_redconar(str(manifiestos[0]), str(carpeta), mes=liq_row.periodo)
+        if not items:
+            raise ValueError(f"El ZIP no trae comprobantes del período {liq_row.periodo} (¿es de otro mes?)")
+        rutas = [p for it in items for p in it.adjuntos]
+        faltan = [pathlib.Path(r).name for r in rutas if not pathlib.Path(r).exists()]
+        if faltan:
+            raise ValueError("Archivos citados en el manifiesto que no están en el ZIP: " + ", ".join(faltan[:5]))
+
         liq = cargar_engine(storage, liq_row)
         docs, hallazgos = cruzar(liq, items)
         # `Documento.archivo` del motor es solo el basename (se calcula con os.path.basename);
-        # para poder leer los bytes y armar una clave sin colisiones hace falta la ruta
-        # original, que reconstruimos aplanando los adjuntos de `items` en el mismo orden
-        # en que `cruzar` los recorre (un item por gasto, sus adjuntos en orden).
-        rutas = [p for it in items for p in it.adjuntos]
-
+        # los nombres que genera `ct descargar` ya son únicos dentro de un mismo mes, así que
+        # alcanza con el basename para la clave de storage.
+        anteriores = {d.archivo_key for d in
+                     db.query(models.Documento).filter_by(liquidacion_id=liq_row.id).all()}
         db.query(models.Documento).filter_by(liquidacion_id=liq_row.id).delete()
-        for d, ruta in zip(docs, rutas):
+        nuevas = set()
+        for d, ruta in zip(docs, rutas, strict=True):
             origen_path = pathlib.Path(ruta)
-            rel = origen_path.relative_to(carpeta) if origen_path.is_relative_to(carpeta) else pathlib.PurePosixPath(origen_path.name)
-            key = f"comprobantes/{liq_row.periodo}/{pathlib.PurePosixPath(rel).as_posix()}"
-            if origen_path.exists():
-                storage.guardar(key, origen_path.read_bytes())
+            key = f"comprobantes/{liq_row.periodo}/{origen_path.name}"
+            storage.guardar(key, origen_path.read_bytes())
+            nuevas.add(key)
             db.add(models.Documento(liquidacion_id=liq_row.id, gasto_n=d.gasto_n, tipo=d.tipo,
                                     archivo_key=key, hash=d.hash, metadatos=d.to_dict()))
         upsert_hallazgos(db, liq_row, hallazgos, origen="comprobantes")
         db.commit()
+    # Si esta subida reusa el mismo nombre de archivo que una anterior (resubida del mismo
+    # manifiesto), la clave de storage es la misma y ya quedó sobreescrita con el contenido
+    # nuevo: no hay que borrarla. Solo se limpian las claves que de verdad quedaron huérfanas.
+    for clave in anteriores - nuevas:
+        storage.borrar(clave)

@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 
 from .. import ingesta, models, security
 from .. import publicar as publicacion
+from ..config import settings
 from ..db import SessionLocal, get_db
 
 router = APIRouter(prefix="/liquidaciones", tags=["liquidaciones"])
@@ -29,9 +30,10 @@ def subir(request: Request, tareas: BackgroundTasks, archivo: UploadFile,
           s: dict = Depends(security.requiere("auditor"))):
     if not PERIODO.match(periodo):
         raise HTTPException(422, "El período debe ser AAAA-MM, por ejemplo 2026-08")
-    data = archivo.file.read(30 * 1024 * 1024 + 1)
-    if len(data) > 30 * 1024 * 1024:
-        raise HTTPException(413, "El archivo supera los 30 MB")
+    tope = settings.max_liq_mb * 1024 * 1024
+    data = archivo.file.read(tope + 1)
+    if len(data) > tope:
+        raise HTTPException(413, f"El archivo supera los {settings.max_liq_mb} MB")
     storage = request.app.state.storage
     liq = db.query(models.Liquidacion).filter_by(periodo=periodo).first()
     if liq and liq.estado == "procesando":
@@ -98,9 +100,10 @@ def subir_comprobantes(liq_id: int, request: Request, archivo: UploadFile,
         raise HTTPException(404, "No existe esa liquidación")
     if liq.estado not in ("procesada", "publicada"):
         raise HTTPException(409, f"La liquidación está en estado {liq.estado}; procesarla primero")
-    data = archivo.file.read(100 * 1024 * 1024 + 1)
-    if len(data) > 100 * 1024 * 1024:
-        raise HTTPException(413, "El ZIP supera los 100 MB")
+    tope = settings.max_zip_mb * 1024 * 1024
+    data = archivo.file.read(tope + 1)
+    if len(data) > tope:
+        raise HTTPException(413, f"El ZIP supera los {settings.max_zip_mb} MB")
     try:
         # sincrónico: son segundos, y así el error llega directo al auditor
         ingesta.cruzar_comprobantes(db, liq.id, data, request.app.state.storage)
