@@ -7,6 +7,7 @@ import sys
 from .redconar import parse_pdf, parse_text
 from .rules import Config, evaluar
 from .comprobantes import cargar_manifiesto_redconar, cruzar
+from .informe import informe_excel, informe_html
 
 
 def load(path: str):
@@ -30,6 +31,9 @@ def main(argv=None) -> int:
     a.add_argument("--comprobantes", help="Carpeta con los comprobantes descargados del portal")
     a.add_argument("--manifiesto", help="manifest.json de la descarga (formato Redconar)")
     a.add_argument("--mes", help="Prefijo de mes del manifiesto a usar, por ejemplo 2026-08")
+    a.add_argument("--excel", help="Generar informe Excel (.xlsx)")
+    a.add_argument("--html", help="Generar informe HTML")
+    a.add_argument("--marca", default="", help="Nombre o marca que encabeza el informe")
     args = ap.parse_args(argv)
 
     liq = load(args.liquidacion)
@@ -64,6 +68,10 @@ def main(argv=None) -> int:
             print("   Monto:", fmt(h.monto))
         if h.recomendacion:
             print("   Pedir:", h.recomendacion)
+    if args.excel:
+        informe_excel(liq, hs, args.excel, prev, docs, args.marca); print("Excel guardado en", args.excel)
+    if args.html:
+        informe_html(liq, hs, args.html, prev, docs, args.marca); print("HTML guardado en", args.html)
     if args.json:
         out = dict(liquidacion=liq.to_dict(), anterior=prev.to_dict() if prev else None, hallazgos=[h.to_dict() for h in hs], documentos=[d.to_dict() for d in docs])
         json.dump(out, open(args.json, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
