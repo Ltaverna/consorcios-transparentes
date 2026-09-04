@@ -110,7 +110,8 @@ def r_efectivo(liq, prev, cfg):
     for g in ef:
         if g.importe >= cfg.efectivo_linea_alta and not (liq.suma_gastos and tot_ef / liq.suma_gastos > cfg.efectivo_mes_alto):
             out.append(Hallazgo("efectivo", "ALTO", "Control interno / caja", f"Pago en efectivo de {fmt(g.importe)} a {g.proveedor}",
-                                g.concepto[:160], g.importe, "Pedir el recibo oficial del proveedor.", [str(g.n)]))
+                                g.concepto[:160], g.importe, "Pedir el recibo oficial del proveedor.", [str(g.n)],
+                                clave="efectivo-linea"))
     return out
 
 
@@ -160,13 +161,15 @@ def r_fechas(liq, prev, cfg):
         out.append(Hallazgo("fechas", "MEDIO", "Pagos atrasados / duplicación",
                             f"{len(tarde)} factura(s) pagadas con más de {cfg.dias_factura_pago_max} días de atraso",
                             "; ".join(f"{g.proveedor} factura {g.factura_nro} del {g.factura_fecha:%d-%m-%Y} pagada el {g.fecha_pago:%d-%m-%Y} ({g.dias_factura_pago} días)" for g in tarde[:6]),
-                            sum(g.importe for g in tarde), "Verificar que no se hayan liquidado en meses anteriores (riesgo de doble pago).", [str(g.n) for g in tarde]))
+                            sum(g.importe for g in tarde), "Verificar que no se hayan liquidado en meses anteriores (riesgo de doble pago).", [str(g.n) for g in tarde],
+                            clave="pago-tardio"))
     antes = [g for g in liq.gastos if g.dias_factura_pago is not None and g.dias_factura_pago < -cfg.dias_factura_futura]
     for g in antes:
         sev = "ALTO" if -g.dias_factura_pago > 7 or g.importe >= 1_000_000 else "MEDIO"
         out.append(Hallazgo("fechas", sev, "Obras / contratación", f"Factura de {g.proveedor} emitida {-g.dias_factura_pago} días después del pago",
                             f"Factura {g.factura_nro} fechada {g.factura_fecha:%d-%m-%Y}; pago del {g.fecha_pago:%d-%m-%Y} por {fmt(g.importe)}.",
-                            g.importe, "Exigir factura antes del pago.", [str(g.n)]))
+                            g.importe, "Exigir factura antes del pago.", [str(g.n)],
+                            clave="factura-posterior"))
     # cargas sociales pagadas tarde: F.931 del período N pagado después del mes N+1
     for g in liq.gastos:
         if re.search(r"931", g.concepto) and g.periodo and g.fecha_pago:
@@ -178,7 +181,8 @@ def r_fechas(liq, prev, cfg):
                     due_month = (mi + 2) % 12 + 1; due_year = y + (1 if mi + 2 >= 12 else 0)
                     if (g.fecha_pago.year, g.fecha_pago.month) >= (due_year, due_month):
                         out.append(Hallazgo("fechas", "MEDIO", "Pagos atrasados / duplicación", f"Cargas sociales (F.931) de {g.periodo} pagadas el {g.fecha_pago:%d-%m-%Y}, fuera de término",
-                                            "El F.931 vence el mes siguiente al período; el pago tardío genera intereses resarcitorios.", g.importe, "Pedir el comprobante y verificar si se pagaron intereses.", [str(g.n)]))
+                                            "El F.931 vence el mes siguiente al período; el pago tardío genera intereses resarcitorios.", g.importe, "Pedir el comprobante y verificar si se pagaron intereses.", [str(g.n)],
+                                            clave="f931"))
                 except ValueError:
                     pass
     return out
@@ -195,7 +199,8 @@ def r_prov_nuevo(liq, prev, cfg):
         if m and int(m.group(2)) <= cfg.factura_nro_bajo and g.importe >= 200_000:
             out.append(Hallazgo("proveedor_nuevo", "ALTO", "Obras / contratación",
                                 f"{g.proveedor} factura con numeración N° {int(m.group(2))}: proveedor casi sin actividad previa, por {fmt(g.importe)}",
-                                g.concepto[:160], g.importe, "Verificar inscripción en ARCA, antecedentes y presupuestos comparativos.", [str(g.n)]))
+                                g.concepto[:160], g.importe, "Verificar inscripción en ARCA, antecedentes y presupuestos comparativos.", [str(g.n)],
+                                clave="numeracion-baja"))
     return out
 
 
@@ -218,7 +223,8 @@ def r_prorrateo(liq, prev, cfg):
                 if g.proveedor == h.proveedor and g.columna != h.columna and g.importe > 500_000 and h.importe > 500_000:
                     out.append(Hallazgo("prorrateo", "ALTO", "Prorrateo", f"{g.proveedor}: prorrateado en clase {g.columna} este mes y en clase {h.columna} el anterior",
                                         f"Este mes {fmt(g.importe)} ({g.concepto[:80]}); mes anterior {fmt(h.importe)} ({h.concepto[:80]}). Cambia quién paga (por ejemplo, cocheras exentas o no).",
-                                        g.importe, "Exigir criterio de prorrateo estable por obra.", [str(g.n)]))
+                                        g.importe, "Exigir criterio de prorrateo estable por obra.", [str(g.n)],
+                                        clave="cambio-clase"))
                     break
     return out
 
@@ -284,11 +290,13 @@ def r_clasificacion(liq, prev, cfg):
     for g in liq.gastos:
         if "SUELDOS" in g.categoria.upper() and re.search(r"retenci[oó]n sobre factura|SIRE", g.concepto, re.I):
             out.append(Hallazgo("clasificacion", "MEDIO", "Clasificación", f"Retención sobre factura de un proveedor ({fmt(g.importe)}) incluida en 'Sueldos y cargas sociales'",
-                                g.concepto[:160], g.importe, "Reclasificar: corresponde al servicio del proveedor retenido.", [str(g.n)]))
+                                g.concepto[:160], g.importe, "Reclasificar: corresponde al servicio del proveedor retenido.", [str(g.n)],
+                                clave="retencion-sobre-factura"))
     cats = [c for c in liq.totales_categoria]
     dup = {c for c in cats if cats.count(c) > 1}
     if len(set(g.categoria for g in liq.gastos)) < len(liq.totales_categoria):
-        out.append(Hallazgo("clasificacion", "BAJO", "Clasificación", "Un mismo rubro aparece dos veces en la liquidación", ", ".join(sorted(dup)) or "rubros repetidos", 0, "Unificar rubros."))
+        out.append(Hallazgo("clasificacion", "BAJO", "Clasificación", "Un mismo rubro aparece dos veces en la liquidación", ", ".join(sorted(dup)) or "rubros repetidos", 0, "Unificar rubros.",
+                            clave="rubro-repetido"))
     return out
 
 
