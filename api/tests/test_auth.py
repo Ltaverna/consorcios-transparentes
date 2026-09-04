@@ -1,0 +1,39 @@
+from app import admin, models
+
+
+def test_login_y_yo(auditor):
+    r = auditor.get("/auth/yo")
+    assert r.status_code == 200
+    assert r.json()["rol"] == "auditor"
+
+
+def test_login_clave_incorrecta(db, cliente):
+    admin.crear_usuario(db, "a@example.com", "A", "auditor", "correcta-larga")
+    r = cliente.post("/auth/login", json={"email": "a@example.com", "clave": "incorrecta"})
+    assert r.status_code == 401
+
+
+def test_sin_sesion_401(cliente):
+    assert cliente.get("/auth/yo").status_code == 401
+
+
+def test_login_unidad(db, cliente):
+    db.add(models.Unidad(uf=27, piso_depto="13-B"))
+    db.commit()
+    codigo = admin.generar_codigo(db, 27)
+    r = cliente.post("/auth/login-unidad", json={"uf": 27, "codigo": codigo})
+    assert r.status_code == 200
+    yo = cliente.get("/auth/yo").json()
+    assert yo["rol"] == "propietario" and yo["uf"] == 27
+
+
+def test_login_unidad_codigo_malo(db, cliente):
+    db.add(models.Unidad(uf=27))
+    db.commit()
+    admin.generar_codigo(db, 27)
+    assert cliente.post("/auth/login-unidad", json={"uf": 27, "codigo": "malo1234"}).status_code == 401
+
+
+def test_salir(auditor):
+    auditor.post("/auth/salir")
+    assert auditor.get("/auth/yo").status_code == 401
