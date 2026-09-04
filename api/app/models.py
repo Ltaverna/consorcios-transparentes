@@ -10,7 +10,6 @@ from sqlalchemy.types import TypeDecorator
 
 from .db import Base
 
-JSONCol = JSON().with_variant(JSONB(), "postgresql")
 JSONDict = MutableDict.as_mutable(JSON().with_variant(JSONB(), "postgresql"))
 JSONList = MutableList.as_mutable(JSON().with_variant(JSONB(), "postgresql"))
 
