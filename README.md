@@ -44,3 +44,15 @@ Requiere `pdftotext` (poppler-utils). Sin dependencias Python externas para el m
 ## Hoja de ruta
 
 Ver `docs/plan-producto.html`. Próximo: ingesta de otros sistemas de liquidación, cruce automático de comprobantes, informe con marca.
+
+### Descargar comprobantes del portal (Redconar / Mis Expensas)
+
+```bash
+cd engine
+python -m ct descargar listar --carpeta ~/comprobantes            # períodos disponibles
+python -m ct descargar 2026-8 --carpeta ~/comprobantes            # baja factura y ticket de cada gasto
+python -m ct analizar liquidacion.pdf --comprobantes ~/comprobantes --manifiesto ~/comprobantes/manifest.json --mes 2026-08
+```
+
+Usuario y contraseña se piden por consola o se toman de `CT_REDCONAR_USUARIO` / `CT_REDCONAR_CLAVE`. No se guardan.
+Se crea una subcarpeta por mes (`2026-08 Agosto/`) con un archivo por adjunto y un `manifest.json` (una fila por adjunto) que consume el cruce.

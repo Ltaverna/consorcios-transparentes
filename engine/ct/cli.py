@@ -20,6 +20,26 @@ def fmt(v: float) -> str:
     return ("-" if v < 0 else "") + "$" + f"{abs(v):,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
 
+def descargar(args) -> int:
+    import getpass, os
+    from .portal import Redconar, PortalError
+    usuario = args.usuario or os.environ.get("CT_REDCONAR_USUARIO") or input("Usuario Redconar: ")
+    clave = args.clave or os.environ.get("CT_REDCONAR_CLAVE") or getpass.getpass("Contraseña: ")
+    try:
+        r = Redconar(); r.login(usuario, clave)
+        if args.periodo == "listar":
+            for v, t in r.periodos():
+                print(f"{v:>8}  {t}")
+            return 0
+        rows = r.descargar_mes(args.periodo, args.carpeta)
+    except PortalError as e:
+        print("Error:", e, file=sys.stderr); return 2
+    n = len({x["n"] for x in rows}); k = sum(1 for x in rows if x["archivo"])
+    print(f"Listo: {n} gastos, {k} archivos en {args.carpeta}. Manifiesto: {os.path.join(args.carpeta, 'manifest.json')}")
+    print(f"Cruce: python -m ct analizar <liquidacion.pdf> --comprobantes \"{args.carpeta}\" --manifiesto \"{os.path.join(args.carpeta, 'manifest.json')}\" --mes {rows[0]['mes'][:7] if rows else ''}")
+    return 0
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(prog="ct", description="Consorcio Transparente: análisis de liquidaciones de expensas")
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -34,7 +54,15 @@ def main(argv=None) -> int:
     a.add_argument("--excel", help="Generar informe Excel (.xlsx)")
     a.add_argument("--html", help="Generar informe HTML")
     a.add_argument("--marca", default="", help="Nombre o marca que encabeza el informe")
+    d = sub.add_parser("descargar", help="Descargar los comprobantes de un mes desde el portal de Redconar")
+    d.add_argument("periodo", help="Período del portal, por ejemplo 2026-8 (o 'listar' para ver los disponibles)")
+    d.add_argument("--carpeta", required=True, help="Carpeta destino; se crea <AAAA-MM Mes>/ y manifest.json")
+    d.add_argument("--usuario", help="Usuario del portal (o variable CT_REDCONAR_USUARIO)")
+    d.add_argument("--clave", help="Contraseña (o variable CT_REDCONAR_CLAVE; si falta se pide por consola)")
     args = ap.parse_args(argv)
+
+    if args.cmd == "descargar":
+        return descargar(args)
 
     liq = load(args.liquidacion)
     prev = load(args.anterior) if args.anterior else None
