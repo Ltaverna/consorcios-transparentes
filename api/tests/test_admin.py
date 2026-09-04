@@ -27,3 +27,20 @@ def test_generar_codigo_de_unidad(db):
     assert security.verificar(unidad.codigo_hash, codigo)
     with pytest.raises(ValueError):
         admin.generar_codigo(db, 999)  # unidad inexistente
+
+
+def test_crear_usuario_email_duplicado(db):
+    admin.crear_usuario(db, "a@example.com", "A", "auditor", "clave-larga")
+    with pytest.raises(ValueError):
+        admin.crear_usuario(db, "A@example.com", "Otro", "consejo", "clave-larga")
+
+
+def test_crear_usuario_clave_corta(db):
+    with pytest.raises(ValueError):
+        admin.crear_usuario(db, "b@example.com", "B", "auditor", "corta")
+
+
+def test_codigo_dentro_del_alfabeto(db):
+    db.add(models.Unidad(uf=1))
+    db.commit()
+    assert set(admin.generar_codigo(db, 1)) <= set(admin.ALFABETO)

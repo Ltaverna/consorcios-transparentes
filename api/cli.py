@@ -25,12 +25,21 @@ def main() -> int:
         if args.cmd == "init":
             con = admin.init_consorcio(db, args.nombre, direccion=args.direccion, cuit=args.cuit)
             print(f"Consorcio listo: {con.nombre} (id {con.id})")
+            if con.nombre != args.nombre:
+                print(f"Atención: el consorcio ya existía como '{con.nombre}'; no se modificó.")
         elif args.cmd == "usuario":
             clave = getpass.getpass("Clave: ")
+            clave2 = getpass.getpass("Repetir clave: ")
+            if clave != clave2:
+                print("Error: las claves no coinciden")
+                return 1
             usr = admin.crear_usuario(db, args.email, args.nombre, args.rol, clave)
             print(f"Usuario {usr.email} creado con rol {usr.rol}")
         elif args.cmd == "codigo":
             print(f"Código de la UF {args.uf}: {admin.generar_codigo(db, args.uf)} (guardalo: no se vuelve a mostrar)")
+    except ValueError as e:
+        print(f"Error: {e}")
+        return 1
     finally:
         db.close()
     return 0

@@ -1,6 +1,7 @@
 """Altas administrativas: consorcio, usuarios y códigos de acceso por unidad."""
 import secrets
 
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from . import models, security
@@ -20,11 +21,17 @@ def init_consorcio(db: Session, nombre: str, **campos) -> models.Consorcio:
 
 
 def crear_usuario(db: Session, email: str, nombre: str, rol: str, clave: str) -> models.Usuario:
+    if len(clave) < 8:
+        raise ValueError("La clave debe tener al menos 8 caracteres")
     if rol not in ROLES:
         raise ValueError(f"Rol inválido: {rol}. Válidos: {', '.join(ROLES)}")
     u = models.Usuario(email=email.lower(), nombre=nombre, rol=rol, clave_hash=security.hashear(clave))
     db.add(u)
-    db.commit()
+    try:
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        raise ValueError(f"Ya existe un usuario con el email {email}")
     return u
 
 
