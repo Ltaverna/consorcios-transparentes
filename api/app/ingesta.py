@@ -104,13 +104,19 @@ def limpiar_al_rechazar(db: Session, storage, liq_row: models.Liquidacion) -> No
     y los informes de esta liquidación (archivo incluido), y sus hallazgos (los de esta
     liquidación, no los de comprobantes) se despublican sin tocar estado/respuesta_admin/
     historial: el auditor no pierde su trabajo, pero el hallazgo deja de estar visible
-    hasta que la liquidación cuadre."""
+    hasta que la liquidación cuadre.
+
+    El borrado de archivos se hace DESPUÉS de que el caller confirme la transacción (acá
+    solo se borran las filas y se devuelven las claves): si el archivo no se pudiera borrar,
+    la base ya quedó consistente."""
     db.query(models.Gasto).filter_by(liquidacion_id=liq_row.id).delete()
-    for inf in db.query(models.Informe).filter_by(liquidacion_id=liq_row.id).all():
-        storage.borrar(inf.archivo_key)
+    informes = db.query(models.Informe).filter_by(liquidacion_id=liq_row.id).all()
+    claves = [inf.archivo_key for inf in informes]
+    for inf in informes:
         db.delete(inf)
     for h in db.query(models.Hallazgo).filter_by(liquidacion_id=liq_row.id, origen="liquidacion").all():
         h.publicado = False
+    return claves
 
 
 def sincronizar_unidades(db: Session, liq: LiqMotor) -> None:
@@ -173,9 +179,11 @@ def procesar(db: Session, liq_id: int, storage) -> None:
         # falta para mostrarle al auditor qué verificaciones fallaron.
         liq_row.datos, liq_row.sistema, liq_row.cuadra = liq.to_dict(), liq.sistema, liq.cuadra
         if not liq.cuadra:
-            limpiar_al_rechazar(db, storage, liq_row)
+            claves = limpiar_al_rechazar(db, storage, liq_row)
             liq_row.estado = "no_cuadra"
             db.commit()
+            for clave in claves:
+                storage.borrar(clave)
             return
         hs = evaluar(liq, cargar_anterior(db, storage, liq_row.periodo), config_consorcio(db))
         guardar_gastos(db, liq_row, liq)
@@ -190,11 +198,14 @@ def procesar(db: Session, liq_id: int, storage) -> None:
         # o no; el endpoint de subida resetea el estado a "procesando" antes de llegar acá, así
         # que no sirve mirar el estado) queda inválido. El auditor revisa y vuelve a publicar;
         # acá no se auto-publica un informe nuevo.
-        for inf in db.query(models.Informe).filter_by(liquidacion_id=liq_row.id).all():
-            storage.borrar(inf.archivo_key)
+        informes = db.query(models.Informe).filter_by(liquidacion_id=liq_row.id).all()
+        claves = [inf.archivo_key for inf in informes]
+        for inf in informes:
             db.delete(inf)
         liq_row.estado, liq_row.error = "procesada", ""
         db.commit()
+        for clave in claves:
+            storage.borrar(clave)
     except Exception as e:
         db.rollback()
         logger.exception("Falló la ingesta de la liquidación %s", liq_id)

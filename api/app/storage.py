@@ -1,7 +1,10 @@
 """Documentos privados: R2 en producción (URL firmada), disco local en dev y tests."""
+import logging
 import pathlib
 
 from .config import settings
+
+logger = logging.getLogger(__name__)
 
 
 class LocalStorage:
@@ -26,7 +29,10 @@ class LocalStorage:
         return self._ruta(key).exists()
 
     def borrar(self, key: str) -> None:
-        self._ruta(key).unlink(missing_ok=True)
+        try:
+            self._ruta(key).unlink(missing_ok=True)
+        except Exception:
+            logger.warning("No se pudo borrar %s del disco local", key, exc_info=True)
 
     def url_firmada(self, key: str, segundos: int = 900) -> str | None:
         return None  # sin URL directa: la API sirve el archivo por streaming
@@ -62,7 +68,7 @@ class R2Storage:
         try:
             self.s3.delete_object(Bucket=self.bucket, Key=key)
         except Exception:
-            pass
+            logger.warning("No se pudo borrar %s de R2", key, exc_info=True)
 
     def url_firmada(self, key: str, segundos: int = 900) -> str | None:
         return self.s3.generate_presigned_url(
