@@ -1,0 +1,40 @@
+# Consorcio Transparente
+
+Plataforma de control de expensas y asambleas para propietarios de consorcios. Un motor que lee liquidaciones y comprobantes,
+verifica que cuadren al centavo, cruza factura con pago y detecta problemas; y una app de asamblea con votación por doble mayoría.
+
+Estado (4 de septiembre de 2026): semana 1 del plan. Caso piloto en producción: Consorcio Rivadavia 2069 (asamblea.neuralcore.dev).
+
+## Estructura
+
+```
+engine/          motor de análisis (Python 3.10+)
+  ct/model.py       modelo de datos de una liquidación, independiente del sistema que la emitió
+  ct/redconar.py    parser de liquidaciones Redconar / "Mis Expensas" (2 plantillas), con verificaciones de cuadre
+  ct/rules.py       catálogo de reglas de detección (ver docs/reglas.md)
+  ct/cli.py         línea de comandos
+  tests/            pruebas de regresión con 5 liquidaciones reales (2024, 2025, 2026)
+apps/asamblea/   app de asamblea (agenda, votación, preguntas, proposiciones) + script de Google Sheets
+docs/            plan de producto, diseño de la app de asamblea, catálogo de reglas
+```
+
+## Uso
+
+```
+cd engine
+python3 -m ct analizar liquidacion.pdf --anterior liquidacion_mes_anterior.pdf --json salida.json
+python3 -m pytest -q tests
+```
+
+Requiere `pdftotext` (poppler-utils). Sin dependencias Python externas para el motor.
+
+## Principios
+
+1. Nada se publica si no cuadra: cada liquidación pasa por ~30 verificaciones aritméticas (líneas vs. totales por rubro y por clase,
+   estado financiero, cuentas, deudores, prorrateo, estado de cuentas por unidad).
+2. Hechos con documento, no acusaciones: cada hallazgo cita la línea, la factura o el comprobante.
+3. Independencia: el producto no administra consorcios ni cobra porcentaje de expensas.
+
+## Hoja de ruta
+
+Ver `docs/plan-producto.html`. Próximo: ingesta de otros sistemas de liquidación, cruce automático de comprobantes, informe con marca.

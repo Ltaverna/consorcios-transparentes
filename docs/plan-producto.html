@@ -1,0 +1,156 @@
+<meta charset="utf-8">
+<title>Consorcio Transparente</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,500;8..60,600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+:root{--bg:#f4f5f7;--surface:#fff;--surface-2:#f7f8fa;--ink:#1b2536;--ink-2:#414a58;--muted:#5f6875;--hair:#d5dae2;--hair-2:#e8ebf0;--accent:#2a5db0;--accent-soft:#e6eefb;--good:#0b7d0b;--good-soft:#e2f5e2;--warn-soft:#fff3cf;--warn-ink:#7a5200;--crit:#c0392b;--crit-soft:#fbe4e4;color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1318;--surface:#171c24;--surface-2:#1d232c;--ink:#eef1f5;--ink-2:#c3cad4;--muted:#8e98a6;--hair:#2a313c;--hair-2:#222932;--accent:#6f9ee8;--accent-soft:#1c2a42;--good:#7fe07f;--good-soft:#163016;--warn-soft:#3a3113;--warn-ink:#ffd27a;--crit:#e66767;--crit-soft:#3a1d1d;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0f1318;--surface:#171c24;--surface-2:#1d232c;--ink:#eef1f5;--ink-2:#c3cad4;--muted:#8e98a6;--hair:#2a313c;--hair-2:#222932;--accent:#6f9ee8;--accent-soft:#1c2a42;--good:#7fe07f;--good-soft:#163016;--warn-soft:#3a3113;--warn-ink:#ffd27a;--crit:#e66767;--crit-soft:#3a1d1d;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:16px;line-height:1.55}
+h1,h2,h3{font-family:"Source Serif 4",Georgia,serif;font-weight:600;letter-spacing:-.01em;text-wrap:balance;margin:0}
+h1{font-size:clamp(30px,5vw,44px);line-height:1.1} h2{font-size:26px;margin-top:8px} h3{font-size:18px}
+p{margin:0} .wrap{max-width:900px;margin:0 auto;padding:0 20px}
+header{background:var(--surface);border-bottom:1px solid var(--hair)} header .wrap{padding:44px 20px 32px;display:grid;gap:14px}
+.eyebrow{font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.lede{font-size:18px;color:var(--ink-2);max-width:66ch}
+section{padding:36px 0 4px} section .wrap{display:grid;gap:16px}
+.card{background:var(--surface);border:1px solid var(--hair);border-radius:12px;padding:18px 20px;display:grid;gap:10px}
+.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+.tag{display:inline-block;font-size:12px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+.tag.g{background:var(--good-soft);color:var(--good)} .tag.w{background:var(--warn-soft);color:var(--warn-ink)} .tag.c{background:var(--crit-soft);color:var(--crit)}
+ul{margin:0;padding-left:20px} li{margin:4px 0} li::marker{color:var(--muted)}
+table{border-collapse:collapse;width:100%;font-size:14.5px} th{text-align:left;background:var(--surface-2);padding:9px 12px;border-bottom:1px solid var(--hair);font-size:12.5px;letter-spacing:.03em;text-transform:uppercase;color:var(--ink-2)} td{padding:9px 12px;border-bottom:1px solid var(--hair-2);vertical-align:top}
+.tablewrap{overflow-x:auto;border:1px solid var(--hair);border-radius:12px;background:var(--surface)}
+.note{color:var(--muted);font-size:14px}
+.kpi{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+.kpi div{background:var(--surface);border:1px solid var(--hair);border-radius:12px;padding:14px 16px} .kpi b{display:block;font-size:24px;font-family:"Source Serif 4",Georgia,serif;font-weight:600} .kpi span{font-size:13px;color:var(--muted)}
+pre.mermaid{background:var(--surface);border:1px solid var(--hair);border-radius:12px;padding:14px;overflow-x:auto}
+footer{padding:36px 0 56px;color:var(--muted);font-size:14px}
+</style>
+
+<header><div class="wrap">
+  <div class="eyebrow">Plan de producto y mapa competitivo · borrador para discutir · 4 de septiembre de 2026</div>
+  <h1>Consorcio Transparente</h1>
+  <p class="lede">Una plataforma que convierte las liquidaciones de expensas y los comprobantes de un consorcio en control, decisiones y asambleas trazables. Un solo motor, tres puertas de entrada: los propietarios que quieren controlar, el servicio de auditoría que lo ofrece, y los administradores que quieren demostrar transparencia.</p>
+  <div class="kpi"><div><b>1 caso real</b><span>Rivadavia 2069: 116 unidades, 2 meses auditados, 20 hallazgos, app de asamblea en producción</span></div><div><b>0 líneas</b><span>de código nuevo para el motor: ya existe el parser, las reglas, la votación y la sincronización</span></div></div>
+</div></header>
+
+<section><div class="wrap">
+  <h2>Por qué existe</h2>
+  <div class="card"><p>La Ley 941 de CABA obliga a las administraciones a rendir cuentas, pero en la práctica los propietarios reciben un PDF de 16 páginas que nadie lee y un portal con 150 comprobantes que nadie cruza. En Rivadavia 2069 ese cruce, hecho una sola vez, encontró $4,7 millones pagados a una propietaria a nombre de proveedores, $6,7 millones en efectivo en un mes, la defensa legal de la administradora pagada por el consorcio y la factura de Flow del encargado pagada como sueldo. No fue un consorcio raro: fue el primero que se miró con método.</p>
+  <p><b>La tesis:</b> cualquier consorcio puede tener el mismo control en una hora, y cualquier administrador honesto puede demostrarlo con la misma herramienta.</p></div>
+</div></section>
+
+<section><div class="wrap">
+  <h2>Un motor, tres puertas</h2>
+  <pre class="mermaid">
+flowchart LR
+  subgraph Entrada
+    A[Liquidaciones PDF]
+    B[Comprobantes del portal]
+    C[Padrón y porcentuales]
+  end
+  subgraph Motor
+    D[Extracción y validación<br/>cuadra al centavo]
+    E[Reglas de detección<br/>20 hallazgos hoy]
+    F[Cruce factura ↔ pago<br/>emisor, cuenta, fecha]
+    G[Asamblea<br/>quórum, doble mayoría, art. 2060]
+  end
+  subgraph Puertas
+    H[Consejo de propietarios]
+    I[Servicio de auditoría]
+    J[Administrador transparente]
+  end
+  A --> D; B --> F; C --> G; D --> E; F --> E; E --> H; E --> I; G --> H; G --> J; F --> J
+  </pre>
+  <div class="grid3">
+    <div class="card"><span class="tag">Puerta 1</span><h3>Consejo de propietarios</h3><p>Subís los PDF y los comprobantes; obtenés el informe, los hallazgos, las preguntas a la administración y la app de asamblea. Autoservicio, por consorcio.</p><ul><li>Quién paga: el consejo o un grupo de propietarios.</li><li>Precio orientativo: cuota mensual por consorcio, escalonada por unidades.</li></ul></div>
+    <div class="card"><span class="tag g">Puerta 2</span><h3>Servicio de auditoría</h3><p>Vos (o un socio contador) entregás el informe con marca propia y acompañás la asamblea. El motor hace el 90 %; el criterio y la firma son humanos.</p><ul><li>Quién paga: el consorcio, por informe o por asamblea.</li><li>Entra plata primero y valida el precio del producto.</li></ul></div>
+    <div class="card"><span class="tag w">Puerta 3</span><h3>Administrador transparente</h3><p>El administrador publica cada gasto con su comprobante cruzado, la conciliación de caja y las asambleas trazables. Un sello que lo diferencia.</p><ul><li>Quién paga: la administración, por cartera de consorcios.</li><li>Requiere confianza en el mercado: viene después de las dos primeras.</li></ul></div>
+  </div>
+</div></section>
+
+
+<section><div class="wrap">
+  <h2>Qué existe hoy y dónde ganamos</h2>
+  <p class="lede">Relevamiento del 4 de septiembre de 2026. Todos venden al administrador; casi nadie trabaja para el propietario. El único que se le acerca (Dominium) usa la auditoría como gancho para reemplazar al administrador, no como control independiente.</p>
+  <div class="tablewrap"><table><thead><tr><th>Quién</th><th>Para quién</th><th>Qué hace</th><th>Qué no hace (nuestro espacio)</th></tr></thead><tbody>
+    <tr><td><b>Octopus, Redconar, ConsorcioAbierto, CONSO, AdminProp, A-Gestión, Mi Consorcio</b> (Argentina)</td><td>Administradores</td><td>Liquidación, cobranza con QR, lectura de facturas con IA, portal y app para vecinos donde ven su saldo y descargan comprobantes. Octopus declara más de 300 administraciones.</td><td>Ningún control sobre el administrador: no cruzan factura con pago, no detectan pagos a terceros ni a propietarios, no validan que la liquidación cuadre, no auditan. El vecino ve lo que el administrador sube.</td></tr>
+    <tr><td><b>Mis Expensas</b> (Gobierno de la Ciudad)</td><td>Propietarios, por obligación legal</td><td>Formato único de liquidación; desde 2024 obliga a incluir QR o link a las facturas y a las cargas sociales, con 15 días para subir los comprobantes.</td><td>Sin análisis, sin alertas, sin comparación. Es la materia prima de nuestro motor, no un competidor: la norma nos garantiza que los comprobantes existen y son exigibles.</td></tr>
+    <tr><td><b>Dominium (Vero IA)</b></td><td>Propietarios como gancho, administrador como negocio</td><td>"Auditá tus expensas con IA en 60 segundos": subís la liquidación y compara rubros contra la escala SUTERH, honorarios CAPHAI y valores de zona. Cobra un porcentaje de las expensas cuando pasa a administrar el edificio.</td><td>Compara precios, no verifica pagos: no cruza comprobantes con transferencias, no revisa a quién fue el dinero ni el efectivo. Y tiene conflicto de interés: la auditoría termina en "cambiá de administrador por nosotros".</td></tr>
+    <tr><td><b>Estudios contables</b> (Ramos, ADC, AM Estudio)</td><td>Consorcios que aprueban una auditoría en asamblea</td><td>Auditoría profesional anual con firma de contador; revisan respaldo documental, sueldos, cargas y seguros.</td><td>Lenta, cara, una vez al año y sin herramienta: el informe es un PDF. Son socios naturales para la puerta 2, no rivales.</td></tr>
+    <tr><td><b>AsambleasVirtuales.com.ar</b></td><td>Administradores</td><td>Asamblea virtual con validación de identidad, poderes, voto por coeficiente, acta automática.</td><td>Solo la asamblea: no sabe nada de los gastos, no arma las mociones a partir de hallazgos, no sigue las proposiciones del art. 2060.</td></tr>
+    <tr><td><b>Supervecina, Fynkus, CIAX</b> (España) · <b>Superlógica, Condomob</b> (Brasil) · <b>ComunidadFeliz, Edipro</b> (Chile)</td><td>Administradores y comunidades</td><td>Cuentas en tiempo real, facturas visibles, votación online por coeficiente, IA para actas e incidencias.</td><td>Mismo patrón: transparencia como opción del administrador, nunca control independiente del propietario. En Brasil el "conselho fiscal" existe por ley, pero no tiene herramienta propia.</td></tr>
+    <tr><td><b>Condo Control, Buildium, TownSq, ManageCasa</b> (EE. UU.)</td><td>Boards y management companies</td><td>Contabilidad completa, reportes "audit-ready", IA para conciliar y detectar discrepancias en los propios asientos.</td><td>Detectan errores del que carga, no fraude del que administra. Precios de 300 a 400 dólares por mes para la IA. Mercado distinto, pero confirman que nadie vende control al dueño.</td></tr>
+  </tbody></table></div>
+  <div class="grid3">
+    <div class="card"><span class="tag g">Ventaja 1</span><h3>Verificamos, no comparamos</h3><p>Dominium dice "el abono de ascensores está caro". Nosotros decimos "la factura 7 de Saczewiczyk se pagó a la cuenta de la propietaria de 13-B el 12-08 a las 11:53". Cruce documento por documento: emisor, CUIT, cuenta destino, fecha, efectivo, comprobante reutilizado. Nadie más lo hace.</p></div>
+    <div class="card"><span class="tag g">Ventaja 2</span><h3>Independencia</h3><p>No administramos edificios ni cobramos porcentaje de expensas. El único incentivo es que el propietario sepa la verdad. Eso se puede decir en una frase y ningún competidor puede copiarlo sin romper su modelo.</p></div>
+    <div class="card"><span class="tag g">Ventaja 3</span><h3>Del hallazgo a la decisión</h3><p>El informe alimenta la asamblea: cada hallazgo es una pregunta con comprobante, cada pregunta puede ser una moción, cada moción se vota con doble mayoría y, si no hay quórum, se circula como proposición con objeciones registradas. Ninguna plataforma une las dos puntas.</p></div>
+    <div class="card"><span class="tag">Ventaja 4</span><h3>La ley juega a favor</h3><p>La obligación del QR a los comprobantes (CABA, 2024) y la Ley 941 hacen exigible todo lo que el motor necesita. Nuestro pedido de documentación tiene respaldo legal; la negativa del administrador es causal de remoción.</p></div>
+    <div class="card"><span class="tag">Ventaja 5</span><h3>Un caso real, con cifras</h3><p>Rivadavia 2069 es la demo: 150 comprobantes cruzados, $4,7 M a una propietaria, $6,7 M en efectivo en un mes, la defensa legal de la administradora pagada por el consorcio. Los competidores muestran pantallas; nosotros mostramos hallazgos.</p></div>
+    <div class="card"><span class="tag w">Lo que hay que copiar</span><h3>De ellos, lo bueno</h3><ul><li>De Dominium: el "60 segundos sin registro" como puerta de entrada y la comparación contra escala SUTERH y valores de zona.</li><li>De AsambleasVirtuales: validación de identidad y poderes con respaldo legal.</li><li>De Octopus y CONSO: lectura de facturas con IA y app con saldo en vivo.</li><li>De Supervecina: cuentas en tiempo real y reservas, para la puerta 3.</li></ul></div>
+  </div>
+  <div class="card"><h3>Cómo se gana, en orden</h3><ul>
+    <li><b>Ser los únicos que verifican.</b> El cruce factura ↔ pago ↔ liquidación es el producto; los benchmarks de precio son un extra que se agrega en un mes.</li>
+    <li><b>Entrar gratis en 60 segundos, como Dominium, pero sin conflicto de interés.</b> Subís la liquidación, ves tres hallazgos; el resto (comprobantes, informe completo, asamblea) es pago. Cada análisis gratuito es un lead.</li>
+    <li><b>Aliarse con los estudios contables</b> en lugar de competir: ellos firman, nosotros procesamos. La puerta 2 se abre con dos o tres estudios de CABA.</li>
+    <li><b>Ocupar el hueco legal.</b> Consejo de propietarios, conselho fiscal en Brasil, junta en España: figuras obligatorias sin herramienta. El producto se llama como la figura y se vende por país.</li>
+    <li><b>Publicar un índice.</b> "Índice de transparencia de administraciones", construido con los consorcios que usen la plataforma: presión pública para la puerta 3 y prensa gratuita.</li>
+  </ul></div>
+  <p class="note">Fuentes consultadas: sitios de Octopus, Redconar, ConsorcioAbierto, CONSO, Dominium, AsambleasVirtuales, Mis Expensas (GCBA), Infobae (QR obligatorio, 2024), onlinesiro (comparativa 2026), Supervecina, Superlógica, ComunidadFeliz, Condo Control, Buildium, ManageCasa, PayHOA. Precios: ninguno de los argentinos publica tarifas; Dominium cobra porcentaje de expensas; Buildium cobra la IA aparte, unos 400 dólares mensuales.</p>
+</div></section>
+
+<section><div class="wrap">
+  <h2>Qué hace el producto</h2>
+  <div class="tablewrap"><table><thead><tr><th>Módulo</th><th>Hoy (Rivadavia 2069)</th><th>Versión producto</th></tr></thead><tbody>
+    <tr><td><b>Ingesta</b></td><td>Parser a medida del PDF de Redconar; comprobantes descargados con el portal del propietario.</td><td>Carga de PDF de cualquier sistema (Redconar, Consorcio Abierto, Octopus, PDF manual) con extracción por modelo de lenguaje + validación aritmética obligatoria; conexión al portal con credenciales del propietario o carga manual.</td></tr>
+    <tr><td><b>Verificación</b></td><td>Cruce manual asistido de 150 comprobantes: emisor, CUIT, cuenta destino, fechas.</td><td>Cruce automático factura ↔ pago ↔ liquidación; padrón de CUIT contra ARCA; alertas: pago a tercero, factura a nombre de un propietario, efectivo, comprobante reutilizado, sin adjunto.</td></tr>
+    <tr><td><b>Hallazgos</b></td><td>20 reglas escritas a mano con severidad y recomendación.</td><td>Catálogo de reglas versionado, con umbrales por consorcio; cada hallazgo cita el documento y se puede marcar "respondido", "descartado" o "escalado".</td></tr>
+    <tr><td><b>Informe</b></td><td>Excel de 16 hojas + página interactiva.</td><td>Informe mensual automático, comparativo interanual, exportable a Excel y PDF, con marca propia para la puerta 2.</td></tr>
+    <tr><td><b>Asamblea</b></td><td>App con agenda, votación, preguntas, proposiciones y acta; sincronización por Google Sheets.</td><td>Mismo flujo con cuentas de usuario, identidad por unidad (código por propietario), historial en base de datos, acta firmable digitalmente, envío de proposiciones a ausentes.</td></tr>
+    <tr><td><b>Seguimiento</b></td><td>No existe.</td><td>Qué se pidió a la administración, qué respondió, qué quedó pendiente; recordatorios; evolución de hallazgos mes a mes.</td></tr>
+  </tbody></table></div>
+</div></section>
+
+<section><div class="wrap">
+  <h2>Etapas</h2>
+  <div class="tablewrap"><table><thead><tr><th>Etapa</th><th>Plazo</th><th>Qué se construye</th><th>Qué se valida</th></tr></thead><tbody>
+    <tr><td><span class="tag g">0</span> Caso Rivadavia</td><td>Hecho</td><td>Motor, informe, app de asamblea en producción.</td><td>Que los hallazgos sean reales y que la app sirva en una asamblea de verdad.</td></tr>
+    <tr><td><span class="tag">1</span> Servicio con motor</td><td>4 a 6 semanas</td><td>Ingesta generalizada (varios formatos de PDF), cruce automático, informe con marca, panel interno multi-consorcio. Sin autoservicio todavía.</td><td>Vender 3 a 5 auditorías a consorcios conocidos. Precio, tiempo por informe, qué hallazgos importan.</td></tr>
+    <tr><td><span class="tag">2</span> Autoservicio para consejos</td><td>2 a 3 meses más</td><td>Cuentas, carga guiada, pago, app de asamblea con identidad por unidad, seguimiento de respuestas.</td><td>Que un consejo lo use sin ayuda. Retención mensual.</td></tr>
+    <tr><td><span class="tag w">3</span> Administrador transparente</td><td>Cuando haya 20+ consorcios activos</td><td>Portal del administrador: publicación de gastos con comprobante cruzado, conciliación, sello verificable.</td><td>Que un administrador pague por diferenciarse y que los propietarios lo valoren.</td></tr>
+  </tbody></table></div>
+</div></section>
+
+<section><div class="wrap">
+  <h2>Arquitectura propuesta</h2>
+  <div class="grid3">
+    <div class="card"><h3>Aplicación</h3><ul><li>Web app en Cloudflare (Pages + Workers), como hoy, con dominio propio.</li><li>Base de datos Postgres (Neon o Supabase) con filas separadas por consorcio.</li><li>Almacenamiento privado de documentos (R2) con acceso por enlace firmado, nunca público.</li></ul></div>
+    <div class="card"><h3>Motor</h3><ul><li>Extracción de PDF con modelo de lenguaje y validación aritmética (si no cuadra, no se publica).</li><li>Reglas como código versionado, con pruebas sobre los casos ya vistos.</li><li>Cola de trabajos para procesar liquidaciones y comprobantes en segundo plano.</li></ul></div>
+    <div class="card"><h3>Identidad y confianza</h3><ul><li>Un consorcio = un espacio; roles: consejo, propietario, moderador, auditor.</li><li>Propietarios entran con código por unidad; sin contraseñas que nadie recuerda.</li><li>Registro inmutable de votaciones y respuestas.</li></ul></div>
+  </div>
+</div></section>
+
+<section><div class="wrap">
+  <h2>Riesgos que hay que resolver desde el diseño</h2>
+  <div class="grid3">
+    <div class="card"><span class="tag c">Legal</span><p>Los hallazgos hablan de personas (administradores, propietarios, proveedores). El producto muestra hechos documentados y preguntas, nunca conclusiones acusatorias; cada afirmación cita el comprobante. Términos de uso claros y revisión de un abogado antes de vender.</p></div>
+    <div class="card"><span class="tag c">Datos personales</span><p>Nombres, CUIT, deudas y cuentas bancarias. Cifrado en reposo, acceso por consorcio, sin comprobantes públicos, borrado a pedido. Cumplir la Ley 25.326.</p></div>
+    <div class="card"><span class="tag c">Acceso a los portales</span><p>La descarga desde Redconar usa las credenciales de un propietario. Es lícito para el propio uso, pero no escala ni es estable. Alternativas: carga manual guiada, integración oficial con las plataformas, o exportaciones que el propietario baja él mismo.</p></div>
+    <div class="card"><span class="tag c">Calidad de extracción</span><p>Cada sistema de administración emite PDF distintos. La regla de oro del motor: nada se publica si los totales no cuadran al centavo con el documento.</p></div>
+  </div>
+</div></section>
+
+<section><div class="wrap">
+  <h2>Primeros 30 días</h2>
+  <div class="card"><ul>
+    <li><b>Semana 1.</b> Nombre y marca. Documento de reglas de detección (las 20 actuales, generalizadas). Segundo consorcio de prueba con otro sistema de liquidación.</li>
+    <li><b>Semana 2.</b> Motor de ingesta con validación aritmética para dos formatos. Base de datos y modelo multi-consorcio.</li>
+    <li><b>Semana 3.</b> Informe con marca propia generado desde la base. Panel interno para correr y revisar informes.</li>
+    <li><b>Semana 4.</b> Primera venta de auditoría (puerta 2). Ajustar precio y reglas con lo que se aprenda. Decidir si la puerta 1 se abre en la etapa siguiente.</li>
+  </ul></div>
+  <p class="note">Lo que ya está en producción para Rivadavia 2069 no se toca: sigue siendo el caso piloto y la demo.</p>
+</div></section>
+
+<footer><div class="wrap"><p>Borrador para discusión. Todo lo descrito como "hoy" existe y funciona; lo demás es propuesta.</p></div></footer>

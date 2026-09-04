@@ -1,0 +1,16 @@
+[project]
+name = "consorcio-transparente"
+version = "0.1.0"
+description = "Motor de análisis de liquidaciones de expensas de consorcios"
+requires-python = ">=3.10"
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest>=7"]
+excel = ["openpyxl>=3.1"]
+
+[project.scripts]
+ct = "ct.cli:main"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
