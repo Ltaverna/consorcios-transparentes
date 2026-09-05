@@ -1,0 +1,9 @@
+[Unit]
+Description=Corrida diaria de la sincronizacion del consorcio
+
+[Timer]
+OnCalendar=*-*-* 06:30:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target

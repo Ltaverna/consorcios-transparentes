@@ -96,10 +96,40 @@ def parse_adjuntos(html: str) -> list[Adjunto]:
     return out
 
 
+def parse_liquidacion(html: str, periodo: str) -> Optional[dict]:
+    """POST para /fees/expensesViewer.php del período ('2026-8'), o None si todavía no está publicado.
+
+    Las options del select #dateExp llevan la fecha de emisión en value y el período legible
+    ('Agosto 2026') como texto; se mapea por texto, que es inequívoco aun con dos emisiones
+    en el mismo mes calendario. bId y adminId salen de los hidden del form expensesView.
+    """
+    y, m = periodo.split("-")
+    if not 1 <= int(m) <= 12:
+        raise ValueError(f"período inválido: {periodo}")
+    texto = f"{MESES[int(m) - 1]} {int(y)}"
+    fecha = next((v for v, t in opciones_select(html, "dateExp") if t == texto), None)
+    if fecha is None:
+        return None
+    datos = {"date": fecha}
+    for campo in ("bId", "adminId"):
+        tag = re.search(rf'<input[^>]*name=[\'"]{campo}[\'"][^>]*>', html)
+        if not tag:
+            raise PortalError(f"no se encontró el campo {campo} en el panel de expensas; ¿cambió el portal?")
+        hv = re.search(r"value=['\"]([^'\"]*)", tag.group(0))
+        datos[campo] = hv.group(1) if hv else ""
+    return datos
+
+
 def etiqueta_mes(periodo: str) -> str:
     """'2026-7' → '2026-07 Julio'."""
     y, m = periodo.split("-")
     return f"{int(y):04d}-{int(m):02d} {MESES[int(m) - 1]}"
+
+
+def _cd_filename(headers: dict) -> str:
+    """Nombre de archivo del Content-Disposition, sin directorios (el portal es semi-confiable)."""
+    m = re.search(r'filename="?([^";]+)', headers.get("Content-Disposition", ""))
+    return os.path.basename(m.group(1)) if m else ""
 
 
 def _ascii(s: str) -> str:
@@ -172,9 +202,7 @@ class Redconar:
     def descargar(self, url: str) -> tuple[bytes, str]:
         raw, h = self._req(url)
         ct = h.get("Content-Type", "").lower()
-        cd = h.get("Content-Disposition", "")
-        m = re.search(r'filename="?([^";]+)', cd)
-        fname = m.group(1) if m else ""
+        fname = _cd_filename(h)
         if raw[:5] == b"%PDF-":
             ext = ".pdf"
         elif raw[:3] == b"\xff\xd8\xff":
@@ -186,6 +214,19 @@ class Redconar:
         else:
             raise PortalError(f"el visor no devolvió un documento (Content-Type {ct or '?'}); ¿sesión vencida?")
         return raw, (os.path.splitext(fname)[0] if fname else "") + ext
+
+    def liquidacion(self, periodo: str) -> Optional[tuple[bytes, str]]:
+        """PDF de la liquidación del período ('2026-8') y su nombre de archivo, o None si no está publicada."""
+        raw, _ = self._req("/props/propHtml/panels/p_expensas.php")
+        datos = parse_liquidacion(raw.decode("utf-8", "ignore"), periodo)
+        if datos is None:
+            return None
+        raw, h = self._req("/fees/expensesViewer.php", datos)
+        if raw[:5] != b"%PDF-":
+            raise PortalError("el visor de expensas no devolvió un PDF; ¿sesión vencida?")
+        fname = _cd_filename(h)
+        a, mes = periodo.split("-")
+        return raw, (fname if fname else f"{a}-{int(mes):02d}-liquidacion.pdf")
 
     def descargar_mes(self, periodo: str, carpeta: str, manifiesto: Optional[str] = None, log=print) -> list[dict]:
         """Baja todos los adjuntos del período a <carpeta>/<AAAA-MM Mes>/ y actualiza manifest.json (una fila por adjunto)."""

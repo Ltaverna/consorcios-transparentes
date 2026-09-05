@@ -2,6 +2,7 @@
 from __future__ import annotations
 import argparse
 import json
+import os
 import sys
 
 from .redconar import parse_pdf, parse_text
@@ -20,13 +21,20 @@ def fmt(v: float) -> str:
     return ("-" if v < 0 else "") + "$" + f"{abs(v):,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
 
-def descargar(args) -> int:
+def _cliente_portal(args):
     import getpass, os
-    from .portal import Redconar, PortalError
+    from .portal import Redconar
     usuario = args.usuario or os.environ.get("CT_REDCONAR_USUARIO") or input("Usuario Redconar: ")
     clave = args.clave or os.environ.get("CT_REDCONAR_CLAVE") or getpass.getpass("Contraseña: ")
+    r = Redconar(); r.login(usuario, clave)
+    return r
+
+
+def descargar(args) -> int:
+    import os
+    from .portal import PortalError
     try:
-        r = Redconar(); r.login(usuario, clave)
+        r = _cliente_portal(args)
         if args.periodo == "listar":
             for v, t in r.periodos():
                 print(f"{v:>8}  {t}")
@@ -38,6 +46,74 @@ def descargar(args) -> int:
     print(f"Listo: {n} gastos, {k} archivos en {args.carpeta}. Manifiesto: {os.path.join(args.carpeta, 'manifest.json')}")
     print(f"Cruce: python -m ct analizar <liquidacion.pdf> --comprobantes \"{args.carpeta}\" --manifiesto \"{os.path.join(args.carpeta, 'manifest.json')}\" --mes {rows[0]['mes'][:7] if rows else ''}")
     return 0
+
+
+def descargar_liquidacion(args) -> int:
+    import os
+    from .portal import PortalError
+    try:
+        r = _cliente_portal(args)
+        res = r.liquidacion(args.periodo)
+    except PortalError as e:
+        print("Error:", e, file=sys.stderr); return 2
+    if res is None:
+        print(f"todavía no hay liquidación de {args.periodo} en el portal")
+        return 0
+    raw, nombre = res
+    os.makedirs(args.carpeta, exist_ok=True)
+    destino = os.path.join(args.carpeta, nombre)
+    with open(destino, "wb") as f:
+        f.write(raw)
+    print(destino)
+    return 0
+
+
+def sincronizar(args) -> int:
+    import urllib.error
+    from .portal import Redconar, PortalError
+    from .sincronizar import ApiPanel, ApiError, Sincronizador
+
+    # --- credenciales del portal (aceptar ambos conjuntos de nombres de env) ---
+    usuario = (os.environ.get("CT_REDCONAR_USUARIO")
+               or os.environ.get("USER_REDCONAR"))
+    clave = (os.environ.get("CT_REDCONAR_CLAVE")
+             or os.environ.get("PASSWORD_REDCONAR"))
+    if not usuario or not clave:
+        print("sincronizar: faltan credenciales del portal; "
+              "definí CT_REDCONAR_USUARIO/CT_REDCONAR_CLAVE "
+              "o USER_REDCONAR/PASSWORD_REDCONAR en el entorno", file=sys.stderr)
+        return 2
+
+    # --- credenciales de la API del panel ---
+    api_url = os.environ.get("CT_API_URL", "https://api-consorcio.neuralcore.dev")
+    bot_email = os.environ.get("CT_API_BOT_EMAIL")
+    bot_clave = os.environ.get("CT_API_BOT_CLAVE")
+    if not bot_email or not bot_clave:
+        faltantes = []
+        if not bot_email:
+            faltantes.append("CT_API_BOT_EMAIL")
+        if not bot_clave:
+            faltantes.append("CT_API_BOT_CLAVE")
+        print(f"sincronizar: faltan variables de entorno de la API: {', '.join(faltantes)}", file=sys.stderr)
+        return 2
+
+    # --- carpeta privada ---
+    carpeta = os.environ.get("CT_PRIVADO") or os.path.expanduser("~/consorcio-transparente-privado")
+
+    try:
+        portal = Redconar()
+        portal.login(usuario, clave)
+        api = ApiPanel(api_url, bot_email, bot_clave)
+        return Sincronizador(portal, api, carpeta).correr()
+    except PortalError as e:
+        print(f"sincronizar: {e}", file=sys.stderr)
+        return 1
+    except ApiError as e:
+        print(f"sincronizar: {e}", file=sys.stderr)
+        return 1
+    except urllib.error.URLError as e:
+        print(f"sincronizar: error de red: {e.reason}", file=sys.stderr)
+        return 1
 
 
 def main(argv=None) -> int:
@@ -59,10 +135,20 @@ def main(argv=None) -> int:
     d.add_argument("--carpeta", required=True, help="Carpeta destino; se crea <AAAA-MM Mes>/ y manifest.json")
     d.add_argument("--usuario", help="Usuario del portal (o variable CT_REDCONAR_USUARIO)")
     d.add_argument("--clave", help="Contraseña (o variable CT_REDCONAR_CLAVE; si falta se pide por consola)")
+    dl = sub.add_parser("descargar-liquidacion", help="Descargar el PDF de la liquidación de un período desde el portal de Redconar")
+    dl.add_argument("periodo", help="Período del portal, por ejemplo 2026-8")
+    dl.add_argument("--carpeta", required=True, help="Carpeta destino del PDF (se crea si falta)")
+    dl.add_argument("--usuario", help="Usuario del portal (o variable CT_REDCONAR_USUARIO)")
+    dl.add_argument("--clave", help="Contraseña (o variable CT_REDCONAR_CLAVE; si falta se pide por consola)")
+    sub.add_parser("sincronizar", help="Sincronizar el portal Redconar con el panel (config por variables de entorno)")
     args = ap.parse_args(argv)
 
     if args.cmd == "descargar":
         return descargar(args)
+    if args.cmd == "descargar-liquidacion":
+        return descargar_liquidacion(args)
+    if args.cmd == "sincronizar":
+        return sincronizar(args)
 
     liq = load(args.liquidacion)
     prev = load(args.anterior) if args.anterior else None

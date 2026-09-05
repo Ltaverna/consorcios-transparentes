@@ -102,3 +102,56 @@ Verificar: `curl -s https://api-consorcio.neuralcore.dev/salud` → `{"ok":true}
   (daemon apagado): el primer `docker compose build` en la máquina nueva es la prueba real. Si falla,
   el sospechoso más probable es el empaquetado (`pip install ./engine ./api`) — ambos pyproject ya
   declaran sus paquetes explícitamente.
+
+## 8. Sincronización mensual automática
+
+El comando `ct sincronizar` baja la liquidación y los comprobantes más recientes del portal Redconar,
+los ingesta en la API del panel y registra el resultado en `$CT_PRIVADO/sincronizacion.json`.
+**Nunca publica**: el triage sigue en el panel. Cada corrida fallida reintenta al día siguiente.
+
+### 8.1 Crear el usuario bot en la API
+
+```bash
+docker compose exec -it api python cli.py usuario robot@consorcio-transparente.local "Robot de carga" auditor
+# (la CLI pide la clave por consola; guardala para el paso siguiente)
+```
+
+### 8.2 Agregar las variables al `.env` raíz
+
+Editá `/opt/consorcios-transparentes/.env` y agregá:
+
+```bash
+CT_API_BOT_CLAVE=<la-clave-del-bot>
+# Opcional (default: https://api-consorcio.neuralcore.dev):
+# CT_API_URL=https://api-consorcio.neuralcore.dev
+```
+
+El archivo ya debe tener `USER_REDCONAR` y `PASSWORD_REDCONAR` (credenciales del portal).
+Asegurate de que sea legible solo por el usuario que corre el servicio:
+
+```bash
+chmod 600 /opt/consorcios-transparentes/.env
+```
+
+### 8.3 Instalar las units de systemd
+
+```bash
+sudo cp deploy/systemd/ct-sincronizar.* /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable --now ct-sincronizar.timer
+```
+
+### 8.4 Probar a mano
+
+```bash
+sudo systemctl start ct-sincronizar.service
+journalctl -u ct-sincronizar -n 50
+```
+
+### 8.5 Notas de operación
+
+- El timer corre todos los días a las 06:30 (`OnCalendar=*-*-* 06:30:00`).
+- `Persistent=true`: si la máquina estuvo apagada, la corrida se recupera al encender.
+- El estado de cada período (qué está subido, el hash del ZIP) vive en `$CT_PRIVADO/sincronizacion.json`.
+- `PYTHONUNBUFFERED=1` en el service garantiza que los prints lleguen ordenados a journald incluso ante un crash.
+- `CT_API_BOT_CLAVE` y `CT_API_URL` (si se personaliza) van en el `.env` raíz, **no** en el archivo del service.
