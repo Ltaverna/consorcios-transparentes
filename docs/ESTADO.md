@@ -63,6 +63,13 @@
   anterior decía 2fc07d6…; el tunnel y el worker viven en 115a2f94…). Fase A mergeada a main: IP real tras proxy,
   descarga forzada, `proxy.ts`, Alembic (`866ed55c8961`; orden build → migrate → up), adapter OpenNext.
 
+- **Sincronización mensual automática** (5/09, rama `sincronizacion-mensual`; spec
+  `docs/superpowers/specs/2026-09-05-sincronizacion-mensual-design.md`): timer diario 06:30
+  (`ct-sincronizar.timer`, DEPLOY.md §8) corre `ct sincronizar` — baja del portal la liquidación nueva
+  (`ct descargar-liquidacion`, POST a `/fees/expensesViewer.php`) y los comprobantes, y los ingesta a la API
+  con el bot `robot@consorcio-transparente.local` (estado idempotente en `$CT_PRIVADO/sincronizacion.json`,
+  ZIP determinista por hash). **Nunca publica.** El engine pasa de 31 a 45 tests.
+
 ## Pendientes inmediatos
 1. **Triage de hallazgos en el panel**: los 84 están `pendiente`; revisar y publicar los que correspondan.
 2. **Migrar a Neon + R2** cuando Lucas cree las cuentas (hoy todo local en esta máquina; ver "Modo provisorio").
