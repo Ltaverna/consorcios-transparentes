@@ -13,6 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useRol } from "@/components/rol-context";
 import { DetalleLiquidacion } from "@/components/liquidaciones/detalle";
 import { mensajeError } from "@/lib/formato";
 import {
@@ -113,6 +114,7 @@ export default function LiquidacionDetallePage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  const rol = useRol();
   const [detalle, setDetalle] = useState<LiquidacionDetalle | null>(null);
   const [documentos, setDocumentos] = useState<DocumentoInfo[]>([]);
   const [cargando, setCargando] = useState(true);
@@ -168,7 +170,7 @@ export default function LiquidacionDetallePage({
         <>
           <div className="flex items-center justify-between">
             <h1 className="font-titulos text-xl font-bold">Liquidación {detalle.periodo}</h1>
-            {(detalle.estado === "procesada" || detalle.estado === "publicada") && (
+            {rol === "auditor" && (detalle.estado === "procesada" || detalle.estado === "publicada") && (
               <PublicarInforme
                 liquidacionId={detalle.id}
                 periodo={detalle.periodo}

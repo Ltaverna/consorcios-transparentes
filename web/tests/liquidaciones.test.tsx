@@ -2,6 +2,8 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { http, HttpResponse } from "msw";
 import { servidor, API } from "./msw";
+import { RolProvider } from "@/components/rol-context";
+import LiquidacionesPage from "@/app/panel/liquidaciones/page";
 import { ListaLiquidaciones } from "@/components/liquidaciones/lista";
 import { SubirLiquidacion } from "@/components/liquidaciones/subir-liquidacion";
 
@@ -40,4 +42,18 @@ test("un 413 de la API se muestra tal cual", async () => {
   await userEvent.upload(screen.getByLabelText(/Liquidación en PDF/), new File(["x"], "x.pdf"));
   await userEvent.click(screen.getByRole("button", { name: "Subir y procesar" }));
   expect(await screen.findByText("El archivo supera los 30 MB")).toBeInTheDocument();
+});
+
+test("consejo ve la lista sin el formulario de subir ni el de comprobantes", async () => {
+  servidor.use(http.get(`${API}/liquidaciones`, () => HttpResponse.json(FILAS)));
+  render(
+    <RolProvider rol="consejo">
+      <LiquidacionesPage />
+    </RolProvider>
+  );
+  expect(await screen.findByText("2026-08")).toBeInTheDocument();
+  expect(screen.getByText("Liquidaciones")).toBeInTheDocument();
+  expect(screen.queryByRole("button", { name: /Subir y procesar/ })).not.toBeInTheDocument();
+  expect(screen.queryByLabelText(/Período/)).not.toBeInTheDocument();
+  expect(screen.queryByRole("button", { name: /comprobantes/i })).not.toBeInTheDocument();
 });

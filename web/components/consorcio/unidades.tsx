@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { useRol } from "@/components/rol-context";
 import { api, type UnidadFila } from "@/lib/api";
 import { mensajeError } from "@/lib/formato";
 
@@ -23,6 +24,7 @@ export function TablaUnidades({
   unidades: UnidadFila[];
   alCambiar: () => void;
 }) {
+  const rol = useRol();
   const [cargando, setCargando] = useState<number | null>(null);
   const [codigo, setCodigo] = useState<{ uf: number; codigo: string } | null>(null);
 
@@ -84,16 +86,18 @@ export function TablaUnidades({
                 {u.tiene_codigo ? (
                   <div className="flex items-center gap-2">
                     <span className="text-sm text-tinta-suave">emitido</span>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      disabled={cargando === u.uf}
-                      onClick={() => generar(u.uf)}
-                    >
-                      Regenerar
-                    </Button>
+                    {rol === "auditor" && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        disabled={cargando === u.uf}
+                        onClick={() => generar(u.uf)}
+                      >
+                        Regenerar
+                      </Button>
+                    )}
                   </div>
-                ) : (
+                ) : rol === "auditor" ? (
                   <Button
                     size="sm"
                     disabled={cargando === u.uf}
@@ -101,6 +105,8 @@ export function TablaUnidades({
                   >
                     Generar código
                   </Button>
+                ) : (
+                  <span className="text-sm text-tinta-suave">—</span>
                 )}
               </TableCell>
             </TableRow>
