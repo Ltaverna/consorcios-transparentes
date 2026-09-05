@@ -2,6 +2,7 @@
 from __future__ import annotations
 import argparse
 import json
+import os
 import sys
 
 from .redconar import parse_pdf, parse_text
@@ -67,6 +68,54 @@ def descargar_liquidacion(args) -> int:
     return 0
 
 
+def sincronizar(args) -> int:
+    import urllib.error
+    from .portal import Redconar, PortalError
+    from .sincronizar import ApiPanel, ApiError, Sincronizador
+
+    # --- credenciales del portal (aceptar ambos conjuntos de nombres de env) ---
+    usuario = (os.environ.get("CT_REDCONAR_USUARIO")
+               or os.environ.get("USER_REDCONAR"))
+    clave = (os.environ.get("CT_REDCONAR_CLAVE")
+             or os.environ.get("PASSWORD_REDCONAR"))
+    if not usuario or not clave:
+        print("sincronizar: faltan credenciales del portal; "
+              "definí CT_REDCONAR_USUARIO/CT_REDCONAR_CLAVE "
+              "o USER_REDCONAR/PASSWORD_REDCONAR en el entorno", file=sys.stderr)
+        return 2
+
+    # --- credenciales de la API del panel ---
+    api_url = os.environ.get("CT_API_URL", "https://api-consorcio.neuralcore.dev")
+    bot_email = os.environ.get("CT_API_BOT_EMAIL")
+    bot_clave = os.environ.get("CT_API_BOT_CLAVE")
+    if not bot_email or not bot_clave:
+        faltantes = []
+        if not bot_email:
+            faltantes.append("CT_API_BOT_EMAIL")
+        if not bot_clave:
+            faltantes.append("CT_API_BOT_CLAVE")
+        print(f"sincronizar: faltan variables de entorno de la API: {', '.join(faltantes)}", file=sys.stderr)
+        return 2
+
+    # --- carpeta privada ---
+    carpeta = os.environ.get("CT_PRIVADO") or os.path.expanduser("~/consorcio-transparente-privado")
+
+    try:
+        portal = Redconar()
+        portal.login(usuario, clave)
+        api = ApiPanel(api_url, bot_email, bot_clave)
+        return Sincronizador(portal, api, carpeta).correr()
+    except PortalError as e:
+        print(f"sincronizar: {e}", file=sys.stderr)
+        return 1
+    except ApiError as e:
+        print(f"sincronizar: {e}", file=sys.stderr)
+        return 1
+    except urllib.error.URLError as e:
+        print(f"sincronizar: error de red: {e.reason}", file=sys.stderr)
+        return 1
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(prog="ct", description="Consorcio Transparente: análisis de liquidaciones de expensas")
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -91,12 +140,15 @@ def main(argv=None) -> int:
     dl.add_argument("--carpeta", required=True, help="Carpeta destino del PDF (se crea si falta)")
     dl.add_argument("--usuario", help="Usuario del portal (o variable CT_REDCONAR_USUARIO)")
     dl.add_argument("--clave", help="Contraseña (o variable CT_REDCONAR_CLAVE; si falta se pide por consola)")
+    sub.add_parser("sincronizar", help="Sincronizar el portal Redconar con el panel (config por variables de entorno)")
     args = ap.parse_args(argv)
 
     if args.cmd == "descargar":
         return descargar(args)
     if args.cmd == "descargar-liquidacion":
         return descargar_liquidacion(args)
+    if args.cmd == "sincronizar":
+        return sincronizar(args)
 
     liq = load(args.liquidacion)
     prev = load(args.anterior) if args.anterior else None
