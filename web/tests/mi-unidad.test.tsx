@@ -55,4 +55,5 @@ test("muestra los hallazgos publicados con sus comprobantes", async () => {
   expect(await screen.findByText(/Pago a un tercero/)).toBeInTheDocument();
   expect(screen.getByText(/El pago fue a otro CUIT/)).toBeInTheDocument();
   expect(screen.getByRole("link", { name: /pago/i })).toHaveAttribute("href", expect.stringContaining("/documentos/400/contenido"));
+  expect(document.querySelector("iframe[src*='vista=1']")).toBeTruthy();
 });

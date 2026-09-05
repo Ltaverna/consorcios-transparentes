@@ -178,17 +178,23 @@ export default function PaginaMiUnidad() {
                     {documentos.length > 0 && (
                       <div className="flex flex-col gap-1">
                         <span className="text-sm font-semibold">Documentos</span>
-                        <div className="flex flex-col gap-1">
+                        <div className="grid gap-3 md:grid-cols-2">
                           {documentos.map((d) => (
-                            <a
-                              key={d.id}
-                              href={urlContenidoDocumento(d.id)}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="text-institucional hover:underline text-sm inline-flex items-center gap-1"
-                            >
-                              {d.tipo}
-                            </a>
+                            <div key={d.id} className="flex flex-col gap-1">
+                              <a
+                                href={urlContenidoDocumento(d.id)}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="text-institucional hover:underline text-sm inline-flex items-center gap-1"
+                              >
+                                {d.tipo}
+                              </a>
+                              <iframe
+                                src={urlContenidoDocumento(d.id, { vista: true })}
+                                className="w-full h-64 border rounded"
+                                title={`Documento ${d.tipo}`}
+                              />
+                            </div>
                           ))}
                         </div>
                       </div>

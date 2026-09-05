@@ -287,6 +287,14 @@ export const api = {
     return pedir<{ ok: boolean; pdf: boolean; transcripcion: boolean }>(
       "/consorcio/reglamento", { method: "POST", body: form });
   },
+
+  estadoNormativa() {
+    return pedir<Record<string, boolean>>("/consorcio/normativa");
+  },
+
+  subirNormativa(tipo: string, form: FormData) {
+    return pedir<{ ok: boolean }>(`/consorcio/normativa/${tipo}`, { method: "POST", body: form });
+  },
 };
 
 export function urlInforme(periodo: string, tipo: "html" | "xlsx"): string {
@@ -295,6 +303,10 @@ export function urlInforme(periodo: string, tipo: "html" | "xlsx"): string {
 
 export function urlReglamento(tipo: "pdf" | "transcripcion"): string {
   return `${BASE}/consorcio/reglamento/${tipo}`;
+}
+
+export function urlNormativa(tipo: string): string {
+  return `${BASE}/consorcio/normativa/${tipo}`;
 }
 
 export function urlContenidoDocumento(id: number, opts?: { vista?: boolean }): string {
