@@ -34,7 +34,8 @@ En `web/components/login-forms.tsx`, pestaña Equipo, debajo del formulario: sep
 oficial de GIS, solo si `NEXT_PUBLIC_GOOGLE_CLIENT_ID` está seteado. Script `https://accounts.google.com/gsi/client`
 cargado on-demand; `google.accounts.id.initialize({ client_id, callback })` + `renderButton`. El callback
 POSTea el `credential` vía `api.loginGoogle(credential)` (función nueva en `web/lib/api.ts`) y sigue el
-mismo flujo post-login que el formulario (redirect al panel). Errores 401/403 → toast con el mensaje de la API.
+mismo flujo post-login que el formulario (redirect al panel). Errores 401/403 → el mismo `MensajeError`
+inline que usa el formulario del equipo (patrón existente; no toast).
 
 ## 4. Errores y bordes
 
