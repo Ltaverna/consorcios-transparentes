@@ -5,13 +5,20 @@ import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { api, ApiError, urlInforme, type MiUnidad } from "@/lib/api";
+import { ChipSeveridad } from "@/components/severidad";
+import { api, ApiError, urlInforme, urlContenidoDocumento, type MiUnidad, type HallazgoDetalle, type DocumentoInfo } from "@/lib/api";
 import { moneda, mensajeError } from "@/lib/formato";
+
+interface HallazgoConDocs {
+  detalle: HallazgoDetalle;
+  documentos: DocumentoInfo[];
+}
 
 export default function PaginaMiUnidad() {
   const [datos, setDatos] = useState<MiUnidad | null>(null);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [hallazgos, setHallazgos] = useState<HallazgoConDocs[]>([]);
 
   useEffect(() => {
     (async () => {
@@ -28,6 +35,29 @@ export default function PaginaMiUnidad() {
         }
       } finally {
         setCargando(false);
+      }
+    })();
+  }, []);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const resumenes = await api.listarHallazgos();
+        if (resumenes.length === 0) return;
+        const resultado: HallazgoConDocs[] = [];
+        for (const r of resumenes) {
+          const [detalle, documentosTodos] = await Promise.all([
+            api.detalleHallazgo(r.id),
+            api.listarDocumentos(r.liquidacion_id),
+          ]);
+          const documentos = detalle.origen === "comprobantes"
+            ? documentosTodos.filter((d) => detalle.refs.includes(String(d.gasto_n)))
+            : [];
+          resultado.push({ detalle, documentos });
+        }
+        setHallazgos(resultado);
+      } catch {
+        // error no crítico: no rompe el resto de la página
       }
     })();
   }, []);
@@ -120,6 +150,55 @@ export default function PaginaMiUnidad() {
             className="w-full min-h-[70vh] bg-white border border-borde-suave rounded-lg"
             title="Informe de expensas"
           />
+
+          {hallazgos.length > 0 && (
+            <div className="flex flex-col gap-4">
+              <h2 className="font-titulos text-lg font-bold">Hallazgos publicados</h2>
+              {hallazgos.map(({ detalle, documentos }) => (
+                <Card key={detalle.id}>
+                  <CardContent className="flex flex-col gap-3 py-4">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <ChipSeveridad severidad={detalle.severidad} />
+                      <span className="font-semibold">{detalle.titulo}</span>
+                    </div>
+                    <p className="text-sm tabular-nums text-tinta-suave">{moneda(detalle.monto)}</p>
+                    <div className="flex flex-col gap-1">
+                      <span className="text-sm font-semibold">Evidencia</span>
+                      <p className="text-sm leading-relaxed">{String(detalle.evidencia)}</p>
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <span className="text-sm font-semibold">Qué pedir</span>
+                      <p className="text-sm leading-relaxed">{detalle.recomendacion}</p>
+                    </div>
+                    {detalle.respuesta_admin && (
+                      <div className="flex flex-col gap-1">
+                        <span className="text-sm font-semibold">Respuesta de la administración</span>
+                        <p className="text-sm leading-relaxed">{detalle.respuesta_admin}</p>
+                      </div>
+                    )}
+                    {documentos.length > 0 && (
+                      <div className="flex flex-col gap-1">
+                        <span className="text-sm font-semibold">Documentos</span>
+                        <div className="flex flex-col gap-1">
+                          {documentos.map((d) => (
+                            <a
+                              key={d.id}
+                              href={urlContenidoDocumento(d.id)}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="text-institucional hover:underline text-sm inline-flex items-center gap-1"
+                            >
+                              {d.tipo}
+                            </a>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
         </div>
       ) : null}
     </div>
