@@ -196,7 +196,7 @@ export function FichaHallazgo({
       {documentos.length > 0 && (
         <div className="flex flex-col gap-2">
           <h3 className="text-sm font-semibold">Documentos</h3>
-          <div className="flex flex-col gap-2">
+          <div className={conVisor ? "grid gap-3 md:grid-cols-2" : "flex flex-col gap-2"}>
             {documentos.map((d) => (
               <div key={d.id} className="flex flex-col gap-1">
                 <a
