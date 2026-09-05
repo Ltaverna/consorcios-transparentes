@@ -35,8 +35,8 @@ pedir justificación de la diferencia. Referencia en 0 → la regla no emite nad
 - Slots fijos (PDF, tope 20 MB): `escala-suterh`, `acuerdo-paritario`, `referencia-honorarios`;
   claves de storage `consorcio/normativa/{tipo}.pdf`.
 - `POST /consorcio/normativa/{tipo}` (auditor) · `GET /consorcio/normativa` (estado {tipo: bool}) ·
-  `GET /consorcio/normativa/{tipo}` (descarga forzada vía `_servir`). Lectura con
-  `requiere("auditor", "consejo", "moderador")` — es material de trabajo del triage, NO para propietarios.
+  `GET /consorcio/normativa/{tipo}` (descarga forzada vía `_servir`). Lectura con `security.sesion`
+  (cualquier rol, propietarios incluidos — decisión del 5/09: misma visibilidad que el reglamento).
 - Panel: en Consorcio (bloque de auditor existente), Card "Normativa de referencia" con los tres slots
   (estado + subir/reemplazar), junto a la del reglamento.
 - Los umbrales nuevos de `Config` aparecen en el editor de umbrales existente (lee los campos de la
@@ -54,6 +54,15 @@ los PDFs de respaldo en la biblioteca. Los valores nunca van al repo (viven en l
   banda, silencio con referencia 0. El caso "bajo escala" de sueldos con severidad ALTO.
 - API (+2): normativa — subir requiere auditor y sirve al equipo; propietario → 403; slots inválidos → 404.
 - Web (+1): la Card de normativa solo aparece para auditor.
+
+## Anexo (decisión del 5/09): visor embebido para propietarios
+
+Los propietarios también ven los comprobantes embebidos (no solo descarga) en los hallazgos publicados
+de `/mi-unidad`: `GET /documentos/{id}/contenido?vista=1` pasa a estar permitido para el rol propietario
+**solo** para documentos que ya pasan el predicado de publicación (`_accesible_para_propietario`); para
+cualquier otro documento sigue el 403. El front de mi-unidad suma el iframe con `vista=1` al lado del
+link de descarga, igual que la ficha del equipo. Se actualiza el test que fijaba `vista=1 → 403` para
+propietario (cambio de comportamiento deliberado).
 
 ## Fuera de alcance
 
