@@ -59,4 +59,26 @@ test("consejo ve las unidades sin editar datos ni generar códigos", async () =>
   expect(screen.queryByRole("button", { name: /Generar código/ })).not.toBeInTheDocument();
   expect(screen.queryByRole("button", { name: /Regenerar/ })).not.toBeInTheDocument();
   expect(screen.queryByRole("button", { name: /Guardar/ })).not.toBeInTheDocument();
+  expect(screen.queryByText(/Reglamento/)).not.toBeInTheDocument();
+});
+
+test("el auditor ve la sección de subida del reglamento con su estado", async () => {
+  servidor.use(
+    http.get(`${API}/consorcio`, () =>
+      HttpResponse.json({
+        nombre: "Rivadavia 2069", direccion: "", cuit: "", admin_nombre: "", admin_cuit: "", marca: "",
+        umbrales: { efectivo_linea_alta: 300000 },
+        umbrales_default: { efectivo_linea_alta: 300000 },
+      })),
+    http.get(`${API}/unidades`, () => HttpResponse.json([])),
+    http.get(`${API}/consorcio/reglamento`, () =>
+      HttpResponse.json({ pdf: true, transcripcion: false })),
+  );
+  render(<ConsorcioPage />); // sin provider: el rol default es auditor
+  expect(await screen.findByText("Reglamento")).toBeInTheDocument();
+  expect(await screen.findByLabelText(/PDF escaneado/)).toBeInTheDocument();
+  expect(screen.getByLabelText(/Transcripción/)).toBeInTheDocument();
+  expect(screen.getByRole("button", { name: "Subir reglamento" })).toBeInTheDocument();
+  // el estado actual: el PDF ya está, la transcripción falta
+  expect(await screen.findByText(/PDF: cargado · Transcripción: falta/)).toBeInTheDocument();
 });

@@ -100,12 +100,20 @@ export default function PaginaMiUnidad() {
             </CardContent>
           </Card>
 
-          <a
-            href={urlInforme(datos.periodo, "xlsx")}
-            className="inline-flex h-8 items-center justify-center gap-1.5 rounded-lg bg-primary px-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/80"
-          >
-            Descargar Excel
-          </a>
+          <div className="flex items-center justify-between">
+            <a
+              href={urlInforme(datos.periodo, "xlsx")}
+              className="inline-flex h-8 items-center justify-center gap-1.5 rounded-lg bg-primary px-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/80"
+            >
+              Descargar Excel
+            </a>
+            <a
+              href="/reglamento"
+              className="text-sm text-tinta-suave underline underline-offset-2 hover:text-tinta"
+            >
+              Reglamento de copropiedad
+            </a>
+          </div>
 
           <iframe
             src={urlInforme(datos.periodo, "html")}
