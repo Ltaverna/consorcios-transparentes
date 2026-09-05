@@ -20,13 +20,20 @@ def fmt(v: float) -> str:
     return ("-" if v < 0 else "") + "$" + f"{abs(v):,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
 
-def descargar(args) -> int:
+def _cliente_portal(args):
     import getpass, os
-    from .portal import Redconar, PortalError
+    from .portal import Redconar
     usuario = args.usuario or os.environ.get("CT_REDCONAR_USUARIO") or input("Usuario Redconar: ")
     clave = args.clave or os.environ.get("CT_REDCONAR_CLAVE") or getpass.getpass("Contraseña: ")
+    r = Redconar(); r.login(usuario, clave)
+    return r
+
+
+def descargar(args) -> int:
+    import os
+    from .portal import PortalError
     try:
-        r = Redconar(); r.login(usuario, clave)
+        r = _cliente_portal(args)
         if args.periodo == "listar":
             for v, t in r.periodos():
                 print(f"{v:>8}  {t}")
@@ -37,6 +44,26 @@ def descargar(args) -> int:
     n = len({x["n"] for x in rows}); k = sum(1 for x in rows if x["archivo"])
     print(f"Listo: {n} gastos, {k} archivos en {args.carpeta}. Manifiesto: {os.path.join(args.carpeta, 'manifest.json')}")
     print(f"Cruce: python -m ct analizar <liquidacion.pdf> --comprobantes \"{args.carpeta}\" --manifiesto \"{os.path.join(args.carpeta, 'manifest.json')}\" --mes {rows[0]['mes'][:7] if rows else ''}")
+    return 0
+
+
+def descargar_liquidacion(args) -> int:
+    import os
+    from .portal import PortalError
+    try:
+        r = _cliente_portal(args)
+        res = r.liquidacion(args.periodo)
+    except PortalError as e:
+        print("Error:", e, file=sys.stderr); return 2
+    if res is None:
+        print(f"todavía no hay liquidación de {args.periodo} en el portal")
+        return 0
+    raw, nombre = res
+    os.makedirs(args.carpeta, exist_ok=True)
+    destino = os.path.join(args.carpeta, nombre)
+    with open(destino, "wb") as f:
+        f.write(raw)
+    print(destino)
     return 0
 
 
@@ -59,10 +86,17 @@ def main(argv=None) -> int:
     d.add_argument("--carpeta", required=True, help="Carpeta destino; se crea <AAAA-MM Mes>/ y manifest.json")
     d.add_argument("--usuario", help="Usuario del portal (o variable CT_REDCONAR_USUARIO)")
     d.add_argument("--clave", help="Contraseña (o variable CT_REDCONAR_CLAVE; si falta se pide por consola)")
+    dl = sub.add_parser("descargar-liquidacion", help="Descargar el PDF de la liquidación de un período desde el portal de Redconar")
+    dl.add_argument("periodo", help="Período del portal, por ejemplo 2026-8")
+    dl.add_argument("--carpeta", required=True, help="Carpeta destino del PDF (se crea si falta)")
+    dl.add_argument("--usuario", help="Usuario del portal (o variable CT_REDCONAR_USUARIO)")
+    dl.add_argument("--clave", help="Contraseña (o variable CT_REDCONAR_CLAVE; si falta se pide por consola)")
     args = ap.parse_args(argv)
 
     if args.cmd == "descargar":
         return descargar(args)
+    if args.cmd == "descargar-liquidacion":
+        return descargar_liquidacion(args)
 
     liq = load(args.liquidacion)
     prev = load(args.anterior) if args.anterior else None

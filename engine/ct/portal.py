@@ -96,6 +96,27 @@ def parse_adjuntos(html: str) -> list[Adjunto]:
     return out
 
 
+def parse_liquidacion(html: str, periodo: str) -> Optional[dict]:
+    """POST para /fees/expensesViewer.php del período ('2026-8'), o None si todavía no está publicado.
+
+    Las options del select #dateExp llevan la fecha de emisión en value y el período legible
+    ('Agosto 2026') como texto; se mapea por texto, que es inequívoco aun con dos emisiones
+    en el mismo mes calendario. bId y adminId salen de los hidden del form expensesView.
+    """
+    y, m = periodo.split("-")
+    texto = f"{MESES[int(m) - 1]} {int(y)}"
+    fecha = next((v for v, t in opciones_select(html, "dateExp") if t == texto), None)
+    if fecha is None:
+        return None
+    datos = {"date": fecha}
+    for campo in ("bId", "adminId"):
+        h = re.search(r'<input[^>]*name=["\']%s["\'][^>]*value=["\']([^"\']*)["\']' % campo, html)
+        if not h:
+            raise PortalError(f"no se encontró el campo {campo} en el panel de expensas; ¿cambió el portal?")
+        datos[campo] = h.group(1)
+    return datos
+
+
 def etiqueta_mes(periodo: str) -> str:
     """'2026-7' → '2026-07 Julio'."""
     y, m = periodo.split("-")
@@ -186,6 +207,19 @@ class Redconar:
         else:
             raise PortalError(f"el visor no devolvió un documento (Content-Type {ct or '?'}); ¿sesión vencida?")
         return raw, (os.path.splitext(fname)[0] if fname else "") + ext
+
+    def liquidacion(self, periodo: str) -> Optional[tuple[bytes, str]]:
+        """PDF de la liquidación del período ('2026-8') y su nombre de archivo, o None si no está publicada."""
+        raw, _ = self._req("/props/propHtml/panels/p_expensas.php")
+        datos = parse_liquidacion(raw.decode("utf-8", "ignore"), periodo)
+        if datos is None:
+            return None
+        raw, h = self._req("/fees/expensesViewer.php", datos)
+        if raw[:5] != b"%PDF-":
+            raise PortalError("el visor de expensas no devolvió un PDF; ¿sesión vencida?")
+        m = re.search(r'filename="?([^";]+)', h.get("Content-Disposition", ""))
+        a, mes = periodo.split("-")
+        return raw, (m.group(1) if m else f"{a}-{int(mes):02d}-liquidacion.pdf")
 
     def descargar_mes(self, periodo: str, carpeta: str, manifiesto: Optional[str] = None, log=print) -> list[dict]:
         """Baja todos los adjuntos del período a <carpeta>/<AAAA-MM Mes>/ y actualiza manifest.json (una fila por adjunto)."""
