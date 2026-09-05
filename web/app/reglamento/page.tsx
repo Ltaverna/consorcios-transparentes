@@ -1,17 +1,14 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import Link from "next/link";
 import ReactMarkdown from "react-markdown";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useRol } from "@/components/rol-context";
 import { api, urlReglamento } from "@/lib/api";
 import { mensajeError } from "@/lib/formato";
 
 export default function PaginaReglamento() {
-  const rol = useRol();
   const [estado, setEstado] = useState<{ pdf: boolean; transcripcion: boolean } | null>(null);
   const [texto, setTexto] = useState<string | null>(null);
   const [cargando, setCargando] = useState(true);
@@ -63,11 +60,6 @@ export default function PaginaReglamento() {
           <Card>
             <CardContent className="flex flex-col items-center gap-3 py-8 text-center">
               <p className="text-tinta-suave">El reglamento todavía no está cargado.</p>
-              {rol !== "propietario" && (
-                <Link href="/panel/consorcio" className="text-sm underline underline-offset-2 hover:opacity-80">
-                  Subirlo desde Consorcio
-                </Link>
-              )}
             </CardContent>
           </Card>
         ) : estado ? (
