@@ -48,17 +48,29 @@
 ## Artefactos publicados en claude.ai (referencia)
 - Informe de expensas agosto 2026 (id 376c810b…), app votación/asamblea (64d40cb3…), plan de producto (50335d0b…).
 
+## Producción (5/09/2026) — Plan 3 completo, EN VIVO
+- **Panel**: https://panel-consorcio.neuralcore.dev (Cloudflare Worker `panel-consorcio`, deploy `cd web && npm run deploy:cf`;
+  custom domain declarado en `web/wrangler.jsonc`). **API**: https://api-consorcio.neuralcore.dev (tunnel cloudflared
+  `consorcio`, servicio systemd `cloudflared-consorcio` — esta máquina usa el patrón un-servicio-por-tunnel).
+- **Modo provisorio en esta máquina** (decisión 5/09): en lugar de Neon/R2, Postgres 16 en contenedor + documentos a
+  disco (`CT_STORAGE_DIR=/srv/storage`), vía `docker-compose.override.yml` (fuera de git) y volúmenes en `datos-api/`.
+  Migrar a Neon/R2 después = `pg_dump`/restore + copiar `datos-api/storage` al bucket + editar `api/.env`.
+- **Datos reales cargados por la API pública**: julio y agosto 2026 procesados (cuadre 30/30 ambos), comprobantes
+  cruzados (68 y 82 documentos), informes HTML y xlsx publicados, 84 hallazgos (ago: 10 CRÍTICOS — coincide con la
+  auditoría manual), vista del propietario verificada (informe inline, xlsx descarga, comprobante con attachment).
+- **ZIP real medido**: 5–7 s (19 MB, vía Cloudflare) — el endpoint sincrónico queda como está (umbral era 90 s).
+- Usuario auditor: taverna.lucas@gmail.com. Cuenta de Cloudflare real: 115a2f9419ee3033fde16851a506c0d6 (la nota
+  anterior decía 2fc07d6…; el tunnel y el worker viven en 115a2f94…). Fase A mergeada a main: IP real tras proxy,
+  descarga forzada, `proxy.ts`, Alembic (`866ed55c8961`; orden build → migrate → up), adapter OpenNext.
+
 ## Pendientes inmediatos
-1. **Plan 3, Fase B** (operación en la máquina final, con Lucas presente): Neon + R2 + `api/.env` + docker compose +
-   tunnel cloudflared + deploy del front + smoke E2E con datos reales y medición del ZIP (checklist B1–B10 del plan;
-   runbook `docs/DEPLOY.md`). La **Fase A (código) está completa y mergeada** (5/09/2026): IP real tras proxy
-   (`CT_CONFIAR_PROXY`), descarga forzada en URLs firmadas de R2, `proxy.ts` (Next 16), baseline de Alembic
-   (revisión `866ed55c8961`, 9 tablas; orden del deploy: build → migrate → up), adapter OpenNext/Workers
-   (`cd web && npm run deploy:cf`, worker `panel-consorcio`). Suites: engine 29+2s · api 93 · web 29 + build.
-   Falta en esta máquina: copiar `~/consorcio-transparente-privado/` (hoy NO está).
-2. Segundo sistema de liquidación (hace falta un PDF de una administración que no use Redconar).
-3. Reglas por comparación con mercado (escala SUTERH, honorarios de referencia, abonos).
-4. La contraseña de Redconar se cambia al terminar el proyecto (decisión del usuario); mientras tanto `ct descargar` la pide por consola o
+1. **Triage de hallazgos en el panel**: los 84 están `pendiente`; revisar y publicar los que correspondan.
+2. **Migrar a Neon + R2** cuando Lucas cree las cuentas (hoy todo local en esta máquina; ver "Modo provisorio").
+3. **SSO de Google para los roles del equipo** (idea 5/09): no reemplaza el código por unidad de los propietarios;
+   diseño aparte, post-deploy.
+4. Segundo sistema de liquidación (hace falta un PDF de una administración que no use Redconar).
+5. Reglas por comparación con mercado (escala SUTERH, honorarios de referencia, abonos).
+6. La contraseña de Redconar se cambia al terminar el proyecto (decisión del usuario); mientras tanto `ct descargar` la pide por consola o
    la toma de `CT_REDCONAR_USUARIO` / `CT_REDCONAR_CLAVE`, sin guardarla.
 
 **Seguimiento post-merge**: pendientes de seguimiento del panel: gating por rol en la UI para consejo/moderador,
