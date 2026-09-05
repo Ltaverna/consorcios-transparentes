@@ -41,7 +41,7 @@ class LocalStorage:
         except Exception:
             logger.warning("No se pudo borrar %s del disco local", key, exc_info=True)
 
-    def url_firmada(self, key: str, segundos: int = 900) -> str | None:
+    def url_firmada(self, key: str, segundos: int = 900, descarga: bool = False) -> str | None:
         return None  # sin URL directa: la API sirve el archivo por streaming
 
 
@@ -77,9 +77,12 @@ class R2Storage:
         except Exception:
             logger.warning("No se pudo borrar %s de R2", key, exc_info=True)
 
-    def url_firmada(self, key: str, segundos: int = 900) -> str | None:
+    def url_firmada(self, key: str, segundos: int = 900, descarga: bool = False) -> str | None:
+        params = {"Bucket": self.bucket, "Key": key}
+        if descarga:
+            params["ResponseContentDisposition"] = "attachment"
         return self.s3.generate_presigned_url(
-            "get_object", Params={"Bucket": self.bucket, "Key": key}, ExpiresIn=segundos)
+            "get_object", Params=params, ExpiresIn=segundos)
 
 
 def storage_por_defecto():

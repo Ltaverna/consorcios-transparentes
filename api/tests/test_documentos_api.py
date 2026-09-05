@@ -52,3 +52,38 @@ def test_propietario_no_ve_informe_sin_publicar(db, cliente, auditor):
     cliente.post("/auth/login-unidad", json={"uf": uf, "codigo": codigo})
     assert cliente.get("/informes/2026-08/html").status_code == 404
     assert cliente.get("/mi-unidad").status_code == 404
+
+
+def test_url_firmada_pide_descarga_para_documentos_pero_no_informes(db, auditor, monkeypatch):
+    from .test_liquidaciones_api import subir
+    llamadas = []
+
+    class StorageEspia:
+        def url_firmada(self, key, segundos=900, descarga=False):
+            llamadas.append((key, descarga))
+            return "https://r2.example/" + key
+
+        def leer(self, key): return b""
+
+        def guardar(self, key, data): pass
+
+        def existe(self, key): return True
+
+        def borrar(self, key): pass
+
+    liq_id = subir(auditor).json()["id"]
+    auditor.post(f"/liquidaciones/{liq_id}/publicar")
+    d = models.Documento(liquidacion_id=liq_id, tipo="factura", archivo_key="comprobantes/2026-08/f.pdf")
+    db.add(d)
+    db.commit()
+    from app.main import app
+    espia = StorageEspia()
+    original = app.state.storage
+    app.state.storage = espia
+    try:
+        auditor.get(f"/documentos/{d.id}/contenido")
+        auditor.get("/informes/2026-08/html")
+    finally:
+        app.state.storage = original
+    assert (d.archivo_key, True) in llamadas          # documento → attachment
+    assert any(k.startswith("informes/") and not desc for k, desc in llamadas)  # informe → inline
