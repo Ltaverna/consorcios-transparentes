@@ -39,7 +39,9 @@ function SelectorEstado({
     setEnviando(true);
     try {
       await api.cambiarEstado(hallazgoId, elegido, nota);
-      toast.success("Se actualizó el estado del hallazgo");
+      toast.success("Se actualizó el estado del hallazgo", {
+        description: "Si el informe del período ya estaba publicado, volvé a publicarlo para que refleje este cambio.",
+      });
       setElegido(null);
       setNota("");
       alCambiar();
@@ -95,7 +97,9 @@ function TogglePublicar({
     setEnviando(true);
     try {
       const res = await api.publicarHallazgo(hallazgoId, !publicado);
-      toast.success(res.publicado ? "Se marcó para publicar" : "Se sacó de la publicación");
+      toast.success(res.publicado ? "Se marcó para publicar" : "Se sacó de la publicación", {
+        description: "Si el informe del período ya estaba publicado, volvé a publicarlo para que refleje este cambio.",
+      });
       alCambiar();
     } catch (err) {
       toast.error(mensajeError(err));

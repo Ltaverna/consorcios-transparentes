@@ -17,6 +17,7 @@ export function SubirLiquidacion({ alSubir }: { alSubir: () => void }) {
   const [enviando, setEnviando] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [resultado, setResultado] = useState<{ id: number; periodo: string; estado: string } | null>(null);
+  const [claveArchivo, setClaveArchivo] = useState(0);
 
   async function alEnviar(e: React.FormEvent) {
     e.preventDefault();
@@ -27,6 +28,8 @@ export function SubirLiquidacion({ alSubir }: { alSubir: () => void }) {
       const res = await api.subirLiquidacion(archivo, periodo);
       setResultado(res);
       toast.success(`Liquidación de ${res.periodo} en proceso`);
+      setArchivo(null);
+      setClaveArchivo((k) => k + 1);
       alSubir();
     } catch (err) {
       setError(mensajeError(err));
@@ -50,6 +53,7 @@ export function SubirLiquidacion({ alSubir }: { alSubir: () => void }) {
         <div className="flex flex-col gap-1.5">
           <Label htmlFor={idArchivo}>Liquidación en PDF (hasta 30 MB)</Label>
           <input
+            key={claveArchivo}
             type="file"
             accept=".pdf,.txt"
             id={idArchivo}

@@ -11,9 +11,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { SubirComprobantes } from "@/components/liquidaciones/subir-comprobantes";
+import { CHIP_BASE } from "@/components/chip-base";
 import type { LiquidacionResumen } from "@/lib/api";
 
-const BASE_CHIP = "text-[11px] font-bold px-2 py-0.5 rounded-full inline-flex items-center gap-1";
+const BASE_CHIP = `${CHIP_BASE} inline-flex items-center gap-1`;
 
 function ChipEstadoLiquidacion({ estado }: { estado: string }) {
   switch (estado) {
@@ -45,6 +46,14 @@ export function ListaLiquidaciones({
   filas: LiquidacionResumen[];
   alCambiar: () => void;
 }) {
+  if (filas.length === 0) {
+    return (
+      <p className="text-tinta-suave text-sm py-8 text-center">
+        Todavía no hay liquidaciones — subí la primera.
+      </p>
+    );
+  }
+
   return (
     <Table>
       <TableHeader>

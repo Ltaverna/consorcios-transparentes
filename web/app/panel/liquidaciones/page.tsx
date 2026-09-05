@@ -24,6 +24,7 @@ export default function LiquidacionesPage() {
   }, []);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- patrón de carga establecido; ver plan Task 12
     cargar();
   }, [cargar]);
 

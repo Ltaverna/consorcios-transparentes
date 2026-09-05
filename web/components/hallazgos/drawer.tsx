@@ -50,6 +50,7 @@ export function DrawerHallazgo({
 
   useEffect(() => {
     if (id === null) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- patrón de carga establecido; ver plan Task 12
       setDetalle(null);
       setDocumentos([]);
       setError(null);

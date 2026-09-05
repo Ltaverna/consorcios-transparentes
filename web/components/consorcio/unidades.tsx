@@ -55,6 +55,14 @@ export function TablaUnidades({
     }
   }
 
+  if (unidades.length === 0) {
+    return (
+      <p className="text-tinta-suave text-sm py-8 text-center">
+        Las unidades aparecen al procesar la primera liquidación.
+      </p>
+    );
+  }
+
   return (
     <>
       <Table>

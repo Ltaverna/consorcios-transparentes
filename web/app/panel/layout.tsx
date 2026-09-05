@@ -15,8 +15,8 @@ export default async function PanelLayout({ children }: { children: React.ReactN
   }
   return (
     <div className="flex min-h-screen">
-      <Sidebar rol={yo.rol} nombre={yo.rol} pendientes={pendientes} activa="" />
-      <main className="flex-1 p-6">{children}</main>
+      <Sidebar rol={yo.rol} nombre={yo.nombre || yo.rol} pendientes={pendientes} activa="" />
+      <main className="flex-1 min-w-0 p-6 pt-14 md:pt-6">{children}</main>
     </div>
   );
 }

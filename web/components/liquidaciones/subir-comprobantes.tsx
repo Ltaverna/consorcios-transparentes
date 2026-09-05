@@ -45,8 +45,16 @@ export function SubirComprobantes({
     }
   }
 
+  function alAbrir(abierto: boolean) {
+    if (abierto) {
+      setArchivo(null);
+      setError(null);
+      setResultado(null);
+    }
+  }
+
   return (
-    <Dialog>
+    <Dialog onOpenChange={alAbrir}>
       <DialogTrigger render={<Button variant="outline" size="sm" />}>
         Comprobantes
       </DialogTrigger>

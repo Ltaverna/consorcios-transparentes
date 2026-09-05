@@ -87,7 +87,7 @@ export default function PaginaMiUnidad() {
                   </div>
                   <div>
                     <div className="text-xs text-tinta-suave">Deuda</div>
-                    <div className={`text-lg font-semibold tabular-nums ${datos.estado_cuenta.deuda > 0 ? "text-[#B42318]" : "text-green-600"}`}>
+                    <div className={`text-lg font-semibold tabular-nums ${datos.estado_cuenta.deuda > 0 ? "text-[#B42318]" : "text-exito"}`}>
                       {datos.estado_cuenta.deuda > 0 ? moneda(datos.estado_cuenta.deuda) : "Sin deuda"}
                     </div>
                   </div>

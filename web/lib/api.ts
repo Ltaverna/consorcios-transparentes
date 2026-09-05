@@ -46,6 +46,7 @@ export type Rol = "auditor" | "consejo" | "moderador" | "propietario";
 export interface Yo {
   rol: Rol;
   uf?: number;
+  nombre?: string;
 }
 
 export interface LiquidacionResumen {

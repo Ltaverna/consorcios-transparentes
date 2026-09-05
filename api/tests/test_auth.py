@@ -5,6 +5,7 @@ def test_login_y_yo(auditor):
     r = auditor.get("/auth/yo")
     assert r.status_code == 200
     assert r.json()["rol"] == "auditor"
+    assert r.json()["nombre"] == "Auditor"
 
 
 def test_login_clave_incorrecta(db, cliente):

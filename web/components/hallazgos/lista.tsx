@@ -13,6 +13,10 @@ export function ListaHallazgos({
   filas: HallazgoResumen[];
   alAbrir: (id: number) => void;
 }) {
+  if (filas.length === 0) {
+    return <p className="text-tinta-suave text-sm py-8 text-center">No hay hallazgos con estos filtros.</p>;
+  }
+
   return (
     <div className="flex flex-col gap-2">
       {filas.map((fila) => (
@@ -38,7 +42,7 @@ export function ListaHallazgos({
             <span>·</span>
             <ChipEstado estado={fila.estado} />
             {fila.publicado && (
-              <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-[#DCFCE7] text-[#0E7A4E]">
+              <span className="text-[11px] font-bold px-2 py-0.5 rounded-full border border-[#0E7A4E] text-[#0E7A4E] bg-white">
                 publicado
               </span>
             )}

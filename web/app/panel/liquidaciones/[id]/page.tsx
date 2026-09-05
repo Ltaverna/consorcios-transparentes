@@ -31,12 +31,14 @@ function PublicarInforme({
   periodo: string;
   alPublicar: () => void;
 }) {
+  const [abierto, setAbierto] = useState(false);
   const [cargando, setCargando] = useState(false);
   const [hallazgos, setHallazgos] = useState<HallazgoResumen[] | null>(null);
   const [publicando, setPublicando] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   async function alAbrir(abierto: boolean) {
+    setAbierto(abierto);
     if (!abierto) return;
     setError(null);
     setHallazgos(null);
@@ -57,6 +59,7 @@ function PublicarInforme({
     try {
       const res = await api.publicarLiquidacion(liquidacionId);
       toast.success(`Se publicaron ${res.hallazgos_publicados} hallazgos`);
+      setAbierto(false);
       alPublicar();
     } catch (err) {
       setError(mensajeError(err));
@@ -68,7 +71,7 @@ function PublicarInforme({
   const publicados = hallazgos?.filter((h) => h.publicado) ?? [];
 
   return (
-    <Dialog onOpenChange={alAbrir}>
+    <Dialog open={abierto} onOpenChange={alAbrir}>
       <DialogTrigger render={<Button />}>Publicar informe</DialogTrigger>
       <DialogContent>
         <DialogHeader>
@@ -97,7 +100,7 @@ function PublicarInforme({
             {error}
           </p>
         )}
-        <Button onClick={confirmar} disabled={publicando || cargando}>
+        <Button onClick={confirmar} disabled={publicando || cargando || !!error}>
           {publicando ? "Publicando…" : "Confirmar"}
         </Button>
       </DialogContent>
@@ -137,6 +140,7 @@ export default function LiquidacionDetallePage({
   }, [params]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- patrón de carga establecido; ver plan Task 12
     cargar();
   }, [cargar]);
 

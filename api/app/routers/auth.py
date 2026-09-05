@@ -61,8 +61,11 @@ def salir(response: Response):
 
 
 @router.get("/yo")
-def yo(s: dict = Depends(security.sesion)):
+def yo(s: dict = Depends(security.sesion), db: Session = Depends(get_db)):
     out = {"rol": s["rol"]}
     if s["sub"].startswith("uf:"):
         out["uf"] = int(s["sub"][3:])
+    elif s["sub"].startswith("u:"):
+        u = db.query(models.Usuario).filter_by(id=int(s["sub"][2:])).first()
+        out["nombre"] = u.nombre if u else ""
     return out
