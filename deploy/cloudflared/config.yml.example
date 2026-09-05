@@ -1,0 +1,8 @@
+# Copiar a ./cloudflared/config.yml junto con el JSON de credenciales del tunnel
+# (de ~/.cloudflared/<id>.json). El id del tunnel "consorcio" es f35df675-d3d7-4ee3-8f50-4bdaf3afb11a.
+tunnel: f35df675-d3d7-4ee3-8f50-4bdaf3afb11a
+credentials-file: /etc/cloudflared/f35df675-d3d7-4ee3-8f50-4bdaf3afb11a.json
+ingress:
+  - hostname: api-consorcio.neuralcore.dev
+    service: http://api:8080
+  - service: http_status:404
