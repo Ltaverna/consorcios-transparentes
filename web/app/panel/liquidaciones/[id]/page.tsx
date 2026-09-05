@@ -11,11 +11,12 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DetalleLiquidacion } from "@/components/liquidaciones/detalle";
+import { mensajeError } from "@/lib/formato";
 import {
   api,
-  ApiError,
   type DocumentoInfo,
   type HallazgoResumen,
   type LiquidacionDetalle,
@@ -44,7 +45,7 @@ function PublicarInforme({
       const res = await api.listarHallazgos({ periodo });
       setHallazgos(res);
     } catch (err) {
-      setError(err instanceof ApiError ? err.detail : "No se pudo conectar con el servidor");
+      setError(mensajeError(err));
     } finally {
       setCargando(false);
     }
@@ -58,7 +59,7 @@ function PublicarInforme({
       toast.success(`Se publicaron ${res.hallazgos_publicados} hallazgos`);
       alPublicar();
     } catch (err) {
-      setError(err instanceof ApiError ? err.detail : "No se pudo conectar con el servidor");
+      setError(mensajeError(err));
     } finally {
       setPublicando(false);
     }
@@ -112,9 +113,11 @@ export default function LiquidacionDetallePage({
   const [detalle, setDetalle] = useState<LiquidacionDetalle | null>(null);
   const [documentos, setDocumentos] = useState<DocumentoInfo[]>([]);
   const [cargando, setCargando] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const cargar = useCallback(async () => {
     setCargando(true);
+    setError(null);
     try {
       const { id } = await params;
       const liquidacionId = Number(id);
@@ -125,7 +128,9 @@ export default function LiquidacionDetallePage({
       setDetalle(det);
       setDocumentos(docs);
     } catch (err) {
-      toast.error(err instanceof ApiError ? err.detail : "No se pudo conectar con el servidor");
+      const mensaje = mensajeError(err);
+      toast.error(mensaje);
+      setError(mensaje);
     } finally {
       setCargando(false);
     }
@@ -140,13 +145,22 @@ export default function LiquidacionDetallePage({
       <Link href="/panel/liquidaciones" className="text-sm underline">
         ← Liquidaciones
       </Link>
-      {cargando || !detalle ? (
+      {cargando ? (
         <div className="flex flex-col gap-2">
           <Skeleton className="h-8 w-64" />
           <Skeleton className="h-24 w-full" />
           <Skeleton className="h-64 w-full" />
         </div>
-      ) : (
+      ) : error ? (
+        <Card>
+          <CardContent className="flex flex-col items-center gap-3 py-8 text-center">
+            <p className="text-tinta-suave">{error}</p>
+            <Button variant="outline" onClick={cargar}>
+              Reintentar
+            </Button>
+          </CardContent>
+        </Card>
+      ) : detalle ? (
         <>
           <div className="flex items-center justify-between">
             <h1 className="font-titulos text-xl font-bold">Liquidación {detalle.periodo}</h1>
@@ -160,7 +174,7 @@ export default function LiquidacionDetallePage({
           </div>
           <DetalleLiquidacion detalle={detalle} documentos={documentos} />
         </>
-      )}
+      ) : null}
     </div>
   );
 }

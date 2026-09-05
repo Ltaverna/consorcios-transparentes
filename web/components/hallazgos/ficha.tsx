@@ -10,20 +10,15 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { ChipSeveridad } from "@/components/severidad";
 import { ChipEstado } from "@/components/estado-hallazgo";
-import { moneda, fecha } from "@/lib/formato";
+import { moneda, fecha, mensajeError } from "@/lib/formato";
 import {
   api,
-  ApiError,
   urlContenidoDocumento,
   type DocumentoInfo,
   type HallazgoDetalle,
 } from "@/lib/api";
 
 const ESTADOS = ["pendiente", "preguntado", "respondido", "descartado", "cerrado"] as const;
-
-function mensajeError(err: unknown): string {
-  return err instanceof ApiError ? err.detail : "No se pudo conectar con el servidor";
-}
 
 function SelectorEstado({
   hallazgoId,

@@ -9,7 +9,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FormularioUmbrales } from "@/components/consorcio/umbrales";
 import { TablaUnidades } from "@/components/consorcio/unidades";
-import { api, ApiError, type ConsorcioInfo, type UnidadFila } from "@/lib/api";
+import { mensajeError } from "@/lib/formato";
+import { api, type ConsorcioInfo, type UnidadFila } from "@/lib/api";
 
 const CAMPOS_DATOS: { clave: keyof Omit<ConsorcioInfo, "umbrales" | "umbrales_default">; etiqueta: string }[] = [
   { clave: "nombre", etiqueta: "Nombre" },
@@ -24,11 +25,13 @@ export default function ConsorcioPage() {
   const [consorcio, setConsorcio] = useState<ConsorcioInfo | null>(null);
   const [unidades, setUnidades] = useState<UnidadFila[]>([]);
   const [cargando, setCargando] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [datos, setDatos] = useState<Record<string, string>>({});
   const [guardandoDatos, setGuardandoDatos] = useState(false);
 
   const cargar = useCallback(async () => {
     setCargando(true);
+    setError(null);
     try {
       const [info, filas] = await Promise.all([api.verConsorcio(), api.listarUnidades()]);
       setConsorcio(info);
@@ -37,7 +40,9 @@ export default function ConsorcioPage() {
         Object.fromEntries(CAMPOS_DATOS.map(({ clave }) => [clave, String(info[clave] ?? "")]))
       );
     } catch (err) {
-      toast.error(err instanceof ApiError ? err.detail : "No se pudo conectar con el servidor");
+      const mensaje = mensajeError(err);
+      toast.error(mensaje);
+      setError(mensaje);
     } finally {
       setCargando(false);
     }
@@ -55,7 +60,7 @@ export default function ConsorcioPage() {
       toast.success("Datos guardados");
       cargar();
     } catch (err) {
-      toast.error(err instanceof ApiError ? err.detail : "No se pudo conectar con el servidor");
+      toast.error(mensajeError(err));
     } finally {
       setGuardandoDatos(false);
     }
@@ -65,13 +70,22 @@ export default function ConsorcioPage() {
     <div className="flex flex-col gap-4">
       <h1 className="font-titulos text-xl font-bold">Consorcio</h1>
 
-      {cargando || !consorcio ? (
+      {cargando ? (
         <div className="flex flex-col gap-2">
           <Skeleton className="h-24 w-full" />
           <Skeleton className="h-24 w-full" />
           <Skeleton className="h-24 w-full" />
         </div>
-      ) : (
+      ) : error ? (
+        <Card>
+          <CardContent className="flex flex-col items-center gap-3 py-8 text-center">
+            <p className="text-tinta-suave">{error}</p>
+            <Button variant="outline" onClick={cargar}>
+              Reintentar
+            </Button>
+          </CardContent>
+        </Card>
+      ) : consorcio ? (
         <>
           <Card>
             <CardHeader>
@@ -120,7 +134,7 @@ export default function ConsorcioPage() {
             </CardContent>
           </Card>
         </>
-      )}
+      ) : null}
     </div>
   );
 }

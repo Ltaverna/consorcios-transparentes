@@ -24,3 +24,13 @@ test("la página carga el hallazgo con evidencia e historial", async () => {
   // visor lado a lado: dos iframes (factura y pago del gasto 2)
   expect(document.querySelectorAll("iframe").length).toBe(2);
 });
+
+test("un 404 muestra un error visible con reintentar", async () => {
+  servidor.use(
+    http.get(`${API}/hallazgos/9`, () =>
+      HttpResponse.json({ detail: "No existe ese hallazgo" }, { status: 404 })),
+    http.get(`${API}/documentos`, () => HttpResponse.json([])));
+  render(<PaginaHallazgo params={Promise.resolve({ id: "9" })} />);
+  expect(await screen.findByText("No existe ese hallazgo")).toBeInTheDocument();
+  expect(screen.getByRole("button", { name: /Reintentar/ })).toBeInTheDocument();
+});

@@ -5,7 +5,8 @@ import { toast } from "sonner";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { api, ApiError } from "@/lib/api";
+import { api } from "@/lib/api";
+import { mensajeError } from "@/lib/formato";
 
 /** Tarjeta para subir el PDF de una liquidación y disparar su procesamiento. */
 export function SubirLiquidacion({ alSubir }: { alSubir: () => void }) {
@@ -28,7 +29,7 @@ export function SubirLiquidacion({ alSubir }: { alSubir: () => void }) {
       toast.success(`Liquidación de ${res.periodo} en proceso`);
       alSubir();
     } catch (err) {
-      setError(err instanceof ApiError ? err.detail : "No se pudo conectar con el servidor");
+      setError(mensajeError(err));
     } finally {
       setEnviando(false);
     }

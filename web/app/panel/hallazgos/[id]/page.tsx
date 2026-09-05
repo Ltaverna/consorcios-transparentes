@@ -3,10 +3,13 @@
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { FichaHallazgo } from "@/components/hallazgos/ficha";
 import { documentosDelHallazgo } from "@/components/hallazgos/documentos-de";
-import { api, ApiError, type DocumentoInfo, type HallazgoDetalle } from "@/lib/api";
+import { mensajeError } from "@/lib/formato";
+import { api, type DocumentoInfo, type HallazgoDetalle } from "@/lib/api";
 
 export default function PaginaHallazgo({
   params,
@@ -16,9 +19,11 @@ export default function PaginaHallazgo({
   const [detalle, setDetalle] = useState<HallazgoDetalle | null>(null);
   const [documentos, setDocumentos] = useState<DocumentoInfo[]>([]);
   const [cargando, setCargando] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const cargar = useCallback(async () => {
     setCargando(true);
+    setError(null);
     try {
       const { id } = await params;
       const det = await api.detalleHallazgo(Number(id));
@@ -26,7 +31,9 @@ export default function PaginaHallazgo({
       setDetalle(det);
       setDocumentos(docs);
     } catch (err) {
-      toast.error(err instanceof ApiError ? err.detail : "No se pudo conectar con el servidor");
+      const mensaje = mensajeError(err);
+      toast.error(mensaje);
+      setError(mensaje);
     } finally {
       setCargando(false);
     }
@@ -43,20 +50,29 @@ export default function PaginaHallazgo({
       <Link href="/panel/hallazgos" className="text-sm underline">
         ← Hallazgos
       </Link>
-      {cargando || !detalle ? (
+      {cargando ? (
         <div className="flex flex-col gap-2">
           <Skeleton className="h-8 w-64" />
           <Skeleton className="h-24 w-full" />
           <Skeleton className="h-64 w-full" />
         </div>
-      ) : (
+      ) : error ? (
+        <Card>
+          <CardContent className="flex flex-col items-center gap-3 py-8 text-center">
+            <p className="text-tinta-suave">{error}</p>
+            <Button variant="outline" onClick={cargar}>
+              Reintentar
+            </Button>
+          </CardContent>
+        </Card>
+      ) : detalle ? (
         <FichaHallazgo
           detalle={detalle}
           documentos={docsDelHallazgo}
           alCambiar={cargar}
           conVisor
         />
-      )}
+      ) : null}
     </div>
   );
 }

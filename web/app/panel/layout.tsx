@@ -9,7 +9,8 @@ export default async function PanelLayout({ children }: { children: React.ReactN
   let pendientes = 0;
   try {
     pendientes = (await pedirServidor<HallazgoResumen[]>("/hallazgos?estado=pendiente")).length;
-  } catch {
+  } catch (e) {
+    if ((e as { digest?: string })?.digest?.startsWith?.("NEXT_REDIRECT")) throw e;
     // el contador no puede tirar el panel
   }
   return (

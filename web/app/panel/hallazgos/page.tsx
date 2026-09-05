@@ -7,9 +7,9 @@ import { Kpi } from "@/components/kpi";
 import { ListaHallazgos } from "@/components/hallazgos/lista";
 import { DrawerHallazgo } from "@/components/hallazgos/drawer";
 import { cn } from "@/lib/utils";
+import { mensajeError } from "@/lib/formato";
 import {
   api,
-  ApiError,
   type HallazgoResumen,
   type LiquidacionResumen,
 } from "@/lib/api";
@@ -90,7 +90,7 @@ export default function HallazgosPage() {
       });
       setFilas(res);
     } catch (err) {
-      toast.error(err instanceof ApiError ? err.detail : "No se pudo conectar con el servidor");
+      toast.error(mensajeError(err));
     } finally {
       setCargando(false);
     }
@@ -104,7 +104,7 @@ export default function HallazgosPage() {
     api
       .listarLiquidaciones()
       .then(setLiquidaciones)
-      .catch((err) => toast.error(err instanceof ApiError ? err.detail : "No se pudo conectar con el servidor"));
+      .catch((err) => toast.error(mensajeError(err)));
   }, []);
 
   const periodos = Array.from(new Set(liquidaciones.map((l) => l.periodo))).sort().reverse();

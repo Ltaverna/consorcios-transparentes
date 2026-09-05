@@ -5,7 +5,8 @@ import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SubirLiquidacion } from "@/components/liquidaciones/subir-liquidacion";
 import { ListaLiquidaciones } from "@/components/liquidaciones/lista";
-import { api, ApiError, type LiquidacionResumen } from "@/lib/api";
+import { mensajeError } from "@/lib/formato";
+import { api, type LiquidacionResumen } from "@/lib/api";
 
 export default function LiquidacionesPage() {
   const [filas, setFilas] = useState<LiquidacionResumen[]>([]);
@@ -16,7 +17,7 @@ export default function LiquidacionesPage() {
       const res = await api.listarLiquidaciones();
       setFilas(res);
     } catch (err) {
-      toast.error(err instanceof ApiError ? err.detail : "No se pudo conectar con el servidor");
+      toast.error(mensajeError(err));
     } finally {
       setCargando(false);
     }

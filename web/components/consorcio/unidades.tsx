@@ -12,7 +12,8 @@ import {
 } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { api, ApiError, type UnidadFila } from "@/lib/api";
+import { api, type UnidadFila } from "@/lib/api";
+import { mensajeError } from "@/lib/formato";
 
 /** Tabla de unidades funcionales con generación de códigos de acceso (se muestran una sola vez). */
 export function TablaUnidades({
@@ -31,7 +32,7 @@ export function TablaUnidades({
       const res = await api.generarCodigo(uf);
       setCodigo(res);
     } catch (err) {
-      toast.error(err instanceof ApiError ? err.detail : "No se pudo conectar con el servidor");
+      toast.error(mensajeError(err));
     } finally {
       setCargando(null);
     }

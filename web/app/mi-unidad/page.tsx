@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { api, ApiError, urlInforme, type MiUnidad } from "@/lib/api";
-import { moneda } from "@/lib/formato";
+import { moneda, mensajeError } from "@/lib/formato";
 
 export default function PaginaMiUnidad() {
   const [datos, setDatos] = useState<MiUnidad | null>(null);
@@ -22,7 +22,7 @@ export default function PaginaMiUnidad() {
         if (err instanceof ApiError && err.status === 404) {
           setError(err.detail);
         } else {
-          const mensaje = err instanceof ApiError ? err.detail : "No se pudo conectar con el servidor";
+          const mensaje = mensajeError(err);
           toast.error(mensaje);
           setError(mensaje);
         }

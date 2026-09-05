@@ -1,3 +1,13 @@
+import { ApiError } from "@/lib/api";
+
+/**
+ * Mensaje de error legible para mostrar al usuario: el detalle de la API si
+ * lo hay, o un mensaje genérico de conexión.
+ */
+export function mensajeError(err: unknown): string {
+  return err instanceof ApiError ? err.detail : "No se pudo conectar con el servidor";
+}
+
 /**
  * Formatea un número como moneda en pesos argentinos (es-AR).
  * Sin decimales si el valor es entero; con hasta 2 decimales si no lo es.

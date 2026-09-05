@@ -5,7 +5,8 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { api, ApiError, type Rol } from "@/lib/api";
+import { api, type Rol } from "@/lib/api";
+import { mensajeError } from "@/lib/formato";
 
 function MensajeError({ mensaje }: { mensaje: string | null }) {
   if (!mensaje) return null;
@@ -30,7 +31,7 @@ function FormEquipo({ alEntrar }: { alEntrar: (rol: Rol) => void }) {
       const res = await api.login(email, clave);
       alEntrar(res.rol);
     } catch (err) {
-      setError(err instanceof ApiError ? err.detail : "No se pudo conectar con el servidor");
+      setError(mensajeError(err));
     } finally {
       setEnviando(false);
     }
@@ -80,7 +81,7 @@ function FormPropietario({ alEntrar }: { alEntrar: (rol: Rol) => void }) {
       const res = await api.loginUnidad(Number(uf), codigo);
       alEntrar(res.rol);
     } catch (err) {
-      setError(err instanceof ApiError ? err.detail : "No se pudo conectar con el servidor");
+      setError(mensajeError(err));
     } finally {
       setEnviando(false);
     }

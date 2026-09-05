@@ -10,7 +10,8 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { api, ApiError } from "@/lib/api";
+import { api } from "@/lib/api";
+import { mensajeError } from "@/lib/formato";
 
 /** Botón + diálogo para subir el ZIP de comprobantes de una liquidación y cruzarlos. */
 export function SubirComprobantes({
@@ -38,7 +39,7 @@ export function SubirComprobantes({
       setResultado(res);
       alCambiar();
     } catch (err) {
-      setError(err instanceof ApiError ? err.detail : "No se pudo conectar con el servidor");
+      setError(mensajeError(err));
     } finally {
       setEnviando(false);
     }
