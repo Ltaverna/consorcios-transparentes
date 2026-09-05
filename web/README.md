@@ -1,9 +1,21 @@
-# Consorcio Transparente — Panel web
+# Panel web (Consorcio Transparente)
 
-Panel de auditoría de expensas (Next.js + shadcn/ui). Consume la API de `../api`.
+Next.js + Tailwind + shadcn/ui sobre la API (`api/`). Theme institucional claro (spec en
+`docs/superpowers/specs/2026-09-04-panel-web-design.md`).
 
-- Instalar: `npm install`
-- Desarrollo: `npm run dev` (necesita la API corriendo en local, ver `.env.local.example`)
-- Tests: `npm test`
+## Desarrollo
+    npm install
+    cp .env.local.example .env.local        # apunta a la API (dev: http://localhost:8080)
+    npm run dev                              # necesita la API corriendo (ver api/README.md)
+    npm test                                 # Vitest + Testing Library (API mockeada con MSW)
 
-La Tarea 12 completa esta documentación.
+## Rutas
+`/entrar` (equipo o propietario) · `/panel/hallazgos` (triage con drawer; ficha linkeable en
+`/panel/hallazgos/[id]`) · `/panel/liquidaciones` (subir PDF y ZIP de comprobantes; detalle con
+cuadre y gastos) · `/panel/consorcio` (umbrales, unidades, códigos, publicar informe) ·
+`/mi-unidad` (propietario: informe embebido + estado de cuenta).
+
+## Notas
+- `middleware.ts` usa la convención deprecada en Next 16 (aviso de build); migrar a `proxy.ts` en el deploy.
+- Deploy (Plan 3): Cloudflare Workers vía OpenNext como `panel-consorcio.neuralcore.dev`, mismo sitio que la API
+  (`api-consorcio.neuralcore.dev`) para que viaje la cookie de sesión.

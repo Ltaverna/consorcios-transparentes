@@ -7,6 +7,11 @@
   (también en el reproceso: no_cuadra limpia y despublica, reprocesar retira informes); comprobantes por ZIP con
   cruce; publicación de informes HTML/Excel a storage (R2 o disco); vista del propietario. 88 pruebas de API +
   29 del motor. Ver `api/README.md`. Spec: `docs/superpowers/specs/2026-09-04-panel-rivadavia-design.md`.
+- **Panel web** (`web/`, rama `panel-web`): Next.js + Tailwind + shadcn/ui, theme institucional claro elegido con
+  mockups. Login doble (equipo y código de unidad), liquidaciones con subida de PDF/ZIP y detalle con cuadre,
+  hallazgos con filtros/drawer/página propia y acciones de auditor, consorcio (umbrales, códigos), vista del
+  propietario con informe embebido. 28 pruebas (Vitest+MSW). Ver `web/README.md`. Deploy: `docs/DEPLOY.md` (API)
+  + Plan 3 pendiente para el front.
 - **Motor** (`engine/ct`): parser de liquidaciones Redconar/"Mis Expensas" (formatos 2024 y 2025+), ~30 verificaciones de cuadre,
   reglas de detección (`rules.py`, catálogo en `docs/reglas.md`), cruce de comprobantes factura ↔ pago ↔ liquidación (`comprobantes.py`),
   descarga de comprobantes desde el portal (`portal.py`, comando `ct descargar`), informe Excel y HTML con marca (`informe.py`).
@@ -43,8 +48,8 @@
 - Informe de expensas agosto 2026 (id 376c810b…), app votación/asamblea (64d40cb3…), plan de producto (50335d0b…).
 
 ## Pendientes inmediatos
-1. **Plan 2: front Next.js del panel** (`panel-consorcio.neuralcore.dev`, usar la skill ui-ux-pro-max) y
-   **Plan 3: deploy** (tunnel cloudflared o Fly, Neon, R2, Alembic, IP real en rate limit). La API (Plan 1) está hecha en la rama `panel-api`.
+1. Solo falta el **Plan 3: deploy** (tunnel cloudflared con `docs/DEPLOY.md`, front a Cloudflare, Neon/R2, Alembic,
+   IP real, migrar middleware→proxy, medir ZIP real).
 2. Segundo sistema de liquidación (hace falta un PDF de una administración que no use Redconar).
 3. Reglas por comparación con mercado (escala SUTERH, honorarios de referencia, abonos).
 4. La contraseña de Redconar se cambia al terminar el proyecto (decisión del usuario); mientras tanto `ct descargar` la pide por consola o
