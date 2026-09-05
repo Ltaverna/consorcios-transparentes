@@ -45,3 +45,12 @@ def test_login_rate_limit_429(db, cliente):
         cliente.post("/auth/login", json={"email": "r@example.com", "clave": "mala"})
     r = cliente.post("/auth/login", json={"email": "r@example.com", "clave": "clave-larga-1"})
     assert r.status_code == 429
+
+
+def test_cookie_con_dominio_configurado(db, cliente, monkeypatch):
+    from app.config import settings
+    from app import admin
+    monkeypatch.setattr(settings, "cookie_dominio", ".neuralcore.dev")
+    admin.crear_usuario(db, "d@example.com", "D", "auditor", "clave-de-test")
+    r = cliente.post("/auth/login", json={"email": "d@example.com", "clave": "clave-de-test"})
+    assert "domain=.neuralcore.dev" in r.headers.get("set-cookie", "").lower()

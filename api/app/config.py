@@ -7,6 +7,7 @@ class Settings(BaseSettings):
     jwt_secret: str = "solo-para-desarrollo"
     jwt_horas: int = 12
     cookie_segura: bool = False              # True en producción (HTTPS)
+    cookie_dominio: str = ""                 # vacío = cookie host-only (dev); en prod, dominio compartido
     r2_endpoint: str = ""
     r2_access_key: str = ""
     r2_secret_key: str = ""

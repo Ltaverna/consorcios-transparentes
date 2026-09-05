@@ -23,6 +23,9 @@ cp api/.env.example api/.env    # completar (ver abajo)
 - `CT_R2_*`: credenciales del bucket R2 (privado). Sin R2, setear `CT_STORAGE_DIR` (modo local).
 - `CT_CORS_ORIGIN=https://panel-consorcio.neuralcore.dev`
 - `CT_COOKIE_SEGURA=true`
+- `CT_COOKIE_DOMINIO=.neuralcore.dev` — front y API viven en subdominios distintos (`panel-consorcio` y
+  `api-consorcio`); sin esto la cookie queda host-only y el panel nunca la recibe, lo que produce un loop
+  infinito de redirects al login.
 
 **Guardas de arranque**: con R2 configurado, la API se niega a arrancar si `CT_JWT_SECRET` sigue en el
 default o si `CT_COOKIE_SEGURA` no está en true. Es intencional.
