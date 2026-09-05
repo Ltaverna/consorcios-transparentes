@@ -18,7 +18,8 @@ panel (transcripción legible + PDF escaneado como fuente de fe), y acceso de so
 - Página nueva protegida por sesión (agregar `/reglamento` al matcher de `web/proxy.ts`).
 - Renderiza la transcripción con `react-markdown` (dependencia nueva del front), conservando la advertencia
   de la transcripción ("verificar toda cita contra el PDF original"); botón "Descargar el PDF escaneado".
-- Si no hay reglamento cargado: mensaje "todavía no está cargado" (el equipo además ve el link a Consorcio).
+- Si no hay reglamento cargado: mensaje "todavía no está cargado" (sin link a Consorcio: la página vive
+  fuera del layout del panel y no conoce el rol; el equipo sabe dónde se sube).
 - Entradas: tarjeta/link en `/mi-unidad` y ítem "Reglamento" en el sidebar del panel.
 - En `/panel/consorcio` (solo auditor, mismo gating por rol existente): sección para subir/reemplazar
   los dos archivos.
