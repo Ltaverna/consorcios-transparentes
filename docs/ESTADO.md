@@ -69,6 +69,15 @@
   del auditor en Consorcio), y los propietarios ven los hallazgos publicados en `/mi-unidad` con sus
   comprobantes descargables (solo refs de origen "comprobantes" — el review cazó la colisión con las UFs
   de morosidad). Tests: api 106 · web 40.
+- **Reglas de mercado + normativa + PWA** (5/09, rama `reglas-mercado`; spec
+  `docs/superpowers/specs/2026-09-05-reglas-mercado-design.md`): tres reglas nuevas del motor calibradas
+  contra los gastos reales (`sueldo_mercado` con detección de SAC, `honorarios_mercado`, `abonos_mercado`
+  con exclusión de pólizas) — referencias en la Config del panel, 0 = apagada; biblioteca de normativa
+  (escala SUTERH/acuerdo/honorarios, legible por cualquier sesión, subida del auditor); visor embebido
+  para propietarios en hallazgos publicados; panel instalable como PWA (manifest + monograma CT).
+  Pendiente operativo: cargar los valores de referencia vigentes (validados por Lucas) y reprocesar.
+  La transcripción del reglamento fue revisada contra el escaneo (5/09): porcentuales reconstruidos
+  suman 100,0000% exacto; re-subir al panel.
 - **Portabilidad total en compose** (5/09, rama `portabilidad-compose`; spec
   `docs/superpowers/specs/2026-09-05-portabilidad-compose-design.md`): el stack entero (API + Postgres +
   worker + tunnel) corre con `docker compose up -d`; la sincronización diaria vive en el servicio `worker`
