@@ -81,6 +81,26 @@ class RateLimiter:
 
 limiter_login = RateLimiter()
 
+_JWKS_GOOGLE = jwt.PyJWKClient("https://www.googleapis.com/oauth2/v3/certs")
+
+
+def verificar_id_token_google(credential: str) -> str:
+    """Valida el ID token del botón de Google y devuelve el email (en minúsculas).
+
+    Firma RS256 contra las JWKS de Google, audiencia = nuestro client ID, issuer de Google
+    y email verificado. Cualquier falla es 401: al usuario no le sirve saber el detalle."""
+    try:
+        clave = _JWKS_GOOGLE.get_signing_key_from_jwt(credential)
+        datos = jwt.decode(credential, clave.key, algorithms=["RS256"],
+                           audience=settings.google_client_id)
+        if datos.get("iss") not in ("accounts.google.com", "https://accounts.google.com"):
+            raise ValueError("issuer desconocido")
+        if not datos.get("email_verified"):
+            raise ValueError("email sin verificar")
+        return datos["email"].lower()
+    except Exception:
+        raise HTTPException(401, "No pudimos validar la cuenta de Google")
+
 
 def ip_cliente(request: Request) -> str:
     """IP real del cliente. Detrás del tunnel de Cloudflare (CT_CONFIAR_PROXY=true),

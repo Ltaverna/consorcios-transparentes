@@ -21,6 +21,10 @@ class LoginUnidad(BaseModel):
     codigo: str
 
 
+class LoginGoogle(BaseModel):
+    credential: str
+
+
 def _entrar(response: Response, sub: str, rol: str) -> None:
     response.set_cookie(security.COOKIE, security.crear_token(sub, rol), httponly=True,
                         samesite="lax", secure=settings.cookie_segura,
@@ -51,6 +55,20 @@ def login_unidad(datos: LoginUnidad, request: Request, response: Response, db: S
         raise HTTPException(401, "Unidad o código incorrectos")
     _entrar(response, f"uf:{unidad.uf}", "propietario")
     return {"rol": "propietario", "uf": unidad.uf, "piso_depto": unidad.piso_depto}
+
+
+@router.post("/login-google")
+def login_google(datos: LoginGoogle, request: Request, response: Response, db: Session = Depends(get_db)):
+    if not settings.google_client_id:
+        raise HTTPException(404, "SSO de Google no configurado")
+    if not security.limiter_login.permitir(f"{security.ip_cliente(request)}|google"):
+        raise HTTPException(429, "Demasiados intentos; probá de nuevo en unos minutos")
+    email = security.verificar_id_token_google(datos.credential)
+    u = db.query(models.Usuario).filter_by(email=email).first()
+    if not u:
+        raise HTTPException(403, "Esa cuenta no tiene acceso; pedile al auditor que te dé de alta")
+    _entrar(response, f"u:{u.id}", u.rol)
+    return {"rol": u.rol, "nombre": u.nombre}
 
 
 @router.post("/salir")
