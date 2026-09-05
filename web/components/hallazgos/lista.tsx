@@ -27,14 +27,14 @@ export function ListaHallazgos({
               alAbrir(fila.id);
             }
           }}
-          className="bg-white border border-borde-suave rounded-lg p-3 cursor-pointer hover:border-[#123A5C] transition-colors"
+          className="bg-white border border-borde-suave rounded-lg p-3 cursor-pointer hover:border-[#123A5C] transition-colors outline-none focus-visible:ring-2 focus-visible:ring-[#123A5C]"
         >
           <div className="flex items-center gap-2">
             <ChipSeveridad severidad={fila.severidad} />
             <span className="font-semibold">{fila.titulo}</span>
           </div>
           <div className="text-sm text-tinta-suave flex items-center gap-2 mt-1">
-            <span>{moneda(fila.monto)}</span>
+            <span className="tabular-nums">{moneda(fila.monto)}</span>
             <span>·</span>
             <ChipEstado estado={fila.estado} />
             {fila.publicado && (

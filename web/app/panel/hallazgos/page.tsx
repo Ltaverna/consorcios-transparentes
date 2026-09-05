@@ -31,7 +31,7 @@ function ChipFiltro({
       type="button"
       onClick={onClick}
       className={cn(
-        "rounded-full px-3 py-1 text-sm border transition-colors",
+        "min-h-9 inline-flex items-center rounded-full px-3.5 text-sm border transition-colors cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-[#123A5C]",
         activo
           ? "bg-[#123A5C] text-white border-[#123A5C]"
           : "bg-white border-borde-suave hover:border-[#123A5C]"

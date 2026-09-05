@@ -79,15 +79,15 @@ export default function PaginaMiUnidad() {
                 <div className="grid grid-cols-3 gap-4">
                   <div>
                     <div className="text-xs text-tinta-suave">Expensas del mes</div>
-                    <div className="text-lg font-semibold">{moneda(datos.estado_cuenta.total_mes)}</div>
+                    <div className="text-lg font-semibold tabular-nums">{moneda(datos.estado_cuenta.total_mes)}</div>
                   </div>
                   <div>
                     <div className="text-xs text-tinta-suave">A pagar</div>
-                    <div className="text-lg font-semibold">{moneda(datos.estado_cuenta.a_pagar)}</div>
+                    <div className="text-lg font-semibold tabular-nums">{moneda(datos.estado_cuenta.a_pagar)}</div>
                   </div>
                   <div>
                     <div className="text-xs text-tinta-suave">Deuda</div>
-                    <div className={`text-lg font-semibold ${datos.estado_cuenta.deuda > 0 ? "text-[#B42318]" : "text-green-600"}`}>
+                    <div className={`text-lg font-semibold tabular-nums ${datos.estado_cuenta.deuda > 0 ? "text-[#B42318]" : "text-green-600"}`}>
                       {datos.estado_cuenta.deuda > 0 ? moneda(datos.estado_cuenta.deuda) : "Sin deuda"}
                     </div>
                   </div>

@@ -3,6 +3,7 @@
 import { useId, useState } from "react";
 import { FileText } from "lucide-react";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
@@ -63,7 +64,7 @@ function SelectorEstado({
             type="button"
             variant={estado === estadoActual ? "default" : "outline"}
             size="sm"
-            className={estado === estadoActual ? "bg-[#123A5C] text-white" : ""}
+            className={cn("min-h-9 px-3.5", estado === estadoActual ? "bg-[#123A5C] text-white" : "")}
             onClick={() => setElegido(estado === elegido ? null : estado)}
           >
             {estado}
