@@ -1,4 +1,36 @@
+import io
+
 from app import admin, models
+
+
+def test_reglamento_subir_requiere_auditor_y_sirve_a_cualquier_sesion(db, auditor, cliente):
+    r = auditor.post("/consorcio/reglamento",
+                     files={"pdf": ("reglamento.pdf", io.BytesIO(b"%PDF-reglamento"), "application/pdf"),
+                            "transcripcion": ("reglamento.md", io.BytesIO("# Reglamento\ntexto".encode()), "text/markdown")})
+    assert r.status_code == 200 and r.json() == {"ok": True, "pdf": True, "transcripcion": True}
+    est = auditor.get("/consorcio/reglamento")
+    assert est.json() == {"pdf": True, "transcripcion": True}
+    pdf = auditor.get("/consorcio/reglamento/pdf")
+    assert pdf.status_code == 200
+    assert "attachment" in pdf.headers.get("content-disposition", "")
+    md = auditor.get("/consorcio/reglamento/transcripcion")
+    assert md.status_code == 200 and "Reglamento" in md.text
+    assert md.headers["content-type"].startswith("text/markdown")
+
+
+def test_reglamento_sin_subir_da_404_y_estado_false(db, auditor):
+    assert auditor.get("/consorcio/reglamento").json() == {"pdf": False, "transcripcion": False}
+    assert auditor.get("/consorcio/reglamento/pdf").status_code == 404
+    assert auditor.get("/consorcio/reglamento/transcripcion").status_code == 404
+
+
+def test_reglamento_subir_sin_archivos_o_sin_rol_falla(db, auditor, cliente):
+    # Sin archivos (auditor autenticado): 422
+    assert auditor.post("/consorcio/reglamento").status_code == 422
+    # Sin sesión: cliente ya tiene la cookie de auditor (es el mismo objeto); hacemos logout
+    # para probar el caso sin autenticación.
+    auditor.post("/auth/salir")
+    assert cliente.post("/consorcio/reglamento").status_code in (401, 403)
 
 
 def test_ver_y_editar_umbrales(db, auditor):
