@@ -22,6 +22,7 @@ cp api/.env.example api/.env    # completar (ver abajo)
 - `CT_JWT_SECRET`: generar uno largo: `python3 -c "import secrets; print(secrets.token_urlsafe(48))"`.
 - `CT_R2_*`: credenciales del bucket R2 (privado). Sin R2, setear `CT_STORAGE_DIR` (modo local).
 - `CT_CORS_ORIGIN=https://panel-consorcio.neuralcore.dev`
+- `CT_CONFIAR_PROXY=true` — detrás del tunnel, el rate limit usa la IP real de `CF-Connecting-IP`.
 - `CT_COOKIE_SEGURA=true`
 - `CT_COOKIE_DOMINIO=.neuralcore.dev` — front y API viven en subdominios distintos (`panel-consorcio` y
   `api-consorcio`); sin esto la cookie queda host-only y el panel nunca la recibe, lo que produce un loop

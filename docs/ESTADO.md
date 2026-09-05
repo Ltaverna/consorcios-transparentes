@@ -1,4 +1,4 @@
-# Estado del proyecto (4 de septiembre de 2026)
+# Estado del proyecto (5 de septiembre de 2026)
 
 ## Qué existe y funciona
 - **API del panel** (`api/`, rama `panel-api`): FastAPI + SQLAlchemy sobre Postgres (SQLite en dev/tests). Persiste
@@ -49,15 +49,23 @@
 - Informe de expensas agosto 2026 (id 376c810b…), app votación/asamblea (64d40cb3…), plan de producto (50335d0b…).
 
 ## Pendientes inmediatos
-1. Solo falta el **Plan 3: deploy** (tunnel cloudflared con `docs/DEPLOY.md`, front a Cloudflare, Neon/R2, Alembic,
-   IP real, migrar middleware→proxy, medir ZIP real).
+1. **Plan 3, Fase B** (operación en la máquina final, con Lucas presente): Neon + R2 + `api/.env` + docker compose +
+   tunnel cloudflared + deploy del front + smoke E2E con datos reales y medición del ZIP (checklist B1–B10 del plan;
+   runbook `docs/DEPLOY.md`). La **Fase A (código) está completa y mergeada** (5/09/2026): IP real tras proxy
+   (`CT_CONFIAR_PROXY`), descarga forzada en URLs firmadas de R2, `proxy.ts` (Next 16), baseline de Alembic
+   (revisión `866ed55c8961`, 9 tablas; orden del deploy: build → migrate → up), adapter OpenNext/Workers
+   (`cd web && npm run deploy:cf`, worker `panel-consorcio`). Suites: engine 29+2s · api 93 · web 29 + build.
+   Falta en esta máquina: copiar `~/consorcio-transparente-privado/` (hoy NO está).
 2. Segundo sistema de liquidación (hace falta un PDF de una administración que no use Redconar).
 3. Reglas por comparación con mercado (escala SUTERH, honorarios de referencia, abonos).
 4. La contraseña de Redconar se cambia al terminar el proyecto (decisión del usuario); mientras tanto `ct descargar` la pide por consola o
    la toma de `CT_REDCONAR_USUARIO` / `CT_REDCONAR_CLAVE`, sin guardarla.
 
 **Seguimiento post-merge**: pendientes de seguimiento del panel: gating por rol en la UI para consejo/moderador,
-KPIs/badge en vivo durante el triage.
+KPIs/badge en vivo durante el triage. Del review de Fase A: el "visor" con iframe de
+`web/components/hallazgos/ficha.tsx` no puede renderizar documentos que ahora fuerzan descarga (attachment en
+local y en R2) — repensar o sacar el visor; y esta máquina corre Node 22.11 (los tests de web necesitan
+`NODE_OPTIONS='--experimental-require-module'`; conviene ≥ 22.12).
 
 ## Cómo correr
 ```bash
