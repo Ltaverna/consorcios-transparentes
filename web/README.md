@@ -11,9 +11,9 @@ Next.js + Tailwind + shadcn/ui sobre la API (`api/`). Theme institucional claro 
 
 ## Rutas
 `/entrar` (equipo o propietario) · `/panel/hallazgos` (triage con drawer; ficha linkeable en
-`/panel/hallazgos/[id]`) · `/panel/liquidaciones` (subir PDF y ZIP de comprobantes; detalle con
-cuadre y gastos) · `/panel/consorcio` (umbrales, unidades, códigos, publicar informe) ·
-`/mi-unidad` (propietario: informe embebido + estado de cuenta).
+`/panel/hallazgos/[id]`) · `/panel/liquidaciones` (subir PDF y ZIP de comprobantes; detalle en
+`/panel/liquidaciones/[id]` con cuadre, gastos y publicar informe) · `/panel/consorcio` (umbrales,
+unidades, códigos) · `/mi-unidad` (propietario: informe embebido + estado de cuenta).
 
 ## Notas
 - `middleware.ts` usa la convención deprecada en Next 16 (aviso de build); migrar a `proxy.ts` en el deploy.

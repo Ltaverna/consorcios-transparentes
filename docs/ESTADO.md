@@ -10,8 +10,9 @@
 - **Panel web** (`web/`, rama `panel-web`): Next.js + Tailwind + shadcn/ui, theme institucional claro elegido con
   mockups. Login doble (equipo y código de unidad), liquidaciones con subida de PDF/ZIP y detalle con cuadre,
   hallazgos con filtros/drawer/página propia y acciones de auditor, consorcio (umbrales, códigos), vista del
-  propietario con informe embebido. 28 pruebas (Vitest+MSW). Ver `web/README.md`. Deploy: `docs/DEPLOY.md` (API)
+  propietario con informe embebido. 29 pruebas (Vitest+MSW). Ver `web/README.md`. Deploy: `docs/DEPLOY.md` (API)
   + Plan 3 pendiente para el front.
+  Nota deploy: setear `CT_COOKIE_DOMINIO=.neuralcore.dev` (sin eso el panel no recibe la cookie — ver docs/DEPLOY.md).
 - **Motor** (`engine/ct`): parser de liquidaciones Redconar/"Mis Expensas" (formatos 2024 y 2025+), ~30 verificaciones de cuadre,
   reglas de detección (`rules.py`, catálogo en `docs/reglas.md`), cruce de comprobantes factura ↔ pago ↔ liquidación (`comprobantes.py`),
   descarga de comprobantes desde el portal (`portal.py`, comando `ct descargar`), informe Excel y HTML con marca (`informe.py`).
@@ -54,6 +55,9 @@
 3. Reglas por comparación con mercado (escala SUTERH, honorarios de referencia, abonos).
 4. La contraseña de Redconar se cambia al terminar el proyecto (decisión del usuario); mientras tanto `ct descargar` la pide por consola o
    la toma de `CT_REDCONAR_USUARIO` / `CT_REDCONAR_CLAVE`, sin guardarla.
+
+**Seguimiento post-merge**: pendientes de seguimiento del panel: gating por rol en la UI para consejo/moderador,
+KPIs/badge en vivo durante el triage.
 
 ## Cómo correr
 ```bash
