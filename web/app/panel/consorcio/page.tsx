@@ -11,7 +11,7 @@ import { useRol } from "@/components/rol-context";
 import { FormularioUmbrales } from "@/components/consorcio/umbrales";
 import { TablaUnidades } from "@/components/consorcio/unidades";
 import { mensajeError } from "@/lib/formato";
-import { api, type ConsorcioInfo, type UnidadFila } from "@/lib/api";
+import { api, urlNormativa, type ConsorcioInfo, type UnidadFila } from "@/lib/api";
 
 function CardReglamento() {
   const [estado, setEstado] = useState<{ pdf: boolean; transcripcion: boolean } | null>(null);
@@ -82,6 +82,90 @@ function CardReglamento() {
             {subiendo ? "Subiendo…" : "Subir reglamento"}
           </Button>
         </form>
+      </CardContent>
+    </Card>
+  );
+}
+
+const SLOTS_NORMATIVA: { tipo: string; etiqueta: string }[] = [
+  { tipo: "escala-suterh", etiqueta: "Escala SUTERH" },
+  { tipo: "acuerdo-paritario", etiqueta: "Acuerdo paritario" },
+  { tipo: "referencia-honorarios", etiqueta: "Referencia de honorarios" },
+];
+
+function CardNormativa() {
+  const [estado, setEstado] = useState<Record<string, boolean> | null>(null);
+  const [subiendo, setSubiendo] = useState<string | null>(null);
+
+  const cargarEstado = useCallback(async () => {
+    try {
+      setEstado(await api.estadoNormativa());
+    } catch (err) {
+      toast.error(mensajeError(err));
+    }
+  }, []);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- patrón de carga establecido; ver plan Task 12
+    cargarEstado();
+  }, [cargarEstado]);
+
+  async function subir(e: React.FormEvent<HTMLFormElement>, tipo: string) {
+    e.preventDefault();
+    const formulario = e.currentTarget;
+    const archivo = new FormData(formulario).get("archivo") as File | null;
+    if (!archivo || archivo.size === 0) {
+      toast.error("Elegí el PDF a subir");
+      return;
+    }
+    const form = new FormData();
+    form.set("archivo", archivo);
+    setSubiendo(tipo);
+    try {
+      await api.subirNormativa(tipo, form);
+      formulario.reset();
+      toast.success("Documento subido");
+      cargarEstado();
+    } catch (err) {
+      toast.error(mensajeError(err));
+    } finally {
+      setSubiendo(null);
+    }
+  }
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Normativa de referencia</CardTitle>
+      </CardHeader>
+      <CardContent className="flex flex-col gap-4">
+        {SLOTS_NORMATIVA.map(({ tipo, etiqueta }) => (
+          <form key={tipo} onSubmit={(e) => subir(e, tipo)} className="flex flex-col gap-1.5">
+            <div className="flex items-baseline gap-2">
+              <Label htmlFor={`normativa-${tipo}`}>{etiqueta}</Label>
+              {estado && (
+                estado[tipo] ? (
+                  <a
+                    href={urlNormativa(tipo)}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-sm text-institucional hover:underline"
+                  >
+                    cargado · descargar
+                  </a>
+                ) : (
+                  <span className="text-sm text-tinta-suave">falta</span>
+                )
+              )}
+            </div>
+            <div className="flex items-center gap-2">
+              <Input id={`normativa-${tipo}`} name="archivo" type="file" accept="application/pdf" />
+              <Button type="submit" disabled={subiendo === tipo}>
+                {subiendo === tipo ? "Subiendo…" : "Subir"}
+              </Button>
+            </div>
+          </form>
+        ))}
       </CardContent>
     </Card>
   );
@@ -205,6 +289,8 @@ export default function ConsorcioPage() {
               </Card>
 
               <CardReglamento />
+
+              <CardNormativa />
             </>
           )}
 

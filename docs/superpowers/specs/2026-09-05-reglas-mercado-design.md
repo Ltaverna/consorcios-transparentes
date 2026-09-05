@@ -35,8 +35,8 @@ pedir justificación de la diferencia. Referencia en 0 → la regla no emite nad
 - Slots fijos (PDF, tope 20 MB): `escala-suterh`, `acuerdo-paritario`, `referencia-honorarios`;
   claves de storage `consorcio/normativa/{tipo}.pdf`.
 - `POST /consorcio/normativa/{tipo}` (auditor) · `GET /consorcio/normativa` (estado {tipo: bool}) ·
-  `GET /consorcio/normativa/{tipo}` (descarga forzada vía `_servir`). Lectura con
-  `requiere("auditor", "consejo", "moderador")` — es material de trabajo del triage, NO para propietarios.
+  `GET /consorcio/normativa/{tipo}` (descarga forzada vía `_servir`). Lectura con `security.sesion`
+  (cualquier rol, propietarios incluidos — decisión del 5/09: misma visibilidad que el reglamento).
 - Panel: en Consorcio (bloque de auditor existente), Card "Normativa de referencia" con los tres slots
   (estado + subir/reemplazar), junto a la del reglamento.
 - Los umbrales nuevos de `Config` aparecen en el editor de umbrales existente (lee los campos de la
@@ -55,8 +55,24 @@ los PDFs de respaldo en la biblioteca. Los valores nunca van al repo (viven en l
 - API (+2): normativa — subir requiere auditor y sirve al equipo; propietario → 403; slots inválidos → 404.
 - Web (+1): la Card de normativa solo aparece para auditor.
 
+## Anexo (decisión del 5/09): visor embebido para propietarios
+
+Los propietarios también ven los comprobantes embebidos (no solo descarga) en los hallazgos publicados
+de `/mi-unidad`: `GET /documentos/{id}/contenido?vista=1` pasa a estar permitido para el rol propietario
+**solo** para documentos que ya pasan el predicado de publicación (`_accesible_para_propietario`); para
+cualquier otro documento sigue el 403. El front de mi-unidad suma el iframe con `vista=1` al lado del
+link de descarga, igual que la ficha del equipo. Se actualiza el test que fijaba `vista=1 → 403` para
+propietario (cambio de comportamiento deliberado).
+
+## Anexo (aprobado 5/09): PWA instalable
+
+El panel se vuelve instalable desde el celular, sin modo offline (la app necesita la API en vivo;
+offline sería fingir datos): `web/app/manifest.ts` (convención de Next) con nombre "Consorcio
+Transparente", `display: standalone`, colores institucionales (#123A5C) y `start_url: /entrar`;
+íconos PNG 192/512 + `apple-touch-icon` 180 generados del monograma CT (`web/app/icon.svg`).
+Sin service worker. Se implementa y deploya en este mismo ciclo.
+
 ## Fuera de alcance
 
 Modelar la escala SUTERH completa (categorías/antigüedad/zonas), actualización automática de referencias,
-normativa visible a propietarios, comparación de abonos contra edificios comparables (requiere datos de
-terceros que no existen todavía).
+comparación de abonos contra edificios comparables (requiere datos de terceros que no existen todavía).

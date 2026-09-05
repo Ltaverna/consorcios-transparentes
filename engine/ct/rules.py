@@ -30,6 +30,14 @@ class Config:
     factura_nro_bajo: int = 20             # proveedor con numeración de factura muy baja
     interes_dispersion: float = 0.05       # diferencia entre tasas de interés a deudores
     cobertura_pendientes_min: float = 1.0  # disponibilidades / facturas pendientes
+    # --- referencias de mercado (0 = regla apagada; las carga el auditor por paritaria) ---
+    sueldo_encargado_ref: float = 0.0      # neto mensual según escala SUTERH vigente
+    sueldo_tolerancia: float = 0.10
+    honorarios_ref: float = 0.0            # honorarios de administración de referencia (mensual)
+    honorarios_tolerancia: float = 0.10
+    abono_ascensores_ref: float = 0.0      # tope mensual por rubro de abono
+    abono_matafuegos_ref: float = 0.0
+    abono_limpieza_ref: float = 0.0
 
     @classmethod
     def desde_dict(cls, d: dict | None) -> "Config":
@@ -309,6 +317,84 @@ def r_legales(liq, prev, cfg):
     return [Hallazgo("legales", "ALTO", "Contingencias legales", f"Gastos legales por {fmt(sum(g.importe for g in leg))} sin explicación del reclamo",
                      "; ".join(f"{g.proveedor}: {g.concepto[:110]} ({fmt(g.importe)})" for g in leg), sum(g.importe for g in leg),
                      "Pedir informe del asesor legal: partes, objeto, estado y contingencia estimada.", [str(g.n) for g in leg])]
+
+
+# ------------------------------------------------------------------ referencias de mercado
+# Rubros de abono: (nombre, regex sobre concepto + proveedor, campo del tope en Config).
+ABONOS = [("ascensores", r"ascensor", "abono_ascensores_ref"),
+          ("matafuegos", r"matafuego|extinguidor", "abono_matafuegos_ref"),
+          ("limpieza", r"limpieza", "abono_limpieza_ref")]
+
+
+@rule("sueldo_mercado")
+def r_sueldo_mercado(liq, prev, cfg):
+    if not cfg.sueldo_encargado_ref:
+        return []
+    # Calibrado sobre Redconar: el neto sale como "Sueldo <nombre> ..." o "SUELDO Y SAC ...";
+    # así quedan afuera F.931, FATERYH/SERACARH/SUTERH y las retenciones sobre factura del rubro.
+    netos = [g for g in liq.gastos if "SUELDO" in g.categoria.upper() and re.match(r"\s*sueldo\b", g.concepto, re.I)]
+    if not netos:
+        return []
+    total = sum(g.importe for g in netos)
+    desvio = total / cfg.sueldo_encargado_ref - 1
+    if abs(desvio) <= cfg.sueldo_tolerancia:
+        return []
+    refs = [str(g.n) for g in netos]
+    sac = any(re.search(r"\bSAC\b|aguinaldo", g.concepto, re.I) for g in netos)
+    ev = (f"Sueldos netos del mes: {fmt(total)}; referencia de escala cargada por el auditor: "
+          f"{fmt(cfg.sueldo_encargado_ref)} (desvío {pct(desvio)})."
+          + (" Incluye SAC/aguinaldo: el desvío de junio y diciembre es estructural." if sac else ""))
+    if desvio > 0:
+        sev = "ALTO" if desvio > 2 * cfg.sueldo_tolerancia else "MEDIO"
+        return [Hallazgo("sueldo_mercado", sev, "Mercado", f"Sueldo {pct(desvio)} sobre la referencia de escala",
+                         ev, total - cfg.sueldo_encargado_ref,
+                         "Pedir el recibo de sueldo y la justificación del excedente (horas extra, retroactivos, plus).",
+                         refs, clave="sueldo-sobre-escala")]
+    return [Hallazgo("sueldo_mercado", "ALTO", "Mercado", f"Sueldo {pct(-desvio)} bajo la escala vigente",
+                     ev, cfg.sueldo_encargado_ref - total,
+                     "Verificar si hay pagos fuera de recibo: pagar bajo escala expone al consorcio a reclamos laborales.",
+                     refs, clave="sueldo-bajo-escala")]
+
+
+@rule("honorarios_mercado")
+def r_honorarios_mercado(liq, prev, cfg):
+    if not cfg.honorarios_ref:
+        return []
+    adm = [g for g in liq.gastos if "ADMINISTRACION" in g.categoria.upper()]
+    total = sum(g.importe for g in adm)
+    if not adm or total <= cfg.honorarios_ref * (1 + cfg.honorarios_tolerancia):
+        return []
+    desvio = total / cfg.honorarios_ref - 1
+    sev = "ALTO" if total > cfg.honorarios_ref * (1 + 2 * cfg.honorarios_tolerancia) else "MEDIO"
+    ev = (f"Gastos de administración del mes: {fmt(total)}; referencia cargada por el auditor: "
+          f"{fmt(cfg.honorarios_ref)} (desvío {pct(desvio)}).")
+    return [Hallazgo("honorarios_mercado", sev, "Mercado", f"Honorarios de administración {pct(desvio)} sobre la referencia",
+                     ev, total - cfg.honorarios_ref,
+                     "Pedir la base del honorario: contrato con la administración o acta de asamblea que lo aprueba.",
+                     [str(g.n) for g in adm], clave="honorarios-sobre-referencia")]
+
+
+@rule("abonos_mercado")
+def r_abonos_mercado(liq, prev, cfg):
+    out = []
+    for rubro, patron, campo in ABONOS:
+        ref = getattr(cfg, campo)
+        if not ref:
+            continue
+        # Se excluye la categoría de seguros: la póliza integral describe ascensores,
+        # matafuegos y limpieza en su cobertura y no es un abono del rubro.
+        gs = [g for g in liq.gastos
+              if "SEGURO" not in g.categoria.upper() and re.search(patron, g.concepto + " " + g.proveedor, re.I)]
+        total = sum(g.importe for g in gs)
+        if not gs or total <= ref:
+            continue
+        ev = (f"Total del rubro {rubro}: {fmt(total)} contra un tope de referencia cargado por el auditor de {fmt(ref)} (desvío {pct(total/ref - 1)}). "
+              + "; ".join(f"{g.proveedor}: {g.concepto[:70]} ({fmt(g.importe)})" for g in gs[:4]))
+        out.append(Hallazgo("abonos_mercado", "MEDIO", "Mercado", f"Abono de {rubro} por {fmt(total)} sobre el tope de referencia",
+                            ev, total - ref,
+                            "Pedir presupuestos comparativos del rubro y la última renegociación del abono.",
+                            [str(g.n) for g in gs], clave=f"abono-caro:{rubro}"))
+    return out
 
 
 # ------------------------------------------------------------------ API

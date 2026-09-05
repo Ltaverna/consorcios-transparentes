@@ -20,6 +20,9 @@ una liquidación corregida. Redacción: hechos con documento, sin conclusiones a
 | costos | Gastos bancarios sobre el gasto; suba de honorarios de administración vs. mes anterior | 1,2 % · 5 % | MEDIO |
 | clasificacion | Retenciones de proveedores en "Sueldos"; rubros repetidos | — | MEDIO / BAJO |
 | legales | Honorarios por cartas documento, mediaciones, patrocinio sin explicación del reclamo | — | ALTO |
+| sueldo_mercado | Sueldos netos del mes vs. referencia de escala SUTERH cargada por el auditor (`sueldo_encargado_ref`; 0 = apagada) | tolerancia 10 % (ALTO si excede el doble; bajo escala siempre ALTO) | MEDIO / ALTO |
+| honorarios_mercado | Total de la categoría de administración vs. referencia mensual cargada por el auditor (`honorarios_ref`; 0 = apagada) | tolerancia 10 % (ALTO si excede el doble) | MEDIO / ALTO |
+| abonos_mercado | Abonos por rubro (ascensores, matafuegos, limpieza) vs. tope mensual cargado por el auditor (`abono_*_ref`; 0 = apagada). **Calibración del tope de limpieza**: el regex `limpieza` también captura insumos de la categoría GASTOS DE LIMPIEZA (p.ej. artículos de limpieza); el tope debe calibrarse contra el abono del servicio, no contra el total del rubro si incluye compras de insumos. | total del rubro > tope | MEDIO |
 
 ## Sobre los comprobantes (`ct/comprobantes.py`)
 
@@ -44,6 +47,9 @@ tipo y número de factura, fecha, importe, destinatario y CUIT de la transferenc
 
 Pendiente: recibos manuscritos (imágenes) requieren revisión visual o OCR; conflicto de interés certificador = ejecutor por CUIT.
 
-## Reglas por comparación con mercado (después)
+## Reglas por comparación con mercado
 
-Escala SUTERH para sueldos y cargas; honorarios de administración vs. referencia CAPHAI; abonos (ascensores, limpieza, seguridad) vs. edificios comparables.
+Cubiertas por `sueldo_mercado`, `honorarios_mercado` y `abonos_mercado`: las referencias (escala SUTERH,
+honorarios tipo CAPHAI, topes de abonos) las carga el auditor en la configuración del consorcio; con
+referencia en 0 la regla queda apagada. Pendiente: abonos de seguridad y comparación automática contra
+edificios comparables.

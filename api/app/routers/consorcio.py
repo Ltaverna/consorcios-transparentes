@@ -20,6 +20,14 @@ UMBRALES_TIPO = {f.name: _TIPOS.get(f.type, float) for f in fields(Config)}
 RUTA_REGLAMENTO = {"pdf": "consorcio/reglamento.pdf", "transcripcion": "consorcio/reglamento.md"}
 MAX_REGLAMENTO_MB = 20
 
+SLOTS_NORMATIVA = ("escala-suterh", "acuerdo-paritario", "referencia-honorarios")
+
+
+def _key_normativa(tipo: str) -> str:
+    if tipo not in SLOTS_NORMATIVA:
+        raise HTTPException(404, "No existe ese documento de normativa")
+    return f"consorcio/normativa/{tipo}.pdf"
+
 
 @router.get("/consorcio/reglamento")
 def estado_reglamento(request: Request, s: dict = Depends(security.sesion)):
@@ -58,6 +66,31 @@ def ver_reglamento(tipo: str, request: Request, s: dict = Depends(security.sesio
     # La transcripción se sirve directa (sin redirect a R2): el front la lee con fetch y es chica.
     return Response(st.leer(key), media_type="text/markdown; charset=utf-8",
                     headers={"X-Content-Type-Options": "nosniff"})
+
+
+@router.get("/consorcio/normativa")
+def estado_normativa(request: Request, s: dict = Depends(security.sesion)):
+    st = request.app.state.storage
+    return {t: st.existe(f"consorcio/normativa/{t}.pdf") for t in SLOTS_NORMATIVA}
+
+
+@router.post("/consorcio/normativa/{tipo}")
+def subir_normativa(tipo: str, request: Request, archivo: UploadFile,
+                    s: dict = Depends(security.requiere("auditor"))):
+    key = _key_normativa(tipo)
+    data = archivo.file.read(MAX_REGLAMENTO_MB * 1024 * 1024 + 1)
+    if len(data) > MAX_REGLAMENTO_MB * 1024 * 1024:
+        raise HTTPException(413, f"El archivo supera los {MAX_REGLAMENTO_MB} MB")
+    request.app.state.storage.guardar(key, data)
+    return {"ok": True, "tipo": tipo}
+
+
+@router.get("/consorcio/normativa/{tipo}")
+def ver_normativa(tipo: str, request: Request, s: dict = Depends(security.sesion)):
+    key = _key_normativa(tipo)
+    if not request.app.state.storage.existe(key):
+        raise HTTPException(404, "Ese documento todavía no está cargado")
+    return _servir(request, key)
 
 
 class CambioConsorcio(BaseModel):

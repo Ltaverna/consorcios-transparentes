@@ -60,6 +60,7 @@ test("consejo ve las unidades sin editar datos ni generar códigos", async () =>
   expect(screen.queryByRole("button", { name: /Regenerar/ })).not.toBeInTheDocument();
   expect(screen.queryByRole("button", { name: /Guardar/ })).not.toBeInTheDocument();
   expect(screen.queryByText(/Reglamento/)).not.toBeInTheDocument();
+  expect(screen.queryByText(/Normativa/)).not.toBeInTheDocument();
 });
 
 test("el auditor ve la sección de subida del reglamento con su estado", async () => {
@@ -73,9 +74,12 @@ test("el auditor ve la sección de subida del reglamento con su estado", async (
     http.get(`${API}/unidades`, () => HttpResponse.json([])),
     http.get(`${API}/consorcio/reglamento`, () =>
       HttpResponse.json({ pdf: true, transcripcion: false })),
+    http.get(`${API}/consorcio/normativa`, () =>
+      HttpResponse.json({ "escala-suterh": false, "acuerdo-paritario": false, "referencia-honorarios": false })),
   );
   render(<ConsorcioPage />); // sin provider: el rol default es auditor
   expect(await screen.findByText("Reglamento")).toBeInTheDocument();
+  expect(await screen.findByText(/Normativa de referencia/)).toBeInTheDocument();
   expect(await screen.findByLabelText(/PDF escaneado/)).toBeInTheDocument();
   expect(screen.getByLabelText(/Transcripción/)).toBeInTheDocument();
   expect(screen.getByRole("button", { name: "Subir reglamento" })).toBeInTheDocument();

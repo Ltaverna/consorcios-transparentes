@@ -59,7 +59,12 @@ def test_propietario_descarga_documento_de_hallazgo_publicado(db, cliente, audit
     r = cliente.get(f"/documentos/{doc_ok_id}/contenido", follow_redirects=False)
     assert r.status_code in (200, 307)
     assert cliente.get(f"/documentos/{doc_no_id}/contenido").status_code == 403
-    assert cliente.get(f"/documentos/{doc_ok_id}/contenido?vista=1").status_code == 403
+    # vista=1 sobre doc accesible → permitido e inline (sin attachment)
+    r_vista = cliente.get(f"/documentos/{doc_ok_id}/contenido?vista=1", follow_redirects=False)
+    assert r_vista.status_code in (200, 307)
+    assert "attachment" not in r_vista.headers.get("content-disposition", "")
+    # vista=1 sobre doc NO accesible → 403 igual que sin vista
+    assert cliente.get(f"/documentos/{doc_no_id}/contenido?vista=1").status_code == 403
 
 
 def test_propietario_lista_documentos_de_publicados(db, cliente, auditor, tmp_path):
