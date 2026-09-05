@@ -15,3 +15,25 @@ services:
     # volumes:
     #   - ./datos-api/db:/srv/datos
     #   - ./datos-api/storage:/srv/storage
+
+  worker:
+    build:
+      context: .
+      dockerfile: api/Dockerfile
+    command: python worker.py
+    env_file:
+      - .env          # credenciales del portal y del bot (USER_REDCONAR, CT_API_BOT_*)
+    environment:
+      CT_PRIVADO: /srv/privado
+    volumes:
+      - ${CT_PRIVADO_HOST:?definir CT_PRIVADO_HOST en .env (ruta absoluta de la carpeta privada)}:/srv/privado
+    restart: unless-stopped
+
+  tunnel:
+    image: cloudflare/cloudflared:latest
+    command: tunnel --no-autoupdate --config /etc/cloudflared/config.yml run
+    volumes:
+      - ./cloudflared:/etc/cloudflared:ro
+    depends_on:
+      - api
+    restart: unless-stopped

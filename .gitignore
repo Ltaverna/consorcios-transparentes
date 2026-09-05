@@ -14,3 +14,4 @@ node_modules/
 .superpowers/
 datos-api/
 docker-compose.override.yml
+/cloudflared/
