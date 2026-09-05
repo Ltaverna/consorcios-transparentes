@@ -11,8 +11,19 @@ from app import models  # noqa: F401  # registra las tablas en Base.metadata
 # Objeto Config de Alembic (valores del alembic.ini).
 config = context.config
 
+# Guardia: si nadie exportó CT_DATABASE_URL, settings.database_url queda en el
+# default "sqlite://" (en memoria).  Correr alembic ahí sería un no-op silencioso
+# porque la base desaparece al terminar el proceso.
+if settings.database_url == "sqlite://":
+    raise SystemExit(
+        "CT_DATABASE_URL no está seteada: alembic migraría una base en memoria. "
+        "Exportala o usá el .env del contenedor."
+    )
+
 # La URL sale de la app, no del .ini: misma fuente de verdad que el arranque.
-config.set_main_option("sqlalchemy.url", settings.database_url)
+# El "%" se escapa a "%%" para que configparser no interprete los %-encodings
+# de la password como directivas de interpolación (InterpolationSyntaxError).
+config.set_main_option("sqlalchemy.url", settings.database_url.replace("%", "%%"))
 
 # Logging del .ini.
 if config.config_file_name is not None:

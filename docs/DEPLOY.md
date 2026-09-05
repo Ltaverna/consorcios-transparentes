@@ -39,15 +39,18 @@ default o si `CT_COOKIE_SEGURA` no está en true. Es intencional.
 ## 4. Build y arranque
 
 ```bash
-docker compose up -d --build
+docker compose build
+docker compose run --rm api alembic upgrade head   # crea/versiona el esquema antes de arrancar
+docker compose up -d
 curl -s localhost:8080/salud     # → {"ok":true}
 ```
+
+El `create_all` que ejecuta la API al arrancar es inofensivo después de `alembic upgrade head`:
+usa `checkfirst=True` y el esquema ya coincide, así que no toca nada.
 
 ## 5. Datos iniciales (una sola vez)
 
 ```bash
-# Versiona el esquema con Alembic (el create_all del arranque es inofensivo: el esquema coincide)
-docker compose exec api alembic upgrade head
 docker compose exec api python cli.py init "Rivadavia 2069" --direccion "Av. Rivadavia 2069, CABA"
 docker compose exec -it api python cli.py usuario <tu-email> "Lucas" auditor   # pide la clave por consola
 # Los códigos por unidad se generan después desde el panel (Consorcio → Generar código),

@@ -1,8 +1,13 @@
 """esquema inicial etapa 1
 
-Las 9 tablas del panel. Ajuste a mano sobre el autogenerate: FechaUTC
-(TypeDecorator de app.models) se emite como su tipo real,
-sa.DateTime(timezone=True), para no depender del código de la app.
+Las 9 tablas del panel. Ajustes a mano sobre el autogenerate:
+
+- FechaUTC (TypeDecorator de app.models) se emite como su tipo real,
+  sa.DateTime(timezone=True), para no depender del código de la app en runtime.
+- Los campos JSONDict/JSONList de models.py se emiten como
+  sa.JSON().with_variant(postgresql.JSONB(...), 'postgresql'): SQLite no conoce
+  JSONB, así que el autogenerate contra SQLite no lo rinde solo y hay que fijarlo
+  a mano para que Postgres use el tipo nativo.
 
 Revision ID: 866ed55c8961
 Revises: 
