@@ -75,5 +75,4 @@ Sin service worker. Se implementa y deploya en este mismo ciclo.
 ## Fuera de alcance
 
 Modelar la escala SUTERH completa (categorías/antigüedad/zonas), actualización automática de referencias,
-normativa visible a propietarios, comparación de abonos contra edificios comparables (requiere datos de
-terceros que no existen todavía).
+comparación de abonos contra edificios comparables (requiere datos de terceros que no existen todavía).
