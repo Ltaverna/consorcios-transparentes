@@ -127,6 +127,37 @@ def test_url_firmada_pide_descarga_para_documentos_pero_no_informes(db, auditor,
     assert any(k.startswith("informes/") and not desc for k, desc in llamadas)  # informe → inline
 
 
+def test_refs_de_morosidad_no_habilitan_documentos(db, cliente, auditor, tmp_path):
+    """PoC del reviewer: un hallazgo publicado de origen "liquidacion" (morosidad) con
+    refs=["2"] (UFs deudoras) NO debe habilitar el acceso al documento con gasto_n=2.
+    El propietario debe recibir 403 tanto en contenido como en el listado; un ID
+    inexistente también devuelve 403 (sin enumerar qué IDs existen)."""
+    liq_id = subir(auditor).json()["id"]
+    (tmp_path / "comprobantes/2026-08").mkdir(parents=True)
+    key = "comprobantes/2026-08/gasto2.pdf"
+    (tmp_path / key).write_bytes(b"pdf")
+    doc = models.Documento(liquidacion_id=liq_id, gasto_n=2, tipo="factura", archivo_key=key)
+    db.add(doc)
+    # Hallazgo de morosidad: origen="liquidacion", refs=["2"] son UFs deudoras, no gastos.
+    db.add(models.Hallazgo(liquidacion_id=liq_id, clave="morosidad|pub", origen="liquidacion",
+                           regla="morosidad", severidad="ALTO", titulo="Morosidad",
+                           refs=["2"], publicado=True))
+    db.commit()
+    uf = db.query(models.Unidad).first().uf
+    codigo = admin.generar_codigo(db, uf)
+    r = cliente.post("/auth/login-unidad", json={"uf": uf, "codigo": codigo})
+    assert r.status_code == 200
+
+    # El propietario NO puede bajar el comprobante (refs de morosidad ≠ refs de comprobantes).
+    assert cliente.get(f"/documentos/{doc.id}/contenido").status_code == 403
+    # El propietario NO lo ve en el listado.
+    r = cliente.get(f"/documentos?liquidacion_id={liq_id}")
+    assert r.status_code == 200
+    assert all(d["id"] != doc.id for d in r.json())
+    # Un ID inexistente también devuelve 403 (no enumera qué IDs existen).
+    assert cliente.get("/documentos/99999/contenido").status_code == 403
+
+
 def test_contenido_con_vista_sirve_inline(db, auditor):
     from .test_liquidaciones_api import subir
     llamadas = []
