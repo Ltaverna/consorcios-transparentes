@@ -35,3 +35,23 @@ def test_rate_limiter_desaloja_claves_vencidas():
     rl.permitir("ip-2")
     rl.permitir("ip-3")
     assert len(rl._hits) <= 1  # las claves vencidas no se acumulan
+
+
+def test_ip_cliente_sin_proxy_usa_client_host():
+    from unittest.mock import Mock
+    req = Mock()
+    req.client.host = "1.2.3.4"
+    req.headers = {"cf-connecting-ip": "9.9.9.9"}
+    assert security.ip_cliente(req) == "1.2.3.4"  # sin flag, ignora el header
+
+
+def test_ip_cliente_con_proxy_usa_cf_connecting_ip(monkeypatch):
+    from unittest.mock import Mock
+    from app.config import settings
+    monkeypatch.setattr(settings, "confiar_proxy", True)
+    req = Mock()
+    req.client.host = "10.0.0.1"
+    req.headers = {"cf-connecting-ip": "181.30.1.2"}
+    assert security.ip_cliente(req) == "181.30.1.2"
+    req.headers = {}
+    assert security.ip_cliente(req) == "10.0.0.1"  # con flag pero sin header, fallback

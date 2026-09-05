@@ -22,6 +22,7 @@ cp api/.env.example api/.env    # completar (ver abajo)
 - `CT_JWT_SECRET`: generar uno largo: `python3 -c "import secrets; print(secrets.token_urlsafe(48))"`.
 - `CT_R2_*`: credenciales del bucket R2 (privado). Sin R2, setear `CT_STORAGE_DIR` (modo local).
 - `CT_CORS_ORIGIN=https://panel-consorcio.neuralcore.dev`
+- `CT_CONFIAR_PROXY=true` — detrás del tunnel, el rate limit usa la IP real de `CF-Connecting-IP`.
 - `CT_COOKIE_SEGURA=true`
 - `CT_COOKIE_DOMINIO=.neuralcore.dev` — front y API viven en subdominios distintos (`panel-consorcio` y
   `api-consorcio`); sin esto la cookie queda host-only y el panel nunca la recibe, lo que produce un loop
@@ -39,9 +40,14 @@ default o si `CT_COOKIE_SEGURA` no está en true. Es intencional.
 ## 4. Build y arranque
 
 ```bash
-docker compose up -d --build
+docker compose build
+docker compose run --rm api alembic upgrade head   # crea/versiona el esquema antes de arrancar
+docker compose up -d
 curl -s localhost:8080/salud     # → {"ok":true}
 ```
+
+El `create_all` que ejecuta la API al arrancar es inofensivo después de `alembic upgrade head`:
+usa `checkfirst=True` y el esquema ya coincide, así que no toca nada.
 
 ## 5. Datos iniciales (una sola vez)
 
@@ -81,9 +87,14 @@ Verificar: `curl -s https://api-consorcio.neuralcore.dev/salud` → `{"ok":true}
 
 ## 7. Notas
 
-- **Rate limit detrás del tunnel**: la API ve la IP del tunnel, no la real; el header con la IP real
-  (`CF-Connecting-IP`) queda pendiente de cablear en el deploy definitivo (anotado en el spec).
-- **Actualizar**: `git pull && docker compose up -d --build`.
+- **Rate limit detrás del tunnel**: con `CT_CONFIAR_PROXY=true` la API toma la IP real del header
+  `CF-Connecting-IP`. Ese header es confiable solo si la API no es alcanzable de forma directa:
+  el contenedor publica el puerto solo en localhost y el único camino externo es el tunnel.
+- **Warning esperado en el deploy del front**: `npm run deploy:cf` avisa "Node.js middleware support is
+  experimental in cloudflare" — es por `proxy.ts`, que solo lee la cookie y redirige; no bloquea. Ante
+  dudas, probar antes con `npm run preview:cf` (requiere la API de producción accesible).
+- **Actualizar**: `git pull && docker compose build && docker compose run --rm api alembic upgrade head
+  && docker compose up -d`.
 - **Backup**: la base es Neon (backups propios) o `datos-api/` en modo local; los documentos, R2 o `datos-api/storage`.
 - **Primer uso real**: medir la subida del ZIP de comprobantes de un mes real (el endpoint es sincrónico;
   si tarda más de ~90 s habrá que moverlo a background — anotado).

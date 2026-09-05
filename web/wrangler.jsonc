@@ -1,0 +1,13 @@
+// El custom domain (panel-consorcio.neuralcore.dev) se configura en el dashboard de Cloudflare
+// (Workers → panel-consorcio → Custom Domains), no acá.
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"main": ".open-next/worker.js",
+	"name": "panel-consorcio",
+	"compatibility_date": "2026-09-01",
+	"compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+	"assets": {
+		"directory": ".open-next/assets",
+		"binding": "ASSETS"
+	}
+}

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-export function middleware(req: NextRequest) {
+export function proxy(req: NextRequest) {
   const tieneSesion = req.cookies.has("ct_sesion");
   if (!tieneSesion) {
     return NextResponse.redirect(new URL("/entrar", req.url));

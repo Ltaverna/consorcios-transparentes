@@ -16,6 +16,7 @@ class Settings(BaseSettings):
     cors_origin: str = "http://localhost:3000"
     max_liq_mb: int = 30                     # tope de subida de una liquidación (PDF o texto)
     max_zip_mb: int = 100                    # tope de subida del ZIP de comprobantes
+    confiar_proxy: bool = False              # True detrás de cloudflared: usa CF-Connecting-IP para el rate limit
 
     model_config = {"env_prefix": "CT_", "env_file": ".env"}
 

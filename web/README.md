@@ -16,6 +16,7 @@ Next.js + Tailwind + shadcn/ui sobre la API (`api/`). Theme institucional claro 
 unidades, códigos) · `/mi-unidad` (propietario: informe embebido + estado de cuenta).
 
 ## Notas
-- `middleware.ts` usa la convención deprecada en Next 16 (aviso de build); migrar a `proxy.ts` en el deploy.
-- Deploy (Plan 3): Cloudflare Workers vía OpenNext como `panel-consorcio.neuralcore.dev`, mismo sitio que la API
+- `proxy.ts` — guardia de sesión con la convención de Next 16 (migrada desde `middleware.ts` en el deploy).
+- Deploy (Plan 3, adapter ya configurado: `wrangler.jsonc` + `npm run deploy:cf`): Cloudflare Workers vía OpenNext
+  como `panel-consorcio.neuralcore.dev`, mismo sitio que la API
   (`api-consorcio.neuralcore.dev`) para que viaje la cookie de sesión.

@@ -1,0 +1,1 @@
+env.py toma la URL de la variable CT_DATABASE_URL; para el deploy seguir los pasos de docs/DEPLOY.md.

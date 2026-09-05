@@ -17,7 +17,7 @@ def _servir(request: Request, key: str, attachment: bool = True) -> Response:
     headers = {"X-Content-Type-Options": "nosniff"}
     if attachment:
         headers["Content-Disposition"] = f"attachment; filename={key.rsplit('/', 1)[-1]}"
-    url = request.app.state.storage.url_firmada(key)
+    url = request.app.state.storage.url_firmada(key, descarga=attachment)
     if url:
         headers["Location"] = url
         return Response(status_code=307, headers=headers)
