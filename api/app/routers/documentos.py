@@ -67,14 +67,13 @@ def contenido(d_id: int, request: Request, vista: bool = False, db: Session = De
     if s["rol"] == "propietario":
         # El propietario recibe 403 tanto si el documento no existe como si no tiene acceso:
         # responder 404 le permitiría enumerar qué IDs existen en el sistema.
-        if vista:
-            raise HTTPException(403, "Solo el equipo puede ver documentos embebidos")
+        # vista=1 está permitida siempre que el documento sea accesible (mismo filtro).
         if not d or not _accesible_para_propietario(db, d):
             raise HTTPException(403, "No autorizado para este documento")
     elif not d:
         raise HTTPException(404, "No existe ese documento")
-    # vista=True: inline para el triage del equipo (el chequeo de arriba lo bloquea para
-    # propietarios); sin el flag, descarga forzada como siempre. Igual que los informes,
+    # vista=True: inline para el triage del equipo y para propietarios con acceso;
+    # sin el flag, descarga forzada como siempre. Igual que los informes,
     # inline = sin el header de attachment (nosniff se conserva en _servir).
     return _servir(request, d.archivo_key, attachment=not vista)
 

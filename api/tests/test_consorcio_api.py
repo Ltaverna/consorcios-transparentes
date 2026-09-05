@@ -66,3 +66,35 @@ def test_generar_codigo_por_endpoint(db, auditor):
     r = auditor.post("/unidades/27/codigo")
     assert r.status_code == 200 and len(r.json()["codigo"]) == 8
     assert auditor.get("/unidades").json()[0]["tiene_codigo"] is True
+
+
+def test_normativa_slots_subida_y_lectura(db, auditor):
+    import io
+    r = auditor.post("/consorcio/normativa/escala-suterh",
+                     files={"archivo": ("escala.pdf", io.BytesIO(b"%PDF-escala"), "application/pdf")})
+    assert r.status_code == 200
+    est = auditor.get("/consorcio/normativa").json()
+    assert est == {"escala-suterh": True, "acuerdo-paritario": False, "referencia-honorarios": False}
+    d = auditor.get("/consorcio/normativa/escala-suterh")
+    assert d.status_code == 200 and "attachment" in d.headers.get("content-disposition", "")
+    assert auditor.get("/consorcio/normativa/otra-cosa").status_code == 404
+    assert auditor.get("/consorcio/normativa/acuerdo-paritario").status_code == 404  # slot vacío
+
+
+def test_normativa_propietario_lee_pero_no_sube(db, auditor, cliente):
+    import io
+    # Subir un slot como auditor
+    auditor.post("/consorcio/normativa/escala-suterh",
+                 files={"archivo": ("escala.pdf", io.BytesIO(b"%PDF-escala"), "application/pdf")})
+    # Crear propietario
+    db.add(models.Unidad(uf=5, piso_depto="3-A"))
+    db.commit()
+    codigo = admin.generar_codigo(db, 5)
+    cliente.post("/auth/login-unidad", json={"uf": 5, "codigo": codigo})
+    # El propietario puede leer normativa
+    assert cliente.get("/consorcio/normativa").status_code == 200
+    assert cliente.get("/consorcio/normativa/escala-suterh").status_code == 200
+    # El propietario NO puede subir normativa
+    assert cliente.post("/consorcio/normativa/escala-suterh",
+                        files={"archivo": ("escala.pdf", io.BytesIO(b"%PDF"), "application/pdf")}
+                        ).status_code == 403
