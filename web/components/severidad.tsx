@@ -1,4 +1,6 @@
-const BASE = "text-[11px] font-bold px-2 py-0.5 rounded-full";
+import { CHIP_BASE } from "@/components/chip-base";
+
+type Severidad = "CRÍTICO" | "ALTO" | "MEDIO" | "BAJO" | (string & {});
 
 const CLASES_POR_SEVERIDAD: Record<string, string> = {
   CRÍTICO: "bg-[#FEE4E2] text-[#B42318]",
@@ -10,8 +12,8 @@ const CLASES_POR_SEVERIDAD: Record<string, string> = {
 const CLASES_POR_DEFECTO = CLASES_POR_SEVERIDAD.BAJO;
 
 /** Chip visual que indica la severidad de un hallazgo. */
-export function ChipSeveridad({ severidad }: { severidad: string }) {
+export function ChipSeveridad({ severidad }: { severidad: Severidad }) {
   const clases = CLASES_POR_SEVERIDAD[severidad] ?? CLASES_POR_DEFECTO;
 
-  return <span className={`${BASE} ${clases}`}>{severidad}</span>;
+  return <span className={`${CHIP_BASE} ${clases}`}>{severidad}</span>;
 }

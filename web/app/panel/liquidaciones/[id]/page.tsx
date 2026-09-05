@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
 import {
@@ -86,7 +86,7 @@ function PublicarInforme({
               </ul>
             </div>
           ) : (
-            <p className="text-sm text-[#B45309] bg-[#FEF3C7] rounded-lg p-3">
+            <p className="text-sm text-[#93540B] bg-[#FEF0C7] rounded-lg p-3">
               Ningún hallazgo está marcado para publicar — el informe saldrá sin hallazgos.
             </p>
           )
@@ -109,9 +109,6 @@ export default function LiquidacionDetallePage({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const { id } = use(params);
-  const liquidacionId = Number(id);
-
   const [detalle, setDetalle] = useState<LiquidacionDetalle | null>(null);
   const [documentos, setDocumentos] = useState<DocumentoInfo[]>([]);
   const [cargando, setCargando] = useState(true);
@@ -119,6 +116,8 @@ export default function LiquidacionDetallePage({
   const cargar = useCallback(async () => {
     setCargando(true);
     try {
+      const { id } = await params;
+      const liquidacionId = Number(id);
       const [det, docs] = await Promise.all([
         api.detalleLiquidacion(liquidacionId),
         api.listarDocumentos(liquidacionId),
@@ -130,7 +129,7 @@ export default function LiquidacionDetallePage({
     } finally {
       setCargando(false);
     }
-  }, [liquidacionId]);
+  }, [params]);
 
   useEffect(() => {
     cargar();

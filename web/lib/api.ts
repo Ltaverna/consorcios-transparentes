@@ -252,7 +252,8 @@ export const api = {
   },
 
   listarDocumentos(liquidacionId: number) {
-    return pedir<DocumentoInfo[]>(`/documentos?liquidacion_id=${liquidacionId}`);
+    const params = new URLSearchParams({ liquidacion_id: String(liquidacionId) });
+    return pedir<DocumentoInfo[]>(`/documentos?${params.toString()}`);
   },
 
   miUnidad() {
