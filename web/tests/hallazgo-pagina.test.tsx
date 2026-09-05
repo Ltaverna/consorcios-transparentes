@@ -41,7 +41,7 @@ test("consejo ve el hallazgo sin controles de auditor", async () => {
   );
   await screen.findAllByText(/Pagos a la propietaria/);
   expect(screen.queryByLabelText("Publicar en el informe")).not.toBeInTheDocument();
-  expect(screen.queryByRole("button", { name: "pendiente" })).not.toBeInTheDocument();
+  expect(screen.queryByRole("button", { name: /pendiente/i })).not.toBeInTheDocument();
   expect(screen.queryByRole("button", { name: /Guardar respuesta/ })).not.toBeInTheDocument();
   // la respuesta ya registrada sigue visible como texto
   expect(screen.getByText("Ya respondimos")).toBeInTheDocument();
