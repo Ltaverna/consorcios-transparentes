@@ -30,7 +30,7 @@ def _entrar(response: Response, sub: str, rol: str) -> None:
 
 @router.post("/login")
 def login(datos: LoginUsuario, request: Request, response: Response, db: Session = Depends(get_db)):
-    if not security.limiter_login.permitir(f"{request.client.host}|{datos.email.lower()}"):
+    if not security.limiter_login.permitir(f"{security.ip_cliente(request)}|{datos.email.lower()}"):
         raise HTTPException(429, "Demasiados intentos; probá de nuevo en unos minutos")
     u = db.query(models.Usuario).filter_by(email=datos.email.lower()).first()
     ok = security.verificar(u.clave_hash if u else _DUMMY_HASH, datos.clave)
@@ -42,7 +42,7 @@ def login(datos: LoginUsuario, request: Request, response: Response, db: Session
 
 @router.post("/login-unidad")
 def login_unidad(datos: LoginUnidad, request: Request, response: Response, db: Session = Depends(get_db)):
-    if not security.limiter_login.permitir(f"{request.client.host}|uf:{datos.uf}"):
+    if not security.limiter_login.permitir(f"{security.ip_cliente(request)}|uf:{datos.uf}"):
         raise HTTPException(429, "Demasiados intentos; probá de nuevo en unos minutos")
     unidad = db.query(models.Unidad).filter_by(uf=datos.uf).first()
     hash_ = unidad.codigo_hash if unidad and unidad.codigo_hash else _DUMMY_HASH

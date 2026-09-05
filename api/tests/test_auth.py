@@ -48,6 +48,22 @@ def test_login_rate_limit_429(db, cliente):
     assert r.status_code == 429
 
 
+def test_rate_limit_por_ip_del_proxy(db, cliente, monkeypatch):
+    from app.config import settings
+    from app import security
+    monkeypatch.setattr(settings, "confiar_proxy", True)
+    security.limiter_login._hits.clear()
+    for i in range(10):
+        cliente.post("/auth/login", json={"email": "x@example.com", "clave": "mala-clave"},
+                     headers={"CF-Connecting-IP": "200.1.1.1"})
+    r = cliente.post("/auth/login", json={"email": "x@example.com", "clave": "mala-clave"},
+                     headers={"CF-Connecting-IP": "200.1.1.1"})
+    assert r.status_code == 429
+    r2 = cliente.post("/auth/login", json={"email": "x@example.com", "clave": "mala-clave"},
+                      headers={"CF-Connecting-IP": "200.2.2.2"})
+    assert r2.status_code == 401  # otra IP real → otro bucket
+
+
 def test_cookie_con_dominio_configurado(db, cliente, monkeypatch):
     from app.config import settings
     from app import admin

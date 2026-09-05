@@ -80,3 +80,13 @@ class RateLimiter:
 
 
 limiter_login = RateLimiter()
+
+
+def ip_cliente(request: Request) -> str:
+    """IP real del cliente. Detrás del tunnel de Cloudflare (CT_CONFIAR_PROXY=true),
+    la conexión llega desde el proxy y la IP real viaja en CF-Connecting-IP."""
+    if settings.confiar_proxy:
+        cf = request.headers.get("cf-connecting-ip")
+        if cf:
+            return cf
+    return request.client.host if request.client else "desconocido"
