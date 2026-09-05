@@ -64,6 +64,14 @@ cualquier otro documento sigue el 403. El front de mi-unidad suma el iframe con 
 link de descarga, igual que la ficha del equipo. Se actualiza el test que fijaba `vista=1 → 403` para
 propietario (cambio de comportamiento deliberado).
 
+## Anexo (aprobado 5/09): PWA instalable
+
+El panel se vuelve instalable desde el celular, sin modo offline (la app necesita la API en vivo;
+offline sería fingir datos): `web/app/manifest.ts` (convención de Next) con nombre "Consorcio
+Transparente", `display: standalone`, colores institucionales (#123A5C) y `start_url: /entrar`;
+íconos PNG 192/512 + `apple-touch-icon` 180 generados del monograma CT (`web/app/icon.svg`).
+Sin service worker. Se implementa y deploya en este mismo ciclo.
+
 ## Fuera de alcance
 
 Modelar la escala SUTERH completa (categorías/antigüedad/zonas), actualización automática de referencias,
