@@ -8,6 +8,7 @@ os.environ["CT_COOKIE_SEGURA"] = "false"
 os.environ["CT_COOKIE_DOMINIO"] = ""
 os.environ["CT_CONFIAR_PROXY"] = "false"
 os.environ["CT_CORS_ORIGIN"] = "http://localhost:3000"
+os.environ["CT_STORAGE_DIR"] = ""
 
 import pathlib
 

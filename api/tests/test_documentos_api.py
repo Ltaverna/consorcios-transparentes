@@ -123,4 +123,5 @@ def test_contenido_con_vista_sirve_inline(db, auditor):
     assert (d.archivo_key, True) in llamadas    # sin vista → attachment
     assert r_vista.status_code == 307
     assert "attachment" not in r_vista.headers.get("content-disposition", "")
+    assert r_vista.headers.get("x-content-type-options") == "nosniff"
     assert "attachment" in r_descarga.headers.get("content-disposition", "")
