@@ -63,6 +63,12 @@
   anterior decía 2fc07d6…; el tunnel y el worker viven en 115a2f94…). Fase A mergeada a main: IP real tras proxy,
   descarga forzada, `proxy.ts`, Alembic (`866ed55c8961`; orden build → migrate → up), adapter OpenNext.
 
+- **Reglamento + transparencia al propietario** (5/09, rama `reglamento-propietarios`; spec
+  `docs/superpowers/specs/2026-09-05-reglamento-y-comprobantes-propietario-design.md`): el reglamento de
+  copropiedad es consultable en `/reglamento` (transcripción con react-markdown + PDF descargable; subida
+  del auditor en Consorcio), y los propietarios ven los hallazgos publicados en `/mi-unidad` con sus
+  comprobantes descargables (solo refs de origen "comprobantes" — el review cazó la colisión con las UFs
+  de morosidad). Tests: api 106 · web 40.
 - **Sincronización mensual automática** (5/09, rama `sincronizacion-mensual`; spec
   `docs/superpowers/specs/2026-09-05-sincronizacion-mensual-design.md`): timer diario 06:30
   (`ct-sincronizar.timer`, DEPLOY.md §8) corre `ct sincronizar` — baja del portal la liquidación nueva

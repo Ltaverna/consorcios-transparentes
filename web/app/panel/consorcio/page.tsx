@@ -13,6 +13,80 @@ import { TablaUnidades } from "@/components/consorcio/unidades";
 import { mensajeError } from "@/lib/formato";
 import { api, type ConsorcioInfo, type UnidadFila } from "@/lib/api";
 
+function CardReglamento() {
+  const [estado, setEstado] = useState<{ pdf: boolean; transcripcion: boolean } | null>(null);
+  const [subiendo, setSubiendo] = useState(false);
+
+  const cargarEstado = useCallback(async () => {
+    try {
+      setEstado(await api.estadoReglamento());
+    } catch (err) {
+      toast.error(mensajeError(err));
+    }
+  }, []);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- patrón de carga establecido; ver plan Task 12
+    cargarEstado();
+  }, [cargarEstado]);
+
+  async function subir(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const formulario = e.currentTarget;
+    const datos = new FormData(formulario);
+    const pdf = datos.get("pdf") as File | null;
+    const transcripcion = datos.get("transcripcion") as File | null;
+    const form = new FormData();
+    if (pdf && pdf.size > 0) form.set("pdf", pdf);
+    if (transcripcion && transcripcion.size > 0) form.set("transcripcion", transcripcion);
+    if (![...form.keys()].length) {
+      toast.error("Elegí el PDF, la transcripción o ambos");
+      return;
+    }
+    setSubiendo(true);
+    try {
+      const res = await api.subirReglamento(form);
+      setEstado({ pdf: res.pdf, transcripcion: res.transcripcion });
+      formulario.reset();
+      toast.success("Reglamento subido");
+    } catch (err) {
+      toast.error(mensajeError(err));
+    } finally {
+      setSubiendo(false);
+    }
+  }
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Reglamento</CardTitle>
+      </CardHeader>
+      <CardContent className="flex flex-col gap-3">
+        {estado && (
+          <p className="text-sm text-tinta-suave">
+            PDF: {estado.pdf ? "cargado" : "falta"} · Transcripción: {estado.transcripcion ? "cargada" : "falta"}
+          </p>
+        )}
+        <form onSubmit={subir} className="flex flex-col gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="reglamento-pdf">PDF escaneado</Label>
+              <Input id="reglamento-pdf" name="pdf" type="file" accept="application/pdf" />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="reglamento-transcripcion">Transcripción (Markdown)</Label>
+              <Input id="reglamento-transcripcion" name="transcripcion" type="file" accept=".md,.txt,text/markdown" />
+            </div>
+          </div>
+          <Button type="submit" disabled={subiendo} className="self-start">
+            {subiendo ? "Subiendo…" : "Subir reglamento"}
+          </Button>
+        </form>
+      </CardContent>
+    </Card>
+  );
+}
+
 const CAMPOS_DATOS: { clave: keyof Omit<ConsorcioInfo, "umbrales" | "umbrales_default">; etiqueta: string }[] = [
   { clave: "nombre", etiqueta: "Nombre" },
   { clave: "direccion", etiqueta: "Dirección" },
@@ -129,6 +203,8 @@ export default function ConsorcioPage() {
                   />
                 </CardContent>
               </Card>
+
+              <CardReglamento />
             </>
           )}
 

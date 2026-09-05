@@ -1,6 +1,6 @@
 from dataclasses import fields
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, File, HTTPException, Request, Response, UploadFile
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
@@ -8,6 +8,7 @@ from ct.rules import Config
 
 from .. import admin, models, security
 from ..db import get_db
+from .documentos import _servir
 
 router = APIRouter(tags=["consorcio"])
 UMBRALES_VALIDOS = {f.name for f in fields(Config)}
@@ -15,6 +16,48 @@ UMBRALES_VALIDOS = {f.name for f in fields(Config)}
 # anotación ("float"/"int"), no el tipo en sí; todos los umbrales son uno de esos dos.
 _TIPOS = {"float": float, "int": int}
 UMBRALES_TIPO = {f.name: _TIPOS.get(f.type, float) for f in fields(Config)}
+
+RUTA_REGLAMENTO = {"pdf": "consorcio/reglamento.pdf", "transcripcion": "consorcio/reglamento.md"}
+MAX_REGLAMENTO_MB = 20
+
+
+@router.get("/consorcio/reglamento")
+def estado_reglamento(request: Request, s: dict = Depends(security.sesion)):
+    st = request.app.state.storage
+    return {tipo: st.existe(key) for tipo, key in RUTA_REGLAMENTO.items()}
+
+
+@router.post("/consorcio/reglamento")
+def subir_reglamento(request: Request, pdf: UploadFile | None = File(None),
+                     transcripcion: UploadFile | None = File(None),
+                     s: dict = Depends(security.requiere("auditor"))):
+    if not pdf and not transcripcion:
+        raise HTTPException(422, "Subí el PDF, la transcripción o ambos")
+    st = request.app.state.storage
+    tope = MAX_REGLAMENTO_MB * 1024 * 1024
+    for archivo, tipo in ((pdf, "pdf"), (transcripcion, "transcripcion")):
+        if not archivo:
+            continue
+        data = archivo.file.read(tope + 1)
+        if len(data) > tope:
+            raise HTTPException(413, f"El archivo supera los {MAX_REGLAMENTO_MB} MB")
+        st.guardar(RUTA_REGLAMENTO[tipo], data)
+    return {"ok": True, **{t: st.existe(k) for t, k in RUTA_REGLAMENTO.items()}}
+
+
+@router.get("/consorcio/reglamento/{tipo}")
+def ver_reglamento(tipo: str, request: Request, s: dict = Depends(security.sesion)):
+    key = RUTA_REGLAMENTO.get(tipo)
+    if not key:
+        raise HTTPException(404, "No existe ese tipo de documento")
+    st = request.app.state.storage
+    if not st.existe(key):
+        raise HTTPException(404, "El reglamento todavía no está cargado")
+    if tipo == "pdf":
+        return _servir(request, key)  # descarga forzada, local o R2
+    # La transcripción se sirve directa (sin redirect a R2): el front la lee con fetch y es chica.
+    return Response(st.leer(key), media_type="text/markdown; charset=utf-8",
+                    headers={"X-Content-Type-Options": "nosniff"})
 
 
 class CambioConsorcio(BaseModel):

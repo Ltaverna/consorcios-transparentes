@@ -17,7 +17,7 @@ export class ApiError extends Error {
   }
 }
 
-async function pedir<T>(path: string, init?: RequestInit): Promise<T> {
+async function crudo(path: string, init?: RequestInit): Promise<Response> {
   const res = await fetch(BASE + path, { credentials: "include", ...init });
   if (!res.ok) {
     let detail = res.statusText;
@@ -32,7 +32,17 @@ async function pedir<T>(path: string, init?: RequestInit): Promise<T> {
     }
     throw new ApiError(res.status, detail);
   }
+  return res;
+}
+
+async function pedir<T>(path: string, init?: RequestInit): Promise<T> {
+  const res = await crudo(path, init);
   return res.json() as Promise<T>;
+}
+
+async function pedirTexto(path: string): Promise<string> {
+  const res = await crudo(path);
+  return res.text();
 }
 
 function conJson(method: "POST" | "PUT", cuerpo: unknown): RequestInit {
@@ -264,10 +274,27 @@ export const api = {
   miUnidad() {
     return pedir<MiUnidad>("/mi-unidad");
   },
+
+  estadoReglamento() {
+    return pedir<{ pdf: boolean; transcripcion: boolean }>("/consorcio/reglamento");
+  },
+
+  textoReglamento() {
+    return pedirTexto("/consorcio/reglamento/transcripcion");
+  },
+
+  subirReglamento(form: FormData) {
+    return pedir<{ ok: boolean; pdf: boolean; transcripcion: boolean }>(
+      "/consorcio/reglamento", { method: "POST", body: form });
+  },
 };
 
 export function urlInforme(periodo: string, tipo: "html" | "xlsx"): string {
   return `${BASE}/informes/${periodo}/${tipo}`;
+}
+
+export function urlReglamento(tipo: "pdf" | "transcripcion"): string {
+  return `${BASE}/consorcio/reglamento/${tipo}`;
 }
 
 export function urlContenidoDocumento(id: number, opts?: { vista?: boolean }): string {
