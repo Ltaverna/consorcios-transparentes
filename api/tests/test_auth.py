@@ -1,4 +1,4 @@
-from app import admin, models
+from app import admin, models, security
 
 
 def test_login_y_yo(auditor):
@@ -62,6 +62,30 @@ def test_rate_limit_por_ip_del_proxy(db, cliente, monkeypatch):
     r2 = cliente.post("/auth/login", json={"email": "x@example.com", "clave": "mala-clave"},
                       headers={"CF-Connecting-IP": "200.2.2.2"})
     assert r2.status_code == 401  # otra IP real → otro bucket
+
+
+def test_login_google_sin_configurar_da_404(db, cliente):
+    r = cliente.post("/auth/login-google", json={"credential": "x"})
+    assert r.status_code == 404
+
+
+def test_login_google_sin_alta_da_403(db, cliente, monkeypatch):
+    from app.config import settings
+    monkeypatch.setattr(settings, "google_client_id", "cid-test")
+    monkeypatch.setattr(security, "verificar_id_token_google", lambda c: "desconocido@gmail.com")
+    r = cliente.post("/auth/login-google", json={"credential": "tok"})
+    assert r.status_code == 403
+
+
+def test_login_google_con_alta_entra(db, cliente, monkeypatch):
+    from app.config import settings
+    monkeypatch.setattr(settings, "google_client_id", "cid-test")
+    monkeypatch.setattr(security, "verificar_id_token_google", lambda c: "consejo@example.com")
+    admin.crear_usuario(db, "consejo@example.com", "Vecina", "consejo", "clave-de-test")
+    r = cliente.post("/auth/login-google", json={"credential": "tok"})
+    assert r.status_code == 200
+    assert r.json() == {"rol": "consejo", "nombre": "Vecina"}
+    assert security.COOKIE in r.cookies
 
 
 def test_cookie_con_dominio_configurado(db, cliente, monkeypatch):

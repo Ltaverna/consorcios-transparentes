@@ -55,3 +55,10 @@ def test_ip_cliente_con_proxy_usa_cf_connecting_ip(monkeypatch):
     assert security.ip_cliente(req) == "181.30.1.2"
     req.headers = {}
     assert security.ip_cliente(req) == "10.0.0.1"  # con flag pero sin header, fallback
+
+
+def test_verificar_id_token_google_basura_da_401():
+    from fastapi import HTTPException
+    with pytest.raises(HTTPException) as e:
+        security.verificar_id_token_google("no-es-un-jwt")
+    assert e.value.status_code == 401

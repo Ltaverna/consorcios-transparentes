@@ -172,6 +172,10 @@ export const api = {
     return pedir<{ rol: Rol; nombre: string }>("/auth/login", conJson("POST", { email, clave }));
   },
 
+  loginGoogle(credential: string) {
+    return pedir<{ rol: Rol; nombre: string }>("/auth/login-google", conJson("POST", { credential }));
+  },
+
   loginUnidad(uf: number, codigo: string) {
     return pedir<{ rol: Rol; uf: number; piso_depto: string }>("/auth/login-unidad", conJson("POST", { uf, codigo }));
   },

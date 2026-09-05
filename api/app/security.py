@@ -1,4 +1,5 @@
 """Hashes (argon2), JWT en cookie httpOnly, dependencias de rol y rate limit simple."""
+import logging
 import threading
 import time
 from datetime import datetime, timedelta, timezone
@@ -8,6 +9,8 @@ from argon2 import PasswordHasher
 from fastapi import Depends, HTTPException, Request
 
 from .config import settings
+
+logger = logging.getLogger(__name__)
 
 COOKIE = "ct_sesion"
 _ph = PasswordHasher()
@@ -80,6 +83,33 @@ class RateLimiter:
 
 
 limiter_login = RateLimiter()
+
+# Un kid desconocido dispara re-fetch de las JWKS (PyJWT maneja la rotación de claves de
+# Google); por eso el rate limit del endpoint corre ANTES de verificar.
+_JWKS_GOOGLE = jwt.PyJWKClient("https://www.googleapis.com/oauth2/v3/certs")
+
+
+def verificar_id_token_google(credential: str) -> str:
+    """Valida el ID token del botón de Google y devuelve el email (en minúsculas).
+
+    Firma RS256 contra las JWKS de Google, audiencia = nuestro client ID, issuer de Google
+    y email verificado. Cualquier falla es 401: al usuario no le sirve saber el detalle.
+
+    La identidad se ancla al email y no al sub de Google — decisión aceptada para un
+    allowlist chico administrado por el auditor."""
+    try:
+        clave = _JWKS_GOOGLE.get_signing_key_from_jwt(credential)
+        datos = jwt.decode(credential, clave.key, algorithms=["RS256"],
+                           audience=settings.google_client_id,
+                           options={"require": ["exp"]})
+        if datos.get("iss") not in ("accounts.google.com", "https://accounts.google.com"):
+            raise ValueError("issuer desconocido")
+        if datos.get("email_verified") is not True:
+            raise ValueError("email sin verificar")
+        return datos["email"].lower()
+    except Exception:
+        logger.warning("Fallo validando el ID token de Google", exc_info=True)
+        raise HTTPException(401, "No pudimos validar la cuenta de Google")
 
 
 def ip_cliente(request: Request) -> str:
