@@ -86,9 +86,14 @@ Verificar: `curl -s https://api-consorcio.neuralcore.dev/salud` → `{"ok":true}
 
 ## 7. Notas
 
-- **Rate limit detrás del tunnel**: la API ve la IP del tunnel, no la real; el header con la IP real
-  (`CF-Connecting-IP`) queda pendiente de cablear en el deploy definitivo (anotado en el spec).
-- **Actualizar**: `git pull && docker compose up -d --build`.
+- **Rate limit detrás del tunnel**: con `CT_CONFIAR_PROXY=true` la API toma la IP real del header
+  `CF-Connecting-IP`. Ese header es confiable solo si la API no es alcanzable de forma directa:
+  el contenedor publica el puerto solo en localhost y el único camino externo es el tunnel.
+- **Warning esperado en el deploy del front**: `npm run deploy:cf` avisa "Node.js middleware support is
+  experimental in cloudflare" — es por `proxy.ts`, que solo lee la cookie y redirige; no bloquea. Ante
+  dudas, probar antes con `npm run preview:cf` (requiere la API de producción accesible).
+- **Actualizar**: `git pull && docker compose build && docker compose run --rm api alembic upgrade head
+  && docker compose up -d`.
 - **Backup**: la base es Neon (backups propios) o `datos-api/` en modo local; los documentos, R2 o `datos-api/storage`.
 - **Primer uso real**: medir la subida del ZIP de comprobantes de un mes real (el endpoint es sincrónico;
   si tarda más de ~90 s habrá que moverlo a background — anotado).
