@@ -51,7 +51,9 @@ export function ListaLiquidaciones({
   if (filas.length === 0) {
     return (
       <p className="text-tinta-suave text-sm py-8 text-center">
-        Todavía no hay liquidaciones — subí la primera.
+        {rol === "auditor"
+          ? "Todavía no hay liquidaciones — subí la primera."
+          : "Todavía no hay liquidaciones."}
       </p>
     );
   }
