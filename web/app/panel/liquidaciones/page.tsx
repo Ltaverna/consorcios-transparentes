@@ -3,12 +3,14 @@
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useRol } from "@/components/rol-context";
 import { SubirLiquidacion } from "@/components/liquidaciones/subir-liquidacion";
 import { ListaLiquidaciones } from "@/components/liquidaciones/lista";
 import { mensajeError } from "@/lib/formato";
 import { api, type LiquidacionResumen } from "@/lib/api";
 
 export default function LiquidacionesPage() {
+  const rol = useRol();
   const [filas, setFilas] = useState<LiquidacionResumen[]>([]);
   const [cargando, setCargando] = useState(true);
 
@@ -37,7 +39,7 @@ export default function LiquidacionesPage() {
   return (
     <div className="flex flex-col gap-4">
       <h1 className="font-titulos text-xl font-bold">Liquidaciones</h1>
-      <SubirLiquidacion alSubir={cargar} />
+      {rol === "auditor" && <SubirLiquidacion alSubir={cargar} />}
       {cargando ? (
         <div className="flex flex-col gap-2">
           <Skeleton className="h-10 w-full" />

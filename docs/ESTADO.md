@@ -73,11 +73,11 @@
 6. La contraseña de Redconar se cambia al terminar el proyecto (decisión del usuario); mientras tanto `ct descargar` la pide por consola o
    la toma de `CT_REDCONAR_USUARIO` / `CT_REDCONAR_CLAVE`, sin guardarla.
 
-**Seguimiento post-merge**: pendientes de seguimiento del panel: gating por rol en la UI para consejo/moderador,
-KPIs/badge en vivo durante el triage. Del review de Fase A: el "visor" con iframe de
-`web/components/hallazgos/ficha.tsx` no puede renderizar documentos que ahora fuerzan descarga (attachment en
-local y en R2) — repensar o sacar el visor; y esta máquina corre Node 22.11 (los tests de web necesitan
-`NODE_OPTIONS='--experimental-require-module'`; conviene ≥ 22.12).
+**Seguimiento post-merge**: KPIs/badge en vivo durante el triage. Resueltos el 5/09 (rama `visor-gating-rol`,
+spec `docs/superpowers/specs/2026-09-05-visor-y-gating-rol-design.md`): el visor de comprobantes volvió con
+`?vista=1` (inline solo para roles del equipo; descarga forzada intacta) y el panel es de solo lectura para
+consejo/moderador (contexto `useRol`). Suites: api 94 · web 34. Nota de máquina: Node 22.11 (los tests de web
+necesitan `NODE_OPTIONS='--experimental-require-module'`; conviene ≥ 22.12).
 
 ## Cómo correr
 ```bash

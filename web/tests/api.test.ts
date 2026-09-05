@@ -34,4 +34,5 @@ test("subir liquidación manda FormData con archivo y periodo", async () => {
 test("las URLs de archivos apuntan a la API", () => {
   expect(urlInforme("2026-08", "html")).toBe(`${API}/informes/2026-08/html`);
   expect(urlContenidoDocumento(7)).toBe(`${API}/documentos/7/contenido`);
+  expect(urlContenidoDocumento(7, { vista: true })).toBe(`${API}/documentos/7/contenido?vista=1`);
 });

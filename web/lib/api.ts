@@ -266,6 +266,6 @@ export function urlInforme(periodo: string, tipo: "html" | "xlsx"): string {
   return `${BASE}/informes/${periodo}/${tipo}`;
 }
 
-export function urlContenidoDocumento(id: number): string {
-  return `${BASE}/documentos/${id}/contenido`;
+export function urlContenidoDocumento(id: number, opts?: { vista?: boolean }): string {
+  return `${BASE}/documentos/${id}/contenido${opts?.vista ? "?vista=1" : ""}`;
 }

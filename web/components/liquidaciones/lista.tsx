@@ -10,6 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { useRol } from "@/components/rol-context";
 import { SubirComprobantes } from "@/components/liquidaciones/subir-comprobantes";
 import { CHIP_BASE } from "@/components/chip-base";
 import type { LiquidacionResumen } from "@/lib/api";
@@ -46,10 +47,13 @@ export function ListaLiquidaciones({
   filas: LiquidacionResumen[];
   alCambiar: () => void;
 }) {
+  const rol = useRol();
   if (filas.length === 0) {
     return (
       <p className="text-tinta-suave text-sm py-8 text-center">
-        Todavía no hay liquidaciones — subí la primera.
+        {rol === "auditor"
+          ? "Todavía no hay liquidaciones — subí la primera."
+          : "Todavía no hay liquidaciones."}
       </p>
     );
   }
@@ -80,7 +84,7 @@ export function ListaLiquidaciones({
                 <Link href={`/panel/liquidaciones/${fila.id}`} className="text-sm underline">
                   Ver detalle
                 </Link>
-                {(fila.estado === "procesada" || fila.estado === "publicada") && (
+                {rol === "auditor" && (fila.estado === "procesada" || fila.estado === "publicada") && (
                   <SubirComprobantes
                     liquidacionId={fila.id}
                     periodo={fila.periodo}
