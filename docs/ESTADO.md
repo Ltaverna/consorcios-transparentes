@@ -75,7 +75,7 @@
   con exclusión de pólizas) — referencias en la Config del panel, 0 = apagada; biblioteca de normativa
   (escala SUTERH/acuerdo/honorarios, legible por cualquier sesión, subida del auditor); visor embebido
   para propietarios en hallazgos publicados; panel instalable como PWA (manifest + monograma CT).
-  Pendiente operativo: cargar los valores de referencia vigentes (validados por Lucas) y reprocesar.
+  Referencias cargadas y validadas el 5/09 (escala SUTERH ago-2026, honorarios AIERH Clase C, topes de abonos); julio/agosto reprocesados: 2 hallazgos de mercado nuevos en julio (SAC anotado, ascensores sobre tope), agosto limpio.
   La transcripción del reglamento fue revisada contra el escaneo (5/09): porcentuales reconstruidos
   suman 100,0000% exacto; re-subir al panel.
 - **Portabilidad total en compose** (5/09, rama `portabilidad-compose`; spec
