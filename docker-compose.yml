@@ -1,0 +1,17 @@
+# Consorcio Transparente — API en la máquina que hace el tunnel cloudflared.
+# Uso: cp api/.env.example api/.env (completar) && docker compose up -d --build
+services:
+  api:
+    build:
+      context: .
+      dockerfile: api/Dockerfile
+    env_file: api/.env
+    ports:
+      - "127.0.0.1:8080:8080"   # solo loopback: expone cloudflared, no la LAN
+    restart: unless-stopped
+    # Modo local (sin Neon/R2): descomentar los volúmenes y en api/.env poner
+    #   CT_DATABASE_URL=sqlite:////srv/datos/ct.db
+    #   CT_STORAGE_DIR=/srv/storage
+    # volumes:
+    #   - ./datos-api/db:/srv/datos
+    #   - ./datos-api/storage:/srv/storage

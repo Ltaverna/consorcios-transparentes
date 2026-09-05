@@ -24,6 +24,7 @@ class LoginUnidad(BaseModel):
 def _entrar(response: Response, sub: str, rol: str) -> None:
     response.set_cookie(security.COOKIE, security.crear_token(sub, rol), httponly=True,
                         samesite="lax", secure=settings.cookie_segura,
+                        domain=settings.cookie_dominio or None,
                         max_age=settings.jwt_horas * 3600)
 
 
@@ -54,13 +55,17 @@ def login_unidad(datos: LoginUnidad, request: Request, response: Response, db: S
 
 @router.post("/salir")
 def salir(response: Response):
-    response.delete_cookie(security.COOKIE, samesite="lax", secure=settings.cookie_segura)
+    response.delete_cookie(security.COOKIE, samesite="lax", secure=settings.cookie_segura,
+                           domain=settings.cookie_dominio or None)
     return {"ok": True}
 
 
 @router.get("/yo")
-def yo(s: dict = Depends(security.sesion)):
+def yo(s: dict = Depends(security.sesion), db: Session = Depends(get_db)):
     out = {"rol": s["rol"]}
     if s["sub"].startswith("uf:"):
         out["uf"] = int(s["sub"][3:])
+    elif s["sub"].startswith("u:"):
+        u = db.query(models.Usuario).filter_by(id=int(s["sub"][2:])).first()
+        out["nombre"] = u.nombre if u else ""
     return out
