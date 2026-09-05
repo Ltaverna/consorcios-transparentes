@@ -66,8 +66,12 @@
 ## Pendientes inmediatos
 1. **Triage de hallazgos en el panel**: los 84 están `pendiente`; revisar y publicar los que correspondan.
 2. **Migrar a Neon + R2** cuando Lucas cree las cuentas (hoy todo local en esta máquina; ver "Modo provisorio").
-3. **SSO de Google para los roles del equipo** (idea 5/09): no reemplaza el código por unidad de los propietarios;
-   diseño aparte, post-deploy.
+3. **SSO de Google del equipo: implementado** (5/09, rama `sso-google`; spec
+   `docs/superpowers/specs/2026-09-05-sso-google-design.md`): botón de GIS en `/entrar` + `POST /auth/login-google`
+   con verificación del ID token (JWKS, RS256) y alta previa obligatoria; identidad anclada al email (decisión
+   registrada). Convive con la clave; propietarios siguen con código. Para encenderlo: `CT_GOOGLE_CLIENT_ID` en
+   `api/.env` y `NEXT_PUBLIC_GOOGLE_CLIENT_ID` en `web/.env.production` (el client ID está en el `.env` raíz;
+   el secret de al lado no se usa). Requiere los JavaScript origins del panel en el OAuth client de Google.
 4. Segundo sistema de liquidación (hace falta un PDF de una administración que no use Redconar).
 5. Reglas por comparación con mercado (escala SUTERH, honorarios de referencia, abonos).
 6. La contraseña de Redconar se cambia al terminar el proyecto (decisión del usuario); mientras tanto `ct descargar` la pide por consola o
