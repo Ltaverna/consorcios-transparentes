@@ -36,8 +36,10 @@ def _resumen(h: models.Hallazgo) -> dict:
 @router.get("")
 def listar(severidad: str | None = None, estado: str | None = None, regla: str | None = None,
            periodo: str | None = None, db: Session = Depends(get_db),
-           s: dict = Depends(security.requiere("auditor", "consejo", "moderador"))):
+           s: dict = Depends(security.requiere("auditor", "consejo", "moderador", "propietario"))):
     q = db.query(models.Hallazgo).join(models.Liquidacion)
+    if s["rol"] == "propietario":
+        q = q.filter(models.Hallazgo.publicado == True)  # noqa: E712
     if severidad:
         q = q.filter(models.Hallazgo.severidad == severidad)
     if estado:
@@ -52,15 +54,20 @@ def listar(severidad: str | None = None, estado: str | None = None, regla: str |
 
 @router.get("/{h_id}")
 def detalle(h_id: int, db: Session = Depends(get_db),
-            s: dict = Depends(security.requiere("auditor", "consejo", "moderador"))):
+            s: dict = Depends(security.requiere("auditor", "consejo", "moderador", "propietario"))):
     h = db.get(models.Hallazgo, h_id)
-    if not h:
+    # Para el propietario, un hallazgo sin publicar responde el MISMO 404 que uno
+    # inexistente: no revelamos que existe algo en borrador.
+    if not h or (s["rol"] == "propietario" and not h.publicado):
         raise HTTPException(404, "No existe ese hallazgo")
+    base = {**_resumen(h), "evidencia": h.evidencia, "recomendacion": h.recomendacion,
+            "refs": h.refs, "respuesta_admin": h.respuesta_admin}
+    if s["rol"] == "propietario":
+        return base  # sin historial interno de eventos (ni consulta de usuarios)
     eventos = sorted(h.eventos, key=lambda e: (e.ts, e.id), reverse=True)
     ids = {e.usuario_id for e in h.eventos if e.usuario_id}
     usuarios = {u.id: u.nombre for u in db.query(models.Usuario).filter(models.Usuario.id.in_(ids))} if ids else {}
-    return {**_resumen(h), "evidencia": h.evidencia, "recomendacion": h.recomendacion,
-            "refs": h.refs, "respuesta_admin": h.respuesta_admin,
+    return {**base,
             "eventos": [{"de": e.de, "a": e.a, "nota": e.nota, "ts": e.ts.isoformat(),
                          "usuario": usuarios.get(e.usuario_id, "")} for e in eventos]}
 

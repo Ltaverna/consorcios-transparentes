@@ -24,23 +24,38 @@ def _servir(request: Request, key: str, attachment: bool = True) -> Response:
     return Response(request.app.state.storage.leer(key), media_type=mime_por_clave(key), headers=headers)
 
 
+def _accesible_para_propietario(db: Session, d: models.Documento) -> bool:
+    """Un propietario solo ve documentos citados por un hallazgo publicado (gasto_n en refs)."""
+    if d.gasto_n is None:
+        return False
+    filas = db.query(models.Hallazgo).filter_by(liquidacion_id=d.liquidacion_id, publicado=True).all()
+    return any(str(d.gasto_n) in (h.refs or []) for h in filas)
+
+
 @router.get("/documentos")
 def listar(liquidacion_id: int, db: Session = Depends(get_db),
-           s: dict = Depends(security.requiere("auditor", "consejo", "moderador"))):
+           s: dict = Depends(security.requiere("auditor", "consejo", "moderador", "propietario"))):
     filas = db.query(models.Documento).filter_by(liquidacion_id=liquidacion_id).all()
+    if s["rol"] == "propietario":
+        filas = [d for d in filas if _accesible_para_propietario(db, d)]
     return [{"id": d.id, "gasto_n": d.gasto_n, "tipo": d.tipo, "hash": d.hash,
              "metadatos": d.metadatos} for d in filas]
 
 
 @router.get("/documentos/{d_id}/contenido")
 def contenido(d_id: int, request: Request, vista: bool = False, db: Session = Depends(get_db),
-              s: dict = Depends(security.requiere("auditor", "consejo", "moderador"))):
+              s: dict = Depends(security.requiere("auditor", "consejo", "moderador", "propietario"))):
     d = db.get(models.Documento, d_id)
     if not d:
         raise HTTPException(404, "No existe ese documento")
-    # vista=True: inline para el triage del equipo (el requiere de arriba ya excluye propietarios);
-    # sin el flag, descarga forzada como siempre. Igual que los informes, inline = sin el header
-    # de attachment (nosniff se conserva en _servir).
+    if s["rol"] == "propietario":
+        if vista:
+            raise HTTPException(403, "Solo el equipo puede ver documentos embebidos")
+        if not _accesible_para_propietario(db, d):
+            raise HTTPException(403, "No autorizado para este documento")
+    # vista=True: inline para el triage del equipo (el chequeo de arriba lo bloquea para
+    # propietarios); sin el flag, descarga forzada como siempre. Igual que los informes,
+    # inline = sin el header de attachment (nosniff se conserva en _servir).
     return _servir(request, d.archivo_key, attachment=not vista)
 
 

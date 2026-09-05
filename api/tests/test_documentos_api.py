@@ -31,6 +31,44 @@ def test_propietario_no_ve_documentos(db, cliente, auditor, tmp_path):
     assert cliente.get(f"/documentos/{d.id}/contenido").status_code == 403
 
 
+def propietario_con_documentos(db, cliente, auditor, tmp_path):
+    """Liquidación con dos comprobantes (gastos 2 y 3) y un hallazgo publicado que
+    solo cita el gasto 2; deja al cliente logueado como propietario. Devuelve
+    (liq_id, doc_ok_id, doc_no_id)."""
+    liq_id = subir(auditor).json()["id"]
+    (tmp_path / "comprobantes/2026-08").mkdir(parents=True)
+    docs = []
+    for n in (2, 3):
+        key = f"comprobantes/2026-08/g{n}.pdf"
+        (tmp_path / key).write_bytes(b"pdf")
+        docs.append(models.Documento(liquidacion_id=liq_id, gasto_n=n, tipo="factura", archivo_key=key))
+    db.add_all(docs)
+    db.add(models.Hallazgo(liquidacion_id=liq_id, clave="cruce|pub", origen="comprobantes",
+                           regla="cruce", severidad="ALTO", titulo="Publicado",
+                           refs=["2"], publicado=True))
+    db.commit()
+    uf = db.query(models.Unidad).first().uf
+    codigo = admin.generar_codigo(db, uf)
+    r = cliente.post("/auth/login-unidad", json={"uf": uf, "codigo": codigo})
+    assert r.status_code == 200
+    return liq_id, docs[0].id, docs[1].id
+
+
+def test_propietario_descarga_documento_de_hallazgo_publicado(db, cliente, auditor, tmp_path):
+    _, doc_ok_id, doc_no_id = propietario_con_documentos(db, cliente, auditor, tmp_path)
+    r = cliente.get(f"/documentos/{doc_ok_id}/contenido", follow_redirects=False)
+    assert r.status_code in (200, 307)
+    assert cliente.get(f"/documentos/{doc_no_id}/contenido").status_code == 403
+    assert cliente.get(f"/documentos/{doc_ok_id}/contenido?vista=1").status_code == 403
+
+
+def test_propietario_lista_documentos_de_publicados(db, cliente, auditor, tmp_path):
+    liq_id, doc_ok_id, _ = propietario_con_documentos(db, cliente, auditor, tmp_path)
+    r = cliente.get(f"/documentos?liquidacion_id={liq_id}")
+    assert r.status_code == 200
+    assert {d["id"] for d in r.json()} == {doc_ok_id}
+
+
 def test_propietario_ve_informe_publicado(db, cliente, auditor):
     liq_id = subir(auditor).json()["id"]
     auditor.post(f"/liquidaciones/{liq_id}/publicar")

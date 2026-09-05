@@ -1,4 +1,4 @@
-from app import models
+from app import admin, models
 
 from .test_liquidaciones_api import subir
 
@@ -8,6 +8,42 @@ ESTADOS = ("pendiente", "preguntado", "respondido", "descartado", "cerrado")
 def con_datos(auditor):
     subir(auditor)
     return auditor
+
+
+def propietario_con_hallazgos(db, cliente, auditor):
+    """Sube una liquidación, agrega un hallazgo publicado y otro sin publicar,
+    y deja al cliente logueado como propietario de una unidad. Devuelve los ids."""
+    liq_id = subir(auditor).json()["id"]
+    h_pub = models.Hallazgo(liquidacion_id=liq_id, clave="cruce|pub", origen="comprobantes",
+                            regla="cruce", severidad="ALTO", area="Mantenimiento",
+                            titulo="Publicado", evidencia="ev", recomendacion="rec",
+                            refs=["2"], publicado=True)
+    h_no_pub = models.Hallazgo(liquidacion_id=liq_id, clave="cruce|nopub", origen="comprobantes",
+                               regla="cruce", severidad="ALTO", area="Mantenimiento",
+                               titulo="No publicado", refs=["3"])
+    db.add_all([h_pub, h_no_pub])
+    db.commit()
+    uf = db.query(models.Unidad).first().uf
+    codigo = admin.generar_codigo(db, uf)
+    r = cliente.post("/auth/login-unidad", json={"uf": uf, "codigo": codigo})
+    assert r.status_code == 200
+    return h_pub.id, h_no_pub.id
+
+
+def test_propietario_lista_solo_hallazgos_publicados(db, cliente, auditor):
+    propietario_con_hallazgos(db, cliente, auditor)
+    r = cliente.get("/hallazgos")
+    assert r.status_code == 200
+    assert len(r.json()) == 1 and all(h["publicado"] for h in r.json())
+
+
+def test_propietario_detalle_sin_eventos_y_404_para_no_publicado(db, cliente, auditor):
+    id_publicado, id_no_publicado = propietario_con_hallazgos(db, cliente, auditor)
+    r = cliente.get(f"/hallazgos/{id_publicado}")
+    assert r.status_code == 200
+    assert "eventos" not in r.json()
+    assert "evidencia" in r.json() and "recomendacion" in r.json()
+    assert cliente.get(f"/hallazgos/{id_no_publicado}").status_code == 404
 
 
 def test_listar_y_filtrar(db, auditor):
