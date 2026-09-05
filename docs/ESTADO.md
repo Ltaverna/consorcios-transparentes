@@ -69,9 +69,15 @@
   del auditor en Consorcio), y los propietarios ven los hallazgos publicados en `/mi-unidad` con sus
   comprobantes descargables (solo refs de origen "comprobantes" — el review cazó la colisión con las UFs
   de morosidad). Tests: api 106 · web 40.
+- **Portabilidad total en compose** (5/09, rama `portabilidad-compose`; spec
+  `docs/superpowers/specs/2026-09-05-portabilidad-compose-design.md`): el stack entero (API + Postgres +
+  worker + tunnel) corre con `docker compose up -d`; la sincronización diaria vive en el servicio `worker`
+  (APScheduler 06:30 AR + corrida al arrancar, `api/worker.py`) y el tunnel en el servicio `tunnel`
+  (cloudflared con credenciales en `./cloudflared/`, gitignoreada). Migrar de máquina = DEPLOY.md §9.
+  Sin systemd: los units `ct-sincronizar` y `cloudflared-consorcio` se retiran en el switchover.
 - **Sincronización mensual automática** (5/09, rama `sincronizacion-mensual`; spec
-  `docs/superpowers/specs/2026-09-05-sincronizacion-mensual-design.md`): timer diario 06:30
-  (`ct-sincronizar.timer`, DEPLOY.md §8) corre `ct sincronizar` — baja del portal la liquidación nueva
+  `docs/superpowers/specs/2026-09-05-sincronizacion-mensual-design.md`): worker diario 06:30
+  (servicio `worker` de compose, DEPLOY.md §8) corre `ct sincronizar` — baja del portal la liquidación nueva
   (`ct descargar-liquidacion`, POST a `/fees/expensesViewer.php`) y los comprobantes, y los ingesta a la API
   con el bot `robot@consorcio-transparente.local` (estado idempotente en `$CT_PRIVADO/sincronizacion.json`,
   ZIP determinista por hash). **Nunca publica.** El engine pasa de 31 a 45 tests.
