@@ -1,3 +1,14 @@
+import os
+
+# Los tests nunca dependen del .env de la máquina (en producción apunta a Postgres del
+# contenedor y cookies seguras). Tiene que correr antes de importar `app.*`: settings se
+# instancia al importar. Las env vars pisan al .env en pydantic-settings.
+os.environ["CT_DATABASE_URL"] = "sqlite://"
+os.environ["CT_COOKIE_SEGURA"] = "false"
+os.environ["CT_COOKIE_DOMINIO"] = ""
+os.environ["CT_CONFIAR_PROXY"] = "false"
+os.environ["CT_CORS_ORIGIN"] = "http://localhost:3000"
+
 import pathlib
 
 import pytest
