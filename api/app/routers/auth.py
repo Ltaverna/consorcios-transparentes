@@ -61,6 +61,7 @@ def login_unidad(datos: LoginUnidad, request: Request, response: Response, db: S
 def login_google(datos: LoginGoogle, request: Request, response: Response, db: Session = Depends(get_db)):
     if not settings.google_client_id:
         raise HTTPException(404, "SSO de Google no configurado")
+    # bucket único por IP (no por email como el login con clave): más estricto, alcanza para un equipo chico
     if not security.limiter_login.permitir(f"{security.ip_cliente(request)}|google"):
         raise HTTPException(429, "Demasiados intentos; probá de nuevo en unos minutos")
     email = security.verificar_id_token_google(datos.credential)
