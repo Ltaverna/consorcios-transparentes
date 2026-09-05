@@ -29,9 +29,12 @@ panel (transcripción legible + PDF escaneado como fuente de fe), y acceso de so
   `publicado=true`**; el detalle para propietario **omite el historial de eventos** (notas internas del
   triage). Para el equipo nada cambia.
 - `GET /documentos/{id}/contenido`: el propietario puede descargarlo solo si el documento pertenece a un
-  hallazgo publicado (misma `liquidacion_id` y `gasto_n` presente en las `refs` del hallazgo). Siempre con
-  descarga forzada; `vista=1` sigue siendo exclusivo del equipo (con vista y rol propietario → 403).
-  Documento sin hallazgo publicado asociado → 403 sin revelar existencia.
+  hallazgo publicado (misma `liquidacion_id`, `gasto_n` presente en las `refs`, y **`origen="comprobantes"`**
+  — las refs de hallazgos de origen "liquidacion" son UFs, no gastos; mismo criterio que `publicar.py`).
+  Siempre con descarga forzada; `vista=1` sigue siendo exclusivo del equipo (con vista y rol propietario →
+  403). Documento no accesible o inexistente → 403 uniforme para el propietario (sin enumeración de IDs).
+- `GET /documentos?liquidacion_id=` (ajuste detectado al planificar): el propietario también puede listar,
+  filtrado con el mismo predicado — sin esto el front no puede descubrir los IDs descargables.
 
 ## 4. Web — sección "Hallazgos publicados" en `/mi-unidad`
 
