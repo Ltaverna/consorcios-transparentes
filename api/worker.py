@@ -30,7 +30,10 @@ def armar_scheduler() -> BlockingScheduler:
 
 def main() -> None:
     log.info("corrida inicial al arrancar (idempotente; reemplaza al Persistent de systemd)")
-    correr_sincronizacion()
+    try:
+        correr_sincronizacion()
+    except Exception:
+        log.exception("la corrida inicial falló; el cron diario sigue en pie")
     sched = armar_scheduler()
     log.info("worker en marcha; próxima corrida diaria 06:30 (%s)", TZ)
     sched.start()
