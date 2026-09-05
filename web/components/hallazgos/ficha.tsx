@@ -210,7 +210,7 @@ export function FichaHallazgo({
                 </a>
                 {conVisor && (
                   <iframe
-                    src={urlContenidoDocumento(d.id)}
+                    src={urlContenidoDocumento(d.id, { vista: true })}
                     className="w-full h-64 border rounded"
                     title={`Documento ${d.tipo}`}
                   />

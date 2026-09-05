@@ -23,6 +23,9 @@ test("la página carga el hallazgo con evidencia e historial", async () => {
   expect(screen.getByText(/en asamblea/)).toBeInTheDocument();
   // visor lado a lado: dos iframes (factura y pago del gasto 2)
   expect(document.querySelectorAll("iframe").length).toBe(2);
+  // el visor pide la vista inline; el link de al lado sigue siendo descarga
+  const iframes = Array.from(document.querySelectorAll("iframe"));
+  expect(iframes.every((f) => f.getAttribute("src")?.endsWith("?vista=1"))).toBe(true);
 });
 
 test("un 404 muestra un error visible con reintentar", async () => {
