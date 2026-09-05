@@ -46,3 +46,15 @@ test("la pestaña Propietario pide UF y código y entra", async () => {
   await userEvent.click(screen.getByRole("button", { name: "Entrar a mi unidad" }));
   expect(irA).toHaveBeenCalledWith("propietario");
 });
+
+test("con client ID configurado aparece el botón de Google en la pestaña Equipo", () => {
+  vi.stubEnv("NEXT_PUBLIC_GOOGLE_CLIENT_ID", "cid-test");
+  render(<FormulariosEntrar alEntrar={() => {}} />);
+  expect(screen.getByTestId("boton-google")).toBeInTheDocument();
+  vi.unstubAllEnvs();
+});
+
+test("sin client ID no hay botón de Google", () => {
+  render(<FormulariosEntrar alEntrar={() => {}} />);
+  expect(screen.queryByTestId("boton-google")).not.toBeInTheDocument();
+});
