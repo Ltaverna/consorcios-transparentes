@@ -17,29 +17,46 @@ function MensajeError({ mensaje }: { mensaje: string | null }) {
   );
 }
 
+interface GoogleGSI {
+  accounts: {
+    id: {
+      initialize(cfg: { client_id: string; callback: (resp: { credential: string }) => void }): void;
+      renderButton(el: HTMLElement, cfg: { theme: string; size: string }): void;
+    };
+  };
+}
+
+function sdkGoogle(): GoogleGSI | undefined {
+  return (window as unknown as { google?: GoogleGSI }).google;
+}
+
 function BotonGoogle({ alEntrar, alError }: { alEntrar: (rol: Rol) => void; alError: (m: string) => void }) {
   const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
   const contenedor = useRef<HTMLDivElement>(null);
+  const alEntrarRef = useRef(alEntrar);
+  const alErrorRef = useRef(alError);
+  alEntrarRef.current = alEntrar;
+  alErrorRef.current = alError;
 
   useEffect(() => {
     if (!clientId) return;
     const iniciar = () => {
-      const google = (window as unknown as { google?: any }).google;
+      const google = sdkGoogle();
       if (!google?.accounts?.id || !contenedor.current) return;
       google.accounts.id.initialize({
         client_id: clientId,
         callback: async (resp: { credential: string }) => {
           try {
             const res = await api.loginGoogle(resp.credential);
-            alEntrar(res.rol);
+            alEntrarRef.current(res.rol);
           } catch (err) {
-            alError(mensajeError(err));
+            alErrorRef.current(mensajeError(err));
           }
         },
       });
       google.accounts.id.renderButton(contenedor.current, { theme: "outline", size: "large" });
     };
-    if ((window as unknown as { google?: any }).google?.accounts?.id) {
+    if (sdkGoogle()?.accounts?.id) {
       iniciar();
       return;
     }
@@ -48,7 +65,7 @@ function BotonGoogle({ alEntrar, alError }: { alEntrar: (rol: Rol) => void; alEr
     s.async = true;
     s.onload = iniciar;
     document.head.appendChild(s);
-  }, [clientId, alEntrar, alError]);
+  }, [clientId]);
 
   if (!clientId) return null;
   return (
