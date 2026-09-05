@@ -1,6 +1,7 @@
 "use client";
 
 import { useId, useState } from "react";
+import { useRol } from "@/components/rol-context";
 import { FileText } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -172,6 +173,7 @@ export function FichaHallazgo({
   alCambiar: () => void;
   conVisor?: boolean;
 }) {
+  const rol = useRol();
   return (
     <div className="flex flex-col gap-5">
       <div className="flex flex-col gap-1">
@@ -221,11 +223,20 @@ export function FichaHallazgo({
         </div>
       )}
 
-      <SelectorEstado hallazgoId={detalle.id} estadoActual={detalle.estado} alCambiar={alCambiar} />
-
-      <TogglePublicar hallazgoId={detalle.id} publicado={detalle.publicado} alCambiar={alCambiar} />
-
-      <RespuestaAdmin hallazgoId={detalle.id} respuestaInicial={detalle.respuesta_admin} />
+      {rol === "auditor" ? (
+        <>
+          <SelectorEstado hallazgoId={detalle.id} estadoActual={detalle.estado} alCambiar={alCambiar} />
+          <TogglePublicar hallazgoId={detalle.id} publicado={detalle.publicado} alCambiar={alCambiar} />
+          <RespuestaAdmin hallazgoId={detalle.id} respuestaInicial={detalle.respuesta_admin} />
+        </>
+      ) : (
+        detalle.respuesta_admin && (
+          <div className="flex flex-col gap-1">
+            <h3 className="text-sm font-semibold">Respuesta de la administración</h3>
+            <p className="text-sm leading-relaxed">{detalle.respuesta_admin}</p>
+          </div>
+        )
+      )}
 
       {detalle.eventos.length > 0 && (
         <div className="flex flex-col gap-1">
