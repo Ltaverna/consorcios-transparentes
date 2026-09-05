@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ChipSeveridad } from "@/components/severidad";
 import { api, ApiError, urlInforme, urlContenidoDocumento, type MiUnidad, type HallazgoDetalle, type DocumentoInfo } from "@/lib/api";
+import { documentosDelHallazgo } from "@/components/hallazgos/documentos-de";
 import { moneda, mensajeError } from "@/lib/formato";
 
 interface HallazgoConDocs {
@@ -50,9 +51,7 @@ export default function PaginaMiUnidad() {
             api.detalleHallazgo(r.id),
             api.listarDocumentos(r.liquidacion_id),
           ]);
-          const documentos = detalle.origen === "comprobantes"
-            ? documentosTodos.filter((d) => detalle.refs.includes(String(d.gasto_n)))
-            : [];
+          const documentos = documentosDelHallazgo(detalle, documentosTodos);
           resultado.push({ detalle, documentos });
         }
         setHallazgos(resultado);
