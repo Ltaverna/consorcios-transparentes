@@ -33,12 +33,15 @@ def listar(liquidacion_id: int, db: Session = Depends(get_db),
 
 
 @router.get("/documentos/{d_id}/contenido")
-def contenido(d_id: int, request: Request, db: Session = Depends(get_db),
+def contenido(d_id: int, request: Request, vista: bool = False, db: Session = Depends(get_db),
               s: dict = Depends(security.requiere("auditor", "consejo", "moderador"))):
     d = db.get(models.Documento, d_id)
     if not d:
         raise HTTPException(404, "No existe ese documento")
-    return _servir(request, d.archivo_key)
+    # vista=True: inline para el triage del equipo (el requiere de arriba ya excluye propietarios);
+    # sin el flag, descarga forzada como siempre. Igual que los informes, inline = sin el header
+    # de attachment (nosniff se conserva en _servir).
+    return _servir(request, d.archivo_key, attachment=not vista)
 
 
 @router.get("/informes/{periodo}/{tipo}")

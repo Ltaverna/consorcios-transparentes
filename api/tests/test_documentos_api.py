@@ -87,3 +87,40 @@ def test_url_firmada_pide_descarga_para_documentos_pero_no_informes(db, auditor,
         app.state.storage = original
     assert (d.archivo_key, True) in llamadas          # documento → attachment
     assert any(k.startswith("informes/") and not desc for k, desc in llamadas)  # informe → inline
+
+
+def test_contenido_con_vista_sirve_inline(db, auditor):
+    from .test_liquidaciones_api import subir
+    llamadas = []
+
+    class StorageEspia:
+        def url_firmada(self, key, segundos=900, descarga=False):
+            llamadas.append((key, descarga))
+            return "https://r2.example/" + key
+
+        def leer(self, key): return b""
+
+        def guardar(self, key, data): pass
+
+        def existe(self, key): return True
+
+        def borrar(self, key): pass
+
+    liq_id = subir(auditor).json()["id"]
+    d = models.Documento(liquidacion_id=liq_id, tipo="factura", archivo_key="comprobantes/2026-08/f.pdf")
+    db.add(d)
+    db.commit()
+    from app.main import app
+    espia = StorageEspia()
+    original = app.state.storage
+    app.state.storage = espia
+    try:
+        r_vista = auditor.get(f"/documentos/{d.id}/contenido?vista=1", follow_redirects=False)
+        r_descarga = auditor.get(f"/documentos/{d.id}/contenido", follow_redirects=False)
+    finally:
+        app.state.storage = original
+    assert (d.archivo_key, False) in llamadas   # vista=1 → URL firmada inline
+    assert (d.archivo_key, True) in llamadas    # sin vista → attachment
+    assert r_vista.status_code == 307
+    assert "attachment" not in r_vista.headers.get("content-disposition", "")
+    assert "attachment" in r_descarga.headers.get("content-disposition", "")
