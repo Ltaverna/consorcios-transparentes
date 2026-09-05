@@ -340,8 +340,10 @@ def r_sueldo_mercado(liq, prev, cfg):
     if abs(desvio) <= cfg.sueldo_tolerancia:
         return []
     refs = [str(g.n) for g in netos]
+    sac = any(re.search(r"\bSAC\b|aguinaldo", g.concepto, re.I) for g in netos)
     ev = (f"Sueldos netos del mes: {fmt(total)}; referencia de escala cargada por el auditor: "
-          f"{fmt(cfg.sueldo_encargado_ref)} (desvío {pct(desvio)}).")
+          f"{fmt(cfg.sueldo_encargado_ref)} (desvío {pct(desvio)})."
+          + (" Incluye SAC/aguinaldo: el desvío de junio y diciembre es estructural." if sac else ""))
     if desvio > 0:
         sev = "ALTO" if desvio > 2 * cfg.sueldo_tolerancia else "MEDIO"
         return [Hallazgo("sueldo_mercado", sev, "Mercado", f"Sueldo {pct(desvio)} sobre la referencia de escala",
@@ -386,7 +388,7 @@ def r_abonos_mercado(liq, prev, cfg):
         total = sum(g.importe for g in gs)
         if not gs or total <= ref:
             continue
-        ev = (f"Total del rubro {rubro}: {fmt(total)} contra un tope de referencia de {fmt(ref)}. "
+        ev = (f"Total del rubro {rubro}: {fmt(total)} contra un tope de referencia cargado por el auditor de {fmt(ref)} (desvío {pct(total/ref - 1)}). "
               + "; ".join(f"{g.proveedor}: {g.concepto[:70]} ({fmt(g.importe)})" for g in gs[:4]))
         out.append(Hallazgo("abonos_mercado", "MEDIO", "Mercado", f"Abono de {rubro} por {fmt(total)} sobre el tope de referencia",
                             ev, total - ref,

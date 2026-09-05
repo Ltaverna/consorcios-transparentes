@@ -22,7 +22,7 @@ una liquidación corregida. Redacción: hechos con documento, sin conclusiones a
 | legales | Honorarios por cartas documento, mediaciones, patrocinio sin explicación del reclamo | — | ALTO |
 | sueldo_mercado | Sueldos netos del mes vs. referencia de escala SUTERH cargada por el auditor (`sueldo_encargado_ref`; 0 = apagada) | tolerancia 10 % (ALTO si excede el doble; bajo escala siempre ALTO) | MEDIO / ALTO |
 | honorarios_mercado | Total de la categoría de administración vs. referencia mensual cargada por el auditor (`honorarios_ref`; 0 = apagada) | tolerancia 10 % (ALTO si excede el doble) | MEDIO / ALTO |
-| abonos_mercado | Abonos por rubro (ascensores, matafuegos, limpieza) vs. tope mensual cargado por el auditor (`abono_*_ref`; 0 = apagada) | total del rubro > tope | MEDIO |
+| abonos_mercado | Abonos por rubro (ascensores, matafuegos, limpieza) vs. tope mensual cargado por el auditor (`abono_*_ref`; 0 = apagada). **Calibración del tope de limpieza**: el regex `limpieza` también captura insumos de la categoría GASTOS DE LIMPIEZA (p.ej. artículos de limpieza); el tope debe calibrarse contra el abono del servicio, no contra el total del rubro si incluye compras de insumos. | total del rubro > tope | MEDIO |
 
 ## Sobre los comprobantes (`ct/comprobantes.py`)
 
