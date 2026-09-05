@@ -46,6 +46,8 @@ curl -s localhost:8080/salud     # → {"ok":true}
 ## 5. Datos iniciales (una sola vez)
 
 ```bash
+# Versiona el esquema con Alembic (el create_all del arranque es inofensivo: el esquema coincide)
+docker compose exec api alembic upgrade head
 docker compose exec api python cli.py init "Rivadavia 2069" --direccion "Av. Rivadavia 2069, CABA"
 docker compose exec -it api python cli.py usuario <tu-email> "Lucas" auditor   # pide la clave por consola
 # Los códigos por unidad se generan después desde el panel (Consorcio → Generar código),
