@@ -12,5 +12,8 @@ excel = ["openpyxl>=3.1"]
 [project.scripts]
 ct = "ct.cli:main"
 
+[tool.setuptools]
+packages = ["ct"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
