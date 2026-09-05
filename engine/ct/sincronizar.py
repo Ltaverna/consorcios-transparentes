@@ -34,12 +34,24 @@ def periodo_api(periodo_portal: str) -> str:
     return f"{a}-{int(m):02d}"
 
 
-def zip_determinista(carpeta: str, extra: dict[str, bytes] | None = None) -> bytes:
-    """ZIP con entradas ordenadas y timestamp fijo: mismos archivos → mismos bytes (y hash)."""
+def zip_determinista(carpeta: str, extra: dict[str, bytes] | None = None, prefijo: str = "") -> bytes:
+    """ZIP con entradas ordenadas y timestamp fijo: mismos archivos → mismos bytes (y hash).
+
+    Layout esperado por la API (ver `api/tests/test_comprobantes_api.py` y
+    `engine/ct/comprobantes.py::cargar_manifiesto_redconar`):
+      - `manifest.json` en la raíz del ZIP  →  se pasa vía `extra`.
+      - Los PDFs bajo `"<etiqueta_del_mes>/<archivo>"`, donde la etiqueta coincide
+        con el campo `"mes"` de cada fila del manifiesto (p. ej. `"2026-08 Agosto"`).
+
+    Si `prefijo` es no-vacío, cada entrada de `carpeta` se almacena como
+    `"<prefijo>/<nombre>"` en lugar de `"<nombre>"` plano.  Las entradas de
+    `extra` siempre quedan en la raíz (sin prefijo).
+    """
     buf = io.BytesIO()
     with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as z:
         for n in sorted(os.listdir(carpeta)):
-            info = zipfile.ZipInfo(n, date_time=(1980, 1, 1, 0, 0, 0))
+            nombre_zip = f"{prefijo}/{n}" if prefijo else n
+            info = zipfile.ZipInfo(nombre_zip, date_time=(1980, 1, 1, 0, 0, 0))
             with open(os.path.join(carpeta, n), "rb") as f:
                 z.writestr(info, f.read())
         for nombre, data in sorted((extra or {}).items()):
@@ -218,10 +230,18 @@ class Sincronizador:
             self.log(f"no hay carpeta de comprobantes de {per}; salteo el ZIP")
         else:
             ruta_manifest = os.path.join(carpeta_comp, "manifest.json")
-            manifest = open(ruta_manifest, "rb").read() if os.path.exists(ruta_manifest) else b"[]"
-            zb = zip_determinista(os.path.join(carpeta_comp, carpeta_mes), extra={"manifest.json": manifest})
+            if os.path.exists(ruta_manifest):
+                with open(ruta_manifest, "rb") as _mf:
+                    manifest = _mf.read()
+            else:
+                manifest = b"[]"
+            zb = zip_determinista(os.path.join(carpeta_comp, carpeta_mes),
+                                  extra={"manifest.json": manifest},
+                                  prefijo=carpeta_mes)
             h = hashlib.sha256(zb).hexdigest()
-            if h != info.get("zip_hash") and info.get("liquidacion_subida"):
+            if h != info.get("zip_hash") and not info.get("liquidacion_subida"):
+                self.log(f"la liquidación de {per} todavía no está subida; salteo el ZIP")
+            elif h != info.get("zip_hash"):
                 liq_id = ((fila_subida or {}).get("id")
                           or next((l["id"] for l in self.api.liquidaciones() if l.get("periodo") == per), None))
                 if liq_id is None:

@@ -127,3 +127,12 @@ def test_zip_determinista(tmp_path):
     z1 = zip_determinista(str(d))
     z2 = zip_determinista(str(d))
     assert z1 == z2 and len(z1) > 0
+
+
+def test_zip_con_prefijo_replica_el_layout_de_la_carpeta(tmp_path):
+    import zipfile, io
+    d = tmp_path / "2026-08 Agosto"; d.mkdir()
+    (d / "01-1 doc.pdf").write_bytes(b"%PDF-doc")
+    z = zip_determinista(str(d), extra={"manifest.json": b"[]"}, prefijo="2026-08 Agosto")
+    nombres = zipfile.ZipFile(io.BytesIO(z)).namelist()
+    assert "2026-08 Agosto/01-1 doc.pdf" in nombres and "manifest.json" in nombres
