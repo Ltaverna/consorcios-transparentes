@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { Sidebar } from "@/components/sidebar";
+import { RolProvider } from "@/components/rol-context";
 import { pedirServidor } from "@/lib/api-server";
 import type { Yo, HallazgoResumen } from "@/lib/api";
 
@@ -14,9 +15,11 @@ export default async function PanelLayout({ children }: { children: React.ReactN
     // el contador no puede tirar el panel
   }
   return (
-    <div className="flex min-h-screen">
-      <Sidebar rol={yo.rol} nombre={yo.nombre || yo.rol} pendientes={pendientes} activa="" />
-      <main className="flex-1 min-w-0 p-6 pt-14 md:pt-6">{children}</main>
-    </div>
+    <RolProvider rol={yo.rol}>
+      <div className="flex min-h-screen">
+        <Sidebar rol={yo.rol} nombre={yo.nombre || yo.rol} pendientes={pendientes} activa="" />
+        <main className="flex-1 min-w-0 p-6 pt-14 md:pt-6">{children}</main>
+      </div>
+    </RolProvider>
   );
 }
