@@ -161,14 +161,18 @@ class Sincronizador:
             nombre = f"{per} {nombre}"
         dir_liq = os.path.join(self.privada, "liquidaciones")
         os.makedirs(dir_liq, exist_ok=True)
-        with open(os.path.join(dir_liq, nombre), "wb") as f:
+        ruta = os.path.join(dir_liq, nombre)
+        ruta_tmp = ruta + ".tmp"
+        with open(ruta_tmp, "wb") as f:
             f.write(raw)
+        os.replace(ruta_tmp, ruta)
         self.log(f"liquidación de {per} bajada del portal: {nombre}")
 
     def _subir_liquidacion(self, per: str, nombre: str) -> dict:
         """Sube el PDF y espera a que la API lo procese. Devuelve el detalle final."""
         with open(os.path.join(self.privada, "liquidaciones", nombre), "rb") as f:
             pdf = f.read()
+        self.log(f"subiendo liquidación {per} ({nombre})")
         fila = self.api.subir_liquidacion(per, pdf, nombre)
         limite = time.monotonic() + self.ESPERA_MAX
         det = self.api.detalle(fila["id"])

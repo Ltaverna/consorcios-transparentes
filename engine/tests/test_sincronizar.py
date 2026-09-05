@@ -136,3 +136,49 @@ def test_zip_con_prefijo_replica_el_layout_de_la_carpeta(tmp_path):
     z = zip_determinista(str(d), extra={"manifest.json": b"[]"}, prefijo="2026-08 Agosto")
     nombres = zipfile.ZipFile(io.BytesIO(z)).namelist()
     assert "2026-08 Agosto/01-1 doc.pdf" in nombres and "manifest.json" in nombres
+
+
+def test_poll_espera_el_procesamiento_y_timeout_corta(tmp_path):
+    armar_carpetas(tmp_path)
+    portal = PortalFalso([("2026-8", "Agosto 2026")], {"2026-8": (b"%PDF-a", "2026-08-31-liq.pdf")})
+    api = ApiFalsa()
+    def subir_lento(periodo, pdf_bytes, nombre):
+        api.subidas.append(("liq", periodo))
+        api.liqs[periodo] = {"id": 1, "periodo": periodo, "estado": "procesando", "cuadra": None, "error": ""}
+        return api.liqs[periodo]
+    api.subir_liquidacion = subir_lento
+    vistos = {"n": 0}
+    def detalle(liq_id):
+        vistos["n"] += 1
+        if vistos["n"] >= 3:
+            api.liqs["2026-08"]["estado"] = "procesada"
+        return api.liqs["2026-08"] | {"checks_ok": 30, "checks_mal": 0}
+    api.detalle = detalle
+    s = Sincronizador(portal, api, str(tmp_path))
+    s.ESPERA_POLL = 0
+    assert s.correr() == 0 and vistos["n"] >= 3          # esperó hasta procesada
+
+    # timeout: nunca sale de procesando → corta con error y nada marcado
+    (tmp_path / "otro").mkdir()
+    armar_carpetas(tmp_path / "otro")
+    api2 = ApiFalsa()
+    api2.subir_liquidacion = lambda p, b, n: (api2.subidas.append(("liq", p)) or
+        api2.liqs.setdefault(p, {"id": 1, "periodo": p, "estado": "procesando", "cuadra": None, "error": ""}))
+    api2.detalle = lambda i: {"id": 1, "periodo": "2026-08", "estado": "procesando", "cuadra": None,
+                              "error": "", "checks_ok": 0, "checks_mal": 0}
+    s2 = Sincronizador(portal, api2, str(tmp_path / "otro"))
+    s2.ESPERA_POLL = 0; s2.ESPERA_MAX = 0
+    assert s2.correr() != 0
+    estado = json.loads((tmp_path / "otro" / "sincronizacion.json").read_text())
+    assert not estado.get("2026-08", {}).get("liquidacion_subida")
+
+
+def test_sin_liquidacion_en_api_no_sube_zip(tmp_path):
+    armar_carpetas(tmp_path)
+    portal = PortalFalso([("2026-8", "Agosto 2026")], {})   # portal sin liquidación todavía
+    api = ApiFalsa()
+    s = Sincronizador(portal, api, str(tmp_path))
+    assert s.correr() == 0
+    assert api.zips == []
+    estado = json.loads((tmp_path / "sincronizacion.json").read_text())
+    assert not estado.get("2026-08", {}).get("zip_hash")
