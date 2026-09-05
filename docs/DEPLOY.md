@@ -85,7 +85,8 @@ El tunnel corre como servicio `tunnel` del compose y lee su config de `./cloudfl
 mkdir -p cloudflared
 cp ~/.cloudflared/<id-del-tunnel>.json cloudflared/     # o copiarlo desde la máquina vieja
 cp deploy/cloudflared/config.yml.example cloudflared/config.yml   # ajustar el id si difiere
-chmod 600 cloudflared/*
+# la imagen de cloudflared corre como uid 65532; los archivos deben ser legibles por ese usuario (y por nadie más)
+sudo chown -R 65532:65532 cloudflared && sudo chmod -R u=rX,go= cloudflared
 docker compose up -d tunnel
 ```
 
@@ -95,11 +96,14 @@ Crearlo con un contenedor efímero — las credenciales quedan directo en `./clo
 
 ```bash
 mkdir -p cloudflared
+sudo chown 65532:65532 cloudflared   # la imagen de cloudflared corre como uid 65532; sin esto los contenedores efímeros no pueden escribir las credenciales
 docker run --rm -it -v ./cloudflared:/home/nonroot/.cloudflared cloudflare/cloudflared tunnel login
 docker run --rm -it -v ./cloudflared:/home/nonroot/.cloudflared cloudflare/cloudflared tunnel create consorcio
 docker run --rm -it -v ./cloudflared:/home/nonroot/.cloudflared cloudflare/cloudflared tunnel route dns consorcio api-consorcio.neuralcore.dev
-cp deploy/cloudflared/config.yml.example cloudflared/config.yml   # poner el id del tunnel nuevo (dos líneas)
-chmod 600 cloudflared/*
+sudo cp deploy/cloudflared/config.yml.example cloudflared/config.yml   # poner el id del tunnel nuevo (dos líneas)
+# las credenciales ya quedaron con el dueño correcto (las escribió el propio contenedor);
+# esto cubre el config recién copiado y cierra los permisos al resto:
+sudo chown -R 65532:65532 cloudflared && sudo chmod -R u=rX,go= cloudflared
 docker compose up -d tunnel
 ```
 
@@ -142,7 +146,7 @@ Con el `.env` raíz completo (§2: credenciales del portal, `CT_PRIVADO_HOST`, `
 
 ```bash
 docker compose up -d worker
-docker logs -f consorcios-transparentes-worker-1
+docker compose logs -f worker
 ```
 
 Al arrancar, el contenedor hace **una corrida inicial** (idempotente) y después programa la diaria:
@@ -154,7 +158,7 @@ en los logs tiene que verse esa corrida y el "worker en marcha".
 - La corrida inicial al arrancar el contenedor cubre el caso "la máquina estuvo apagada"
   (reemplaza al `Persistent=true` que tenía el timer de systemd).
 - El estado de cada período (qué está subido, el hash del ZIP) vive en `$CT_PRIVADO/sincronizacion.json`.
-- Logs: `docker logs -f consorcios-transparentes-worker-1` (van a stdout del contenedor).
+- Logs: `docker compose logs -f worker` (van a stdout del contenedor).
 - Probar a mano una corrida: `docker compose run --rm worker python -m ct sincronizar`.
 
 ## 9. Migrar de máquina
@@ -166,7 +170,9 @@ Todo el estado vive en el repo + un puñado de archivos fuera de git. Para mover
    - `.env` raíz y `api/.env` (§2).
    - `docker-compose.override.yml` — solo si se usa el modo Postgres local (base en contenedor +
      documentos a disco).
-   - `cloudflared/` completa (config + JSON de credenciales del tunnel), `chmod 600 cloudflared/*`.
+   - `cloudflared/` completa (config + JSON de credenciales del tunnel). Después de copiarla, dejarla
+     legible para el uid del contenedor (y para nadie más) — la imagen de cloudflared corre como uid 65532:
+     `sudo chown -R 65532:65532 cloudflared && sudo chmod -R u=rX,go= cloudflared`.
    - `datos-api/` — solo en modo local: es la base Postgres/SQLite y los documentos. Copiarla con los
      contenedores de la máquina vieja **parados** (`docker compose down`) para no llevarse una base a
      medio escribir. Con Neon + R2 no hay nada que copiar acá.
@@ -177,7 +183,7 @@ Todo el estado vive en el repo + un puñado de archivos fuera de git. Para mover
 ```bash
 docker compose up -d --build
 curl -s https://api-consorcio.neuralcore.dev/salud   # → {"ok":true}
-docker logs -f consorcios-transparentes-worker-1     # corrida inicial de sincronización OK
+docker compose logs -f worker                        # corrida inicial de sincronización OK
 ```
 
 Nada de systemd, nada de venvs: los venvs (`engine/.venv`, `api/.venv`) son solo para desarrollo y
