@@ -1,4 +1,5 @@
 """Parseo del portal de Redconar sin red (HTML mínimo con la misma estructura)."""
+import pytest
 from ct.portal import parse_tabla_egresos, parse_adjuntos, opciones_select, etiqueta_mes, nombre_archivo
 
 TABLA = """<html><select id="periodSelectGasto"><option value="2026-8" selected>Agosto 2026</option><option value="2026-7">Julio 2026</option></select>
@@ -63,3 +64,11 @@ def test_parse_liquidacion_distingue_dos_emisiones_del_mismo_mes_calendario():
 def test_parse_liquidacion_periodo_ausente_da_none():
     from ct.portal import parse_liquidacion
     assert parse_liquidacion(EXPENSAS, "2019-1") is None
+
+
+def test_parse_liquidacion_sin_hidden_falla_ruidoso():
+    from ct.portal import parse_liquidacion, PortalError
+    import re as _re
+    sin_bid = _re.sub(r"<input[^>]*name='bId'[^>]*/>", "", EXPENSAS)
+    with pytest.raises(PortalError):
+        parse_liquidacion(sin_bid, "2026-8")
