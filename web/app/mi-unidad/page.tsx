@@ -6,7 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ChipSeveridad } from "@/components/severidad";
-import { api, ApiError, urlInforme, urlContenidoDocumento, type MiUnidad, type HallazgoDetalle, type DocumentoInfo } from "@/lib/api";
+import { ChipEstadoGasto } from "@/components/estado-gasto";
+import { api, ApiError, urlInforme, urlContenidoDocumento, type MiUnidad, type HallazgoDetalle, type DocumentoInfo, type IndiceTransparencia } from "@/lib/api";
 import { documentosDelHallazgo } from "@/components/hallazgos/documentos-de";
 import { moneda, mensajeError } from "@/lib/formato";
 
@@ -20,6 +21,7 @@ export default function PaginaMiUnidad() {
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [hallazgos, setHallazgos] = useState<HallazgoConDocs[]>([]);
+  const [indice, setIndice] = useState<IndiceTransparencia | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -57,6 +59,17 @@ export default function PaginaMiUnidad() {
         setHallazgos(resultado);
       } catch {
         // error no crítico: no rompe el resto de la página
+      }
+    })();
+  }, []);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await api.indiceTransparencia();
+        setIndice(res);
+      } catch {
+        // error no crítico: la card se oculta en silencio, el resto de mi-unidad sigue funcionando
       }
     })();
   }, []);
@@ -143,6 +156,64 @@ export default function PaginaMiUnidad() {
               Reglamento de copropiedad
             </a>
           </div>
+
+          {indice && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Transparencia</CardTitle>
+              </CardHeader>
+              <CardContent className="flex flex-col gap-4">
+                {indice.periodos.length === 0 ? (
+                  <p className="text-sm text-tinta-suave">Todavía no hay períodos publicados.</p>
+                ) : (
+                  <>
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-4xl font-bold tabular-nums">{indice.indice}</span>
+                      <span className="text-lg text-tinta-suave">/ 100</span>
+                    </div>
+                    <p className="text-xs text-tinta-suave">
+                      % del dinero con trazabilidad documental completa sobre las liquidaciones publicadas
+                    </p>
+
+                    <div className="flex flex-col gap-2">
+                      {[
+                        { label: "Trazable", pct: indice.totales.pct_trazable, importe: indice.totales.dinero_verificado },
+                        { label: "Con factura", pct: indice.totales.pct_con_factura, importe: indice.totales.dinero_con_factura },
+                        { label: "Pagos respaldados", pct: indice.totales.pct_pago_respaldado, importe: indice.totales.dinero_pago_respaldado },
+                      ].map(({ label, pct, importe }) => (
+                        <div key={label} className="flex flex-col gap-1">
+                          <div className="flex justify-between text-xs">
+                            <span>{label}</span>
+                            <span className="tabular-nums">{Math.round(pct * 100)}% · {moneda(importe)}</span>
+                          </div>
+                          <div className="h-2 rounded-full bg-borde-suave overflow-hidden">
+                            <div
+                              className="h-full bg-institucional rounded-full"
+                              style={{ width: `${Math.round(pct * 100)}%` }}
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="flex flex-col gap-1">
+                      <span className="text-xs font-semibold text-tinta-suave uppercase tracking-wide">Estados de los gastos</span>
+                      <div className="flex flex-wrap gap-2">
+                        {Object.entries(indice.totales.gastos_por_estado)
+                          .filter(([, v]) => v.cantidad > 0)
+                          .map(([estado, v]) => (
+                            <span key={estado} className="flex items-center gap-1 text-sm">
+                              <ChipEstadoGasto estado={estado} />
+                              <span className="tabular-nums text-tinta-suave">{v.cantidad}</span>
+                            </span>
+                          ))}
+                      </div>
+                    </div>
+                  </>
+                )}
+              </CardContent>
+            </Card>
+          )}
 
           <iframe
             src={urlInforme(datos.periodo, "html")}
