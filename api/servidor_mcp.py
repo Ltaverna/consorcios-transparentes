@@ -1,8 +1,11 @@
 """Servidor MCP read-only del consorcio: expone las consultas como tools para
 Claude Code, claude.ai y ChatGPT (Streamable HTTP + segmento secreto en el path)."""
+import asyncio
 import functools
 import json
 import os
+import secrets
+import time
 import unicodedata
 import urllib.error
 import urllib.parse
@@ -489,22 +492,115 @@ for fn in (search, fetch):
     mcp.tool(structured_output=False)(fn)
 
 
+# --- Tokens por persona: wrapper ASGI que valida /mcp/{token} antes del app MCP ---
+
+_MOUNT_INTERNO = "/mcp/sesion"  # path fijo del app MCP; solo alcanzable vía el wrapper
+_TTL_CACHE = 60.0  # segundos: revocar un token tarda ≤1 minuto en hacer efecto
+
+
+def _validar_contra_api(token: str) -> tuple[bool, str | None]:
+    """Consulta POST /auth/mcp-token/validar de la API, SIN sesión de bot (el endpoint
+    solo confirma un secreto que el llamador ya posee). Cualquier falla → inválido
+    (el token maestro del env sigue entrando aunque la API esté caída)."""
+    base = os.environ.get("CT_API_URL", "https://api-consorcio.neuralcore.dev")
+    body = json.dumps({"token": token}).encode()
+    req = urllib.request.Request(base + "/auth/mcp-token/validar", data=body,
+                                 headers={"Content-Type": "application/json",
+                                          "User-Agent": "ConsorcioTransparente/1.0"})
+    try:
+        with urllib.request.urlopen(req, timeout=10) as r:
+            d = json.loads(r.read())
+        return bool(d.get("valido")), d.get("nombre")
+    except Exception:
+        return False, None
+
+
+def _validar_token(token: str) -> tuple[bool, str | None]:
+    """1º el token maestro del env (comparación constante); 2º los de la tabla vía API."""
+    maestro = os.environ.get("CT_MCP_TOKEN", "")
+    if maestro and secrets.compare_digest(token, maestro):
+        return True, None  # el maestro no tiene nombre (y no se loguea)
+    return _validar_contra_api(token)
+
+
+class WrapperTokens:
+    """ASGI que valida el token del path (/mcp/{token}) antes de delegar al app MCP
+    montado en _MOUNT_INTERNO.
+
+    - lifespan → directo al app interno (el session manager del transporte lo necesita).
+    - http → extrae el token, lo valida con cache en memoria TTL 60 s (positivo y
+      negativo) y reescribe el path al mount interno. Inválido o path ajeno → 404
+      pelado sin cuerpo, como el mount fijo de antes.
+    - el streamable http no usa websockets: ese scope se cierra sin delegar."""
+
+    def __init__(self, app_interno, validar=None, reloj=None):
+        self.app_interno = app_interno
+        self._validar = validar or _validar_token
+        self._reloj = reloj or time.monotonic
+        self._cache: dict[str, tuple[float, bool]] = {}  # token → (ts, válido)
+
+    async def _token_valido(self, token: str) -> bool:
+        ahora = self._reloj()
+        # Desaloja entradas vencidas: un atacante rotando tokens no infla el dict.
+        for k, (ts, _) in list(self._cache.items()):
+            if ahora - ts >= _TTL_CACHE:
+                del self._cache[k]
+        entrada = self._cache.get(token)
+        if entrada is not None:
+            return entrada[1]
+        # En un thread: la validación contra la API es urllib bloqueante (timeout 10 s)
+        # y no debe frenar el event loop. La cache se muta acá, en el loop.
+        valido, nombre = await asyncio.to_thread(self._validar, token)
+        self._cache[token] = (ahora, valido)
+        if valido and nombre:
+            # Una vez por entrada de cache (no por request); jamás el secreto.
+            print(f"MCP: acceso validado de '{nombre}'", flush=True)
+        return valido
+
+    @staticmethod
+    def _partir(path: str) -> tuple[str, str]:
+        """'/mcp/abc/xyz' → ('abc', '/xyz'); path ajeno → ('', '')."""
+        if not path.startswith("/mcp/"):
+            return "", ""
+        token, sep, cola = path[len("/mcp/"):].partition("/")
+        return token, (sep + cola if sep else "")
+
+    async def __call__(self, scope, receive, send):
+        if scope["type"] == "lifespan":
+            await self.app_interno(scope, receive, send)
+            return
+        if scope["type"] != "http":
+            if scope["type"] == "websocket":
+                await send({"type": "websocket.close"})
+            return
+        token, cola = self._partir(scope["path"])
+        if token and await self._token_valido(token):
+            path = _MOUNT_INTERNO + cola
+            await self.app_interno(dict(scope, path=path, raw_path=path.encode()),
+                                   receive, send)
+            return
+        await send({"type": "http.response.start", "status": 404,
+                    "headers": [(b"content-length", b"0")]})
+        await send({"type": "http.response.body", "body": b""})
+
+
 def app_con_token():
-    """La app MCP servida solo bajo /mcp/<token>; cualquier otro path → 404 pelado.
+    """La app MCP servida bajo /mcp/<token> con token por persona; cualquier otro
+    path → 404 pelado.
 
     En mcp 2.x `streamable_http_app()` ya devuelve la Starlette con el lifespan
-    del session manager, así que en vez de montarla bajo un padre (que no
-    propaga lifespans) se le pide directamente el path con el token. La
+    del session manager, así que se monta en el path interno fijo y el wrapper
+    reescribe el path tras validar (delegándole también el lifespan). La
     protección anti DNS-rebinding se apaga: detrás de cloudflared el Host es el
     hostname público y el secreto es el token del path."""
     from mcp.server.transport_security import TransportSecuritySettings
 
-    token = os.environ["CT_MCP_TOKEN"]
-    return mcp.streamable_http_app(
-        streamable_http_path=f"/mcp/{token}",
+    interno = mcp.streamable_http_app(
+        streamable_http_path=_MOUNT_INTERNO,
         stateless_http=True,
         transport_security=TransportSecuritySettings(enable_dns_rebinding_protection=False),
     )
+    return WrapperTokens(interno)
 
 
 if __name__ == "__main__":

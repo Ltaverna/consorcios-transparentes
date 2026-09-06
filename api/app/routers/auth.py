@@ -1,3 +1,5 @@
+import hashlib
+
 from fastapi import APIRouter, Depends, HTTPException, Request, Response
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
@@ -23,6 +25,10 @@ class LoginUnidad(BaseModel):
 
 class LoginGoogle(BaseModel):
     credential: str
+
+
+class TokenMcp(BaseModel):
+    token: str
 
 
 def _entrar(response: Response, sub: str, rol: str) -> None:
@@ -70,6 +76,20 @@ def login_google(datos: LoginGoogle, request: Request, response: Response, db: S
         raise HTTPException(403, "Esa cuenta no tiene acceso; pedile al auditor que te dé de alta")
     _entrar(response, f"u:{u.id}", u.rol)
     return {"rol": u.rol, "nombre": u.nombre}
+
+
+@router.post("/mcp-token/validar")
+def validar_mcp_token(datos: TokenMcp, request: Request, db: Session = Depends(get_db)):
+    """Valida un token de acceso al MCP. Sin sesión: solo confirma un secreto que el
+    llamador ya posee. Inexistente y revocado responden exactamente igual: no se
+    revela si el token existió."""
+    if not security.limiter_login.permitir(f"{security.ip_cliente(request)}|mcp-token"):
+        raise HTTPException(429, "Demasiados intentos; probá de nuevo en unos minutos")
+    hash_ = hashlib.sha256(datos.token.encode()).hexdigest()
+    t = db.query(models.McpToken).filter_by(token_sha256=hash_, activo=True).first()
+    if not t:
+        return {"valido": False, "nombre": None}
+    return {"valido": True, "nombre": t.nombre}
 
 
 @router.post("/salir")

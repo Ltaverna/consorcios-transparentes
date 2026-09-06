@@ -88,6 +88,26 @@ def test_login_google_con_alta_entra(db, cliente, monkeypatch):
     assert security.COOKIE in r.cookies
 
 
+def test_validar_mcp_token_vigente_revocado_e_inexistente(db, cliente):
+    token = admin.crear_mcp_token(db, "lucas")
+    r = cliente.post("/auth/mcp-token/validar", json={"token": token})
+    assert r.status_code == 200
+    assert r.json() == {"valido": True, "nombre": "lucas"}
+    # Revocado e inexistente responden EXACTAMENTE igual: no se revela si el token existió
+    admin.revocar_mcp_token(db, "lucas")
+    r_revocado = cliente.post("/auth/mcp-token/validar", json={"token": token})
+    r_inexistente = cliente.post("/auth/mcp-token/validar", json={"token": "no-existe"})
+    assert r_revocado.status_code == r_inexistente.status_code == 200
+    assert r_revocado.json() == r_inexistente.json() == {"valido": False, "nombre": None}
+
+
+def test_validar_mcp_token_rate_limit(db, cliente):
+    for _ in range(10):
+        cliente.post("/auth/mcp-token/validar", json={"token": "cualquiera"})
+    r = cliente.post("/auth/mcp-token/validar", json={"token": "cualquiera"})
+    assert r.status_code == 429
+
+
 def test_cookie_con_dominio_configurado(db, cliente, monkeypatch):
     from app.config import settings
     from app import admin
