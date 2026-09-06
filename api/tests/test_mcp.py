@@ -24,6 +24,17 @@ class ClienteFalso:
                     "total": 2552000.0, "cantidad": 1}
         if path == "/consulta/agregados":
             return {"grupos": [{"clave": "SACZEWICZYK", "total": 2552000.0, "cantidad": 1, "variacion": None}]}
+        if path == "/consulta/comprobantes":
+            return {"resultados": [{"documento_id": 7, "gasto_n": 32, "periodo": "2026-08",
+                                    "tipo": "factura",
+                                    "fragmento": "...texto IMPERMEABILIZACION SACZEWICZYK factura..."}]}
+        if path == "/consulta/deudores":
+            return {"periodo": "2026-08",
+                    "deudores": [{"uf": 4, "piso_depto": "2A", "propietario": "DEL VALLE",
+                                  "deuda": 150000.0, "meses_equivalentes": 1.5},
+                                 {"uf": 9, "piso_depto": "4C", "propietario": "RODRIGUEZ",
+                                  "deuda": 50000.0, "meses_equivalentes": 0.5}],
+                    "total": 200000.0}
         if path == "/hallazgos":
             return [{"id": 61, "periodo": "2026-08", "severidad": "CRÍTICO", "titulo": "Pago a tercero",
                      "estado": "pendiente", "publicado": True, "regla": "comprobantes",
@@ -35,6 +46,18 @@ class ClienteFalso:
                     "monto": 2552000.0, "refs": ["32"], "respuesta_admin": "", "eventos": []}
         if path == "/liquidaciones":
             return [{"id": 2, "periodo": "2026-08", "estado": "publicada", "cuadra": True, "sistema": "redconar", "error": ""}]
+        if path == "/liquidaciones/2":
+            return {"id": 2, "periodo": "2026-08", "estado": "publicada", "cuadra": True,
+                    "sistema": "redconar", "error": "",
+                    "checks_ok": 5, "checks_mal": 1,
+                    "checks": [{"nombre": "cuadre_caja", "ok": False,
+                                "detalle": "diferencia de $100"}],
+                    "totales_categoria": {"MANTENIMIENTO": 2552000.0, "ADMINISTRACIÓN": 180000.0},
+                    "gastos": []}
+        if path == "/documentos/7/texto":
+            return {"texto": "IMPERMEABILIZACION SACZEWICZYK CUIT 30-99887766-1", "extraible": True}
+        if path == "/documentos/99/texto":
+            return {"texto": "", "extraible": False}
         raise AssertionError(f"path inesperado: {path}")
 
     def get_texto(self, path):
@@ -105,6 +128,90 @@ def test_search_frio_incluye_reglamento_sin_precalentar(monkeypatch):
     ids = [r["id"] for r in res["results"]]
     reglamento_ids = [i for i in ids if i.startswith("reglamento:")]
     assert reglamento_ids, f"search frío no incluyó reglamento — ids: {ids}"
+
+
+def test_leer_comprobante(monkeypatch):
+    """leer_comprobante devuelve el texto cuando el PDF es extraíble, y un aviso claro cuando no."""
+    monkeypatch.setattr(servidor_mcp, "_cliente", lambda: ClienteFalso())
+
+    # Caso extraíble: el texto aparece en la salida
+    out = servidor_mcp.leer_comprobante(documento_id=7)
+    assert "IMPERMEABILIZACION" in out
+    assert "SACZEWICZYK" in out
+
+    # Caso no extraíble: aviso sin stack trace
+    out_no = servidor_mcp.leer_comprobante(documento_id=99)
+    assert "no extraíble" in out_no.lower() or "sin texto" in out_no.lower() or "escaneo" in out_no.lower()
+    assert "panel" in out_no.lower() or "contenido" in out_no.lower()
+
+
+def test_buscar_en_comprobantes(monkeypatch):
+    """buscar_en_comprobantes incluye fragmento, documento_id y el período en la salida."""
+    monkeypatch.setattr(servidor_mcp, "_cliente", lambda: ClienteFalso())
+
+    out = servidor_mcp.buscar_en_comprobantes(texto="impermeabilizacion")
+    # El fragmento del cliente falso aparece en la salida
+    assert "IMPERMEABILIZACION" in out
+    # El documento_id y el gasto están referenciados
+    assert "7" in out          # documento_id
+    assert "32" in out         # gasto_n
+    assert "2026-08" in out    # periodo
+
+
+def test_deudores_y_resumen(monkeypatch):
+    """deudores formatea la tabla; resumen_mensual compone todas las secciones y degrada
+    correctamente cuando una fuente falla."""
+    monkeypatch.setattr(servidor_mcp, "_cliente", lambda: ClienteFalso())
+
+    # --- deudores ---
+    out = servidor_mcp.deudores()
+    assert "DEL VALLE" in out
+    assert "150.000" in out    # deuda formateada
+    assert "2026-08" in out    # periodo
+
+    # --- resumen_mensual: caso nominal ---
+    out_r = servidor_mcp.resumen_mensual()
+    # cuadre
+    assert "cuadra" in out_r.lower() or "cuadre" in out_r.lower()
+    # top gastos
+    assert "SACZEWICZYK" in out_r
+    # hallazgos
+    assert "Pago a tercero" in out_r
+    # deudores (resumen muestra total, no individual por nombre)
+    assert "200.000" in out_r  # total deudores
+    assert "2 unidad" in out_r  # cantidad de deudores
+
+    # --- resumen_mensual: degradación por sección ---
+    # Fabricamos un cliente que rompe /hallazgos para verificar que el resumen sale igual
+    class ClienteConHallazgosRotos(ClienteFalso):
+        def get(self, path, params=None):
+            if path == "/hallazgos":
+                raise Exception("servicio caído")
+            return super().get(path, params)
+
+    monkeypatch.setattr(servidor_mcp, "_cliente", lambda: ClienteConHallazgosRotos())
+    out_degradado = servidor_mcp.resumen_mensual()
+    # El resumen sigue saliendo con las otras secciones
+    assert "SACZEWICZYK" in out_degradado      # top gastos OK
+    assert "200.000" in out_degradado          # total deudores OK
+    # La sección de hallazgos está marcada como no disponible
+    assert "no disponible" in out_degradado.lower()
+
+
+def test_detalle_liquidacion(monkeypatch):
+    """detalle_liquidacion muestra estado, cuadre, checks fallidos y totales por categoría."""
+    monkeypatch.setattr(servidor_mcp, "_cliente", lambda: ClienteFalso())
+
+    out = servidor_mcp.detalle_liquidacion(periodo="2026-08")
+    assert "2026-08" in out
+    assert "publicada" in out
+    assert "cuadra" in out.lower()
+    # Checks fallidos
+    assert "cuadre_caja" in out
+    assert "$100" in out or "100" in out
+    # Totales por categoría
+    assert "MANTENIMIENTO" in out
+    assert "2.552.000" in out
 
 
 def test_gating_del_token(monkeypatch):
