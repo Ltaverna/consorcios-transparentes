@@ -81,7 +81,12 @@ def _con_api(fn):
                 _sesion = None
                 return fn(*args, **kwargs)
         except urllib.error.HTTPError as e:
-            return f"la API del consorcio no respondió: HTTP {e.code}"
+            try:
+                detail = json.loads(e.read().decode()).get("detail", "")
+            except Exception:
+                detail = ""
+            sufijo = f" — {detail}" if detail else ""
+            return f"la API del consorcio no respondió: HTTP {e.code}{sufijo}"
         except urllib.error.URLError as e:
             return f"la API del consorcio no respondió: {getattr(e, 'reason', e)}"
 
@@ -378,6 +383,28 @@ def detalle_liquidacion(periodo: str) -> str:
     return "\n".join(lineas)
 
 
+@_con_api
+def buscar_semantico(texto: str) -> str:
+    """Busca comprobantes por similitud semántica: devuelve el top-5 más relevante
+    al `texto` de consulta libre, con similitud (porcentaje), documento, gasto,
+    período, tipo y un fragmento del contenido. Requiere CT_EMBEDDINGS_API_KEY
+    configurada en la API; sin ella devuelve un aviso claro."""
+    d = _cliente().get("/consulta/semantica", {"q": texto, "k": 5})
+    resultados = d.get("resultados", [])
+    if not resultados:
+        return "Sin resultados semánticos para esa consulta."
+    lineas = [f"{len(resultados)} resultado(s) semántico(s):"]
+    for r in resultados:
+        similitud = f"{r['similitud'] * 100:.1f}%"
+        fragmento = r.get("fragmento", "")[:150].replace("\n", " ").strip()
+        lineas.append(
+            f"  [{similitud}] Doc {r['documento_id']} · gasto {r['gasto_n']} · "
+            f"{r['periodo']} · {r['tipo']}\n"
+            f"  {fragmento}"
+        )
+    return "\n".join(lineas)
+
+
 def resumen_mensual(periodo: str = "") -> str:
     """Resumen ejecutivo del mes: cuadre de la liquidación, top 10 gastos, hallazgos,
     variaciones fuertes y total de deudores. Cada sección degrada individualmente si
@@ -454,7 +481,7 @@ def resumen_mensual(periodo: str = "") -> str:
 
 
 for fn in (consultar_gastos, agregados, listar_hallazgos, detalle_hallazgo, estado_liquidaciones, reglamento,
-           leer_comprobante, buscar_en_comprobantes, deudores, detalle_liquidacion, resumen_mensual):
+           leer_comprobante, buscar_en_comprobantes, buscar_semantico, deudores, detalle_liquidacion, resumen_mensual):
     mcp.tool()(fn)
 # search/fetch devuelven dict pero sin output estructurado: ante un error de red
 # el wrapper devuelve un string legible, y ChatGPT espera el JSON como texto.

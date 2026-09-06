@@ -214,3 +214,30 @@ claude.ai y ChatGPT, en `https://mcp-consorcio.neuralcore.dev/mcp/<CT_MCP_TOKEN>
 5. Alta en los clientes con la URL completa (con token): claude.ai → Configuración → Conectores;
    ChatGPT → Conectores / modo desarrollador; Claude Code → `claude mcp add --transport http consorcio <URL>`.
 6. Rotar el token = cambiarlo en `.env` + `docker compose up -d mcp` + actualizar los clientes.
+
+### 10.1 Búsqueda semántica (tool `buscar_semantico`)
+
+La tool MCP `buscar_semantico` llama a `/consulta/semantica`, que requiere embeddings OpenAI.
+Las tres variables van en `api/.env` (el service `api` ya usa `env_file: api/.env` en el compose;
+**no tocar `docker-compose.yml`**):
+
+```
+CT_EMBEDDINGS_API_KEY=sk-...   # copiar el valor de OPENAI_API_KEY del .env raíz
+CT_EMBEDDINGS_MODELO=text-embedding-3-small   # default; cambiar solo si se migra de modelo
+CT_EMBEDDINGS_URL=https://api.openai.com/v1   # default; compatible con cualquier API OpenAI
+```
+
+Sin `CT_EMBEDDINGS_API_KEY` la búsqueda semántica devuelve 503 y la ingesta sigue sin romper.
+
+**Backfill inicial** (una sola vez, después de setear la key):
+
+```bash
+docker compose exec api python cli.py embeddings
+# Reporta: Embebidos: N | salteados (sin texto): M | fallidos: 0
+```
+
+**Al cambiar de modelo** (re-embeber todo):
+
+```bash
+docker compose exec api python cli.py embeddings --todos
+```

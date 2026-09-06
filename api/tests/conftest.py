@@ -10,6 +10,7 @@ os.environ["CT_CONFIAR_PROXY"] = "false"
 os.environ["CT_CORS_ORIGIN"] = "http://localhost:3000"
 os.environ["CT_STORAGE_DIR"] = ""
 os.environ["CT_GOOGLE_CLIENT_ID"] = ""
+os.environ["CT_EMBEDDINGS_API_KEY"] = ""  # sin key: los tests jamás llaman a la API de embeddings
 
 import pathlib
 

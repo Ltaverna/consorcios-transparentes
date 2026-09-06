@@ -16,7 +16,8 @@ from ct.model import Liquidacion as LiqMotor
 from ct.redconar import parse_pdf, parse_text
 from ct.rules import Config, Hallazgo as HallazgoMotor, evaluar
 
-from . import models
+from . import embeddings, models
+from .texto import extraer_texto
 
 logger = logging.getLogger(__name__)
 
@@ -242,6 +243,26 @@ MAX_ARCHIVOS_ZIP = 1000
 MAX_BYTES_ZIP_DESCOMPRIMIDO = 500 * 1024 * 1024
 
 
+def embeber_documentos(storage, filas: list[models.Documento]) -> None:
+    """Puebla `embedding` de los documentos con texto extraíble (batch, una llamada).
+    Cualquier falla (sin key, API caída, respuesta rara) deja los embeddings en NULL con
+    log: la ingesta JAMÁS falla por embeddings. El backfill (`cli.py embeddings`) los
+    completa después."""
+    if not embeddings.habilitado():
+        return
+    try:
+        con_texto = [(fila, t) for fila in filas if (t := extraer_texto(storage, fila))]
+        if not con_texto:
+            return
+        vectores = embeddings.embeber([t for _, t in con_texto])
+        if vectores is None:
+            return  # embeber ya logueó la falla
+        for (fila, _), vector in zip(con_texto, vectores):
+            fila.embedding = vector
+    except Exception:
+        logger.warning("Falló el paso de embeddings; los documentos quedan sin vector", exc_info=True)
+
+
 def cruzar_comprobantes(db: Session, liq_id: int, zip_bytes: bytes, storage) -> None:
     """Descomprime el ZIP del portal (carpeta que genera `ct descargar`, con su manifest.json),
     corre el cruce del motor contra la liquidación ya procesada y persiste documentos y
@@ -284,6 +305,7 @@ def cruzar_comprobantes(db: Session, liq_id: int, zip_bytes: bytes, storage) -> 
                      db.query(models.Documento).filter_by(liquidacion_id=liq_row.id).all()}
         db.query(models.Documento).filter_by(liquidacion_id=liq_row.id).delete()
         nuevas = set()
+        filas_doc = []
         for d, ruta in zip(docs, rutas, strict=True):
             origen_path = pathlib.Path(ruta)
             if origen_path.name != d.archivo:
@@ -294,8 +316,11 @@ def cruzar_comprobantes(db: Session, liq_id: int, zip_bytes: bytes, storage) -> 
             key = f"comprobantes/{liq_row.periodo}/{origen_path.name}"
             storage.guardar(key, origen_path.read_bytes())
             nuevas.add(key)
-            db.add(models.Documento(liquidacion_id=liq_row.id, gasto_n=d.gasto_n, tipo=d.tipo,
-                                    archivo_key=key, hash=d.hash, metadatos=d.to_dict()))
+            fila = models.Documento(liquidacion_id=liq_row.id, gasto_n=d.gasto_n, tipo=d.tipo,
+                                    archivo_key=key, hash=d.hash, metadatos=d.to_dict())
+            db.add(fila)
+            filas_doc.append(fila)
+        embeber_documentos(storage, filas_doc)
         upsert_hallazgos(db, liq_row, hallazgos, origen="comprobantes")
         db.commit()
     # Si esta subida reusa el mismo nombre de archivo que una anterior (resubida del mismo

@@ -14,6 +14,25 @@ JSONDict = MutableDict.as_mutable(JSON().with_variant(JSONB(), "postgresql"))
 JSONList = MutableList.as_mutable(JSON().with_variant(JSONB(), "postgresql"))
 
 
+class VectorDual(TypeDecorator):
+    """Vector(dim) de pgvector en Postgres, JSON en el resto (el SQLite de los tests).
+    Se escribe con una lista de floats; en SQLite también se lee como lista.
+    none_as_null: un embedding ausente es NULL de SQL (filtrable con isnot(None)),
+    no el literal JSON 'null'."""
+    impl = JSON
+    cache_ok = True
+
+    def __init__(self, dim: int = 1536):
+        super().__init__()
+        self.dim = dim
+
+    def load_dialect_impl(self, dialect):
+        if dialect.name == "postgresql":
+            from pgvector.sqlalchemy import Vector
+            return dialect.type_descriptor(Vector(self.dim))
+        return dialect.type_descriptor(JSON(none_as_null=True))
+
+
 class FechaUTC(TypeDecorator):
     """Guarda en UTC y devuelve siempre datetime con tz (SQLite la pierde)."""
     impl = DateTime(timezone=True)
@@ -109,6 +128,9 @@ class Documento(Base):
     archivo_key: Mapped[str] = mapped_column(String(500))
     hash: Mapped[str] = mapped_column(String(64), default="")
     metadatos: Mapped[dict] = mapped_column(JSONDict, default=dict)  # Documento.to_dict() del motor
+    # Embedding del texto extraído (búsqueda semántica). NULL = sin embedding (imagen/escaneo,
+    # embeddings deshabilitados o falla de la API): un documento sin embedding es válido.
+    embedding: Mapped[list | None] = mapped_column(VectorDual(1536), default=None)
 
 
 class Hallazgo(Base):

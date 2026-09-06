@@ -18,6 +18,9 @@ class Settings(BaseSettings):
     max_zip_mb: int = 100                    # tope de subida del ZIP de comprobantes
     confiar_proxy: bool = False              # True detrás de cloudflared: usa CF-Connecting-IP para el rate limit
     google_client_id: str = ""              # client ID de OAuth para el botón de Google (vacío = SSO apagado)
+    embeddings_api_key: str = ""             # vacía = embeddings deshabilitados (la ingesta sigue igual)
+    embeddings_modelo: str = "text-embedding-3-small"
+    embeddings_url: str = "https://api.openai.com/v1"  # API OpenAI-compatible
 
     model_config = {"env_prefix": "CT_", "env_file": ".env"}
 
