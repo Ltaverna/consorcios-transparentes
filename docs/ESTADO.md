@@ -100,6 +100,21 @@
   `certificador` sobre la liquidación sola (Roth certifica y ejecuta — MEDIO, área Obras / contratación).
   Motor 99 tests · API 168 tests. **Pendiente de deploy + reproceso de julio y agosto** (re-etiqueta
   los duplicados de Roth y Saczewiczyk como cuotas MEDIO y agrega los hallazgos nuevos).
+- **Índice de transparencia — ciclo E** (6/09, rama `main`; spec
+  `docs/superpowers/specs/2026-09-06-indice-transparencia-design.md`): módulo puro
+  `api/app/analitica.py` con 5 estados por gasto (`verificado`, `requiere_explicacion`,
+  `anomalia`, `inconsistencia`, `sin_informacion`) calculados en tiempo real a partir de
+  documentos + hallazgos abiertos + triage, sin almacenar nada; índice = % del dinero
+  trazable de punta a punta (gastos verificados sobre total). Endpoints `/analitica/indice`
+  (métricas globales y por período, con rango opcional) y `/analitica/gastos?periodo&estado`
+  (drill-down por gasto con hallazgos y documentos) — misma compuerta de rol que `/hallazgos`;
+  propietario recibe solo lo publicado. Dos tools MCP: `indice_transparencia` y `estado_gastos`
+  (total: 16 herramientas; ver `docs/MCP.md`). En el panel web: página `panel/transparencia`
+  con índice grande, tres barras de progreso (trazable / con factura / pagos respaldados),
+  tabla de estados con drill-down interactivo y card de cuestiones por severidad; en `mi-unidad`:
+  card Transparencia visible al propietario con el índice y los conteos (se oculta en silencio
+  si no hay períodos publicados o hay error de red). Motor 99 tests · API 180 tests · web 44.
+  **Pendiente de deploy** (api + worker + mcp + web con `npm run deploy:cf`).
   Próximos ciclos: B (prorrateo vs escritura del reglamento) → D (OCR de imágenes/recibos manuscritos).
 - **Reglas de mercado + normativa + PWA** (5/09, rama `reglas-mercado`; spec
   `docs/superpowers/specs/2026-09-05-reglas-mercado-design.md`): tres reglas nuevas del motor calibradas
