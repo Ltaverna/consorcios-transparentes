@@ -37,8 +37,15 @@ class ClienteApi:
         with self.opener.open(url, timeout=60) as r:
             return json.loads(r.read())
 
+    def get_texto(self, path):
+        """Como get() pero devuelve el string crudo en lugar de parsear JSON."""
+        url = self.base + path
+        with self.opener.open(url, timeout=60) as r:
+            return r.read().decode("utf-8")
+
 
 _sesion = None
+_reglamento_cache = None  # str con el markdown completo; se llena en la primera llamada
 
 
 def _cliente():
@@ -146,6 +153,62 @@ def estado_liquidaciones() -> str:
     return "\n".join(lineas) or "No hay liquidaciones cargadas."
 
 
+def _parsear_reglamento(markdown: str) -> list[tuple[int, str, str]]:
+    """Devuelve lista de (índice, título, cuerpo) para cada sección ## o ###."""
+    secciones = []
+    titulo_actual = None
+    cuerpo_lineas: list[str] = []
+    for linea in markdown.splitlines():
+        if linea.startswith("## ") or linea.startswith("### "):
+            if titulo_actual is not None:
+                secciones.append((len(secciones), titulo_actual, "\n".join(cuerpo_lineas).strip()))
+            titulo_actual = linea
+            cuerpo_lineas = []
+        else:
+            cuerpo_lineas.append(linea)
+    if titulo_actual is not None:
+        secciones.append((len(secciones), titulo_actual, "\n".join(cuerpo_lineas).strip()))
+    return secciones
+
+
+def _secciones_reglamento() -> list[tuple[int, str, str]]:
+    """Baja y cachea la transcripción del reglamento; devuelve las secciones parseadas."""
+    global _reglamento_cache
+    if _reglamento_cache is None:
+        _reglamento_cache = _cliente().get_texto("/consorcio/reglamento/transcripcion")
+    return _parsear_reglamento(_reglamento_cache)
+
+
+@_con_api
+def reglamento(busqueda: str = "") -> str:
+    """Consulta el reglamento del consorcio. Sin argumento devuelve el índice de
+    secciones; con texto devuelve las secciones completas donde aparece (en título
+    o cuerpo, case-insensitive)."""
+    secciones = _secciones_reglamento()
+    if not busqueda:
+        lineas = [f"{i}. {titulo}" for i, titulo, _ in secciones]
+        lineas.append("\nPedí reglamento(busqueda=...) con palabras del tema para ver el texto completo.")
+        return "\n".join(lineas)
+
+    termino = busqueda.lower()
+    encontradas = [(i, titulo, cuerpo) for i, titulo, cuerpo in secciones
+                   if termino in titulo.lower() or termino in cuerpo.lower()]
+    if not encontradas:
+        return f"ninguna sección menciona '{busqueda}'; probá con el índice (reglamento())."
+
+    _LIMITE = 15000
+    partes = []
+    total = 0
+    for i, titulo, cuerpo in encontradas:
+        bloque = f"{titulo}\n{cuerpo}"
+        if total + len(bloque) > _LIMITE:
+            partes.append(f"\n[respuesta cortada por tamaño — hay {len(encontradas) - len(partes)} sección(es) más]")
+            break
+        partes.append(bloque)
+        total += len(bloque)
+    return "\n\n".join(partes)
+
+
 @_con_api
 def search(query: str) -> dict:
     """Busca gastos y hallazgos por texto (compatibilidad con el modo
@@ -166,6 +229,14 @@ def search(query: str) -> dict:
             results.append({"id": f"hallazgo:{h['id']}",
                             "title": f"[{h['severidad']}] {h['titulo']} ({h['periodo']})",
                             "url": f"{_WEB}/panel/hallazgos/{h['id']}"})
+    # Buscar en los títulos de secciones del reglamento (usa cache si ya está cargado)
+    if _reglamento_cache is not None:
+        secciones = _parsear_reglamento(_reglamento_cache)
+        for i, titulo, _ in secciones:
+            if query.lower() in titulo.lower():
+                results.append({"id": f"reglamento:{i}",
+                                "title": f"Reglamento: {titulo}",
+                                "url": f"{_WEB}/reglamento"})
     return {"results": results[:10]}
 
 
@@ -211,10 +282,22 @@ def fetch(id: str) -> dict:
             texto += f"\nRespuesta de la administración: {h['respuesta_admin']}"
         return {"id": id, "title": h["titulo"], "text": texto,
                 "url": f"{_WEB}/panel/hallazgos/{h['id']}", "metadata": h}
+    if id.startswith("reglamento:"):
+        parte = id.split(":", 1)[1]
+        if not parte.isdigit():
+            return {**_ID_INVALIDO, "id": id}
+        secciones = _secciones_reglamento()
+        idx = int(parte)
+        if idx >= len(secciones):
+            return {**_ID_INVALIDO, "id": id}
+        _, titulo, cuerpo = secciones[idx]
+        texto = f"{titulo}\n{cuerpo}"
+        return {"id": id, "title": titulo, "text": texto,
+                "url": f"{_WEB}/reglamento", "metadata": {}}
     raise ValueError(f"id no reconocido: {id}")
 
 
-for fn in (consultar_gastos, agregados, listar_hallazgos, detalle_hallazgo, estado_liquidaciones):
+for fn in (consultar_gastos, agregados, listar_hallazgos, detalle_hallazgo, estado_liquidaciones, reglamento):
     mcp.tool()(fn)
 # search/fetch devuelven dict pero sin output estructurado: ante un error de red
 # el wrapper devuelve un string legible, y ChatGPT espera el JSON como texto.
