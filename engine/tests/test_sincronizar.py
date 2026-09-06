@@ -173,6 +173,92 @@ def test_poll_espera_el_procesamiento_y_timeout_corta(tmp_path):
     assert not estado.get("2026-08", {}).get("liquidacion_subida")
 
 
+def armar_backfill(tmp_path, meses):
+    """Carpetas privadas con varios meses de comprobantes (para las pruebas de backfill)."""
+    (tmp_path / "liquidaciones").mkdir()
+    base = tmp_path / "Comprobantes Rivadavia 2069"
+    for mes in meses:
+        (base / mes).mkdir(parents=True)
+        (base / mes / "01-1 doc.pdf").write_bytes(b"%PDF-doc")
+    (base / "manifest.json").write_text("[]")
+
+
+def test_backfill_desde_procesa_todos_en_orden_ascendente(tmp_path):
+    armar_backfill(tmp_path, ["2025-11 Noviembre", "2025-12 Diciembre", "2026-01 Enero"])
+    portal = PortalFalso(
+        [("2026-1", "Enero 2026"), ("2025-12", "Diciembre 2025"),
+         ("2025-11", "Noviembre 2025"), ("2025-10", "Octubre 2025")],
+        {"2026-1": (b"%PDF-ene", "2026-01-31-liq.pdf"),
+         "2025-12": (b"%PDF-dic", "2025-12-31-liq.pdf"),
+         "2025-11": (b"%PDF-nov", "2025-11-30-liq.pdf"),
+         "2025-10": (b"%PDF-oct", "2025-10-31-liq.pdf")})
+    api = ApiFalsa()
+    s = Sincronizador(portal, api, str(tmp_path))
+    assert s.correr(desde="2025-11") == 0
+    # del más viejo al más nuevo, y 2025-10 queda afuera del filtro
+    assert [x for x in api.subidas if x[0] == "liq"] == [
+        ("liq", "2025-11"), ("liq", "2025-12"), ("liq", "2026-01")]
+    assert portal.descargas_mes == ["2025-11", "2025-12", "2026-1"]
+    estado = json.loads((tmp_path / "sincronizacion.json").read_text())
+    assert all(estado[p]["liquidacion_subida"] for p in ("2025-11", "2025-12", "2026-01"))
+
+
+def test_backfill_no_resube_lo_ya_subido_segun_el_estado(tmp_path):
+    armar_backfill(tmp_path, ["2025-11 Noviembre", "2025-12 Diciembre"])
+    (tmp_path / "sincronizacion.json").write_text(
+        json.dumps({"2025-11": {"liquidacion_subida": True}}))
+    portal = PortalFalso(
+        [("2025-12", "Diciembre 2025"), ("2025-11", "Noviembre 2025")],
+        {"2025-12": (b"%PDF-dic", "2025-12-31-liq.pdf"),
+         "2025-11": (b"%PDF-nov", "2025-11-30-liq.pdf")})
+    api = ApiFalsa()
+    s = Sincronizador(portal, api, str(tmp_path))
+    assert s.correr(desde="2025-11") == 0
+    assert [x for x in api.subidas if x[0] == "liq"] == [("liq", "2025-12")]
+
+
+def test_backfill_falla_intermedia_no_corta_los_siguientes(tmp_path):
+    from ct.portal import PortalError
+    armar_backfill(tmp_path, ["2025-11 Noviembre", "2025-12 Diciembre", "2026-01 Enero"])
+    portal = PortalFalso(
+        [("2026-1", "Enero 2026"), ("2025-12", "Diciembre 2025"), ("2025-11", "Noviembre 2025")],
+        {"2026-1": (b"%PDF-ene", "2026-01-31-liq.pdf"),
+         "2025-12": (b"%PDF-dic", "2025-12-31-liq.pdf"),
+         "2025-11": (b"%PDF-nov", "2025-11-30-liq.pdf")})
+    descargar_ok = portal.descargar_mes
+    def descargar_roto(periodo, carpeta, log=print):
+        if periodo == "2025-12":
+            raise PortalError("se cayó el portal")
+        return descargar_ok(periodo, carpeta, log=log)
+    portal.descargar_mes = descargar_roto
+    api = ApiFalsa()
+    s = Sincronizador(portal, api, str(tmp_path))
+    assert s.correr(desde="2025-11") == 1                       # hubo una falla
+    liqs = [x for x in api.subidas if x[0] == "liq"]
+    assert ("liq", "2025-11") in liqs and ("liq", "2026-01") in liqs   # los demás siguieron
+    assert ("liq", "2025-12") not in liqs
+
+
+def test_sin_desde_solo_procesa_el_periodo_mas_reciente(tmp_path):
+    armar_carpetas(tmp_path)
+    portal = PortalFalso(
+        [("2026-8", "Agosto 2026"), ("2026-7", "Julio 2026")],
+        {"2026-8": (b"%PDF-ago", "2026-08-31-liq.pdf"),
+         "2026-7": (b"%PDF-jul", "2026-07-31-liq.pdf")})
+    api = ApiFalsa()
+    s = Sincronizador(portal, api, str(tmp_path))
+    assert s.correr() == 0
+    assert portal.descargas_mes == ["2026-8"]                   # julio ni se toca
+    assert [x for x in api.subidas if x[0] == "liq"] == [("liq", "2026-08")]
+
+
+def test_cli_desde_invalido_corta_con_codigo_2(capsys):
+    from ct.cli import main
+    assert main(["sincronizar", "--desde", "banana"]) == 2
+    assert "AAAA-MM" in capsys.readouterr().err
+    assert main(["sincronizar", "--desde", "2025-13"]) == 2     # mes fuera de rango
+
+
 def test_sin_liquidacion_en_api_no_sube_zip(tmp_path):
     armar_carpetas(tmp_path)
     portal = PortalFalso([("2026-8", "Agosto 2026")], {})   # portal sin liquidación todavía

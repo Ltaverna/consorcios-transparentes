@@ -1,6 +1,7 @@
 """Sincronización mensual: portal (Redconar) → carpeta privada → API del panel.
 
-Orquesta la corrida idempotente de cada mes:
+Orquesta la corrida idempotente de cada mes (con `desde="AAAA-MM"` hace backfill de todos
+los períodos del portal desde ese mes, del más viejo al más nuevo):
   1. baja la liquidación del período más reciente si todavía no está en `liquidaciones/`,
   2. refresca los comprobantes del mes (regenera manifest.json vía `Redconar.descargar_mes`),
   3. sube la liquidación a la API si la API todavía no la tiene procesada/publicada,
@@ -20,6 +21,8 @@ import urllib.error
 import urllib.request
 import zipfile
 from http.cookiejar import CookieJar
+
+from .portal import PortalError
 
 CARPETA_COMPROBANTES = "Comprobantes Rivadavia 2069"
 
@@ -182,23 +185,11 @@ class Sincronizador:
             det = self.api.detalle(fila["id"])
         return det
 
-    def correr(self) -> int:
-        self.api.login()
-        estado = self._leer_estado()
+    def _sincronizar_periodo(self, periodo_portal: str, per: str, estado: dict) -> bool:
+        """Pipeline de un período: bajar liq → refrescar comprobantes → subir liq → ZIP.
 
-        # 2. reconciliar con lo que la API ya tiene (p. ej. cargado a mano por el panel)
-        for fila in self.api.liquidaciones():
-            if fila.get("estado") in ("procesada", "publicada"):
-                estado.setdefault(fila["periodo"], {})["liquidacion_subida"] = True
-
-        # 3. período más reciente del portal
-        periodos = self.portal.periodos()
-        if not periodos:
-            self.log("el portal no devolvió períodos; nada para sincronizar")
-            self._guardar(estado)
-            return 1
-        periodo_portal = periodos[0][0]
-        per = periodo_api(periodo_portal)
+        Devuelve True si terminó sin fallas (aunque haya salteado pasos ya hechos).
+        """
         self.log(f"sincronizando {per} (portal {periodo_portal})")
 
         # 4. liquidación local: bajarla del portal si todavía no está
@@ -226,7 +217,7 @@ class Sincronizador:
                 self._guardar(estado)  # queda pendiente para reintentar en la próxima corrida
                 self.log(f"la liquidación {per} no quedó procesada (estado: {det.get('estado', '?')}): "
                          f"{det.get('error') or 'sin detalle'}")
-                return 1
+                return False
 
         # 7. ZIP de comprobantes: solo si cambió el hash y la liquidación ya está en la API
         carpeta_mes = next((d for d in sorted(os.listdir(carpeta_comp))
@@ -258,5 +249,43 @@ class Sincronizador:
                     self.log(f"comprobantes de {per}: {res.get('documentos', 0)} documentos, "
                              f"{res.get('hallazgos_cruce', 0)} hallazgos de cruce")
 
-        self._guardar(estado)
-        return 0
+        return True
+
+    def correr(self, desde: str | None = None) -> int:
+        """Sincroniza el período más reciente, o todos los `>= desde` ("AAAA-MM") en backfill.
+
+        En modo backfill los períodos van del más viejo al más nuevo (así la serie histórica
+        se construye bien mes a mes) y una falla en un mes no corta los siguientes.
+        """
+        self.api.login()
+        estado = self._leer_estado()
+
+        # 2. reconciliar con lo que la API ya tiene (p. ej. cargado a mano por el panel)
+        for fila in self.api.liquidaciones():
+            if fila.get("estado") in ("procesada", "publicada"):
+                estado.setdefault(fila["periodo"], {})["liquidacion_subida"] = True
+
+        # 3. qué períodos correr
+        periodos = self.portal.periodos()
+        if not periodos:
+            self.log("el portal no devolvió períodos; nada para sincronizar")
+            self._guardar(estado)
+            return 1
+        if desde is None:
+            pendientes = [periodos[0][0]]           # solo el más reciente (corrida diaria)
+        else:
+            pendientes = sorted((p for p, _ in periodos if periodo_api(p) >= desde), key=periodo_api)
+
+        hubo_falla = False
+        for periodo_portal in pendientes:
+            per = periodo_api(periodo_portal)
+            try:
+                ok = self._sincronizar_periodo(periodo_portal, per, estado)
+            except (PortalError, ApiError, urllib.error.URLError, OSError) as e:
+                if desde is None:                   # sin backfill, mismo comportamiento de siempre
+                    raise
+                self.log(f"falló la sincronización de {per}: {e}; sigo con el próximo período")
+                ok = False
+            hubo_falla = hubo_falla or not ok
+            self._guardar(estado)                   # un corte a mitad del backfill retoma limpio
+        return 1 if hubo_falla else 0

@@ -69,9 +69,17 @@ def descargar_liquidacion(args) -> int:
 
 
 def sincronizar(args) -> int:
+    import re
     import urllib.error
     from .portal import Redconar, PortalError
     from .sincronizar import ApiPanel, ApiError, Sincronizador
+
+    # --- backfill opcional (el worker llama sincronizar(None): tolerar args sin desde) ---
+    desde = getattr(args, "desde", None)
+    if desde is not None and not re.fullmatch(r"\d{4}-(0[1-9]|1[0-2])", desde):
+        print(f"sincronizar: --desde inválido ({desde!r}); usá el formato AAAA-MM, "
+              "por ejemplo 2025-11", file=sys.stderr)
+        return 2
 
     # --- credenciales del portal (aceptar ambos conjuntos de nombres de env) ---
     usuario = (os.environ.get("CT_REDCONAR_USUARIO")
@@ -104,7 +112,7 @@ def sincronizar(args) -> int:
         portal = Redconar()
         portal.login(usuario, clave)
         api = ApiPanel(api_url, bot_email, bot_clave)
-        return Sincronizador(portal, api, carpeta).correr()
+        return Sincronizador(portal, api, carpeta).correr(desde=desde)
     except PortalError as e:
         print(f"sincronizar: {e}", file=sys.stderr)
         return 1
@@ -140,7 +148,10 @@ def main(argv=None) -> int:
     dl.add_argument("--carpeta", required=True, help="Carpeta destino del PDF (se crea si falta)")
     dl.add_argument("--usuario", help="Usuario del portal (o variable CT_REDCONAR_USUARIO)")
     dl.add_argument("--clave", help="Contraseña (o variable CT_REDCONAR_CLAVE; si falta se pide por consola)")
-    sub.add_parser("sincronizar", help="Sincronizar el portal Redconar con el panel (config por variables de entorno)")
+    sc = sub.add_parser("sincronizar", help="Sincronizar el portal Redconar con el panel (config por variables de entorno)")
+    sc.add_argument("--desde", metavar="AAAA-MM",
+                    help="Backfill: sincronizar todos los períodos del portal desde este mes "
+                         "(inclusive), del más viejo al más nuevo")
     args = ap.parse_args(argv)
 
     if args.cmd == "descargar":
