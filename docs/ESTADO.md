@@ -75,6 +75,14 @@
   proveedores, categorías, buscador con total), y servidor MCP read-only en
   `mcp-consorcio.neuralcore.dev` (13 tools: gastos, agregados, hallazgos, liquidaciones, reglamento, comprobantes con texto extraído, deudores y resumen mensual; token secreto en el path,
   DEPLOY.md §10) para consultar en lenguaje natural desde Claude Code, claude.ai y ChatGPT.
+- **Búsqueda semántica** (6/09, rama `busqueda-semantica`; spec
+  `docs/superpowers/specs/2026-09-06-busqueda-semantica-design.md`): embeddings OpenAI
+  (`text-embedding-3-small`) guardados en pgvector en la columna `documentos.embedding`; se
+  pueblan solos en cada ingesta de comprobantes. Endpoint `/consulta/semantica?q=&k=5` (equipo).
+  Tool MCP `buscar_semantico` (14 tools en total). Backfill con `python cli.py embeddings`
+  (solo NULL) o `python cli.py embeddings --todos` (re-embeber todo al cambiar de modelo).
+  Requiere `CT_EMBEDDINGS_API_KEY` en `api/.env`; sin ella la búsqueda degrada a 503 y la
+  ingesta sigue sin romper. Ver DEPLOY.md §10 para la configuración de la key.
 - **Reglas de mercado + normativa + PWA** (5/09, rama `reglas-mercado`; spec
   `docs/superpowers/specs/2026-09-05-reglas-mercado-design.md`): tres reglas nuevas del motor calibradas
   contra los gastos reales (`sueldo_mercado` con detección de SAC, `honorarios_mercado`, `abonos_mercado`

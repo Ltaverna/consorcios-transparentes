@@ -1,5 +1,8 @@
 """Tools del MCP contra un cliente de API falso (sin red)."""
+import io
+import json
 import os
+import urllib.error
 
 import servidor_mcp
 
@@ -28,6 +31,10 @@ class ClienteFalso:
             return {"resultados": [{"documento_id": 7, "gasto_n": 32, "periodo": "2026-08",
                                     "tipo": "factura",
                                     "fragmento": "...texto IMPERMEABILIZACION SACZEWICZYK factura..."}]}
+        if path == "/consulta/semantica":
+            return {"resultados": [{"documento_id": 7, "gasto_n": 32, "periodo": "2026-08",
+                                    "tipo": "factura", "similitud": 0.92,
+                                    "fragmento": "IMPERMEABILIZACION TERRAZA SACZEWICZYK CUIT 30-99887766-1"}]}
         if path == "/consulta/deudores":
             return {"periodo": "2026-08",
                     "deudores": [{"uf": 4, "piso_depto": "2A", "propietario": "DEL VALLE",
@@ -254,3 +261,43 @@ def test_gating_del_token(monkeypatch):
     # El path correcto no da 404 (el MCP rechazará el body, pero la ruta existe)
     r = client.post("/mcp/test-tok", json={})
     assert r.status_code != 404
+
+
+def test_buscar_semantico_formatea_resultado(monkeypatch):
+    """buscar_semantico llama /consulta/semantica y formatea similitud, doc, gasto, período,
+    tipo y fragmento recortado a ~150 caracteres."""
+    monkeypatch.setattr(servidor_mcp, "_cliente", lambda: ClienteFalso())
+
+    out = servidor_mcp.buscar_semantico(texto="impermeabilizacion terraza")
+    # Similitud en porcentaje
+    assert "92.0%" in out
+    # Identificadores del resultado
+    assert "7" in out          # documento_id
+    assert "32" in out         # gasto_n
+    assert "2026-08" in out    # periodo
+    assert "factura" in out    # tipo
+    # Fragmento del texto
+    assert "IMPERMEABILIZACION" in out
+
+
+def test_buscar_semantico_sin_key_devuelve_mensaje_claro(monkeypatch):
+    """Cuando la API responde 503 (búsqueda semántica no configurada), el mensaje que
+    llega al usuario incluye el detail del cuerpo HTTP y es inteligible."""
+    cuerpo = json.dumps({"detail": "búsqueda semántica no configurada"}).encode()
+    error_503 = urllib.error.HTTPError(
+        url="http://x/consulta/semantica", code=503,
+        msg="Service Unavailable", hdrs=None, fp=io.BytesIO(cuerpo)
+    )
+
+    class ClienteConSemantic503(ClienteFalso):
+        def get(self, path, params=None):
+            if path == "/consulta/semantica":
+                raise error_503
+            return super().get(path, params)
+
+    monkeypatch.setattr(servidor_mcp, "_cliente", lambda: ClienteConSemantic503())
+    monkeypatch.setattr(servidor_mcp, "_sesion", None)
+
+    out = servidor_mcp.buscar_semantico(texto="impermeabilizacion")
+    assert "503" in out
+    assert "búsqueda semántica no configurada" in out

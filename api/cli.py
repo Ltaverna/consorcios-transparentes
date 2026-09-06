@@ -10,16 +10,16 @@ from app.texto import extraer_texto
 LOTE_EMBEDDINGS = 20
 
 
-def backfill_embeddings(db) -> int:
-    """Embebe los documentos con texto extraíble y embedding NULL, en lotes con commit
-    por lote (una corrida interrumpida no pierde lo ya embebido)."""
+def backfill_embeddings(db, todos: bool = False) -> int:
+    """Embebe los documentos con texto extraíble y embedding NULL (o todos si `todos=True`),
+    en lotes con commit por lote (una corrida interrumpida no pierde lo ya embebido).
+    Usar `--todos` para re-embeber al cambiar de modelo."""
     if not embeddings.habilitado():
         print("Error: CT_EMBEDDINGS_API_KEY no está configurada; no hay nada que hacer")
         return 1
     storage = storage_por_defecto()
-    pendientes = (db.query(models.Documento)
-                    .filter(models.Documento.embedding.is_(None))
-                    .order_by(models.Documento.id).all())
+    q = db.query(models.Documento).order_by(models.Documento.id)
+    pendientes = q.all() if todos else q.filter(models.Documento.embedding.is_(None)).all()
     embebidos = salteados = fallidos = 0
     for i in range(0, len(pendientes), LOTE_EMBEDDINGS):
         lote = pendientes[i:i + LOTE_EMBEDDINGS]
@@ -50,7 +50,9 @@ def main() -> int:
     u.add_argument("email"); u.add_argument("nombre"); u.add_argument("rol", choices=admin.ROLES)
     c = sub.add_parser("codigo", help="Generar el código de acceso de una unidad")
     c.add_argument("uf", type=int)
-    sub.add_parser("embeddings", help="Backfill: embeber documentos con texto y sin embedding")
+    emb = sub.add_parser("embeddings", help="Backfill: embeber documentos con texto y sin embedding")
+    emb.add_argument("--todos", action="store_true",
+                     help="Re-embeber TODOS los documentos (no solo los NULL); usar al cambiar de modelo")
     args = ap.parse_args()
 
     Base.metadata.create_all(engine)
@@ -72,7 +74,7 @@ def main() -> int:
         elif args.cmd == "codigo":
             print(f"Código de la UF {args.uf}: {admin.generar_codigo(db, args.uf)} (guardalo: no se vuelve a mostrar)")
         elif args.cmd == "embeddings":
-            return backfill_embeddings(db)
+            return backfill_embeddings(db, todos=args.todos)
     except ValueError as e:
         print(f"Error: {e}")
         return 1
