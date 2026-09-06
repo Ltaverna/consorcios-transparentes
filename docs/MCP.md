@@ -11,7 +11,8 @@ natural: la IA consulta los datos reales por vos.
 https://mcp-consorcio.neuralcore.dev/mcp/<TOKEN>
 ```
 
-El `<TOKEN>` es la credencial de acceso (te lo pasa el administrador del sistema por un canal privado).
+El `<TOKEN>` es **personal**: el administrador crea uno por persona y lo entrega por un canal privado.
+Se puede revocar individualmente sin afectar a los demás.
 **Tratá la URL completa como una contraseña**: quien la tenga puede leer los datos del consorcio.
 No la publiques ni la pegues en lugares compartidos. Si se filtra, avisá: se rota en un minuto.
 
