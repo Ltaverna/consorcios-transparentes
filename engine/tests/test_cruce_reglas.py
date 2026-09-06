@@ -3,7 +3,7 @@ Números reales de agosto 2026: cuotas de Roth (FC de mayo por $7.950.000, cuota
 declarada el 21-08 sin comprobante propio) y saldo de Saczewiczyk."""
 from datetime import date
 
-from ct.comprobantes import (Documento, chequear_pagos_declarados)
+from ct.comprobantes import (Documento, chequear_importe_factura, chequear_pagos_declarados)
 from ct.model import Gasto, Pago
 
 
@@ -71,3 +71,39 @@ def test_pago_con_comprobante_de_la_fecha_pero_importe_insuficiente():
     assert len(hs) == 1
     assert "no cubren el pago declarado" in hs[0].evidencia
     assert "otras fechas" not in hs[0].evidencia
+
+
+def _factura_doc(importe, archivo="fact.pdf"):
+    d = Documento(archivo=archivo, gasto_n=25, tipo="factura")
+    d.importe = importe
+    return d
+
+
+def test_facturas_roth_cierran_por_la_suma():
+    # tres facturas (2,9M + 4,9M + 0,15M = 7,95M) contra un gasto de 2,65M con facturado 7,95M
+    g = _gasto(importe=2_650_000.0, factura_importe=7_950_000.0)
+    facts = [_factura_doc(2_900_000.0), _factura_doc(4_900_000.0), _factura_doc(150_000.0)]
+    assert chequear_importe_factura(g, facts, total_proveedor_mes=2_740_000.0) == []
+
+
+def test_factura_que_no_cierra_dispara():
+    g = _gasto(importe=300_000.0, factura_importe=None)
+    hs = chequear_importe_factura(g, [_factura_doc(500_000.0)], total_proveedor_mes=300_000.0)
+    assert len(hs) == 1
+    assert hs[0].severidad == "MEDIO"
+    assert hs[0].clave == "imp-fact"
+
+
+def test_factura_igual_al_gasto_no_dispara():
+    g = _gasto(importe=300_000.0)
+    assert chequear_importe_factura(g, [_factura_doc(300_000.0)], 300_000.0) == []
+
+
+def test_factura_igual_al_total_del_proveedor_no_dispara():
+    g = _gasto(importe=300_000.0)
+    assert chequear_importe_factura(g, [_factura_doc(750_000.0)], total_proveedor_mes=750_000.0) == []
+
+
+def test_factura_sin_importe_legible_no_cuenta():
+    g = _gasto(importe=300_000.0)
+    assert chequear_importe_factura(g, [_factura_doc(None)], 300_000.0) == []

@@ -286,6 +286,30 @@ def chequear_pagos_declarados(g: Gasto, pagos_docs: list[Documento]) -> list[Hal
     return out
 
 
+def _cerca(a: float, b: float) -> bool:
+    return abs(a - b) <= max(1.0, 0.02 * max(abs(a), abs(b)))
+
+
+def chequear_importe_factura(g: Gasto, facts: list[Documento], total_proveedor_mes: float) -> list[Hallazgo]:
+    """El importe leído de las facturas adjuntas tiene que cerrar contra algo: el gasto, el
+    total facturado según la liquidación (caso cuotas) o el total del proveedor en el mes
+    (una factura que cubre varias líneas). Si nada cierra, hay que mirarlo."""
+    importes = [f.importe for f in facts if f.importe]
+    if not importes:
+        return []
+    suma = round(sum(importes), 2)
+    objetivos = [g.importe, total_proveedor_mes] + ([g.factura_importe] if g.factura_importe else [])
+    if any(_cerca(x, obj) for x in importes + [suma] for obj in objetivos):
+        return []
+    return [Hallazgo(
+        "comprobantes", "MEDIO", "Respaldo documental",
+        f"{g.proveedor}: las facturas adjuntas suman {fmt(suma)} pero el gasto es {fmt(g.importe)}",
+        f"Importes de las facturas adjuntas: {', '.join(fmt(x) for x in importes)}."
+        + (f" Total facturado según la liquidación: {fmt(g.factura_importe)}." if g.factura_importe else ""),
+        abs(suma - g.importe), "Cotejar las facturas con el gasto liquidado.",
+        [str(g.n)], clave="imp-fact")]
+
+
 # ------------------------------------------------------------------ cruce
 def _same_entity(a: Optional[str], b: Optional[str]) -> bool:
     if not a or not b:
@@ -379,6 +403,8 @@ def cruzar(liq: Liquidacion, items: list[ItemManifiesto], carpeta: Optional[str]
         for c in creditos:
             hs.append(Hallazgo("comprobantes", "ALTO", "Control de pagos", f"Devolución de {fmt(c.importe or 0)} recibida de {c.destinatario or g.proveedor}", f"Crédito del {c.fecha or '?'} adjunto al gasto {g.proveedor} {fmt(g.importe)}: indica un pago en exceso previo. {c.archivo}.", c.importe or 0, "Registrar el error y la devolución en la liquidación.", ref))
         hs.extend(chequear_pagos_declarados(g, pagos))
+        total_prov = round(sum(x.importe for x in liq.gastos if x.proveedor == g.proveedor), 2)
+        hs.extend(chequear_importe_factura(g, facts, total_prov))
         # sin factura / sin pago
         if not facts and not imgs and g.factura_nro:
             hs.append(Hallazgo("comprobantes", "MEDIO", "Respaldo documental", f"{g.proveedor}: la liquidación cita la factura {g.factura_nro} pero no está adjunta", "", g.importe, "Pedir la factura.", ref))
