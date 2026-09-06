@@ -1,6 +1,66 @@
+import hashlib
+
 from app import admin, models
 
 from .test_liquidaciones_api import subir
+
+
+def pdf_minimo(texto: str) -> bytes:
+    """PDF 1.4 mínimo armado a mano (sin dependencias): una página con `texto` en Helvetica.
+    Verificado contra `pdftotext -layout` (extrae el texto exacto, sin warnings)."""
+    stream = f"BT /F1 12 Tf 72 720 Td ({texto}) Tj ET".encode("latin-1")
+    objetos = [
+        b"<< /Type /Catalog /Pages 2 0 R >>",
+        b"<< /Type /Pages /Kids [3 0 R] /Count 1 >>",
+        (b"<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] "
+         b"/Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>"),
+        b"<< /Length %d >>\nstream\n%s\nendstream" % (len(stream), stream),
+        b"<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>",
+    ]
+    out = b"%PDF-1.4\n"
+    offsets = []
+    for i, cuerpo in enumerate(objetos, start=1):
+        offsets.append(len(out))
+        out += b"%d 0 obj\n%s\nendobj\n" % (i, cuerpo)
+    xref_pos = len(out)
+    out += b"xref\n0 %d\n0000000000 65535 f \n" % (len(objetos) + 1)
+    for off in offsets:
+        out += b"%010d 00000 n \n" % off
+    out += (b"trailer\n<< /Size %d /Root 1 0 R >>\nstartxref\n%d\n%%%%EOF\n"
+            % (len(objetos) + 1, xref_pos))
+    return out
+
+
+def doc_con_contenido(db, auditor, tmp_path, nombre: str, data: bytes, gasto_n=None):
+    """Sube la liquidación 2026-08, guarda `data` en el storage local del test y crea el
+    Documento con hash real del contenido (la cache de texto es por hash y es global al
+    módulo: cada contenido distinto debe tener hash distinto)."""
+    liq_id = subir(auditor).json()["id"]
+    key = f"comprobantes/2026-08/{nombre}"
+    (tmp_path / "comprobantes/2026-08").mkdir(parents=True, exist_ok=True)
+    (tmp_path / key).write_bytes(data)
+    d = models.Documento(liquidacion_id=liq_id, gasto_n=gasto_n, tipo="factura",
+                         archivo_key=key, hash=hashlib.sha256(data).hexdigest())
+    db.add(d)
+    db.commit()
+    return d
+
+
+def test_texto_de_documento_pdf(db, auditor, tmp_path):
+    d = doc_con_contenido(db, auditor, tmp_path, "imper.pdf",
+                          pdf_minimo("CUIT 30-11222333-4 IMPERMEABILIZACION TERRAZA"))
+    r = auditor.get(f"/documentos/{d.id}/texto")
+    assert r.status_code == 200
+    assert r.json()["extraible"] is True
+    assert "IMPERMEABILIZACION" in r.json()["texto"]
+    assert auditor.get("/documentos/99999/texto").status_code == 404
+
+
+def test_texto_de_documento_no_extraible(db, auditor, tmp_path):
+    d = doc_con_contenido(db, auditor, tmp_path, "foto.png", b"\x89PNG\r\n\x1a\nno-es-un-pdf")
+    r = auditor.get(f"/documentos/{d.id}/texto")
+    assert r.status_code == 200
+    assert r.json() == {"texto": "", "extraible": False}
 
 
 def test_descargar_documento_con_rol(db, auditor, tmp_path):
@@ -29,6 +89,8 @@ def test_propietario_no_ve_documentos(db, cliente, auditor, tmp_path):
     codigo = admin.generar_codigo(db, 1)
     cliente.post("/auth/login-unidad", json={"uf": 1, "codigo": codigo})
     assert cliente.get(f"/documentos/{d.id}/contenido").status_code == 403
+    # el texto extraído es equipo-only: propietario → 403 aunque el documento fuera citable
+    assert cliente.get(f"/documentos/{d.id}/texto").status_code == 403
 
 
 def propietario_con_documentos(db, cliente, auditor, tmp_path):

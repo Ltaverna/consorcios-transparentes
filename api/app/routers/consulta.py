@@ -1,9 +1,11 @@
-"""Consultas read-only sobre gastos: la base de la vista analítica y del MCP."""
-from fastapi import APIRouter, Depends, HTTPException
+"""Consultas read-only sobre gastos, comprobantes y deudores: la base de la vista
+analítica y del MCP."""
+from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 
 from .. import models, security
 from ..db import get_db
+from .documentos import extraer_texto
 
 router = APIRouter(prefix="/consulta", tags=["consulta"])
 
@@ -42,6 +44,52 @@ def gastos(proveedor: str | None = None, categoria: str | None = None, q: str | 
         key=lambda f: -f["importe"],
     )
     return {"filas": filas, "total": sum(f["importe"] for f in filas), "cantidad": len(filas)}
+
+
+@router.get("/comprobantes")
+def comprobantes(q: str, request: Request, periodo: str | None = None,
+                 db: Session = Depends(get_db), s: dict = Depends(_EQUIPO)):
+    """Busca `q` (case-insensitive) en el texto extraído de los comprobantes del período
+    (o de todos). La primera pasada extrae y cachea (cache por hash en documentos.py);
+    las siguientes son en memoria."""
+    filas = db.query(models.Documento, models.Liquidacion.periodo).join(models.Liquidacion)
+    if periodo:
+        filas = filas.filter(models.Liquidacion.periodo == periodo)
+    aguja = q.lower()
+    resultados = []
+    for d, per in filas.all():
+        texto = extraer_texto(request.app.state.storage, d)
+        pos = texto.lower().find(aguja)
+        if pos < 0:
+            continue
+        resultados.append({"documento_id": d.id, "gasto_n": d.gasto_n, "periodo": per,
+                           "tipo": d.tipo,
+                           "fragmento": texto[max(0, pos - 200):pos + len(q) + 200]})
+    return {"resultados": resultados}
+
+
+@router.get("/deudores")
+def deudores(periodo: str | None = None, db: Session = Depends(get_db),
+             s: dict = Depends(_EQUIPO)):
+    """Unidades con deuda de la liquidación del período (default: la última procesada o
+    publicada), del `datos` guardado en la ingesta. `meses_equivalentes` = deuda / expensa
+    mensual de esa unidad (None si la unidad no tiene expensa ese mes)."""
+    filas = (db.query(models.Liquidacion)
+               .filter(models.Liquidacion.estado.in_(("procesada", "publicada"))))
+    liq = (filas.filter_by(periodo=periodo).first() if periodo
+           else filas.order_by(models.Liquidacion.periodo.desc()).first())
+    if not liq:
+        raise HTTPException(404, "No hay liquidación procesada para ese período")
+    ds = []
+    for u in (liq.datos or {}).get("unidades", []):
+        if u["deuda"] > 0:
+            ds.append({"uf": u["uf"], "piso_depto": u["piso_depto"],
+                       "propietario": u["propietario"], "deuda": u["deuda"],
+                       "meses_equivalentes": (round(u["deuda"] / u["total_mes"], 2)
+                                              if u["total_mes"] else None)})
+    ds.sort(key=lambda d: -d["deuda"])
+    return {"periodo": liq.periodo, "deudores": ds,
+            "total": round(sum(d["deuda"] for d in ds), 2)}
 
 
 @router.get("/agregados")
