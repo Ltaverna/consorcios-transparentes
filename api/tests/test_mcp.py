@@ -1,4 +1,6 @@
 """Tools del MCP contra un cliente de API falso (sin red)."""
+import os
+
 import servidor_mcp
 
 
@@ -37,3 +39,25 @@ def test_search_y_fetch_compatibles_chatgpt(monkeypatch):
     assert res["results"] and {"id", "title", "url"} <= set(res["results"][0].keys())
     doc = servidor_mcp.fetch(id=res["results"][0]["id"])
     assert doc["id"] == res["results"][0]["id"] and doc["text"]
+
+
+def test_gating_del_token(monkeypatch):
+    """El token en el path es la única puerta de entrada.
+
+    - Cualquier path sin el token → 404.
+    - POST al path correcto (aunque el body no sea initialize válido) → no 404
+      (el transporte MCP contestará 4xx propio, pero no 404).
+    """
+    from starlette.testclient import TestClient
+
+    monkeypatch.setenv("CT_MCP_TOKEN", "test-tok")
+    app = servidor_mcp.app_con_token()
+    client = TestClient(app, raise_server_exceptions=False)
+
+    # Paths sin el token deben dar 404
+    assert client.get("/mcp/otro").status_code == 404
+    assert client.get("/").status_code == 404
+
+    # El path correcto no da 404 (el MCP rechazará el body, pero la ruta existe)
+    r = client.post("/mcp/test-tok", json={})
+    assert r.status_code != 404

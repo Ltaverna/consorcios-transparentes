@@ -167,14 +167,25 @@ def search(query: str) -> dict:
     return {"results": results[:10]}
 
 
+_ID_INVALIDO = {"id": "", "title": "id inválido",
+                "text": "El id no corresponde a un recurso conocido.", "url": "", "metadata": {}}
+
+
 @_con_api
 def fetch(id: str) -> dict:
     """Trae el documento completo de un resultado de search por su id
     (gasto:<periodo>:<n> o hallazgo:<id>)."""
+    import re
     c = _cliente()
     if id.startswith("gasto:"):
-        _, periodo, n = id.split(":", 2)
-        d = c.get("/consulta/gastos", {"periodo_desde": periodo, "periodo_hasta": periodo})
+        partes = id.split(":", 2)
+        if len(partes) != 3:
+            return {**_ID_INVALIDO, "id": id}
+        _, per, n = partes
+        # Validar que los componentes no permitan traversal
+        if not n.isdigit() or not re.match(r"^\d{4}-\d{2}$", per):
+            return {**_ID_INVALIDO, "id": id}
+        d = c.get("/consulta/gastos", {"periodo_desde": per, "periodo_hasta": per})
         for f in d["filas"]:
             if str(f["n"]) == n:
                 texto = (f"Gasto {f['n']} del período {f['periodo']}\n"
@@ -186,7 +197,11 @@ def fetch(id: str) -> dict:
                         "text": texto, "url": f"{_WEB}/panel/analisis", "metadata": f}
         raise ValueError(f"no existe el gasto {id}")
     if id.startswith("hallazgo:"):
-        h = c.get(f"/hallazgos/{id.split(':', 1)[1]}")
+        parte = id.split(":", 1)[1]
+        # Validar que la parte sea solo dígitos para evitar traversal a otros endpoints
+        if not parte.isdigit():
+            return {**_ID_INVALIDO, "id": id}
+        h = c.get(f"/hallazgos/{parte}")
         texto = (f"Hallazgo #{h['id']} [{h['severidad']}] {h['periodo']} — {h['titulo']}\n"
                  f"Estado: {h['estado']}\nEvidencia: {h['evidencia']}\n"
                  f"Qué pedir: {h['recomendacion']}")
@@ -225,4 +240,5 @@ def app_con_token():
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app_con_token(), host="0.0.0.0", port=8765)
+    # access_log=False: el path incluye el token; no debe aparecer en docker logs
+    uvicorn.run(app_con_token(), host="0.0.0.0", port=8765, access_log=False)

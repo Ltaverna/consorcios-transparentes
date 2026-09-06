@@ -34,8 +34,11 @@ services:
       context: .
       dockerfile: api/Dockerfile
     command: python servidor_mcp.py
-    env_file:
-      - .env          # CT_API_BOT_*, CT_MCP_TOKEN
+    environment:
+      CT_API_BOT_EMAIL: ${CT_API_BOT_EMAIL:?}
+      CT_API_BOT_CLAVE: ${CT_API_BOT_CLAVE:?}
+      CT_MCP_TOKEN: ${CT_MCP_TOKEN:?definir CT_MCP_TOKEN en .env}
+      CT_API_URL: ${CT_API_URL:-https://api-consorcio.neuralcore.dev}
     restart: unless-stopped
 
   tunnel:
