@@ -57,6 +57,7 @@ def _gasto_con_factura(liq):
 def test_duplicado_por_numero_mismo_importe_es_critico():
     liq = _agosto()
     g = _gasto_con_factura(liq)
+    g.factura_importe = g.importe   # el gasto real es en cuotas (FC $9M); acá probamos el caso no-cuota
     prev = _julio()
     prev.gastos.append(copy.deepcopy(g))    # la misma factura ya figuraba el mes pasado
     hs = _hallazgos("historia_duplicado", liq, [prev], Config())
@@ -69,6 +70,7 @@ def test_duplicado_por_numero_mismo_importe_es_critico():
 def test_duplicado_por_numero_distinto_importe_es_alto():
     liq = _agosto()
     g = _gasto_con_factura(liq)
+    g.factura_importe = g.importe   # el gasto real es en cuotas (FC $9M); acá probamos el caso no-cuota
     prev = _julio()
     clon = copy.deepcopy(g)
     clon.importe = round(g.importe + 500, 2)
@@ -109,6 +111,7 @@ def test_duplicado_exige_mismo_proveedor():
 def test_duplicado_borde_de_un_peso():
     liq = _agosto()
     g = _gasto_con_factura(liq)
+    g.factura_importe = g.importe   # el gasto real es en cuotas (FC $9M); acá probamos el caso no-cuota
     prev = _julio()
     exacto = copy.deepcopy(g)
     exacto.importe = round(g.importe + 1.00, 2)   # ±$1: sigue siendo CRÍTICO
@@ -248,3 +251,43 @@ def test_concentracion_estable_con_ruido_no_es_creciente():
     _boost_hasta_share(liq, prov, 0.181)
     assert [h for h in _hallazgos("historia_concentracion", liq, serie, Config())
             if h.clave == f"concentracion|{prov}"] == []
+
+
+# Números reales de agosto 2026 (verificados contra la base el 06-09-2026)
+ROTH_CUOTA = 2_650_000.0
+ROTH_FACTURADO = 7_950_000.0        # FC 4182 + 4183 + 4191 (mayo 2026)
+SACZ_JULIO, SACZ_AGOSTO, SACZ_FACTURADO = 2_000_000.0, 2_552_000.0, 4_552_000.0
+
+
+def _duplicado_con(liq_importe, prev_importe, factura_importe):
+    liq = _agosto()
+    g = _gasto_con_factura(liq)
+    g.importe, g.factura_importe = liq_importe, factura_importe
+    prev = _julio()
+    clon = copy.deepcopy(g)
+    clon.importe = prev_importe
+    prev.gastos.append(clon)
+    hs = _hallazgos("historia_duplicado", liq, [prev], Config())
+    return next(x for x in hs if x.clave == f"dup-fact|{prev.periodo}|{_norm_nro(g.factura_nro)}")
+
+
+def test_duplicado_en_cuotas_mismo_importe_es_medio():
+    h = _duplicado_con(ROTH_CUOTA, ROTH_CUOTA, ROTH_FACTURADO)
+    assert h.severidad == "MEDIO"
+    assert "cuotas" in h.titulo
+
+
+def test_duplicado_en_cuotas_distinto_importe_es_medio():
+    h = _duplicado_con(SACZ_AGOSTO, SACZ_JULIO, SACZ_FACTURADO)
+    assert h.severidad == "MEDIO"
+    assert "cuotas" in h.titulo
+
+
+def test_duplicado_suma_mayor_al_facturado_sigue_critico():
+    h = _duplicado_con(2_650_000.0, 2_650_000.0, 4_000_000.0)   # 5,3M pagados de 4M facturados
+    assert h.severidad == "CRÍTICO"
+
+
+def test_duplicado_sin_factura_importe_mantiene_severidad():
+    h = _duplicado_con(1_000_000.0, 1_000_000.0, None)
+    assert h.severidad == "CRÍTICO"

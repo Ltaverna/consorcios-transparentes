@@ -63,6 +63,17 @@ def r_duplicado(liq, serie, cfg, docs_actual, docs_previos):
         nro = _norm_nro(g.factura_nro)
         for periodo_prev, gp in (previos.get((_norm(g.proveedor), nro), []) if nro and _norm(g.proveedor) else []):
             mismo = abs(g.importe - gp.importe) <= 1
+            cuotas = bool(g.factura_importe) and g.importe + gp.importe <= g.factura_importe + 1
+            if cuotas:
+                out.append(Hallazgo(
+                    "historia_duplicado", "MEDIO", "Respaldo documental",
+                    f"Posible pago en cuotas de la factura {g.factura_nro} de {g.proveedor}",
+                    f"{periodo_prev}: gasto {gp.n} por {fmt(gp.importe)}; este mes: gasto {g.n} por "
+                    f"{fmt(g.importe)}. La suma ({fmt(g.importe + gp.importe)}) no supera el total "
+                    f"facturado ({fmt(g.factura_importe)}).",
+                    0, "Pedir el comprobante de cada cuota y el detalle del plan de pagos.",
+                    [str(g.n)], clave=f"dup-fact|{periodo_prev}|{nro}"))
+                continue
             out.append(Hallazgo(
                 "historia_duplicado", "CRÍTICO" if mismo else "ALTO", "Respaldo documental",
                 f"La factura {g.factura_nro} de {g.proveedor} ya figuraba en la liquidación de {periodo_prev}"
