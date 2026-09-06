@@ -29,6 +29,15 @@ services:
       - ${CT_PRIVADO_HOST:?definir CT_PRIVADO_HOST en .env (ruta absoluta de la carpeta privada)}:/srv/privado
     restart: unless-stopped
 
+  mcp:
+    build:
+      context: .
+      dockerfile: api/Dockerfile
+    command: python servidor_mcp.py
+    env_file:
+      - .env          # CT_API_BOT_*, CT_MCP_TOKEN
+    restart: unless-stopped
+
   tunnel:
     image: cloudflare/cloudflared:latest
     command: tunnel --no-autoupdate --config /etc/cloudflared/config.yml run
