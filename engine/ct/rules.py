@@ -402,6 +402,37 @@ def r_abonos_mercado(liq, prev, cfg):
     return out
 
 
+# ------------------------------------------------------------------ certificador = ejecutor
+RE_CERTIFICA = re.compile(r"certificaci[oó]n|certificado", re.I)
+RE_EJECUTA = re.compile(r"reparaci[oó]n|cambio de|instalaci[oó]n|coloca|obra de", re.I)
+
+
+@rule("certificador")
+def r_certificador(liq, prev, cfg):
+    """El mismo proveedor certifica instalaciones del edificio y además ejecuta trabajos:
+    conflicto de interés potencial (quien controla no puede ser quien cobra por arreglar)."""
+    out = []
+    grupos: dict[str, list[Gasto]] = {}
+    for g in liq.gastos:
+        clave = re.sub(r"[^a-z0-9]", "", g.proveedor.lower())
+        if clave:
+            grupos.setdefault(clave, []).append(g)
+    for clave, gs in sorted(grupos.items()):
+        certs = [g for g in gs if RE_CERTIFICA.search(g.concepto or "")]
+        ns_cert = {g.n for g in certs}
+        obras = [g for g in gs if g.n not in ns_cert and RE_EJECUTA.search(g.concepto or "")]
+        if not certs or not obras:
+            continue
+        out.append(Hallazgo(
+            "certificador", "MEDIO", "Obras / contratación",
+            f"{gs[0].proveedor} certifica y también ejecuta trabajos en el edificio",
+            f"Certifica: {certs[0].concepto[:90]}. Ejecuta: {obras[0].concepto[:90]}.",
+            round(sum(g.importe for g in obras), 2),
+            "Conflicto de interés potencial: pedir certificación independiente para los trabajos que ejecuta.",
+            [str(g.n) for g in certs + obras], clave=f"cert-ejecutor|{clave}"))
+    return out
+
+
 # ------------------------------------------------------------------ API
 def evaluar(liq: Liquidacion, prev: Optional[Liquidacion] = None, cfg: Optional[Config] = None) -> list[Hallazgo]:
     cfg = cfg or Config()
