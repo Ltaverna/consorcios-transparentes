@@ -161,6 +161,17 @@ en los logs tiene que verse esa corrida y el "worker en marcha".
 - Logs: `docker compose logs -f worker` (van a stdout del contenedor).
 - Probar a mano una corrida: `docker compose run --rm worker python -m ct sincronizar`.
 
+### 8.4 Backup diario de la base
+
+A las 07:00 (después de la sincronización), el worker hace `pg_dump` de la base y lo deja comprimido en
+`datos-api/backups/` del host (montado en `/srv/backups` dentro del contenedor), con el formato
+`consorcio-AAAA-MM-DD.sql.gz`. Se conservan los **últimos 14** y se borran automáticamente los más viejos.
+
+Para restaurar un backup:
+```bash
+gunzip -c datos-api/backups/consorcio-AAAA-MM-DD.sql.gz | docker compose exec -T db psql -U consorcio -d consorcio
+```
+
 ## 9. Migrar de máquina
 
 Todo el estado vive en el repo + un puñado de archivos fuera de git. Para mover el stack:

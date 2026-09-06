@@ -23,10 +23,12 @@ services:
     command: python worker.py
     env_file:
       - .env          # credenciales del portal y del bot (USER_REDCONAR, CT_API_BOT_*)
+      - api/.env      # CT_DATABASE_URL y demás settings de la API (para el backup diario)
     environment:
       CT_PRIVADO: /srv/privado
     volumes:
       - ${CT_PRIVADO_HOST:?definir CT_PRIVADO_HOST en .env (ruta absoluta de la carpeta privada)}:/srv/privado
+      - ./datos-api/backups:/srv/backups
     restart: unless-stopped
 
   mcp:

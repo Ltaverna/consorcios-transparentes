@@ -1,5 +1,5 @@
 FROM python:3.12-slim
-RUN apt-get update && apt-get install -y --no-install-recommends poppler-utils \
+RUN apt-get update && apt-get install -y --no-install-recommends poppler-utils postgresql-client \
     && rm -rf /var/lib/apt/lists/*
 WORKDIR /srv
 COPY engine/ engine/
