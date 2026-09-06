@@ -124,3 +124,74 @@ def test_duplicado_por_hash_dos_gastos_actuales_reportan_ambos():
                     docs_previos={"2026-07": [(3, "abc123def456", "f.pdf")]})
     dup = [h for h in hs if h.clave.startswith("dup-hash|")]
     assert sorted(h.refs[0] for h in dup) == ["12", "15"]
+
+
+# ======================================================= historia_salto
+
+def _serie_sintetica():
+    """Tres meses derivados del parse real de agosto: la serie sube pareja ~10 % por mes
+    (inflación), así la mediana de variaciones queda ~0,10 y solo un salto real la excede."""
+    base = _agosto()
+    prev2 = copy.deepcopy(base)
+    prev2.periodo = "Junio 2026"
+    for g in prev2.gastos:
+        g.importe = round(g.importe / 1.21, 2)
+    prev1 = copy.deepcopy(base)
+    prev1.periodo = "Julio 2026"
+    for g in prev1.gastos:
+        g.importe = round(g.importe / 1.10, 2)
+    return [prev2, prev1], base
+
+
+def _clave_objetivo(liq):
+    g = max((x for x in liq.gastos if not _excluida(x.categoria) and x.importe > 60_000),
+            key=lambda x: x.importe)
+    return _norm(g.proveedor), _norm(g.categoria), g
+
+
+def test_salto_y_concentracion_exigen_dos_previos():
+    liq, serie = _agosto(), [_julio()]
+    assert _hallazgos("historia_salto", liq, serie, Config()) == []
+    assert _hallazgos("historia_concentracion", liq, serie, Config()) == []
+
+
+def test_salto_contra_la_propia_serie_es_alto():
+    serie, liq = _serie_sintetica()
+    prov, cat, obj = _clave_objetivo(liq)
+    for g in liq.gastos:
+        if _norm(g.proveedor) == prov and _norm(g.categoria) == cat:
+            g.importe = round(g.importe * 2.2, 2)    # salta al doble; el resto sube ~10 %
+    hs = _hallazgos("historia_salto", liq, serie, Config())
+    assert len(hs) == 1
+    h = hs[0]
+    assert h.severidad == "ALTO"
+    assert h.clave == f"salto|{prov}|{cat}"
+    assert str(obj.n) in h.refs
+
+
+def test_salto_moderado_es_medio():
+    serie, liq = _serie_sintetica()
+    prov, cat, _ = _clave_objetivo(liq)
+    for g in liq.gastos:
+        if _norm(g.proveedor) == prov and _norm(g.categoria) == cat:
+            g.importe = round(g.importe * 1.45, 2)   # ~+59 % vs mediana ~10 %: exceso ~0,49
+    hs = _hallazgos("historia_salto", liq, serie, Config())
+    assert [h.severidad for h in hs] == ["MEDIO"]
+
+
+def test_salto_respeta_importe_minimo():
+    serie, liq = _serie_sintetica()
+    prov, cat, _ = _clave_objetivo(liq)
+    for g in liq.gastos:
+        if _norm(g.proveedor) == prov and _norm(g.categoria) == cat:
+            g.importe = round(g.importe * 2.2, 2)
+    assert _hallazgos("historia_salto", liq, serie, Config(salto_importe_min=10**9)) == []
+
+
+def test_salto_excluye_sueldos():
+    serie, liq = _serie_sintetica()
+    sueldos = [g for g in liq.gastos if _excluida(g.categoria)]
+    assert sueldos, "el fixture real tiene sueldos"
+    for g in sueldos:
+        g.importe = round(g.importe * 3, 2)
+    assert _hallazgos("historia_salto", liq, serie, Config()) == []

@@ -8,6 +8,7 @@ y `docs_previos` un dict por período; si faltan, el chequeo por hash simplement
 """
 from __future__ import annotations
 import re
+from statistics import median
 from typing import Callable, Optional
 
 from .model import Liquidacion
@@ -93,6 +94,53 @@ def r_duplicado(liq, serie, cfg, docs_actual, docs_previos):
                 f"{periodo_prev} y al gasto {gn if gn is not None else '?'} de este mes.",
                 0, "Verificar que un mismo comprobante no respalde dos pagos distintos.",
                 [str(gn)] if gn is not None else [], clave=clave))
+    return out
+
+
+# ------------------------------------------------------------- salto vs. la propia serie
+def _sumas(l: Liquidacion) -> dict[tuple[str, str], float]:
+    out: dict[tuple[str, str], float] = {}
+    for g in l.gastos:
+        if _excluida(g.categoria):
+            continue
+        k = (_norm(g.proveedor), _norm(g.categoria))
+        out[k] = round(out.get(k, 0.0) + g.importe, 2)
+    return out
+
+
+@rule_h("historia_salto")
+def r_salto(liq, serie, cfg, *_):
+    if len(serie) < 2:
+        return []
+    mensuales = [(pl.periodo, _sumas(pl)) for pl in serie]
+    apariciones: dict[tuple[str, str], int] = {}
+    for _p, m in mensuales:
+        for k in m:
+            apariciones[k] = apariciones.get(k, 0) + 1
+    act, ult = _sumas(liq), mensuales[-1][1]
+    variaciones = {k: act[k] / ult[k] - 1
+                   for k, veces in apariciones.items()
+                   if veces >= 2 and k in act and ult.get(k, 0) > 0}
+    if len(variaciones) < 3:    # sin masa de recurrentes la mediana no dice nada
+        return []
+    med = median(variaciones.values())
+    out: list[Hallazgo] = []
+    for k, v in sorted(variaciones.items()):
+        exceso = v - med
+        if exceso <= cfg.salto_puntos_medio or act[k] <= cfg.salto_importe_min:
+            continue
+        gs = [g for g in liq.gastos if (_norm(g.proveedor), _norm(g.categoria)) == k]
+        historia = " → ".join(f"{p}: {fmt(m[k])}" for p, m in mensuales if k in m)
+        out.append(Hallazgo(
+            "historia_salto", "ALTO" if exceso > cfg.salto_puntos_alto else "MEDIO",
+            "Evolución de costos",
+            f"{gs[0].proveedor}: subió {pct(v)} en el mes cuando la mediana de los gastos "
+            f"recurrentes fue {pct(med)}",
+            f"Serie: {historia} → este mes: {fmt(act[k])}. Exceso de {pct(exceso)} sobre la "
+            f"mediana de {len(variaciones)} gastos recurrentes.",
+            round(act[k] - ult[k] * (1 + med), 2),
+            "Pedir qué justifica el aumento (presupuesto, acuerdo o factura nueva).",
+            [str(g.n) for g in gs], clave=f"salto|{k[0]}|{k[1]}"))
     return out
 
 
