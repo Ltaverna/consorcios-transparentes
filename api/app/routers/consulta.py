@@ -1,13 +1,14 @@
 """Consultas read-only sobre gastos, comprobantes y deudores: la base de la vista
 analítica y del MCP."""
+import math
 import unicodedata
 
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from sqlalchemy.orm import Session
 
-from .. import models, security
+from .. import embeddings, models, security
 from ..db import get_db
-from .documentos import extraer_texto
+from ..texto import extraer_texto
 
 router = APIRouter(prefix="/consulta", tags=["consulta"])
 
@@ -73,6 +74,35 @@ def comprobantes(q: str, request: Request, periodo: str | None = None,
                            "tipo": d.tipo,
                            "fragmento": texto[max(0, pos - 200):pos + len(q) + 200]})
     return {"resultados": resultados}
+
+
+def _coseno(a, b) -> float:
+    prod = sum(x * y for x, y in zip(a, b))
+    na, nb = math.sqrt(sum(x * x for x in a)), math.sqrt(sum(y * y for y in b))
+    return prod / (na * nb) if na and nb else 0.0
+
+
+@router.get("/semantica")
+def semantica(q: str, request: Request, k: int = Query(5, ge=1, le=50),
+              db: Session = Depends(get_db), s: dict = Depends(_EQUIPO)):
+    """Búsqueda semántica: embebe `q` y rankea por coseno EN PROCESO sobre los documentos
+    con embedding (a este volumen —cientos— son milisegundos; el operador nativo `<=>` de
+    pgvector + índice quedan como upgrade para cuando haya miles)."""
+    if not embeddings.habilitado():
+        raise HTTPException(503, "búsqueda semántica no configurada")
+    vectores = embeddings.embeber([q])
+    if not vectores:
+        raise HTTPException(502, "no se pudo embeber la consulta (ver logs de la API)")
+    consulta = vectores[0]
+    filas = (db.query(models.Documento, models.Liquidacion.periodo).join(models.Liquidacion)
+               .filter(models.Documento.embedding.isnot(None)).all())
+    puntuadas = sorted(((_coseno(consulta, d.embedding), d, per) for d, per in filas),
+                       key=lambda t: -t[0])[:k]
+    return {"resultados": [
+        {"documento_id": d.id, "gasto_n": d.gasto_n, "periodo": per, "tipo": d.tipo,
+         "similitud": sim,
+         "fragmento": extraer_texto(request.app.state.storage, d)[:300]}
+        for sim, d, per in puntuadas]}
 
 
 @router.get("/deudores")

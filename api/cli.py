@@ -1,9 +1,42 @@
-"""Comandos administrativos: python cli.py init|usuario|codigo ..."""
+"""Comandos administrativos: python cli.py init|usuario|codigo|embeddings ..."""
 import argparse
 import getpass
 
-from app import admin
+from app import admin, embeddings, models
 from app.db import Base, SessionLocal, engine
+from app.storage import storage_por_defecto
+from app.texto import extraer_texto
+
+LOTE_EMBEDDINGS = 20
+
+
+def backfill_embeddings(db) -> int:
+    """Embebe los documentos con texto extraíble y embedding NULL, en lotes con commit
+    por lote (una corrida interrumpida no pierde lo ya embebido)."""
+    if not embeddings.habilitado():
+        print("Error: CT_EMBEDDINGS_API_KEY no está configurada; no hay nada que hacer")
+        return 1
+    storage = storage_por_defecto()
+    pendientes = (db.query(models.Documento)
+                    .filter(models.Documento.embedding.is_(None))
+                    .order_by(models.Documento.id).all())
+    embebidos = salteados = fallidos = 0
+    for i in range(0, len(pendientes), LOTE_EMBEDDINGS):
+        lote = pendientes[i:i + LOTE_EMBEDDINGS]
+        con_texto = [(d, t) for d in lote if (t := extraer_texto(storage, d))]
+        salteados += len(lote) - len(con_texto)  # imágenes/escaneos: sin texto no hay embedding
+        if not con_texto:
+            continue
+        vectores = embeddings.embeber([t for _, t in con_texto])
+        if vectores is None:
+            fallidos += len(con_texto)
+            continue
+        for (d, _), vector in zip(con_texto, vectores):
+            d.embedding = vector
+        db.commit()
+        embebidos += len(con_texto)
+    print(f"Embebidos: {embebidos} | salteados (sin texto): {salteados} | fallidos: {fallidos}")
+    return 1 if fallidos else 0
 
 
 def main() -> int:
@@ -17,6 +50,7 @@ def main() -> int:
     u.add_argument("email"); u.add_argument("nombre"); u.add_argument("rol", choices=admin.ROLES)
     c = sub.add_parser("codigo", help="Generar el código de acceso de una unidad")
     c.add_argument("uf", type=int)
+    sub.add_parser("embeddings", help="Backfill: embeber documentos con texto y sin embedding")
     args = ap.parse_args()
 
     Base.metadata.create_all(engine)
@@ -37,6 +71,8 @@ def main() -> int:
             print(f"Usuario {usr.email} creado con rol {usr.rol}")
         elif args.cmd == "codigo":
             print(f"Código de la UF {args.uf}: {admin.generar_codigo(db, args.uf)} (guardalo: no se vuelve a mostrar)")
+        elif args.cmd == "embeddings":
+            return backfill_embeddings(db)
     except ValueError as e:
         print(f"Error: {e}")
         return 1
