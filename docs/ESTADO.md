@@ -106,6 +106,9 @@
   ZIP determinista por hash). **Nunca publica.** El engine pasa de 31 a 45 tests.
 
 ## Pendientes inmediatos
+0. **OAuth 2.1 del MCP (etapa 2, diseño pendiente)**: hoy el acceso individual es por tokens con nombre
+   revocables (`cli.py mcp-token`, 6/09); si el grupo de usuarios del MCP crece, subir a OAuth con login
+   del panel (authorization server + PKCE + registro dinámico — anotado en la spec de tokens).
 1. **Triage de hallazgos en el panel**: los 84 están `pendiente`; revisar y publicar los que correspondan.
 2. **Migrar a Neon + R2** cuando Lucas cree las cuentas (hoy todo local en esta máquina; ver "Modo provisorio").
 3. **SSO de Google del equipo: implementado** (5/09, rama `sso-google`; spec

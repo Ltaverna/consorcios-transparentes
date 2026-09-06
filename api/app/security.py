@@ -84,6 +84,11 @@ class RateLimiter:
 
 limiter_login = RateLimiter()
 
+# Los tokens de tabla comparten la IP del contenedor MCP + posibles estampidas de cache fría:
+# el bucket de login de 10 es insuficiente. 60 requests en 5 minutos por IP alcanza para
+# que el contenedor MCP haga polling intenso sin bloquear a usuarios legítimos.
+limiter_mcp_token = RateLimiter(maximo=60, ventana=300)
+
 # Un kid desconocido dispara re-fetch de las JWKS (PyJWT maneja la rotación de claves de
 # Google); por eso el rate limit del endpoint corre ANTES de verificar.
 _JWKS_GOOGLE = jwt.PyJWKClient("https://www.googleapis.com/oauth2/v3/certs")

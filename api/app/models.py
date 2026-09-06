@@ -85,6 +85,18 @@ class Usuario(Base):
     rol: Mapped[str] = mapped_column(String(20))  # auditor | consejo | moderador
 
 
+class McpToken(Base):
+    """Token de acceso al MCP por persona (revocable individualmente).
+    El token en claro solo existe al crearlo; acá queda el sha256 (hex, indexado:
+    el token es de alta entropía, alcanza para lookup directo)."""
+    __tablename__ = "mcp_tokens"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    nombre: Mapped[str] = mapped_column(String(120), unique=True)  # "lucas", "amigo-juan"
+    token_sha256: Mapped[str] = mapped_column(String(64), index=True)
+    activo: Mapped[bool] = mapped_column(Boolean, default=True)
+    creado: Mapped[datetime] = mapped_column(FechaUTC(), default=ahora)
+
+
 class Liquidacion(Base):
     __tablename__ = "liquidaciones"
     id: Mapped[int] = mapped_column(primary_key=True)

@@ -241,3 +241,13 @@ docker compose exec api python cli.py embeddings
 ```bash
 docker compose exec api python cli.py embeddings --todos
 ```
+
+### 10.2 Tokens por persona
+
+Además del token maestro (`CT_MCP_TOKEN` del `.env` raíz), cada persona puede tener el suyo, revocable:
+
+```bash
+docker compose exec api python cli.py mcp-token crear <nombre>     # imprime la URL una única vez
+docker compose exec api python cli.py mcp-token listar
+docker compose exec api python cli.py mcp-token revocar <nombre>   # hace efecto en ≤1 minuto (cache)
+```

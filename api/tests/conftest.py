@@ -40,6 +40,7 @@ def cliente(db, tmp_path):
     app.state.storage = LocalStorage(str(tmp_path))
     with TestClient(app) as c:
         security.limiter_login._hits.clear()
+        security.limiter_mcp_token._hits.clear()
         yield c
     app.dependency_overrides.clear()
 

@@ -1,4 +1,5 @@
-"""Altas administrativas: consorcio, usuarios y códigos de acceso por unidad."""
+"""Altas administrativas: consorcio, usuarios, códigos de acceso y tokens del MCP."""
+import hashlib
 import secrets
 
 from sqlalchemy.exc import IntegrityError
@@ -43,3 +44,28 @@ def generar_codigo(db: Session, uf: int) -> str:
     unidad.codigo_hash = security.hashear(codigo)
     db.commit()
     return codigo  # se muestra una sola vez; solo queda el hash
+
+
+def crear_mcp_token(db: Session, nombre: str) -> str:
+    """Genera el token de acceso al MCP para `nombre` y guarda solo el hash."""
+    token = secrets.token_urlsafe(24)
+    db.add(models.McpToken(nombre=nombre,
+                           token_sha256=hashlib.sha256(token.encode()).hexdigest()))
+    try:
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        raise ValueError(f"Ya existe un token MCP con el nombre {nombre}")
+    return token  # se muestra una sola vez; solo queda el hash
+
+
+def revocar_mcp_token(db: Session, nombre: str) -> None:
+    t = db.query(models.McpToken).filter_by(nombre=nombre).first()
+    if not t:
+        raise ValueError(f"No existe un token MCP con el nombre {nombre}")
+    t.activo = False
+    db.commit()
+
+
+def listar_mcp_tokens(db: Session) -> list[models.McpToken]:
+    return db.query(models.McpToken).order_by(models.McpToken.nombre).all()

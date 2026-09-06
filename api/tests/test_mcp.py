@@ -251,6 +251,8 @@ def test_gating_del_token(monkeypatch):
     from starlette.testclient import TestClient
 
     monkeypatch.setenv("CT_MCP_TOKEN", "test-tok")
+    # Un token desconocido no debe irse a la red a consultar la API real
+    monkeypatch.setattr(servidor_mcp, "_validar_contra_api", lambda t: (False, None))
     app = servidor_mcp.app_con_token()
     client = TestClient(app, raise_server_exceptions=False)
 
@@ -261,6 +263,94 @@ def test_gating_del_token(monkeypatch):
     # El path correcto no da 404 (el MCP rechazará el body, pero la ruta existe)
     r = client.post("/mcp/test-tok", json={})
     assert r.status_code != 404
+
+
+# --- Wrapper ASGI de tokens por persona: app interno fake + validador stub ---
+
+async def _app_interno_falso(scope, receive, send):
+    """ASGI mínimo: responde 200 con el path que le llegó (para verificar la reescritura)."""
+    if scope["type"] == "lifespan":
+        while True:
+            msg = await receive()
+            if msg["type"] == "lifespan.startup":
+                await send({"type": "lifespan.startup.complete"})
+            elif msg["type"] == "lifespan.shutdown":
+                await send({"type": "lifespan.shutdown.complete"})
+                return
+    await send({"type": "http.response.start", "status": 200,
+                "headers": [(b"content-type", b"text/plain")]})
+    await send({"type": "http.response.body", "body": ("ok:" + scope["path"]).encode()})
+
+
+def test_wrapper_acepta_el_token_del_env(monkeypatch):
+    """CT_MCP_TOKEN valida primero (comparación constante) sin tocar la API."""
+    from starlette.testclient import TestClient
+
+    monkeypatch.setenv("CT_MCP_TOKEN", "tok-env")
+
+    def sin_api(_):
+        raise AssertionError("el token del env no debe consultar la API")
+
+    monkeypatch.setattr(servidor_mcp, "_validar_contra_api", sin_api)
+    with TestClient(servidor_mcp.WrapperTokens(_app_interno_falso)) as client:
+        r = client.post("/mcp/tok-env", json={})
+    assert r.status_code == 200
+    assert r.text == "ok:/mcp/sesion"  # path reescrito al mount interno
+
+
+def test_wrapper_acepta_token_de_tabla_y_404_con_invalido():
+    from starlette.testclient import TestClient
+
+    def validar(token):
+        return (True, "lucas") if token == "tok-tabla" else (False, None)
+
+    client = TestClient(servidor_mcp.WrapperTokens(_app_interno_falso, validar=validar))
+    assert client.post("/mcp/tok-tabla", json={}).status_code == 200
+    r = client.post("/mcp/otro", json={})
+    assert r.status_code == 404 and r.content == b""  # 404 pelado, sin cuerpo
+    assert client.get("/").status_code == 404
+    # El mount interno no es alcanzable directo: "sesion" se valida como token y falla
+    assert client.get("/mcp/sesion").status_code == 404
+
+
+def test_wrapper_cachea_con_ttl_positivo_y_negativo():
+    """Dentro del TTL no revalida (ni positivos ni negativos); expirado, revalida."""
+    from starlette.testclient import TestClient
+
+    llamadas = []
+
+    def validar(token):
+        llamadas.append(token)
+        return (True, "lucas") if token == "bueno" else (False, None)
+
+    reloj = {"t": 1000.0}
+    wrapper = servidor_mcp.WrapperTokens(_app_interno_falso, validar=validar,
+                                         reloj=lambda: reloj["t"])
+    client = TestClient(wrapper)
+
+    client.post("/mcp/bueno", json={})
+    client.post("/mcp/bueno", json={})
+    assert llamadas == ["bueno"]  # el segundo salió de la cache
+
+    assert client.post("/mcp/malo", json={}).status_code == 404
+    assert client.post("/mcp/malo", json={}).status_code == 404
+    assert llamadas == ["bueno", "malo"]  # el negativo también se cachea
+
+    reloj["t"] += 61  # pasa el TTL de 60 s
+    client.post("/mcp/bueno", json={})
+    assert llamadas == ["bueno", "malo", "bueno"]  # expirado → revalida
+
+
+def test_wrapper_loguea_el_nombre_una_vez_por_entrada_de_cache(capsys):
+    from starlette.testclient import TestClient
+
+    client = TestClient(servidor_mcp.WrapperTokens(_app_interno_falso,
+                                                   validar=lambda t: (True, "amigo-juan")))
+    client.post("/mcp/tok", json={})
+    client.post("/mcp/tok", json={})
+    out = capsys.readouterr().out
+    assert out.count("amigo-juan") == 1  # una vez por entrada de cache, no por request
+    assert "tok" not in out.replace("amigo-juan", "")  # jamás el token
 
 
 def test_buscar_semantico_formatea_resultado(monkeypatch):
@@ -301,3 +391,71 @@ def test_buscar_semantico_sin_key_devuelve_mensaje_claro(monkeypatch):
     out = servidor_mcp.buscar_semantico(texto="impermeabilizacion")
     assert "503" in out
     assert "búsqueda semántica no configurada" in out
+
+
+# --- Tests de cache resiliente a errores de red (stale-while-error) ---
+
+def test_wrapper_error_de_red_usa_stale_positivo():
+    """Con un validador que lanza _ErrorRed, un token previamente válido (entrada vencida)
+    sigue pasando gracias al stale-while-error; un token nunca visto → rechazado."""
+    from starlette.testclient import TestClient
+
+    llamadas = []
+
+    def validar_con_error(token):
+        llamadas.append(token)
+        raise servidor_mcp._ErrorRed("timeout simulado")
+
+    # Primero un validador normal para poblar la cache con una entrada positiva.
+    def validar_ok(token):
+        return (True, "lucas") if token == "bueno" else (False, None)
+
+    reloj = {"t": 1000.0}
+    wrapper = servidor_mcp.WrapperTokens(_app_interno_falso, validar=validar_ok,
+                                         reloj=lambda: reloj["t"])
+    client = TestClient(wrapper)
+
+    # Primera llamada: pobla la cache con entrada positiva.
+    assert client.post("/mcp/bueno", json={}).status_code == 200
+
+    # Avanzar el reloj para que la entrada quede vencida.
+    reloj["t"] += 61
+
+    # Cambiar al validador que lanza error de red.
+    wrapper._validar = validar_con_error
+
+    # El token "bueno" tiene entrada positiva vencida → stale-while-error: debe pasar.
+    assert client.post("/mcp/bueno", json={}).status_code == 200
+    assert llamadas == ["bueno"]  # se intentó preguntar (una vez, no 0)
+
+    # Un token nunca visto con error de red → rechazado, SIN entrada negativa cacheada.
+    assert client.post("/mcp/nuevo", json={}).status_code == 404
+    assert "nuevo" in llamadas  # se intentó preguntar
+
+    # El siguiente intento de "nuevo" vuelve a preguntar (no hay cache negativa).
+    llamadas.clear()
+    assert client.post("/mcp/nuevo", json={}).status_code == 404
+    assert llamadas == ["nuevo"]  # reintentó → no había cache negativa
+
+
+def test_wrapper_error_de_red_no_escribe_cache_negativa():
+    """Con error de red, un token nunca visto no queda en la cache negativa: el siguiente
+    intento vuelve a consultar el validador (conteo de llamadas lo confirma)."""
+    from starlette.testclient import TestClient
+
+    llamadas = []
+
+    def validar_con_error(token):
+        llamadas.append(token)
+        raise servidor_mcp._ErrorRed("red caída")
+
+    wrapper = servidor_mcp.WrapperTokens(_app_interno_falso, validar=validar_con_error)
+    client = TestClient(wrapper)
+
+    # Primer intento → error de red, rechazado, sin cache negativa.
+    assert client.post("/mcp/fantasma", json={}).status_code == 404
+    assert llamadas == ["fantasma"]
+
+    # Segundo intento → vuelve a preguntar al validador (no hay cache negativa).
+    assert client.post("/mcp/fantasma", json={}).status_code == 404
+    assert llamadas == ["fantasma", "fantasma"]  # dos llamadas al validador

@@ -1,8 +1,10 @@
-"""Comandos administrativos: python cli.py init|usuario|codigo|embeddings ..."""
+"""Comandos administrativos: python cli.py init|usuario|codigo|embeddings|mcp-token ..."""
 import argparse
 import getpass
 
 from app import admin, embeddings, models
+
+URL_MCP = "https://mcp-consorcio.neuralcore.dev"
 from app.db import Base, SessionLocal, engine
 from app.storage import storage_por_defecto
 from app.texto import extraer_texto
@@ -53,6 +55,11 @@ def main() -> int:
     emb = sub.add_parser("embeddings", help="Backfill: embeber documentos con texto y sin embedding")
     emb.add_argument("--todos", action="store_true",
                      help="Re-embeber TODOS los documentos (no solo los NULL); usar al cambiar de modelo")
+    mt = sub.add_parser("mcp-token", help="Tokens de acceso al MCP por persona")
+    mt_sub = mt.add_subparsers(dest="mcp_cmd", required=True)
+    mt_sub.add_parser("crear", help="Crear un token y mostrar la URL (una sola vez)").add_argument("nombre")
+    mt_sub.add_parser("revocar", help="Revocar el token de una persona").add_argument("nombre")
+    mt_sub.add_parser("listar", help="Listar tokens (nombre, estado, creado; sin hashes)")
     args = ap.parse_args()
 
     Base.metadata.create_all(engine)
@@ -75,6 +82,21 @@ def main() -> int:
             print(f"Código de la UF {args.uf}: {admin.generar_codigo(db, args.uf)} (guardalo: no se vuelve a mostrar)")
         elif args.cmd == "embeddings":
             return backfill_embeddings(db, todos=args.todos)
+        elif args.cmd == "mcp-token":
+            if args.mcp_cmd == "crear":
+                token = admin.crear_mcp_token(db, args.nombre)
+                print(f"URL del MCP para '{args.nombre}': {URL_MCP}/mcp/{token}")
+                print("Guardala ahora: no se vuelve a mostrar (en la base queda solo el hash).")
+            elif args.mcp_cmd == "revocar":
+                admin.revocar_mcp_token(db, args.nombre)
+                print(f"Token de '{args.nombre}' revocado (hace efecto en ≤1 minuto).")
+            elif args.mcp_cmd == "listar":
+                filas = admin.listar_mcp_tokens(db)
+                if not filas:
+                    print("No hay tokens MCP creados.")
+                for t in filas:
+                    estado = "activo" if t.activo else "revocado"
+                    print(f"{t.nombre}: {estado} — creado {t.creado:%Y-%m-%d %H:%M} UTC")
     except ValueError as e:
         print(f"Error: {e}")
         return 1
