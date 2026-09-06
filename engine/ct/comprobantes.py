@@ -250,6 +250,35 @@ def _match_gasto(item: ItemManifiesto, liq: Liquidacion) -> Optional[Gasto]:
     return cands[0] if cands else None
 
 
+DIAS_TOLERANCIA_PAGO = 3
+
+
+def chequear_pagos_declarados(g: Gasto, pagos_docs: list[Documento]) -> list[Hallazgo]:
+    """La liquidación declara una transferencia pero ningún comprobante adjunto corresponde a
+    ESE pago (caso real: cuotas viejas recicladas como respaldo de la cuota nueva). El doc
+    puede traer un importe mayor (una transferencia que paga varios gastos): alcanza con que
+    la fecha coincida (±3 días) y el importe del doc cubra el pago declarado."""
+    if not pagos_docs:
+        return []      # sin ningún comprobante lo cubre la regla de respaldo documental
+    out: list[Hallazgo] = []
+    for p in g.pagos:
+        if not p.fecha or p.caja.upper() == "CAJA" or not p.forma.lower().startswith("transf"):
+            continue
+        ok = any(d.fecha and abs((d.fecha - p.fecha).days) <= DIAS_TOLERANCIA_PAGO
+                 and d.importe is not None and d.importe >= p.importe - 1
+                 for d in pagos_docs)
+        if ok:
+            continue
+        fechas = ", ".join(sorted({str(d.fecha) for d in pagos_docs if d.fecha})) or "sin fecha legible"
+        out.append(Hallazgo(
+            "comprobantes", "ALTO", "Control de pagos",
+            f"{g.proveedor}: la transferencia declarada el {p.fecha} por {fmt(p.importe)} no tiene comprobante adjunto",
+            f"Los comprobantes de pago adjuntos son de otras fechas: {fechas}.",
+            p.importe, "Pedir el comprobante de esa transferencia.",
+            [str(g.n)], clave=f"pago-sin-comp|{p.fecha.isoformat()}"))
+    return out
+
+
 # ------------------------------------------------------------------ cruce
 def _same_entity(a: Optional[str], b: Optional[str]) -> bool:
     if not a or not b:
@@ -342,6 +371,7 @@ def cruzar(liq: Liquidacion, items: list[ItemManifiesto], carpeta: Optional[str]
                                    f"El gasto no es un sueldo; {p.archivo}.", g.importe, "Verificar si el servicio está contratado a nombre de un empleado.", ref))
         for c in creditos:
             hs.append(Hallazgo("comprobantes", "ALTO", "Control de pagos", f"Devolución de {fmt(c.importe or 0)} recibida de {c.destinatario or g.proveedor}", f"Crédito del {c.fecha or '?'} adjunto al gasto {g.proveedor} {fmt(g.importe)}: indica un pago en exceso previo. {c.archivo}.", c.importe or 0, "Registrar el error y la devolución en la liquidación.", ref))
+        hs.extend(chequear_pagos_declarados(g, pagos))
         # sin factura / sin pago
         if not facts and not imgs and g.factura_nro:
             hs.append(Hallazgo("comprobantes", "MEDIO", "Respaldo documental", f"{g.proveedor}: la liquidación cita la factura {g.factura_nro} pero no está adjunta", "", g.importe, "Pedir la factura.", ref))
