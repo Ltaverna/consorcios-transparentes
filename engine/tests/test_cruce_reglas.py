@@ -3,8 +3,9 @@ Números reales de agosto 2026: cuotas de Roth (FC de mayo por $7.950.000, cuota
 declarada el 21-08 sin comprobante propio) y saldo de Saczewiczyk."""
 from datetime import date
 
-from ct.comprobantes import (Documento, chequear_importe_factura, chequear_pagos_declarados)
-from ct.model import Gasto, Pago
+from ct.comprobantes import (Documento, chequear_importe_factura, chequear_pagos_declarados,
+                             ItemManifiesto, _match_gasto)
+from ct.model import Gasto, Liquidacion, Pago
 
 
 def _gasto(n=25, proveedor="MARIO LEONARDO ROTH", importe=2_650_000.0, pagos=(),
@@ -122,3 +123,42 @@ def test_factura_declarada_en_el_concepto_no_dispara():
 def test_monto_en_formato_anglo_tambien_cuenta():
     g = _gasto(importe=200_000.0, concepto="SEGUN PRESUPUESTO POR 255,132.48")
     assert chequear_importe_factura(g, [_factura_doc(255_132.48)], 200_000.0) == []
+
+
+# ------------------------------------------------------------------ _match_gasto (Task 4)
+
+def _liq_con(*gastos):
+    liq = Liquidacion(sistema="test", periodo="Agosto 2026")
+    liq.gastos = list(gastos)
+    return liq
+
+
+def test_match_unico_por_importe_es_certero():
+    liq = _liq_con(_gasto(n=1, importe=100.0))
+    g, certero = _match_gasto(ItemManifiesto(None, "X", 100.0, None, []), liq)
+    assert g.n == 1 and certero
+
+
+def test_match_empatado_desempata_por_factura():
+    liq = _liq_con(_gasto(n=1, importe=100.0, factura_nro="0001-11"),
+                   _gasto(n=2, importe=100.0, factura_nro="0001-22"))
+    g, certero = _match_gasto(ItemManifiesto(None, "X", 100.0, "0001-22", []), liq)
+    assert g.n == 2 and certero
+
+
+def test_match_empatado_desempata_por_fecha():
+    g1 = _gasto(n=1, importe=100.0, pagos=[Pago(date(2026, 8, 1), 100.0, "BANCO", "Transferencia")])
+    g2 = _gasto(n=2, importe=100.0, pagos=[Pago(date(2026, 8, 9), 100.0, "BANCO", "Transferencia")])
+    g, certero = _match_gasto(ItemManifiesto(date(2026, 8, 9), "X", 100.0, None, []), _liq_con(g1, g2))
+    assert g.n == 2 and certero
+
+
+def test_match_irresoluble_devuelve_primero_sin_certeza():
+    liq = _liq_con(_gasto(n=1, importe=100.0), _gasto(n=2, importe=100.0))
+    g, certero = _match_gasto(ItemManifiesto(None, "X", 100.0, None, []), liq)
+    assert g.n == 1 and not certero
+
+
+def test_match_sin_candidatos():
+    g, certero = _match_gasto(ItemManifiesto(None, "X", 999.0, None, []), _liq_con(_gasto(n=1, importe=100.0)))
+    assert g is None and certero

@@ -235,19 +235,22 @@ def cargar_manifiesto_redconar(path_json: str, carpeta: str, mes: Optional[str] 
     return out
 
 
-def _match_gasto(item: ItemManifiesto, liq: Liquidacion) -> Optional[Gasto]:
+def _match_gasto(item: ItemManifiesto, liq: Liquidacion) -> tuple[Optional[Gasto], bool]:
+    """(gasto, certero). certero=False cuando varios gastos comparten el importe y ni el número
+    de factura ni la fecha desempatan; se elige el primero para no perder el cruce, pero la
+    incertidumbre se hace visible (nota en el doc + hallazgo agregado)."""
     cands = [g for g in liq.gastos if abs(g.importe - item.importe) < 0.01]
     if len(cands) == 1:
-        return cands[0]
-    if item.fecha:
-        c2 = [g for g in cands if g.fecha_pago == item.fecha]
-        if len(c2) == 1:
-            return c2[0]
+        return cands[0], True
     if item.factura_nro:
-        c3 = [g for g in cands if g.factura_nro and g.factura_nro.replace(" ", "") == item.factura_nro.replace(" ", "")]
-        if len(c3) == 1:
-            return c3[0]
-    return cands[0] if cands else None
+        c = [g for g in cands if g.factura_nro and g.factura_nro.replace(" ", "") == item.factura_nro.replace(" ", "")]
+        if len(c) == 1:
+            return c[0], True
+    if item.fecha:
+        c = [g for g in cands if g.fecha_pago == item.fecha]
+        if len(c) == 1:
+            return c[0], True
+    return (cands[0], False) if cands else (None, True)
 
 
 DIAS_TOLERANCIA_PAGO = 3
@@ -353,17 +356,22 @@ def cruzar(liq: Liquidacion, items: list[ItemManifiesto], carpeta: Optional[str]
     seen_op: dict[str, list[int]] = {}
     por_gasto: dict[int, list[Documento]] = {}
     matched: set[int] = set()
+    inciertos: list[int] = []
     for it in items:
-        g = _match_gasto(it, liq)
+        g, certero = _match_gasto(it, liq)
         gn = g.n if g else None
         if g:
             matched.add(g.n)
+        if g and not certero:
+            inciertos.append(g.n)
         if not it.adjuntos:
             if g:
                 hs.append(Hallazgo("comprobantes", "MEDIO", "Respaldo documental", f"Gasto sin ningún comprobante adjunto: {g.proveedor} {fmt(g.importe)}", g.concepto[:140], g.importe, "Pedir la factura y el comprobante de pago.", [str(g.n)]))
             continue
         for p in it.adjuntos:
             d = interpretar(p, gn, liq.cuit_consorcio)
+            if g and not certero:
+                d.notas.append("Atribución incierta: varios gastos del mes comparten este importe.")
             docs.append(d)
             por_gasto.setdefault(gn or -1, []).append(d)
             if d.hash:
@@ -453,6 +461,14 @@ def cruzar(liq: Liquidacion, items: list[ItemManifiesto], carpeta: Optional[str]
             d0 = next((d for d in docs if d.operacion == op), None)
             if not (d0 and d0.importe and abs(d0.importe - suma) < 1):
                 hs.append(Hallazgo("comprobantes", "ALTO", "Respaldo documental", f"La transferencia {op} respalda {len(u)} gastos distintos", f"Gastos: {', '.join(names)}.", 0, "Un comprobante por pago; verificar que no se cobre dos veces.", [str(n) for n in u]))
+    if inciertos:
+        u = sorted(set(inciertos))
+        names = [next((x.proveedor for x in liq.gastos if x.n == n), str(n)) for n in u]
+        hs.append(Hallazgo("comprobantes", "BAJO", "Calidad de datos",
+                           f"{len(u)} gasto(s) con comprobantes atribuidos con incertidumbre",
+                           f"Varios gastos del mes comparten importe; se atribuyó al primero. Gastos: {', '.join(names)}.",
+                           0, "Verificar a mano a qué gasto corresponde cada comprobante.",
+                           [str(n) for n in u], clave="atribucion-incierta"))
     for d in docs:
         d.notas = [n for n in d.notas if not n.startswith("__texto__:")]
     # dedupe
