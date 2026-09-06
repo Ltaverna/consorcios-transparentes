@@ -95,6 +95,18 @@ def test_search_incluye_reglamento_y_fetch_lo_resuelve(monkeypatch):
     assert doc["text"] and "Asambleas" in doc["text"]
 
 
+def test_search_frio_incluye_reglamento_sin_precalentar(monkeypatch):
+    """Un search en frío (cache = None) debe incluir resultados reglamento: sin
+    haber llamado a reglamento() antes — el propio search lo baja y cachea."""
+    monkeypatch.setattr(servidor_mcp, "_cliente", lambda: ClienteFalso())
+    monkeypatch.setattr(servidor_mcp, "_reglamento_cache", None)
+    # NO se llama a reglamento() antes — cache permanece None hasta que search lo cargue
+    res = servidor_mcp.search(query="asambleas")
+    ids = [r["id"] for r in res["results"]]
+    reglamento_ids = [i for i in ids if i.startswith("reglamento:")]
+    assert reglamento_ids, f"search frío no incluyó reglamento — ids: {ids}"
+
+
 def test_gating_del_token(monkeypatch):
     """El token en el path es la única puerta de entrada.
 

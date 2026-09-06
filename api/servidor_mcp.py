@@ -229,14 +229,16 @@ def search(query: str) -> dict:
             results.append({"id": f"hallazgo:{h['id']}",
                             "title": f"[{h['severidad']}] {h['titulo']} ({h['periodo']})",
                             "url": f"{_WEB}/panel/hallazgos/{h['id']}"})
-    # Buscar en los títulos de secciones del reglamento (usa cache si ya está cargado)
-    if _reglamento_cache is not None:
-        secciones = _parsear_reglamento(_reglamento_cache)
+    # Buscar en los títulos de secciones del reglamento (baja y cachea si aún no está cargado)
+    try:
+        secciones = _secciones_reglamento()
         for i, titulo, _ in secciones:
             if query.lower() in titulo.lower():
                 results.append({"id": f"reglamento:{i}",
                                 "title": f"Reglamento: {titulo}",
                                 "url": f"{_WEB}/reglamento"})
+    except Exception:
+        pass  # falla del reglamento nunca tumba los resultados de gastos/hallazgos
     return {"results": results[:10]}
 
 
