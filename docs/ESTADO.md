@@ -73,7 +73,7 @@
   `docs/superpowers/specs/2026-09-05-consulta-datos-design.md`): endpoints `/consulta/gastos` y
   `/consulta/agregados` (variación intra-rango), vista analítica en `/panel/analisis` (ranking de
   proveedores, categorías, buscador con total), y servidor MCP read-only en
-  `mcp-consorcio.neuralcore.dev` (7 tools, incl. search/fetch para ChatGPT; token secreto en el path,
+  `mcp-consorcio.neuralcore.dev` (13 tools: gastos, agregados, hallazgos, liquidaciones, reglamento, comprobantes con texto extraído, deudores y resumen mensual; token secreto en el path,
   DEPLOY.md §10) para consultar en lenguaje natural desde Claude Code, claude.ai y ChatGPT.
 - **Reglas de mercado + normativa + PWA** (5/09, rama `reglas-mercado`; spec
   `docs/superpowers/specs/2026-09-05-reglas-mercado-design.md`): tres reglas nuevas del motor calibradas
