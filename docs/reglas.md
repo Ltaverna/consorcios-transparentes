@@ -47,6 +47,24 @@ tipo y número de factura, fecha, importe, destinatario y CUIT de la transferenc
 
 Pendiente: recibos manuscritos (imágenes) requieren revisión visual o OCR; conflicto de interés certificador = ejecutor por CUIT.
 
+## Sobre la serie histórica (`ct/historia.py`)
+
+Requieren al menos un período previo cargado en la base; con serie vacía ninguna regla corre.
+Módulo `historia.py`, función `evaluar_historia(liq, serie, cfg, docs_actual, docs_previos)`.
+Los hallazgos cuelgan siempre del mes actual (el más reciente del par o grupo detectado).
+Se recalculan automáticamente al final de `procesar()` y de `cruzar_comprobantes()` (idempotente,
+origen `"historia"`); si falla, no interrumpe la ingesta.
+
+**Limitación conocida**: si se reprocesa un mes anterior corregido, los hallazgos históricos de los
+meses posteriores no se recalculan solos; se actualizan al reprocesar ese mes posterior o en su
+próximo cruce de comprobantes.
+
+| Regla | Qué mira | Umbral por defecto | Severidad |
+|---|---|---|---|
+| historia_duplicado | Misma factura (número normalizado + mismo proveedor) en dos meses distintos — si además el importe coincide (±$1) es posible doble pago; o mismo archivo (hash del comprobante) en dos meses. Números de relleno (menos de 3 dígitos juntos) se ignoran. | importe ±$1: doble pago · solo número: sospechoso · mismo hash: siempre ALTO | CRÍTICO / ALTO |
+| historia_salto | Gasto recurrente (mismo proveedor+categoría en ≥2 períodos previos, excluye sueldos y cargas sociales) cuya variación mensual supera la mediana de variaciones de los recurrentes del mes (neutraliza la inflación) en más de `salto_puntos_medio` o `salto_puntos_alto`; solo si el importe supera `salto_importe_min`; exige ≥3 recurrentes en el mes. | `salto_puntos_medio`=0,25 · `salto_puntos_alto`=0,50 · `salto_importe_min`=$50.000 | MEDIO / ALTO |
+| historia_concentracion | Proveedor cuyo share del gasto sin sueldos supera `concentracion_proveedor`, o viene creciendo (≥0,5 pp por mes durante 3 períodos) y supera el 15 %. Siempre informativo. Requiere ≥2 períodos previos. | `concentracion_proveedor`=0,25 | MEDIO |
+
 ## Reglas por comparación con mercado
 
 Cubiertas por `sueldo_mercado`, `honorarios_mercado` y `abonos_mercado`: las referencias (escala SUTERH,

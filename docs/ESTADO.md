@@ -1,12 +1,12 @@
-# Estado del proyecto (5 de septiembre de 2026)
+# Estado del proyecto (6 de septiembre de 2026)
 
 ## Qué existe y funciona
 - **API del panel** (`api/`, rama `panel-api`): FastAPI + SQLAlchemy sobre Postgres (SQLite en dev/tests). Persiste
   liquidaciones, gastos, documentos y hallazgos con estados (pendiente/preguntado/respondido/descartado/cerrado) e
   historial; auth por roles (auditor/consejo/moderador) y por código de unidad; ingesta con cuadre obligatorio
   (también en el reproceso: no_cuadra limpia y despublica, reprocesar retira informes); comprobantes por ZIP con
-  cruce; publicación de informes HTML/Excel a storage (R2 o disco); vista del propietario. 88 pruebas de API +
-  29 del motor. Ver `api/README.md`. Spec: `docs/superpowers/specs/2026-09-04-panel-rivadavia-design.md`.
+  cruce; publicación de informes HTML/Excel a storage (R2 o disco); vista del propietario. 168 pruebas de API +
+  73 del motor. Ver `api/README.md`. Spec: `docs/superpowers/specs/2026-09-04-panel-rivadavia-design.md`.
 - **Panel web** (`web/`, rama `panel-web`): Next.js + Tailwind + shadcn/ui, theme institucional claro elegido con
   mockups. Login doble (equipo y código de unidad), liquidaciones con subida de PDF/ZIP y detalle con cuadre,
   hallazgos con filtros/drawer/página propia y acciones de auditor, consorcio (umbrales, códigos), vista del
@@ -83,6 +83,15 @@
   (solo NULL) o `python cli.py embeddings --todos` (re-embeber todo al cambiar de modelo).
   Requiere `CT_EMBEDDINGS_API_KEY` en `api/.env`; sin ella la búsqueda degrada a 503 y la
   ingesta sigue sin romper. Ver DEPLOY.md §10 para la configuración de la key.
+- **Reglas históricas — ciclo A** (6/09, rama `main`; spec
+  `docs/superpowers/specs/2026-09-06-reglas-historicas-design.md`): tres reglas nuevas del motor
+  (`historia_duplicado`, `historia_salto`, `historia_concentracion`) que comparan la liquidación actual
+  contra toda la serie acumulada; umbrales editables en la configuración del panel (`salto_puntos_medio`,
+  `salto_puntos_alto`, `salto_importe_min`, `concentracion_proveedor`); recálculo automático e idempotente
+  al final de `procesar()` y de `cruzar_comprobantes()` (origen `"historia"`). Motor 73 tests · API 168 tests.
+  **Pendiente**: deploy en producción + reprocesar agosto para triage de los hallazgos históricos antes de
+  publicar. Próximos ciclos aprobados: C (endurecer el cruce de comprobantes) → B (prorrateo vs escritura
+  del reglamento) → D (OCR de imágenes/recibos manuscritos).
 - **Reglas de mercado + normativa + PWA** (5/09, rama `reglas-mercado`; spec
   `docs/superpowers/specs/2026-09-05-reglas-mercado-design.md`): tres reglas nuevas del motor calibradas
   contra los gastos reales (`sueldo_mercado` con detección de SAC, `honorarios_mercado`, `abonos_mercado`
