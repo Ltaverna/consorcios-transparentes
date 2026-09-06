@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { SearchCheck, FileSpreadsheet, Building2, BookOpen, Menu } from "lucide-react";
+import { SearchCheck, FileSpreadsheet, Building2, BookOpen, BarChart3, Menu } from "lucide-react";
 import { api } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
@@ -18,6 +18,7 @@ interface SidebarProps {
 const SECCIONES = [
   { href: "/panel/hallazgos", texto: "Hallazgos", Icono: SearchCheck },
   { href: "/panel/liquidaciones", texto: "Liquidaciones", Icono: FileSpreadsheet },
+  { href: "/panel/analisis", texto: "Análisis", Icono: BarChart3 },
   { href: "/panel/consorcio", texto: "Consorcio", Icono: Building2 },
   { href: "/reglamento", texto: "Reglamento", Icono: BookOpen },
 ];

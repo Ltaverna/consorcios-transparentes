@@ -175,6 +175,24 @@ export interface MiUnidad {
   informes: string[];
 }
 
+export interface GastoConsulta {
+  periodo: string;
+  n: number;
+  proveedor: string;
+  categoria: string;
+  concepto: string;
+  importe: number;
+  factura_nro: string | null;
+  pagos: PagoGasto[];
+}
+
+export interface GrupoAgregado {
+  clave: string;
+  total: number;
+  cantidad: number;
+  variacion: number | null;
+}
+
 // ---- llamadas
 
 export const api = {
@@ -294,6 +312,48 @@ export const api = {
 
   subirNormativa(tipo: string, form: FormData) {
     return pedir<{ ok: boolean }>(`/consorcio/normativa/${tipo}`, { method: "POST", body: form });
+  },
+
+  consultarGastos(filtros: {
+    proveedor?: string;
+    categoria?: string;
+    q?: string;
+    periodo_desde?: string;
+    periodo_hasta?: string;
+    importe_min?: number;
+  }) {
+    const params = new URLSearchParams();
+    if (filtros.proveedor) params.set("proveedor", filtros.proveedor);
+    if (filtros.categoria) params.set("categoria", filtros.categoria);
+    if (filtros.q) params.set("q", filtros.q);
+    if (filtros.periodo_desde) params.set("periodo_desde", filtros.periodo_desde);
+    if (filtros.periodo_hasta) params.set("periodo_hasta", filtros.periodo_hasta);
+    if (filtros.importe_min !== undefined) params.set("importe_min", String(filtros.importe_min));
+    const qs = params.toString();
+    return pedir<{ filas: GastoConsulta[]; total: number; cantidad: number }>(
+      `/consulta/gastos${qs ? `?${qs}` : ""}`
+    );
+  },
+
+  agregados(
+    por: "proveedor" | "categoria" | "periodo",
+    filtros?: {
+      proveedor?: string;
+      categoria?: string;
+      q?: string;
+      periodo_desde?: string;
+      periodo_hasta?: string;
+      importe_min?: number;
+    }
+  ) {
+    const params = new URLSearchParams({ por });
+    if (filtros?.proveedor) params.set("proveedor", filtros.proveedor);
+    if (filtros?.categoria) params.set("categoria", filtros.categoria);
+    if (filtros?.q) params.set("q", filtros.q);
+    if (filtros?.periodo_desde) params.set("periodo_desde", filtros.periodo_desde);
+    if (filtros?.periodo_hasta) params.set("periodo_hasta", filtros.periodo_hasta);
+    if (filtros?.importe_min !== undefined) params.set("importe_min", String(filtros.importe_min));
+    return pedir<{ grupos: GrupoAgregado[] }>(`/consulta/agregados?${params.toString()}`);
   },
 };
 
