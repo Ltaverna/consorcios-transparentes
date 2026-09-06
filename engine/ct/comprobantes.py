@@ -290,6 +290,21 @@ def _cerca(a: float, b: float) -> bool:
     return abs(a - b) <= max(1.0, 0.02 * max(abs(a), abs(b)))
 
 
+RE_MONTO_TEXTO = re.compile(r"\d{1,3}(?:\.\d{3})+,\d{2}|\d{1,3}(?:,\d{3})+\.\d{2}")
+
+
+def _montos_del_concepto(texto: str) -> list[float]:
+    """Montos escritos en el concepto de la liquidación ('$3.166.031,55' o '255,132.48'):
+    si la propia liquidación declara el total de la factura, no hay nada oculto."""
+    out = []
+    for m in RE_MONTO_TEXTO.findall(texto or ""):
+        if m.count(",") == 1 and m.rfind(",") > m.rfind("."):
+            out.append(float(m.replace(".", "").replace(",", ".")))
+        else:
+            out.append(float(m.replace(",", "")))
+    return out
+
+
 def chequear_importe_factura(g: Gasto, facts: list[Documento], total_proveedor_mes: float) -> list[Hallazgo]:
     """El importe leído de las facturas adjuntas tiene que cerrar contra algo: el gasto, el
     total facturado según la liquidación (caso cuotas) o el total del proveedor en el mes
@@ -299,6 +314,7 @@ def chequear_importe_factura(g: Gasto, facts: list[Documento], total_proveedor_m
         return []
     suma = round(sum(importes), 2)
     objetivos = [g.importe, total_proveedor_mes] + ([g.factura_importe] if g.factura_importe else [])
+    objetivos += _montos_del_concepto(g.concepto)
     if any(_cerca(x, obj) for x in importes + [suma] for obj in objetivos):
         return []
     return [Hallazgo(

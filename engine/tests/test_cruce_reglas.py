@@ -7,9 +7,10 @@ from ct.comprobantes import (Documento, chequear_importe_factura, chequear_pagos
 from ct.model import Gasto, Pago
 
 
-def _gasto(n=25, proveedor="MARIO LEONARDO ROTH", importe=2_650_000.0, pagos=(), **kw):
+def _gasto(n=25, proveedor="MARIO LEONARDO ROTH", importe=2_650_000.0, pagos=(),
+           concepto="Cambio de serpentina", **kw):
     g = Gasto(n=n, categoria="ABONOS Y SERVICIOS", proveedor=proveedor,
-              concepto="Cambio de serpentina", columna="A", importe=importe, **kw)
+              concepto=concepto, columna="A", importe=importe, **kw)
     g.pagos = list(pagos)
     return g
 
@@ -107,3 +108,17 @@ def test_factura_igual_al_total_del_proveedor_no_dispara():
 def test_factura_sin_importe_legible_no_cuenta():
     g = _gasto(importe=300_000.0)
     assert chequear_importe_factura(g, [_factura_doc(None)], 300_000.0) == []
+
+
+def test_factura_declarada_en_el_concepto_no_dispara():
+    # caso real CSI: el concepto declara el bruto y las retenciones; la factura trae el bruto
+    g = _gasto(importe=2_891_220.01, proveedor="COOPERATIVA DE TRABAJO CSI LIMITADA",
+               concepto="SERVICIO DE SEGURIDAD FACTURA Nº 4925 POR UN TOTAL DE $3.166.031,55 "
+                        "A ESTA SUMA SE DESCUENTAN RETENCIONES, SIRE IVA $274.811,54. "
+                        "SE PAGA A LA EMPRESA UN TOTAL DE $2.891.220,01")
+    assert chequear_importe_factura(g, [_factura_doc(3_166_031.55)], 2_891_220.01) == []
+
+
+def test_monto_en_formato_anglo_tambien_cuenta():
+    g = _gasto(importe=200_000.0, concepto="SEGUN PRESUPUESTO POR 255,132.48")
+    assert chequear_importe_factura(g, [_factura_doc(255_132.48)], 200_000.0) == []
