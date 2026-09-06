@@ -1,5 +1,17 @@
 # Estado del proyecto (6 de septiembre de 2026)
 
+## Backfill de la serie histórica (6/09/2026)
+- `ct sincronizar --desde AAAA-MM` (spec `docs/superpowers/specs/2026-09-06-backfill-sincronizacion-design.md`):
+  el pipeline mensual corre para todos los períodos del portal desde la fecha, del más viejo al más nuevo.
+  El worker diario no cambia. Motor: 106 tests.
+- Corrido el 6/09 con `--desde 2025-11`: **2026-01 a 2026-08 procesadas y cuadradas al centavo** (serie de
+  8 meses en la base; julio y agosto reprocesadas con la serie completa). **2025-11 y 2025-12 en `no_cuadra`
+  por diferencias reales del documento**: noviembre difiere +$149.000 entre el listado de gastos y los egresos
+  del estado financiero; diciembre tiene $300 corridos entre las columnas A y B del prorrateo. Quedan visibles
+  en el panel con sus checks; pedir a la administración la aclaración o la liquidación corregida.
+- Foto post-backfill: índice de transparencia 15/100 (ene-ago), 366 hallazgos abiertos
+  (36 CRÍTICO · 121 ALTO · 199 MEDIO · 10 BAJO), triage pendiente.
+
 ## Qué existe y funciona
 - **API del panel** (`api/`, rama `panel-api`): FastAPI + SQLAlchemy sobre Postgres (SQLite en dev/tests). Persiste
   liquidaciones, gastos, documentos y hallazgos con estados (pendiente/preguntado/respondido/descartado/cerrado) e
