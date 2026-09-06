@@ -144,6 +144,43 @@ def r_salto(liq, serie, cfg, *_):
     return out
 
 
+# ------------------------------------------------------------- concentración de proveedores
+def _shares(l: Liquidacion) -> dict[str, float]:
+    gastos = [g for g in l.gastos if not _excluida(g.categoria)]
+    total = sum(g.importe for g in gastos)
+    if total <= 0:
+        return {}
+    by: dict[str, float] = {}
+    for g in gastos:
+        by[_norm(g.proveedor)] = by.get(_norm(g.proveedor), 0.0) + g.importe
+    return {k: v / total for k, v in by.items()}
+
+
+@rule_h("historia_concentracion")
+def r_concentracion(liq, serie, cfg, *_):
+    if len(serie) < 2:
+        return []
+    s_act, s_prev1, s_prev2 = _shares(liq), _shares(serie[-1]), _shares(serie[-2])
+    out: list[Hallazgo] = []
+    for k, sh in sorted(s_act.items()):
+        alto = sh > cfg.concentracion_proveedor
+        creciente = s_prev2.get(k, 0.0) < s_prev1.get(k, 0.0) < sh
+        if not alto and not (creciente and sh > 0.15):
+            continue
+        gs = [g for g in liq.gastos if not _excluida(g.categoria) and _norm(g.proveedor) == k]
+        titulo = (f"{gs[0].proveedor} concentra {pct(sh)} del gasto del mes (sin sueldos)" if alto
+                  else f"{gs[0].proveedor} concentra una parte creciente del gasto: {pct(sh)} este mes")
+        out.append(Hallazgo(
+            "historia_concentracion", "MEDIO", "Proveedores", titulo,
+            f"Share sobre el gasto sin sueldos: {serie[-2].periodo}: {pct(s_prev2.get(k, 0.0))} → "
+            f"{serie[-1].periodo}: {pct(s_prev1.get(k, 0.0))} → este mes: {pct(sh)}. "
+            f"Umbral: {pct(cfg.concentracion_proveedor)}.",
+            round(sum(g.importe for g in gs), 2),
+            "Pedir presupuestos alternativos o el detalle de la contratación.",
+            [str(g.n) for g in gs], clave=f"concentracion|{k}"))
+    return out
+
+
 def evaluar_historia(liq: Liquidacion, serie: list[Liquidacion], cfg: Optional[Config] = None,
                      docs_actual: Optional[list[Doc]] = None,
                      docs_previos: Optional[dict[str, list[Doc]]] = None) -> list[Hallazgo]:

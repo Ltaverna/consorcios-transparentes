@@ -195,3 +195,46 @@ def test_salto_excluye_sueldos():
     for g in sueldos:
         g.importe = round(g.importe * 3, 2)
     assert _hallazgos("historia_salto", liq, serie, Config()) == []
+
+
+# ======================================================= historia_concentracion
+
+def _boost_hasta_share(liq, prov_norm, objetivo):
+    """Escala los gastos del proveedor para que su share (sin sueldos) quede en `objetivo`."""
+    mios = [g for g in liq.gastos if not _excluida(g.categoria) and _norm(g.proveedor) == prov_norm]
+    resto = sum(g.importe for g in liq.gastos
+                if not _excluida(g.categoria) and _norm(g.proveedor) != prov_norm)
+    factor = (objetivo / (1 - objetivo) * resto) / sum(g.importe for g in mios)
+    for g in mios:
+        g.importe = round(g.importe * factor, 2)
+
+
+def test_concentracion_por_encima_del_umbral():
+    serie, liq = _serie_sintetica()
+    prov, _, obj = _clave_objetivo(liq)
+    _boost_hasta_share(liq, prov, 0.30)
+    hs = _hallazgos("historia_concentracion", liq, serie, Config())
+    h = next(x for x in hs if x.clave == f"concentracion|{prov}")
+    assert h.severidad == "MEDIO"
+    assert str(obj.n) in h.refs
+
+
+def test_concentracion_creciente_sin_superar_umbral():
+    serie, liq = _serie_sintetica()
+    prov, _, _ = _clave_objetivo(liq)
+    _boost_hasta_share(serie[0], prov, 0.10)
+    _boost_hasta_share(serie[1], prov, 0.14)
+    _boost_hasta_share(liq, prov, 0.18)
+    hs = _hallazgos("historia_concentracion", liq, serie, Config())
+    h = next(x for x in hs if x.clave == f"concentracion|{prov}")
+    assert h.severidad == "MEDIO"
+    assert "creciente" in h.titulo
+
+
+def test_concentracion_estable_y_baja_no_dispara():
+    serie, liq = _serie_sintetica()
+    prov, _, _ = _clave_objetivo(liq)
+    for l in (serie[0], serie[1], liq):
+        _boost_hasta_share(l, prov, 0.12)
+    assert [h for h in _hallazgos("historia_concentracion", liq, serie, Config())
+            if h.clave == f"concentracion|{prov}"] == []
