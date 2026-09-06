@@ -131,3 +131,49 @@ def test_pago_respaldado(db, tmp_path):
     _doc(db, liq, ef.n, tipo="pago")
     t2 = analitica.metricas(db, solo_publicado=False)["totales"]
     assert t2["dinero_pago_respaldado"] == t["dinero_pago_respaldado"]
+
+
+# ── Tests de endpoints ──────────────────────────────────────────────────────
+
+
+def test_endpoint_indice_para_auditor(db, tmp_path, auditor):
+    st, liq = preparar(db, tmp_path)
+    r = auditor.get("/analitica/indice")
+    assert r.status_code == 200
+    d = r.json()
+    assert "indice" in d and d["periodos"][0]["periodo"] == "2026-08"
+
+
+def test_endpoint_gastos_filtra_por_estado(db, tmp_path, auditor):
+    st, liq = preparar(db, tmp_path)
+    r = auditor.get("/analitica/gastos", params={"periodo": "2026-08", "estado": "verificado"})
+    assert r.status_code == 200
+    assert all(g["estado"] == "verificado" for g in r.json()["gastos"])
+    assert auditor.get("/analitica/gastos", params={"periodo": "2026-08", "estado": "zzz"}).status_code == 422
+    assert auditor.get("/analitica/gastos", params={"periodo": "2020-01"}).status_code == 404
+
+
+def test_endpoint_requiere_sesion(db, cliente):
+    assert cliente.get("/analitica/indice").status_code in (401, 403)
+
+
+def test_endpoint_propietario_ve_solo_publicado(db, tmp_path, cliente, auditor):
+    """Propietario obtiene 200 en /analitica/indice, pero con la liquidación en estado
+    'procesada' no ve ningún período. Al publicarla, el período aparece."""
+    from app import admin
+    st, liq = preparar(db, tmp_path)
+    # la liquidación quedó en estado "procesada" → propietario no ve nada
+    uf = db.query(models.Unidad).first().uf
+    codigo = admin.generar_codigo(db, uf)
+    r = cliente.post("/auth/login-unidad", json={"uf": uf, "codigo": codigo})
+    assert r.status_code == 200
+    # propietario recibe 200 pero periodos vacíos (solo ve "publicada")
+    r = cliente.get("/analitica/indice")
+    assert r.status_code == 200
+    assert r.json()["periodos"] == []
+    # publicar → el período ahora aparece
+    liq.estado = "publicada"
+    db.commit()
+    r2 = cliente.get("/analitica/indice")
+    assert r2.status_code == 200
+    assert r2.json()["periodos"][0]["periodo"] == "2026-08"
