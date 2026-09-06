@@ -61,23 +61,64 @@ def agregados(por: str, periodo_desde: str | None = None, periodo_hasta: str | N
         it["total"] += g.importe
         it["cantidad"] += 1
 
-    # variación: mismo grupo en el período inmediato anterior al rango consultado
+    # variación: "¿qué subió?" — dos semánticas según cuántos períodos haya en el rango.
+    #
+    # Rango con 2+ períodos (o sin rango = todos los períodos):
+    #   variacion del grupo = total del grupo en el ÚLTIMO período del rango
+    #                         vs el período inmediato ANTERIOR a ese (que está dentro del rango).
+    #   Así la vista analítica sin rango siempre muestra variación real entre los dos últimos
+    #   períodos disponibles.
+    #   OJO: `total` y `cantidad` del grupo siguen siendo del rango completo; solo la
+    #   variación usa "último vs penúltimo" del rango.
+    #
+    # Rango con 1 solo período:
+    #   variacion = vs el período inmediato anterior al rango (fuera del rango),
+    #   comportamiento original útil para comparar un mes concreto con el mes previo.
+    #
+    # `por=periodo` nunca tiene variación (la clave ya es el período).
     periodos = sorted({per for _, per in pares})
-    anterior = None
+    # anterior: totales por clave del período base de comparación (penúltimo o externo)
+    # numerador: totales por clave del período más reciente (None = usar total del grupo completo)
+    anterior: dict[str, float] | None = None
+    numerador: dict[str, float] | None = None
+
     if periodos and por != "periodo":
-        previa = (db.query(models.Liquidacion.periodo)
-                    .filter(models.Liquidacion.periodo < periodos[0])
-                    .order_by(models.Liquidacion.periodo.desc()).first())
-        if previa:
-            pares_ant = _query_gastos(db, periodo_desde=previa[0], periodo_hasta=previa[0])
+        if len(periodos) >= 2:
+            # Semántica intra-rango: penúltimo período del rango como base, último como numerador.
+            ultimo = periodos[-1]
+            penultimo = periodos[-2]
+            pares_base = _query_gastos(db, periodo_desde=penultimo, periodo_hasta=penultimo)
             anterior = {}
-            for g, per in pares_ant:
+            for g, per in pares_base:
                 k = clave(g, per)
                 anterior[k] = anterior.get(k, 0.0) + g.importe
+            # El numerador es solo el último período del rango; `total` del grupo abarca todo el rango.
+            numerador = {}
+            for g, per in pares:
+                if per == ultimo:
+                    k = clave(g, per)
+                    numerador[k] = numerador.get(k, 0.0) + g.importe
+        else:
+            # Semántica fuera-de-rango: período anterior externo al rango como base.
+            previa = (db.query(models.Liquidacion.periodo)
+                        .filter(models.Liquidacion.periodo < periodos[0])
+                        .order_by(models.Liquidacion.periodo.desc()).first())
+            if previa:
+                pares_base = _query_gastos(db, periodo_desde=previa[0], periodo_hasta=previa[0])
+                anterior = {}
+                for g, per in pares_base:
+                    k = clave(g, per)
+                    anterior[k] = anterior.get(k, 0.0) + g.importe
+            # Con un solo período en el rango, el numerador es el total del grupo.
+            numerador = None
 
     out = []
     for it in grupos.values():
-        base = (anterior or {}).get(it["clave"])
-        it["variacion"] = (it["total"] / base - 1) if base else None
+        base = (anterior or {}).get(it["clave"]) if anterior is not None else None
+        if base:
+            num = (numerador or {}).get(it["clave"], it["total"]) if numerador is not None else it["total"]
+            it["variacion"] = (num / base - 1)
+        else:
+            it["variacion"] = None
         out.append(it)
     return {"grupos": sorted(out, key=lambda i: -i["total"])}

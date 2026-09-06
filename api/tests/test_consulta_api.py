@@ -75,6 +75,40 @@ def test_consulta_agregados_por_proveedor_y_periodo(db, auditor):
     assert auditor.get("/consulta/agregados?por=cualquiera").status_code == 422
 
 
+def test_consulta_agregados_variacion_intra_rango(db, auditor):
+    """Sin rango (2+ períodos) la variación compara último vs penúltimo dentro del rango.
+
+    Datos conocidos:
+      2026-07 (sintético): SACZEWICZYK MARIA EUGENIA → 800 000,00
+      2026-08 (fixture):   SACZEWICZYK MARIA EUGENIA → 2 552 000,00 + 700 000,00 = 3 252 000,00
+      variacion esperada = 3 252 000 / 800 000 − 1 = 3,065
+    """
+    subir(auditor)           # 2026-08
+    _segunda_liquidacion(db) # 2026-07
+
+    r = auditor.get("/consulta/agregados?por=proveedor")
+    assert r.status_code == 200
+    grupos = r.json()["grupos"]
+
+    # Buscar el grupo de SACZEWICZYK (presente en ambos períodos)
+    sazcz = next(
+        (g for g in grupos if "SACZEWICZYK" in g["clave"].upper()),
+        None,
+    )
+    assert sazcz is not None, "SACZEWICZYK debe aparecer en los agregados"
+
+    # variacion no debe ser None porque hay 2 períodos en el rango
+    assert sazcz["variacion"] is not None, "variacion debe ser no-None con 2+ períodos"
+
+    # valor exacto: (3_252_000 / 800_000) - 1 = 3.065
+    importe_ago = 2_552_000.0 + 700_000.0   # del fixture 2026-08
+    importe_jul = 800_000.0                  # de _segunda_liquidacion (2026-07 = penúltimo período)
+    esperado = importe_ago / importe_jul - 1
+    assert abs(sazcz["variacion"] - esperado) < 1e-6, (
+        f"variacion={sazcz['variacion']!r} ≠ esperado={esperado!r}"
+    )
+
+
 def test_consulta_es_solo_del_equipo(db, auditor, cliente):
     """Un propietario recibe 403 en /consulta/gastos y /consulta/agregados."""
     subir(auditor)
