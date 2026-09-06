@@ -47,6 +47,14 @@ Sin acciones de escritura; misma estética del panel.
   hacia el contenedor `mcp`, + ruta DNS del tunnel. Alta en clientes: URL con el token en claude.ai
   (Conectores), ChatGPT (Conectores/modo desarrollador) y `claude mcp add --transport http`.
 
+## 3b. Anexo (5/09, del primer uso real): herramienta de reglamento
+
+La pregunta "¿qué dice el reglamento sobre X?" es consulta natural y el MCP no la cubría. Se agrega la
+tool `reglamento(busqueda="")`: sin argumento devuelve el índice de secciones de la transcripción
+(`GET /consorcio/reglamento/transcripcion`, ya accesible con la sesión del bot); con texto, las secciones
+completas cuyo título o cuerpo lo contienen (case-insensitive, dividiendo por headers `##`/`###`).
+`search` también busca en los títulos de secciones (id `reglamento:<indice>`) y `fetch` los resuelve.
+
 ## 4. Errores y bordes
 
 - Con 2 períodos cargados los agregados son cortos — crecen solos con la sincronización mensual.
