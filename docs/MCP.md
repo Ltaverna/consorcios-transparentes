@@ -46,7 +46,7 @@ Tras conectar, la primera pregunta puede pedirte aprobar el uso de las herramien
 | Liquidaciones | `estado_liquidaciones`, `detalle_liquidacion`, `resumen_mensual` | "¿Cerró bien agosto?" · "Dame el resumen del mes" |
 | Deudores | `deudores` | "¿Quién debe y hace cuántos meses?" |
 | Reglamento | `reglamento` | "¿Qué dice el reglamento sobre los poderes en asambleas?" |
-| Transparencia | `indice_transparencia`, `estado_gastos` | "¿Qué tan auditable es el consorcio?" · "¿Qué gastos les falta respaldo en agosto?" |
+| Transparencia | `indice_transparencia`, `estado_gastos` | "¿Qué tan auditable es el consorcio?" · "¿A qué gastos les falta respaldo en agosto?" |
 | Compatibilidad ChatGPT | `search`, `fetch` | (las usa solo el modo investigación de ChatGPT) |
 
 Todo es de **solo lectura**: nada de lo que se pregunte puede modificar, publicar ni borrar datos.

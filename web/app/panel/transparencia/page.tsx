@@ -57,8 +57,8 @@ function CardIndice({ datos }: { datos: IndiceTransparencia }) {
           </span>
         </div>
         <p className="text-sm text-tinta-suave">
-          Porcentaje del dinero trazable de punta a punta: gasto verificado, con factura y con el
-          pago respaldado.
+          Porcentaje del dinero trazable: gastos con respaldo documental y sin ninguna cuestión
+          abierta.
         </p>
         <div className="flex flex-col gap-3">
           <Barra etiqueta="Dinero verificado" pct={t.pct_trazable} importe={t.dinero_verificado} />
