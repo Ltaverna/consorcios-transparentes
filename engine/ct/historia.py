@@ -56,11 +56,11 @@ def r_duplicado(liq, serie, cfg, docs_actual, docs_previos):
     for pl in serie:
         for g in pl.gastos:
             nro = _norm_nro(g.factura_nro)
-            if nro:
+            if nro and _norm(g.proveedor):
                 previos.setdefault((_norm(g.proveedor), nro), []).append((pl.periodo, g))
     for g in liq.gastos:
         nro = _norm_nro(g.factura_nro)
-        for periodo_prev, gp in (previos.get((_norm(g.proveedor), nro), []) if nro else []):
+        for periodo_prev, gp in (previos.get((_norm(g.proveedor), nro), []) if nro and _norm(g.proveedor) else []):
             mismo = abs(g.importe - gp.importe) <= 1
             out.append(Hallazgo(
                 "historia_duplicado", "CRÍTICO" if mismo else "ALTO", "Respaldo documental",
@@ -77,15 +77,15 @@ def r_duplicado(liq, serie, cfg, docs_actual, docs_previos):
             for gn, h, _archivo in docs_previos[periodo]:
                 if h and h not in hprev:
                     hprev[h] = (periodo, gn)
-        vistos: set[str] = set()
+        vistos: set[tuple[str, Optional[int]]] = set()
         for gn, h, archivo in docs_actual:
             if not h or h not in hprev:
                 continue
             periodo_prev, gn_prev = hprev[h]
             clave = f"dup-hash|{periodo_prev}|{h}"
-            if clave in vistos:
+            if (clave, gn) in vistos:
                 continue
-            vistos.add(clave)
+            vistos.add((clave, gn))
             out.append(Hallazgo(
                 "historia_duplicado", "ALTO", "Respaldo documental",
                 f"El comprobante {archivo} ya respaldaba un gasto de {periodo_prev}",

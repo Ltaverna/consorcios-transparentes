@@ -18,7 +18,7 @@ comparan la liquidación actual contra toda su historia. Es el primero de cuatro
     vacía: sin historia, ninguna regla corre).
   - `docs_por_periodo`: opcional, `{periodo: [(gasto_n, hash, archivo)]}` con los comprobantes de
     cada período **incluido el actual** — lo arma la API desde la tabla `Documento`; el motor no
-    sabe de dónde sale.
+    sabe de dónde sale. (En la implementación quedó partido en dos parámetros, docs_actual y docs_previos, porque el motor no puede saber qué clave ISO es el período actual.)
   - Registro de reglas con el mismo patrón `@rule` de `rules.py` (decorador y lista propios del
     módulo, para no mezclar firmas distintas en `RULES`).
 - **Las reglas solo emiten hallazgos que involucran a `liq`** (el mes actual contra su historia).

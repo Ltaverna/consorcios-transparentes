@@ -93,3 +93,34 @@ def test_sin_docs_el_chequeo_de_hash_no_corre():
     hs = _hallazgos("historia_duplicado", _agosto(), [_julio()], Config(),
                     docs_actual=[(12, "abc", "f.pdf")], docs_previos=None)
     assert [h for h in hs if h.clave.startswith("dup-hash|")] == []
+
+
+def test_duplicado_exige_mismo_proveedor():
+    liq = _agosto()
+    g = _gasto_con_factura(liq)
+    prev = _julio()
+    clon = copy.deepcopy(g)
+    clon.proveedor = "OTRO PROVEEDOR SRL"
+    prev.gastos.append(clon)
+    assert [h for h in _hallazgos("historia_duplicado", liq, [prev], Config())
+            if h.clave == f"dup-fact|{prev.periodo}|{_norm_nro(g.factura_nro)}"] == []
+
+
+def test_duplicado_borde_de_un_peso():
+    liq = _agosto()
+    g = _gasto_con_factura(liq)
+    prev = _julio()
+    exacto = copy.deepcopy(g)
+    exacto.importe = round(g.importe + 1.00, 2)   # ±$1: sigue siendo CRÍTICO
+    prev.gastos.append(exacto)
+    hs = _hallazgos("historia_duplicado", liq, [prev], Config())
+    clave = f"dup-fact|{prev.periodo}|{_norm_nro(g.factura_nro)}"
+    assert [h.severidad for h in hs if h.clave == clave] == ["CRÍTICO"]
+
+
+def test_duplicado_por_hash_dos_gastos_actuales_reportan_ambos():
+    hs = _hallazgos("historia_duplicado", _agosto(), [_julio()], Config(),
+                    docs_actual=[(12, "abc123def456", "f.pdf"), (15, "abc123def456", "f.pdf")],
+                    docs_previos={"2026-07": [(3, "abc123def456", "f.pdf")]})
+    dup = [h for h in hs if h.clave.startswith("dup-hash|")]
+    assert sorted(h.refs[0] for h in dup) == ["12", "15"]
