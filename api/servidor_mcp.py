@@ -3,6 +3,7 @@ Claude Code, claude.ai y ChatGPT (Streamable HTTP + segmento secreto en el path)
 import functools
 import json
 import os
+import unicodedata
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -53,6 +54,11 @@ def _cliente():
     if _sesion is None:
         _sesion = ClienteApi()
     return _sesion
+
+
+def _plegar(s: str) -> str:
+    """Minúsculas sin acentos, 1:1 por carácter (los índices del original se preservan)."""
+    return "".join(unicodedata.normalize("NFD", c)[0].lower() for c in s)
 
 
 def _plata(v):
@@ -190,9 +196,9 @@ def reglamento(busqueda: str = "") -> str:
         lineas.append("\nPedí reglamento(busqueda=...) con palabras del tema para ver el texto completo.")
         return "\n".join(lineas)
 
-    termino = busqueda.lower()
+    termino = _plegar(busqueda)
     encontradas = [(i, titulo, cuerpo) for i, titulo, cuerpo in secciones
-                   if termino in titulo.lower() or termino in cuerpo.lower()]
+                   if termino in _plegar(titulo) or termino in _plegar(cuerpo)]
     if not encontradas:
         return f"ninguna sección menciona '{busqueda}'; probá con el índice (reglamento())."
 

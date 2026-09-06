@@ -10,7 +10,7 @@ Normas generales del consorcio.
 ## Uso de partes comunes
 Solo residentes pueden usar el SUM.
 
-### Asambleas
+### Asambleas y representación
 Cada propietario puede llevar hasta dos poderes.
 """
 
@@ -212,6 +212,26 @@ def test_detalle_liquidacion(monkeypatch):
     # Totales por categoría
     assert "MANTENIMIENTO" in out
     assert "2.552.000" in out
+
+
+def test_reglamento_busqueda_insensible_a_acentos(monkeypatch):
+    """reglamento(busqueda='representacion') (sin acento) debe encontrar la sección
+    '### Asambleas y representación' (con acento en el título del reglamento sintético)."""
+    monkeypatch.setattr(servidor_mcp, "_cliente", lambda: ClienteFalso())
+    monkeypatch.setattr(servidor_mcp, "_reglamento_cache", None)
+
+    # búsqueda SIN acento, título CON acento
+    out = servidor_mcp.reglamento(busqueda="representacion")
+    assert "Asambleas y representación" in out
+    assert "poderes" in out.lower()
+    # las secciones sin "representación" no deben aparecer
+    assert "Generalidades" not in out
+    assert "Uso de partes comunes" not in out
+
+    # búsqueda CON acento también funciona
+    monkeypatch.setattr(servidor_mcp, "_reglamento_cache", None)
+    out2 = servidor_mcp.reglamento(busqueda="representación")
+    assert "Asambleas y representación" in out2
 
 
 def test_gating_del_token(monkeypatch):

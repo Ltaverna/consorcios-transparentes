@@ -1,5 +1,7 @@
 """Consultas read-only sobre gastos, comprobantes y deudores: la base de la vista
 analítica y del MCP."""
+import unicodedata
+
 from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 
@@ -8,6 +10,11 @@ from ..db import get_db
 from .documentos import extraer_texto
 
 router = APIRouter(prefix="/consulta", tags=["consulta"])
+
+
+def _plegar(s: str) -> str:
+    """Minúsculas sin acentos, 1:1 por carácter (los índices del original se preservan)."""
+    return "".join(unicodedata.normalize("NFD", c)[0].lower() for c in s)
 
 _EQUIPO = security.requiere("auditor", "consejo", "moderador")
 
@@ -55,11 +62,11 @@ def comprobantes(q: str, request: Request, periodo: str | None = None,
     filas = db.query(models.Documento, models.Liquidacion.periodo).join(models.Liquidacion)
     if periodo:
         filas = filas.filter(models.Liquidacion.periodo == periodo)
-    aguja = q.lower()
+    aguja = _plegar(q)
     resultados = []
     for d, per in filas.all():
         texto = extraer_texto(request.app.state.storage, d)
-        pos = texto.lower().find(aguja)
+        pos = _plegar(texto).find(aguja)
         if pos < 0:
             continue
         resultados.append({"documento_id": d.id, "gasto_n": d.gasto_n, "periodo": per,

@@ -147,6 +147,28 @@ def test_deudores_sin_periodo_usa_la_ultima_liquidacion(db, auditor):
     assert auditor.get("/consulta/deudores?periodo=2030-01").status_code == 404
 
 
+def test_busca_en_comprobantes_insensible_a_acentos(db, auditor, tmp_path):
+    """Buscar 'impermeabilización' (con acento) debe encontrar 'IMPERMEABILIZACION' (sin acento)
+    en el texto del comprobante, y el fragmento debe provenir del texto original."""
+    d = doc_con_contenido(db, auditor, tmp_path, "imper2.pdf",
+                          pdf_minimo("FACTURA B 0003-99990001 IMPERMEABILIZACION DE TERRAZA"),
+                          gasto_n=9)
+    # query CON acento, texto SIN acento
+    r = auditor.get("/consulta/comprobantes?q=impermeabilizaci%C3%B3n")
+    assert r.status_code == 200
+    res = r.json()["resultados"]
+    assert len(res) == 1 and res[0]["documento_id"] == d.id
+    # el fragmento viene del texto original (sin acento)
+    assert "IMPERMEABILIZACION" in res[0]["fragmento"]
+    assert "impermeabilización" not in res[0]["fragmento"]  # original no tiene acento
+
+    # query SIN acento también sigue funcionando
+    r2 = auditor.get("/consulta/comprobantes?q=impermeabilizacion")
+    assert r2.status_code == 200
+    res2 = r2.json()["resultados"]
+    assert len(res2) == 1 and res2[0]["documento_id"] == d.id
+
+
 def test_consulta_es_solo_del_equipo(db, auditor, cliente):
     """Un propietario recibe 403 en todos los endpoints de /consulta."""
     subir(auditor)
