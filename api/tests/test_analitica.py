@@ -84,6 +84,16 @@ def test_respondido_sigue_abierto_y_morosidad_no_clasifica(db, tmp_path):
 
 
 def test_indice_formula_a_mano(db, tmp_path):
+    """Índice compuesto (antes: solo pct_trazable*100). Mismo escenario de siempre: todos los
+    gastos sin docs salvo el primero, que tiene factura y queda verificado. La cuenta a mano:
+      documentacion = trazabilidad = importe_g0/total; conciliacion sale de los pagos del
+      fixture (los débitos automáticos quedan respaldados aunque no haya docs);
+      consistencia = 1/1 (un solo período, cuadra); explicaciones = 1.0 (cero hallazgos);
+      penalización = 0 (cero CRÍTICOS abiertos).
+      indice = round(0.30*v_doc*100 + 0.30*v_conc*100 + 0.20*v_traz*100 + 10.0 + 10.0)
+    Con el fixture de agosto (total 29.876.923,16 · gasto 1 = 256.260,11 · débitos
+    respaldados 5.667.925,62): round(0.3 + 5.7 + 0.2 + 10.0 + 10.0) = 26.
+    """
     st, liq = preparar(db, tmp_path)
     _limpiar_hallazgos(db, liq)
     gastos = db.query(models.Gasto).filter_by(liquidacion_id=liq.id).order_by(models.Gasto.n).all()
@@ -94,9 +104,84 @@ def test_indice_formula_a_mano(db, tmp_path):
     t = m["totales"]
     assert t["dinero_total"] == total
     assert t["dinero_verificado"] == gastos[0].importe
-    assert m["indice"] == round(gastos[0].importe / total * 100)
+    assert t["dinero_con_factura"] == gastos[0].importe
     assert t["gastos_por_estado"]["sin_informacion"]["cantidad"] == len(gastos) - 1
     assert m["periodos"][0]["periodo"] == "2026-08"
+    # componentes: peso/valor/puntos verificados contra los dineros ya validados arriba
+    c = t["componentes"]
+    v_doc = t["dinero_con_factura"] / total
+    v_conc = t["dinero_pago_respaldado"] / total
+    v_traz = t["dinero_verificado"] / total
+    assert c["documentacion"] == {"peso": 0.30, "valor": round(v_doc, 4),
+                                  "puntos": round(0.30 * v_doc * 100, 1)}
+    assert c["conciliacion"]["puntos"] == round(0.30 * v_conc * 100, 1)
+    assert c["trazabilidad"]["puntos"] == round(0.20 * v_traz * 100, 1)
+    assert c["consistencia"] == {"peso": 0.10, "valor": 1.0, "puntos": 10.0,
+                                 "periodos_cuadran": 1, "periodos_totales": 1}
+    assert c["explicaciones"] == {"peso": 0.10, "valor": 1.0, "puntos": 10.0}
+    assert t["penalizacion"] == {"criticos_abiertos": 0, "por_critico": 2, "tope": 25, "puntos": 0}
+    esperado = max(0, min(100, round(round(0.30 * v_doc * 100, 1) + round(0.30 * v_conc * 100, 1)
+                                     + round(0.20 * v_traz * 100, 1) + 10.0 + 10.0)))
+    assert m["indice"] == esperado
+    # lo viejo sigue: pct_trazable no cambió de significado
+    assert t["pct_trazable"] == round(v_traz, 4)
+
+
+def test_penalizacion_por_criticos_con_tope(db, tmp_path):
+    """15 CRÍTICOS abiertos → 15×2 = 30 puntos, pero el tope es 25; el índice nunca baja de 0."""
+    st, liq = preparar(db, tmp_path)
+    _limpiar_hallazgos(db, liq)
+    gastos = db.query(models.Gasto).filter_by(liquidacion_id=liq.id).order_by(models.Gasto.n).all()
+    assert len(gastos) >= 15
+    for g in gastos[:15]:
+        _hallazgo(db, liq, g.n, "CRÍTICO")
+    m = analitica.metricas(db, solo_publicado=False)
+    t = m["totales"]
+    assert t["penalizacion"] == {"criticos_abiertos": 15, "por_critico": 2, "tope": 25, "puntos": 25}
+    esperado = max(0, min(100, round(sum(c["puntos"] for c in t["componentes"].values()) - 25)))
+    assert m["indice"] == esperado
+    assert 0 <= m["indice"] <= 100
+    # el período también arrastra su propia penalización
+    assert m["periodos"][0]["penalizacion"]["puntos"] == 25
+
+
+def test_explicaciones_sin_hallazgos_es_uno(db, tmp_path):
+    """Sin ningún hallazgo (ni abierto ni resuelto): nada que explicar = todo explicado."""
+    st, liq = preparar(db, tmp_path)
+    _limpiar_hallazgos(db, liq)
+    m = analitica.metricas(db, solo_publicado=False)
+    assert m["totales"]["componentes"]["explicaciones"]["valor"] == 1.0
+    assert m["periodos"][0]["componentes"]["explicaciones"]["valor"] == 1.0
+
+
+def test_consistencia_cuenta_las_no_cuadra(db, tmp_path):
+    """Una liquidación no_cuadra en el rango agranda el denominador de consistencia, pero no
+    aporta gastos, hallazgos ni dinero a ninguna otra métrica."""
+    st, liq = preparar(db, tmp_path)
+    _limpiar_hallazgos(db, liq)
+    gastos = db.query(models.Gasto).filter_by(liquidacion_id=liq.id).order_by(models.Gasto.n).all()
+    total = round(sum(g.importe for g in gastos), 2)
+    db.add(models.Liquidacion(periodo="2026-05", archivo_key="x", estado="no_cuadra"))
+    db.commit()
+    m = analitica.metricas(db, solo_publicado=False)
+    c = m["totales"]["componentes"]["consistencia"]
+    assert c["periodos_cuadran"] == 1 and c["periodos_totales"] == 2 and c["valor"] == 0.5
+    assert m["totales"]["dinero_total"] == total          # la no_cuadra no suma nada más
+    assert len(m["periodos"]) == 1                        # y no aparece como período
+    assert m["periodos"][0]["componentes"]["consistencia"]["valor"] == 1.0  # el mes propio siempre 1/1
+
+
+def test_propietario_no_ve_no_cuadra_ni_en_el_conteo(db, tmp_path):
+    """La vista del propietario afirma solo sobre lo publicado: una no_cuadra sin publicar no
+    se filtra ni siquiera como conteo en el denominador de consistencia."""
+    st, liq = preparar(db, tmp_path)
+    _limpiar_hallazgos(db, liq)
+    db.add(models.Liquidacion(periodo="2026-05", archivo_key="x", estado="no_cuadra"))
+    liq.estado = "publicada"
+    db.commit()
+    m = analitica.metricas(db, solo_publicado=True)
+    c = m["totales"]["componentes"]["consistencia"]
+    assert c["periodos_cuadran"] == 1 and c["periodos_totales"] == 1 and c["valor"] == 1.0
 
 
 def test_vista_propietario_solo_lo_publicado(db, tmp_path):

@@ -1,6 +1,7 @@
-"""Estados por gasto e índice de transparencia. Todo derivado (documentos + hallazgos +
-triage); nada se almacena y ninguna cifra la genera una IA. Fórmulas y precedencia:
-docs/superpowers/specs/2026-09-06-indice-transparencia-design.md."""
+"""Estados por gasto e índice de transparencia compuesto. Todo derivado (documentos +
+hallazgos + triage); nada se almacena y ninguna cifra la genera una IA. Fórmulas y precedencia:
+docs/superpowers/specs/2026-09-06-indice-transparencia-design.md (estados) y
+docs/superpowers/specs/2026-09-06-indice-compuesto-design.md (índice)."""
 from sqlalchemy.orm import Session
 
 from . import models
@@ -11,6 +12,16 @@ ESTADOS_GASTO = ("verificado", "requiere_explicacion", "anomalia", "inconsistenc
 SEVERIDADES = ("CRÍTICO", "ALTO", "MEDIO", "BAJO")
 # los refs de morosidad son UFs, no números de gasto: esa regla no clasifica gastos
 REGLAS_REFS_UF = {"morosidad"}
+
+# Índice compuesto: pesos definidos por el dueño (la spec es normativa, no estos comentarios).
+# documentacion = dinero_con_factura/total · conciliacion = dinero_pago_respaldado/total
+# trazabilidad = dinero_verificado/total (el índice viejo, ahora componente)
+# consistencia = períodos que cuadran / períodos con liquidación (incluye las no_cuadra)
+# explicaciones = resueltos/(abiertos+resueltos); 1.0 si no hay ningún hallazgo
+PESOS = {"documentacion": 0.30, "conciliacion": 0.30, "trazabilidad": 0.20,
+         "consistencia": 0.10, "explicaciones": 0.10}
+PENALIZACION_POR_CRITICO = 2      # puntos que resta cada hallazgo CRÍTICO abierto
+PENALIZACION_TOPE = 25            # tope de la penalización total
 
 
 def clasificar(tiene_docs: bool, severidades_abiertas: set[str]) -> str:
@@ -78,8 +89,10 @@ def _pago_respaldado(g: models.Gasto, tiene_doc_pago: bool, sin_comp_abierto: bo
     return tiene_doc_pago and not sin_comp_abierto
 
 
-def _cerrar(s: dict) -> dict:
-    """Redondeos + porcentajes + índice del bloque de stats."""
+def _cerrar(s: dict, periodos_cuadran: int = 1, periodos_totales: int = 1) -> dict:
+    """Redondeos + porcentajes + índice compuesto del bloque de stats. Un período propio
+    siempre es 1/1 en consistencia (si está en `periodos[]` es porque cuadra); los totales
+    del rango reciben el conteo real, incluidas las `no_cuadra`."""
     for k in ("dinero_total", "dinero_verificado", "dinero_con_factura", "dinero_pago_respaldado"):
         s[k] = round(s[k], 2)
     for v in s["gastos_por_estado"].values():
@@ -88,7 +101,28 @@ def _cerrar(s: dict) -> dict:
     s["pct_trazable"] = round(s["dinero_verificado"] / total, 4) if total else 0.0
     s["pct_con_factura"] = round(s["dinero_con_factura"] / total, 4) if total else 0.0
     s["pct_pago_respaldado"] = round(s["dinero_pago_respaldado"] / total, 4) if total else 0.0
-    s["indice"] = round(s["pct_trazable"] * 100)
+    abiertos = sum(s["hallazgos_abiertos"].values())
+    resueltos = s["hallazgos_resueltos"]
+    valores = {
+        "documentacion": s["dinero_con_factura"] / total if total else 0.0,
+        "conciliacion": s["dinero_pago_respaldado"] / total if total else 0.0,
+        "trazabilidad": s["dinero_verificado"] / total if total else 0.0,
+        "consistencia": periodos_cuadran / periodos_totales if periodos_totales else 0.0,
+        # nada que explicar = todo explicado; pero sin ninguna liquidación en el rango
+        # no hay nada que afirmar: 0.0 (así el rango vacío da índice 0, no 10)
+        "explicaciones": (resueltos / (abiertos + resueltos)) if (abiertos + resueltos)
+                         else (1.0 if periodos_totales else 0.0),
+    }
+    comp = {k: {"peso": PESOS[k], "valor": round(v, 4), "puntos": round(PESOS[k] * v * 100, 1)}
+            for k, v in valores.items()}
+    comp["consistencia"]["periodos_cuadran"] = periodos_cuadran
+    comp["consistencia"]["periodos_totales"] = periodos_totales
+    criticos = s["hallazgos_abiertos"]["CRÍTICO"]
+    pen = min(PENALIZACION_TOPE, PENALIZACION_POR_CRITICO * criticos)
+    s["componentes"] = comp
+    s["penalizacion"] = {"criticos_abiertos": criticos, "por_critico": PENALIZACION_POR_CRITICO,
+                         "tope": PENALIZACION_TOPE, "puntos": pen}
+    s["indice"] = max(0, min(100, round(sum(c["puntos"] for c in comp.values()) - pen)))
     return s
 
 
@@ -100,6 +134,19 @@ def metricas(db: Session, desde: str = "", hasta: str = "", solo_publicado: bool
     if hasta:
         q = q.filter(models.Liquidacion.periodo <= hasta)
     liqs = q.order_by(models.Liquidacion.periodo).all()
+    if solo_publicado:
+        # la vista del propietario afirma solo sobre lo publicado: una no_cuadra sin
+        # publicar no se filtra ni siquiera como conteo
+        periodos_totales = len(liqs)
+    else:
+        # consistencia: el denominador suma las no_cuadra del rango (solo el conteo,
+        # jamás sus datos); error/procesando no cuentan, son operativos
+        qn = db.query(models.Liquidacion).filter(models.Liquidacion.estado == "no_cuadra")
+        if desde:
+            qn = qn.filter(models.Liquidacion.periodo >= desde)
+        if hasta:
+            qn = qn.filter(models.Liquidacion.periodo <= hasta)
+        periodos_totales = len(liqs) + qn.count()
     agg, periodos = _stats_vacias(), []
     for liq in liqs:
         filas, hs, abiertos = evaluar_liquidacion(db, liq, solo_publicado)
@@ -128,7 +175,7 @@ def metricas(db: Session, desde: str = "", hasta: str = "", solo_publicado: bool
         agg["hallazgos_resueltos"] += resueltos
         s["periodo"] = liq.periodo
         periodos.append(_cerrar(s))
-    tot = _cerrar(agg)
+    tot = _cerrar(agg, periodos_cuadran=len(liqs), periodos_totales=periodos_totales)
     return {"indice": tot["indice"],
             "rango": {"desde": liqs[0].periodo if liqs else "", "hasta": liqs[-1].periodo if liqs else ""},
             "totales": tot, "periodos": periodos}
