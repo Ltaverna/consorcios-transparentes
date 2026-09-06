@@ -48,6 +48,54 @@ def _norm_nro(nro: Optional[str]) -> Optional[str]:
     return "-".join(str(int(p)) for p in partes)
 
 
+# ------------------------------------------------------------- duplicados entre meses
+@rule_h("historia_duplicado")
+def r_duplicado(liq, serie, cfg, docs_actual, docs_previos):
+    out: list[Hallazgo] = []
+    previos: dict[tuple[str, str], list] = {}
+    for pl in serie:
+        for g in pl.gastos:
+            nro = _norm_nro(g.factura_nro)
+            if nro:
+                previos.setdefault((_norm(g.proveedor), nro), []).append((pl.periodo, g))
+    for g in liq.gastos:
+        nro = _norm_nro(g.factura_nro)
+        for periodo_prev, gp in (previos.get((_norm(g.proveedor), nro), []) if nro else []):
+            mismo = abs(g.importe - gp.importe) <= 1
+            out.append(Hallazgo(
+                "historia_duplicado", "CRÍTICO" if mismo else "ALTO", "Respaldo documental",
+                f"La factura {g.factura_nro} de {g.proveedor} ya figuraba en la liquidación de {periodo_prev}"
+                + (" por el mismo importe" if mismo else ""),
+                f"{periodo_prev}: gasto {gp.n} por {fmt(gp.importe)}; este mes: gasto {g.n} por {fmt(g.importe)}.",
+                g.importe if mismo else 0,
+                "Verificar que la misma factura no se haya pagado dos veces." if mismo
+                else "Pedir la factura de este mes: el número repetido puede ser un error de carga.",
+                [str(g.n)], clave=f"dup-fact|{periodo_prev}|{nro}"))
+    if docs_actual and docs_previos:
+        hprev: dict[str, tuple[str, Optional[int]]] = {}
+        for periodo in sorted(docs_previos):
+            for gn, h, _archivo in docs_previos[periodo]:
+                if h and h not in hprev:
+                    hprev[h] = (periodo, gn)
+        vistos: set[str] = set()
+        for gn, h, archivo in docs_actual:
+            if not h or h not in hprev:
+                continue
+            periodo_prev, gn_prev = hprev[h]
+            clave = f"dup-hash|{periodo_prev}|{h}"
+            if clave in vistos:
+                continue
+            vistos.add(clave)
+            out.append(Hallazgo(
+                "historia_duplicado", "ALTO", "Respaldo documental",
+                f"El comprobante {archivo} ya respaldaba un gasto de {periodo_prev}",
+                f"El mismo archivo está adjunto al gasto {gn_prev if gn_prev is not None else '?'} de "
+                f"{periodo_prev} y al gasto {gn if gn is not None else '?'} de este mes.",
+                0, "Verificar que un mismo comprobante no respalde dos pagos distintos.",
+                [str(gn)] if gn is not None else [], clave=clave))
+    return out
+
+
 def evaluar_historia(liq: Liquidacion, serie: list[Liquidacion], cfg: Optional[Config] = None,
                      docs_actual: Optional[list[Doc]] = None,
                      docs_previos: Optional[dict[str, list[Doc]]] = None) -> list[Hallazgo]:
