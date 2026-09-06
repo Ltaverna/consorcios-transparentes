@@ -16,6 +16,7 @@ import hashlib
 import io
 import json
 import os
+import re
 import time
 import urllib.error
 import urllib.request
@@ -274,10 +275,19 @@ class Sincronizador:
         if desde is None:
             pendientes = [periodos[0][0]]           # solo el más reciente (corrida diaria)
         else:
-            pendientes = sorted((p for p, _ in periodos if periodo_api(p) >= desde), key=periodo_api)
+            pendientes = sorted(
+                (p for p, _ in periodos
+                 if p and re.fullmatch(r"\d{4}-\d{1,2}", p) and periodo_api(p) >= desde),
+                key=periodo_api,
+            )
+            if not pendientes:
+                self.log(f"ningún período del portal es >= {desde}; nada para sincronizar")
+                return 0
 
         hubo_falla = False
-        for periodo_portal in pendientes:
+        for i, periodo_portal in enumerate(pendientes):
+            if i > 0:
+                time.sleep(2)
             per = periodo_api(periodo_portal)
             try:
                 ok = self._sincronizar_periodo(periodo_portal, per, estado)

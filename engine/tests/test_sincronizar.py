@@ -183,7 +183,8 @@ def armar_backfill(tmp_path, meses):
     (base / "manifest.json").write_text("[]")
 
 
-def test_backfill_desde_procesa_todos_en_orden_ascendente(tmp_path):
+def test_backfill_desde_procesa_todos_en_orden_ascendente(tmp_path, monkeypatch):
+    monkeypatch.setattr("ct.sincronizar.time.sleep", lambda s: None)
     armar_backfill(tmp_path, ["2025-11 Noviembre", "2025-12 Diciembre", "2026-01 Enero"])
     portal = PortalFalso(
         [("2026-1", "Enero 2026"), ("2025-12", "Diciembre 2025"),
@@ -203,7 +204,8 @@ def test_backfill_desde_procesa_todos_en_orden_ascendente(tmp_path):
     assert all(estado[p]["liquidacion_subida"] for p in ("2025-11", "2025-12", "2026-01"))
 
 
-def test_backfill_no_resube_lo_ya_subido_segun_el_estado(tmp_path):
+def test_backfill_no_resube_lo_ya_subido_segun_el_estado(tmp_path, monkeypatch):
+    monkeypatch.setattr("ct.sincronizar.time.sleep", lambda s: None)
     armar_backfill(tmp_path, ["2025-11 Noviembre", "2025-12 Diciembre"])
     (tmp_path / "sincronizacion.json").write_text(
         json.dumps({"2025-11": {"liquidacion_subida": True}}))
@@ -217,7 +219,8 @@ def test_backfill_no_resube_lo_ya_subido_segun_el_estado(tmp_path):
     assert [x for x in api.subidas if x[0] == "liq"] == [("liq", "2025-12")]
 
 
-def test_backfill_falla_intermedia_no_corta_los_siguientes(tmp_path):
+def test_backfill_falla_intermedia_no_corta_los_siguientes(tmp_path, monkeypatch):
+    monkeypatch.setattr("ct.sincronizar.time.sleep", lambda s: None)
     from ct.portal import PortalError
     armar_backfill(tmp_path, ["2025-11 Noviembre", "2025-12 Diciembre", "2026-01 Enero"])
     portal = PortalFalso(
@@ -268,3 +271,32 @@ def test_sin_liquidacion_en_api_no_sube_zip(tmp_path):
     assert api.zips == []
     estado = json.loads((tmp_path / "sincronizacion.json").read_text())
     assert not estado.get("2026-08", {}).get("zip_hash")
+
+
+def test_backfill_sin_periodos_que_matcheen_avisa_y_devuelve_cero(tmp_path):
+    armar_backfill(tmp_path, ["2025-10 Octubre"])
+    portal = PortalFalso(
+        [("2025-10", "Octubre 2025")],
+        {"2025-10": (b"%PDF-oct", "2025-10-31-liq.pdf")})
+    api = ApiFalsa()
+    mensajes = []
+    s = Sincronizador(portal, api, str(tmp_path), log=mensajes.append)
+    rc = s.correr(desde="2027-01")
+    assert rc == 0
+    assert not api.subidas                       # nada subido
+    assert not api.zips
+    assert any("ningún período" in m for m in mensajes)
+
+
+def test_backfill_ignora_option_vacio_del_select(tmp_path, monkeypatch):
+    monkeypatch.setattr("ct.sincronizar.time.sleep", lambda s: None)
+    armar_backfill(tmp_path, ["2026-08 Agosto"])
+    # el portal incluye un option vacío como placeholder de un <select>
+    portal = PortalFalso(
+        [("", "Seleccione un período"), ("2026-8", "Agosto 2026")],
+        {"2026-8": (b"%PDF-ago", "2026-08-31-liq.pdf")})
+    api = ApiFalsa()
+    s = Sincronizador(portal, api, str(tmp_path))
+    rc = s.correr(desde="2026-08")
+    assert rc == 0                               # no crasheó con el option vacío
+    assert [x for x in api.subidas if x[0] == "liq"] == [("liq", "2026-08")]
