@@ -391,3 +391,71 @@ def test_buscar_semantico_sin_key_devuelve_mensaje_claro(monkeypatch):
     out = servidor_mcp.buscar_semantico(texto="impermeabilizacion")
     assert "503" in out
     assert "búsqueda semántica no configurada" in out
+
+
+# --- Tests de cache resiliente a errores de red (stale-while-error) ---
+
+def test_wrapper_error_de_red_usa_stale_positivo():
+    """Con un validador que lanza _ErrorRed, un token previamente válido (entrada vencida)
+    sigue pasando gracias al stale-while-error; un token nunca visto → rechazado."""
+    from starlette.testclient import TestClient
+
+    llamadas = []
+
+    def validar_con_error(token):
+        llamadas.append(token)
+        raise servidor_mcp._ErrorRed("timeout simulado")
+
+    # Primero un validador normal para poblar la cache con una entrada positiva.
+    def validar_ok(token):
+        return (True, "lucas") if token == "bueno" else (False, None)
+
+    reloj = {"t": 1000.0}
+    wrapper = servidor_mcp.WrapperTokens(_app_interno_falso, validar=validar_ok,
+                                         reloj=lambda: reloj["t"])
+    client = TestClient(wrapper)
+
+    # Primera llamada: pobla la cache con entrada positiva.
+    assert client.post("/mcp/bueno", json={}).status_code == 200
+
+    # Avanzar el reloj para que la entrada quede vencida.
+    reloj["t"] += 61
+
+    # Cambiar al validador que lanza error de red.
+    wrapper._validar = validar_con_error
+
+    # El token "bueno" tiene entrada positiva vencida → stale-while-error: debe pasar.
+    assert client.post("/mcp/bueno", json={}).status_code == 200
+    assert llamadas == ["bueno"]  # se intentó preguntar (una vez, no 0)
+
+    # Un token nunca visto con error de red → rechazado, SIN entrada negativa cacheada.
+    assert client.post("/mcp/nuevo", json={}).status_code == 404
+    assert "nuevo" in llamadas  # se intentó preguntar
+
+    # El siguiente intento de "nuevo" vuelve a preguntar (no hay cache negativa).
+    llamadas.clear()
+    assert client.post("/mcp/nuevo", json={}).status_code == 404
+    assert llamadas == ["nuevo"]  # reintentó → no había cache negativa
+
+
+def test_wrapper_error_de_red_no_escribe_cache_negativa():
+    """Con error de red, un token nunca visto no queda en la cache negativa: el siguiente
+    intento vuelve a consultar el validador (conteo de llamadas lo confirma)."""
+    from starlette.testclient import TestClient
+
+    llamadas = []
+
+    def validar_con_error(token):
+        llamadas.append(token)
+        raise servidor_mcp._ErrorRed("red caída")
+
+    wrapper = servidor_mcp.WrapperTokens(_app_interno_falso, validar=validar_con_error)
+    client = TestClient(wrapper)
+
+    # Primer intento → error de red, rechazado, sin cache negativa.
+    assert client.post("/mcp/fantasma", json={}).status_code == 404
+    assert llamadas == ["fantasma"]
+
+    # Segundo intento → vuelve a preguntar al validador (no hay cache negativa).
+    assert client.post("/mcp/fantasma", json={}).status_code == 404
+    assert llamadas == ["fantasma", "fantasma"]  # dos llamadas al validador

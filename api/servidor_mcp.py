@@ -3,6 +3,7 @@ Claude Code, claude.ai y ChatGPT (Streamable HTTP + segmento secreto en el path)
 import asyncio
 import functools
 import json
+import logging
 import os
 import secrets
 import time
@@ -11,6 +12,8 @@ import urllib.error
 import urllib.parse
 import urllib.request
 from http.cookiejar import CookieJar
+
+logger = logging.getLogger(__name__)
 
 from mcp.server.mcpserver import MCPServer
 
@@ -498,10 +501,18 @@ _MOUNT_INTERNO = "/mcp/sesion"  # path fijo del app MCP; solo alcanzable vía el
 _TTL_CACHE = 60.0  # segundos: revocar un token tarda ≤1 minuto en hacer efecto
 
 
+class _ErrorRed(Exception):
+    """La API no respondió (HTTPError 429/5xx, URLError, timeout): no es una respuesta negativa."""
+
+
 def _validar_contra_api(token: str) -> tuple[bool, str | None]:
     """Consulta POST /auth/mcp-token/validar de la API, SIN sesión de bot (el endpoint
-    solo confirma un secreto que el llamador ya posee). Cualquier falla → inválido
-    (el token maestro del env sigue entrando aunque la API esté caída)."""
+    solo confirma un secreto que el llamador ya posee).
+
+    Distingue dos casos:
+    - La API respondió correctamente con {valido: false} → devuelve (False, None).
+    - No se pudo contactar la API (HTTP 429/5xx, URLError, timeout) → lanza _ErrorRed.
+      El llamador decide si usar una entrada stale de la cache (stale-while-error)."""
     base = os.environ.get("CT_API_URL", "https://api-consorcio.neuralcore.dev")
     body = json.dumps({"token": token}).encode()
     req = urllib.request.Request(base + "/auth/mcp-token/validar", data=body,
@@ -511,8 +522,13 @@ def _validar_contra_api(token: str) -> tuple[bool, str | None]:
         with urllib.request.urlopen(req, timeout=10) as r:
             d = json.loads(r.read())
         return bool(d.get("valido")), d.get("nombre")
-    except Exception:
+    except urllib.error.HTTPError as e:
+        if e.code in (429, 500, 502, 503, 504):
+            raise _ErrorRed(f"HTTP {e.code}") from e
+        # 4xx que no sean 429 (ej. 400, 401) son respuestas válidas de error: no son stale
         return False, None
+    except (urllib.error.URLError, TimeoutError, OSError) as e:
+        raise _ErrorRed(str(e)) from e
 
 
 def _validar_token(token: str) -> tuple[bool, str | None]:
@@ -531,26 +547,45 @@ class WrapperTokens:
     - http → extrae el token, lo valida con cache en memoria TTL 60 s (positivo y
       negativo) y reescribe el path al mount interno. Inválido o path ajeno → 404
       pelado sin cuerpo, como el mount fijo de antes.
-    - el streamable http no usa websockets: ese scope se cierra sin delegar."""
+    - el streamable http no usa websockets: ese scope se cierra sin delegar.
+
+    Cache resiliente a errores de red (stale-while-error):
+    - Respuesta válida de la API (positiva o negativa): cachea el resultado TTL_CACHE.
+    - Error de red (_ErrorRed: 429/5xx, URLError, timeout): NO escribe entrada negativa.
+      Si existe una entrada POSITIVA vencida para ese token, la reutiliza con log de
+      advertencia. Un token nunca visto con error de red → rechazado SIN cache negativa
+      (el siguiente request vuelve a preguntar)."""
 
     def __init__(self, app_interno, validar=None, reloj=None):
         self.app_interno = app_interno
         self._validar = validar or _validar_token
         self._reloj = reloj or time.monotonic
-        self._cache: dict[str, tuple[float, bool]] = {}  # token → (ts, válido)
+        # token → (ts, válido); las entradas vencidas se conservan para stale-while-error.
+        self._cache: dict[str, tuple[float, bool]] = {}
 
     async def _token_valido(self, token: str) -> bool:
         ahora = self._reloj()
-        # Desaloja entradas vencidas: un atacante rotando tokens no infla el dict.
-        for k, (ts, _) in list(self._cache.items()):
-            if ahora - ts >= _TTL_CACHE:
-                del self._cache[k]
         entrada = self._cache.get(token)
-        if entrada is not None:
+        # Entrada vigente (positiva o negativa): usar directamente.
+        if entrada is not None and ahora - entrada[0] < _TTL_CACHE:
             return entrada[1]
+        # Desaloja entradas vencidas NEGATIVAS: no sirven para stale-while-error y podrían
+        # inflar el dict si un atacante rota tokens. Las positivas vencidas se quedan.
+        for k, (ts, v) in list(self._cache.items()):
+            if not v and ahora - ts >= _TTL_CACHE:
+                del self._cache[k]
         # En un thread: la validación contra la API es urllib bloqueante (timeout 10 s)
         # y no debe frenar el event loop. La cache se muta acá, en el loop.
-        valido, nombre = await asyncio.to_thread(self._validar, token)
+        try:
+            valido, nombre = await asyncio.to_thread(self._validar, token)
+        except _ErrorRed as e:
+            # Error de red: NO cachear negativo. Intentar stale positivo.
+            stale = self._cache.get(token)
+            if stale is not None and stale[1]:
+                logger.warning("MCP: error de red al validar token, usando entrada stale: %s", e)
+                return True
+            # Token nunca visto o stale negativo: rechazar sin escribir cache.
+            return False
         self._cache[token] = (ahora, valido)
         if valido and nombre:
             # Una vez por entrada de cache (no por request); jamás el secreto.

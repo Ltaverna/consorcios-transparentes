@@ -102,7 +102,9 @@ def test_validar_mcp_token_vigente_revocado_e_inexistente(db, cliente):
 
 
 def test_validar_mcp_token_rate_limit(db, cliente):
-    for _ in range(10):
+    # limiter_mcp_token tiene techo de 60 (no 10 como limiter_login): cubre estampidas
+    # de cache fría del contenedor MCP que comparte IP con todos los tokens de tabla.
+    for _ in range(60):
         cliente.post("/auth/mcp-token/validar", json={"token": "cualquiera"})
     r = cliente.post("/auth/mcp-token/validar", json={"token": "cualquiera"})
     assert r.status_code == 429

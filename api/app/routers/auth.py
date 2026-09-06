@@ -83,7 +83,7 @@ def validar_mcp_token(datos: TokenMcp, request: Request, db: Session = Depends(g
     """Valida un token de acceso al MCP. Sin sesión: solo confirma un secreto que el
     llamador ya posee. Inexistente y revocado responden exactamente igual: no se
     revela si el token existió."""
-    if not security.limiter_login.permitir(f"{security.ip_cliente(request)}|mcp-token"):
+    if not security.limiter_mcp_token.permitir(f"{security.ip_cliente(request)}|mcp-token"):
         raise HTTPException(429, "Demasiados intentos; probá de nuevo en unos minutos")
     hash_ = hashlib.sha256(datos.token.encode()).hexdigest()
     t = db.query(models.McpToken).filter_by(token_sha256=hash_, activo=True).first()
