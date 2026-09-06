@@ -44,8 +44,11 @@ tipo y número de factura, fecha, importe, destinatario y CUIT de la transferenc
 | Sueldo neto distinto de lo transferido | Único pago adjunto menor al neto (adelantos no informados) | MEDIO |
 | Gasto sin adjuntos, factura citada no adjunta, sin comprobante de pago | Faltantes (se exceptúan los débitos automáticos) | MEDIO |
 | Leyenda de ARCA sobre la CUIT del consorcio | Texto "inactiva en los padrones" en la factura | BAJO |
+| **Transferencia declarada sin comprobante propio** (`pago-sin-comp\|{fecha}`) | Para cada pago de tipo transferencia con fecha declarada: si existe al menos un comprobante de pago adjunto al gasto pero ninguno coincide en fecha (±3 días) y el importe del doc cubre el pago, se reporta. Si no hay ningún comprobante la cubre la regla de faltantes. Caso real: cuota Roth 21-08 (adjuntos del 29-05 y 13-07). | ALTO |
+| **Facturas adjuntas que no cierran contra el gasto** (`imp-fact`) | Se evalúa a nivel gasto: con `S = suma de importes legibles de las facturas adjuntas`, el gasto está OK si alguno de {cada factura, S} coincide (±2 % o ±$1) con alguno de {el gasto, `factura_importe`, total del proveedor en el mes}. Si nada cierra se reporta. Facturas sin importe legible no cuentan. Caso real que no dispara: Roth (tres facturas = 7,95 M = `factura_importe`, aunque ninguna iguala la cuota de 2,65 M). | MEDIO |
+| **Comprobante atribuido con incertidumbre** (`atribucion-incierta`) | Cuando varios gastos del mes comparten el mismo importe (±$0,01) y ni el número de factura ni la fecha desempatan, el comprobante se atribuye al primero y se emite un hallazgo agregado con las refs de los gastos involucrados. El cruce no se pierde; la incertidumbre se hace visible. | BAJO |
 
-Pendiente: recibos manuscritos (imágenes) requieren revisión visual o OCR; conflicto de interés certificador = ejecutor por CUIT.
+Pendiente: recibos manuscritos (imágenes) requieren revisión visual o OCR (ciclo D). ~~Conflicto de interés certificador = ejecutor~~ → resuelto (ver regla `certificador` más abajo). Pendiente futuro: correlatividad de numeración por emisor (retomar con ≥6 meses de datos); cobertura de variantes femeninas ("certificada/o(s)") en `RE_CERTIFICA`.
 
 ## Sobre la serie histórica (`ct/historia.py`)
 
@@ -61,9 +64,15 @@ próximo cruce de comprobantes.
 
 | Regla | Qué mira | Umbral por defecto | Severidad |
 |---|---|---|---|
-| historia_duplicado | Misma factura (número normalizado + mismo proveedor) en dos meses distintos — si además el importe coincide (±$1) es posible doble pago; o mismo archivo (hash del comprobante) en dos meses. Números de relleno (menos de 3 dígitos juntos) se ignoran. | importe ±$1: doble pago · solo número: sospechoso · mismo hash: siempre ALTO | CRÍTICO / ALTO |
+| historia_duplicado | Misma factura (número normalizado + mismo proveedor) en dos meses distintos — si además el importe coincide (±$1) es posible doble pago; o mismo archivo (hash del comprobante) en dos meses. Números de relleno (menos de 3 dígitos juntos) se ignoran. **Refinamiento ciclo C**: si `factura_importe` está presente y la suma de ambos pagos ≤ `factura_importe + $1`, el motor lo clasifica como posible pago en cuotas (MEDIO) en lugar de doble pago; si la suma supera el total facturado o no hay `factura_importe`, mantiene CRÍTICO/ALTO. La clave `dup-fact\|…` no cambia; el triage se conserva al reprocesar. Casos reales: Roth (2×2.650.000 ≤ 7.950.000 → cuotas) y Saczewiczyk (2.000.000+2.552.000 = 4.552.000 exactos → cuotas). | importe ±$1: doble pago · solo número: sospechoso · mismo hash: siempre ALTO; cuotas dentro del facturado: MEDIO | CRÍTICO / ALTO / MEDIO |
 | historia_salto | Gasto recurrente (mismo proveedor+categoría en ≥2 períodos previos, excluye sueldos y cargas sociales) cuya variación mensual supera la mediana de variaciones de los recurrentes del mes (neutraliza la inflación) en más de `salto_puntos_medio` o `salto_puntos_alto`; solo si el importe supera `salto_importe_min`; exige ≥3 recurrentes en el mes. | `salto_puntos_medio`=0,25 · `salto_puntos_alto`=0,50 · `salto_importe_min`=$50.000 | MEDIO / ALTO |
 | historia_concentracion | Proveedor cuyo share del gasto sin sueldos supera `concentracion_proveedor`, o viene creciendo (≥0,5 pp por mes durante 3 períodos) y supera el 15 %. Siempre informativo. Requiere ≥2 períodos previos. | `concentracion_proveedor`=0,25 | MEDIO |
+
+## Sobre obras y contratación (`ct/rules.py`)
+
+| Regla | Qué mira | Severidad |
+|---|---|---|
+| **certificador** (`cert-ejecutor\|{prov_norm}`) | Proveedor que en el mismo mes liquida un gasto de certificación (concepto matchea `certificaci[oó]n\|certificado`) y además ejecuta trabajos (concepto matchea `reparaci[oó]n\|cambio de\|instalaci[oó]n\|coloca\|obra de`). Conflicto de interés potencial: quien controla no puede ser quien cobra por arreglar. Redacción factual; nunca acusatoria. Caso real: Roth certifica equipos térmicos (gasto 26 en julio, 24 en agosto) y también ejecuta cambios y reparaciones (gasto 27 en julio, 25 en agosto). Refs incluyen todos los gastos involucrados. | MEDIO |
 
 ## Reglas por comparación con mercado
 

@@ -89,9 +89,18 @@
   contra toda la serie acumulada; umbrales editables en la configuración del panel (`salto_puntos_medio`,
   `salto_puntos_alto`, `salto_importe_min`, `concentracion_proveedor`); recálculo automático e idempotente
   al final de `procesar()` y de `cruzar_comprobantes()` (origen `"historia"`). Motor 73 tests · API 168 tests.
-  **Pendiente**: deploy en producción + reprocesar agosto para triage de los hallazgos históricos antes de
-  publicar. Próximos ciclos aprobados: C (endurecer el cruce de comprobantes) → B (prorrateo vs escritura
-  del reglamento) → D (OCR de imágenes/recibos manuscritos).
+- **Cruce endurecido — ciclo C** (6/09, rama `main`; spec
+  `docs/superpowers/specs/2026-09-06-endurecer-cruce-design.md`): cinco endurecimientos calibrados con
+  los casos reales de agosto 2026: (1) `historia_duplicado` re-etiqueta duplicados donde la suma cabe en
+  el total facturado como posible pago en cuotas (MEDIO, clave estable); (2) `chequear_pagos_declarados`
+  detecta transferencias declaradas sin comprobante propio de esa fecha (caso Roth 21-08); (3)
+  `chequear_importe_factura` cruza el importe leído de las facturas adjuntas contra el gasto, el
+  `factura_importe` y el total del proveedor en el mes (caso Flow, CSI); (4) `_match_gasto` desempata
+  por número de factura o fecha antes de marcar atribución incierta (hallazgo BAJO); (5) regla
+  `certificador` sobre la liquidación sola (Roth certifica y ejecuta — MEDIO, área Obras / contratación).
+  Motor 99 tests · API 168 tests. **Pendiente de deploy + reproceso de julio y agosto** (re-etiqueta
+  los duplicados de Roth y Saczewiczyk como cuotas MEDIO y agrega los hallazgos nuevos).
+  Próximos ciclos: B (prorrateo vs escritura del reglamento) → D (OCR de imágenes/recibos manuscritos).
 - **Reglas de mercado + normativa + PWA** (5/09, rama `reglas-mercado`; spec
   `docs/superpowers/specs/2026-09-05-reglas-mercado-design.md`): tres reglas nuevas del motor calibradas
   contra los gastos reales (`sueldo_mercado` con detección de SAC, `honorarios_mercado`, `abonos_mercado`
