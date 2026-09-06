@@ -7,7 +7,7 @@ import pathlib
 import subprocess
 import sys
 import tempfile
-from urllib.parse import urlparse
+from urllib.parse import unquote, urlparse
 
 from apscheduler.schedulers.blocking import BlockingScheduler
 from apscheduler.triggers.cron import CronTrigger
@@ -65,7 +65,8 @@ def correr_backup() -> int:
     port = str(parsed.port or 5432)
     user = parsed.username or ""
     dbname = parsed.path.lstrip("/")
-    password = parsed.password or ""
+    # urlparse la devuelve percent-encoded; pg_dump la necesita cruda
+    password = unquote(parsed.password or "")
 
     cmd = [
         "pg_dump",
