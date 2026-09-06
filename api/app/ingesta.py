@@ -12,6 +12,7 @@ from collections.abc import Iterable
 from sqlalchemy.orm import Session
 
 from ct.comprobantes import cargar_manifiesto_redconar, cruzar
+from ct.historia import evaluar_historia
 from ct.model import Liquidacion as LiqMotor
 from ct.redconar import parse_pdf, parse_text
 from ct.rules import Config, Hallazgo as HallazgoMotor, evaluar
@@ -101,6 +102,53 @@ def cargar_anterior(db: Session, storage, periodo: str) -> LiqMotor | None:
         return None
 
 
+def cargar_serie(db: Session, storage, periodo: str) -> list[LiqMotor]:
+    """Liquidaciones procesadas/publicadas anteriores al período, ascendente. Un mes que
+    falle al parsear se saltea con warning: mejor una serie incompleta que ninguna (mismo
+    criterio que cargar_anterior)."""
+    filas = (db.query(models.Liquidacion)
+               .filter(models.Liquidacion.periodo < periodo,
+                       models.Liquidacion.estado.in_(("procesada", "publicada")))
+               .order_by(models.Liquidacion.periodo).all())
+    out = []
+    for fila in filas:
+        try:
+            out.append(cargar_engine(storage, fila))
+        except Exception:
+            logger.warning("No se pudo cargar %s para la serie histórica", fila.periodo, exc_info=True)
+    return out
+
+
+def recalcular_historia(db: Session, liq_row: models.Liquidacion, storage,
+                        liq: LiqMotor | None = None) -> None:
+    """Idempotente: corre al final de `procesar` y tras `cruzar_comprobantes` (los docs del
+    mes recién existen ahí). Cualquier falla se loguea y el savepoint se revierte: la
+    ingesta JAMÁS se cae por las reglas históricas."""
+    try:
+        with db.begin_nested():
+            if liq is None:
+                liq = cargar_engine(storage, liq_row)
+            serie = cargar_serie(db, storage, liq_row.periodo)
+            docs_actual = [(d.gasto_n, d.hash, d.archivo_key.rsplit("/", 1)[-1])
+                           for d in db.query(models.Documento)
+                                      .filter_by(liquidacion_id=liq_row.id).all()]
+            docs_previos: dict[str, list] = {}
+            previas = (db.query(models.Documento, models.Liquidacion.periodo)
+                         .join(models.Liquidacion,
+                               models.Documento.liquidacion_id == models.Liquidacion.id)
+                         .filter(models.Liquidacion.periodo < liq_row.periodo,
+                                 models.Liquidacion.estado.in_(("procesada", "publicada")))
+                         .all())
+            for d, per in previas:
+                docs_previos.setdefault(per, []).append(
+                    (d.gasto_n, d.hash, d.archivo_key.rsplit("/", 1)[-1]))
+            hs = evaluar_historia(liq, serie, config_consorcio(db), docs_actual, docs_previos)
+            upsert_hallazgos(db, liq_row, hs, origen="historia")
+    except Exception:
+        logger.warning("Falló el recálculo de hallazgos históricos de %s (la ingesta sigue)",
+                       liq_row.periodo, exc_info=True)
+
+
 def guardar_gastos(db: Session, liq_row: models.Liquidacion, liq: LiqMotor) -> None:
     db.query(models.Gasto).filter_by(liquidacion_id=liq_row.id).delete()
     for g in liq.gastos:
@@ -115,7 +163,7 @@ def guardar_gastos(db: Session, liq_row: models.Liquidacion, liq: LiqMotor) -> N
 def limpiar_al_rechazar(db: Session, liq_row: models.Liquidacion) -> list[str]:
     """No_cuadra: no puede quedar nada publicable de un proceso anterior. Se borran los gastos
     y los informes de esta liquidación (archivo incluido), y sus hallazgos (los de esta
-    liquidación, no los de comprobantes) se despublican sin tocar estado/respuesta_admin/
+    liquidación e históricos, no los de comprobantes) se despublican sin tocar estado/respuesta_admin/
     historial: el auditor no pierde su trabajo, pero el hallazgo deja de estar visible
     hasta que la liquidación cuadre.
 
@@ -127,7 +175,9 @@ def limpiar_al_rechazar(db: Session, liq_row: models.Liquidacion) -> list[str]:
     claves = [inf.archivo_key for inf in informes]
     for inf in informes:
         db.delete(inf)
-    for h in db.query(models.Hallazgo).filter_by(liquidacion_id=liq_row.id, origen="liquidacion").all():
+    for h in (db.query(models.Hallazgo)
+                .filter(models.Hallazgo.liquidacion_id == liq_row.id,
+                        models.Hallazgo.origen.in_(("liquidacion", "historia"))).all()):
         h.publicado = False
     return claves
 
@@ -207,6 +257,7 @@ def procesar(db: Session, liq_id: int, storage) -> None:
         if not mas_reciente or liq_row.periodo >= mas_reciente[0]:
             sincronizar_unidades(db, liq)
         upsert_hallazgos(db, liq_row, hs, origen="liquidacion")
+        recalcular_historia(db, liq_row, storage, liq=liq)
         # Los datos cambiaron: cualquier informe ya generado para esta liquidación (publicada
         # o no; el endpoint de subida resetea el estado a "procesando" antes de llegar acá, así
         # que no sirve mirar el estado) queda inválido. El auditor revisa y vuelve a publicar;
@@ -322,6 +373,7 @@ def cruzar_comprobantes(db: Session, liq_id: int, zip_bytes: bytes, storage) -> 
             filas_doc.append(fila)
         embeber_documentos(storage, filas_doc)
         upsert_hallazgos(db, liq_row, hallazgos, origen="comprobantes")
+        recalcular_historia(db, liq_row, storage, liq=liq)
         db.commit()
     # Si esta subida reusa el mismo nombre de archivo que una anterior (resubida del mismo
     # manifiesto), la clave de storage es la misma y ya quedó sobreescrita con el contenido

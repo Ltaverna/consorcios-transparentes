@@ -153,6 +153,22 @@ def test_comprobantes_zip_slip_da_422(db, auditor):
     assert "rutas inválidas" in r.json()["detail"]
 
 
+def test_subir_comprobantes_recalcula_historia(db, auditor, monkeypatch):
+    """`subir` corre `procesar`, que ya llama a recalcular_historia una vez; lo que se
+    verifica acá es que el cruce de comprobantes dispara OTRA llamada (los documentos
+    del mes recién existen después del ZIP)."""
+    from app import ingesta
+    llamadas = []
+    monkeypatch.setattr(ingesta, "recalcular_historia", lambda *a, **k: llamadas.append(1))
+    liq_id = subir(auditor).json()["id"]
+    tras_procesar = len(llamadas)
+    datos = db.get(models.Liquidacion, liq_id).datos
+    r = auditor.post(f"/liquidaciones/{liq_id}/comprobantes",
+                     files={"archivo": ("agosto.zip", zip_comprobantes(datos), "application/zip")})
+    assert r.status_code == 200
+    assert len(llamadas) > tras_procesar  # el cruce dispara el recálculo histórico
+
+
 def test_flujo_completo_subir_comprobantes_publicar(db, auditor, tmp_path):
     liq_id = subir(auditor).json()["id"]
     datos = db.get(models.Liquidacion, liq_id).datos
