@@ -459,3 +459,71 @@ def test_wrapper_error_de_red_no_escribe_cache_negativa():
     # Segundo intento → vuelve a preguntar al validador (no hay cache negativa).
     assert client.post("/mcp/fantasma", json={}).status_code == 404
     assert llamadas == ["fantasma", "fantasma"]  # dos llamadas al validador
+
+
+_INDICE_FALSO = {
+    "indice": 62,
+    "rango": {"desde": "2026-07", "hasta": "2026-08"},
+    "totales": {
+        "dinero_total": 1000.0,
+        "dinero_verificado": 620.0,
+        "dinero_con_factura": 810.0,
+        "dinero_pago_respaldado": 700.0,
+        "pct_trazable": 0.62,
+        "pct_con_factura": 0.81,
+        "pct_pago_respaldado": 0.7,
+        "indice": 62,
+        "gastos_por_estado": {
+            "verificado": {"cantidad": 10, "importe": 620.0},
+            "requiere_explicacion": {"cantidad": 3, "importe": 100.0},
+            "anomalia": {"cantidad": 2, "importe": 150.0},
+            "inconsistencia": {"cantidad": 1, "importe": 80.0},
+            "sin_informacion": {"cantidad": 1, "importe": 50.0},
+        },
+        "hallazgos_abiertos": {"CRÍTICO": 1, "ALTO": 2, "MEDIO": 3, "BAJO": 0},
+        "hallazgos_resueltos": 4,
+    },
+    "periodos": [{"periodo": "2026-08", "indice": 62}],
+}
+
+_GASTOS_FALSOS = {
+    "periodo": "2026-08",
+    "gastos": [
+        {
+            "n": 25,
+            "proveedor": "MARIO LEONARDO ROTH",
+            "categoria": "ABONOS",
+            "concepto": "Serpentina",
+            "importe": 2650000.0,
+            "estado": "anomalia",
+            "hallazgos": [{"id": 7, "severidad": "ALTO", "estado": "pendiente",
+                           "titulo": "transferencia sin respaldo"}],
+            "documentos": [{"id": 1, "tipo": "factura", "archivo": "fc.pdf"}],
+        }
+    ],
+}
+
+
+class ClienteFalsoConAnalitica(ClienteFalso):
+    def get(self, path, params=None):
+        if path == "/analitica/indice":
+            return _INDICE_FALSO
+        if path == "/analitica/gastos":
+            return _GASTOS_FALSOS
+        return super().get(path, params)
+
+
+def test_indice_transparencia_contiene_indice_y_titulo(monkeypatch):
+    """indice_transparencia devuelve texto con 'ÍNDICE DE TRANSPARENCIA' y el número."""
+    monkeypatch.setattr(servidor_mcp, "_cliente", lambda: ClienteFalsoConAnalitica())
+    out = servidor_mcp.indice_transparencia()
+    assert "ÍNDICE DE TRANSPARENCIA" in out
+    assert "62" in out
+
+
+def test_estado_gastos_lista_con_estado_uppercase(monkeypatch):
+    """estado_gastos lista gastos con su estado en mayúsculas."""
+    monkeypatch.setattr(servidor_mcp, "_cliente", lambda: ClienteFalsoConAnalitica())
+    out = servidor_mcp.estado_gastos(periodo="2026-08")
+    assert "ROTH" in out
+    assert "ANOMALIA" in out

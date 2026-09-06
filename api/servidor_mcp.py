@@ -411,6 +411,45 @@ def buscar_semantico(texto: str) -> str:
     return "\n".join(lineas)
 
 
+@_con_api
+def indice_transparencia(desde: str = "", hasta: str = "") -> str:
+    """Índice de transparencia del consorcio: % del dinero trazable de punta a punta
+    (gastos verificados), % con factura adjunta, % de pagos respaldados y cuestiones
+    pendientes por severidad. Rango opcional de períodos AAAA-MM."""
+    d = _cliente().get("/analitica/indice", {"desde": desde, "hasta": hasta})
+    t = d["totales"]
+    lineas = [
+        f"ÍNDICE DE TRANSPARENCIA: {d['indice']} / 100 (rango {d['rango']['desde']}–{d['rango']['hasta']})",
+        f"Dinero analizado: {_plata(t['dinero_total'])} — trazable de punta a punta: {t['pct_trazable']:.0%}",
+        f"Con factura adjunta: {t['pct_con_factura']:.0%} · pagos respaldados: {t['pct_pago_respaldado']:.0%}",
+        "Cuestiones abiertas: " + (", ".join(f"{k} {v}" for k, v in t["hallazgos_abiertos"].items() if v) or "ninguna")
+        + f" · resueltas: {t['hallazgos_resueltos']}",
+        "Gastos por estado:",
+    ]
+    for est, v in t["gastos_por_estado"].items():
+        if v["cantidad"]:
+            lineas.append(f"  {est}: {v['cantidad']} gasto(s), {_plata(v['importe'])}")
+    lineas.append("Índice por período: " + " · ".join(f"{p['periodo']}: {p['indice']}" for p in d["periodos"]))
+    return "\n".join(lineas)
+
+
+@_con_api
+def estado_gastos(periodo: str, estado: str = "") -> str:
+    """Estado de cada gasto de un período (verificado, requiere_explicacion, anomalia,
+    inconsistencia o sin_informacion), con los hallazgos y documentos que lo justifican.
+    `estado` filtra por uno de esos valores."""
+    d = _cliente().get("/analitica/gastos", {"periodo": periodo, "estado": estado})
+    if not d["gastos"]:
+        return f"Sin gastos {('en estado ' + estado) if estado else ''} en {periodo}."
+    lineas = []
+    for g in d["gastos"]:
+        halls = "; ".join(f"[{h['severidad']}] {h['titulo'][:70]}" for h in g["hallazgos"]) or "sin hallazgos abiertos"
+        docs = ", ".join(f"{x['tipo']}:{x['archivo']}" for x in g["documentos"]) or "sin documentos"
+        lineas.append(f"gasto {g['n']} · {g['proveedor']} · {_plata(g['importe'])} · {g['estado'].upper()}\n"
+                      f"    {halls}\n    docs: {docs}")
+    return "\n".join(lineas)
+
+
 def resumen_mensual(periodo: str = "") -> str:
     """Resumen ejecutivo del mes: cuadre de la liquidación, top 10 gastos, hallazgos,
     variaciones fuertes y total de deudores. Cada sección degrada individualmente si
@@ -487,7 +526,8 @@ def resumen_mensual(periodo: str = "") -> str:
 
 
 for fn in (consultar_gastos, agregados, listar_hallazgos, detalle_hallazgo, estado_liquidaciones, reglamento,
-           leer_comprobante, buscar_en_comprobantes, buscar_semantico, deudores, detalle_liquidacion, resumen_mensual):
+           leer_comprobante, buscar_en_comprobantes, buscar_semantico, deudores, detalle_liquidacion, resumen_mensual,
+           indice_transparencia, estado_gastos):
     mcp.tool()(fn)
 # search/fetch devuelven dict pero sin output estructurado: ante un error de red
 # el wrapper devuelve un string legible, y ChatGPT espera el JSON como texto.
