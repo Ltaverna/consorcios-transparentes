@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 
 from .. import embeddings, models, security
 from ..db import get_db
-from ..texto import extraer_texto
+from ..texto import extraer_texto, fragmento_relevante
 
 router = APIRouter(prefix="/consulta", tags=["consulta"])
 
@@ -101,7 +101,7 @@ def semantica(q: str, request: Request, k: int = Query(5, ge=1, le=50),
     return {"resultados": [
         {"documento_id": d.id, "gasto_n": d.gasto_n, "periodo": per, "tipo": d.tipo,
          "similitud": sim,
-         "fragmento": extraer_texto(request.app.state.storage, d)[:300]}
+         "fragmento": fragmento_relevante(extraer_texto(request.app.state.storage, d))}
         for sim, d, per in puntuadas]}
 
 

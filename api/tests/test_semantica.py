@@ -8,6 +8,7 @@ import zipfile
 
 from app import admin, models
 from app.config import settings
+from app.texto import fragmento_relevante
 
 from .test_documentos_api import pdf_minimo
 from .test_liquidaciones_api import subir
@@ -125,6 +126,80 @@ def test_sin_key_semantica_503_y_la_ingesta_persiste_igual(db, auditor):
     docs = db.query(models.Documento).filter_by(liquidacion_id=liq_id).all()
     assert len(docs) >= 1
     assert all(d.embedding is None for d in docs)
+
+
+# Shape sintético calibrado con las facturas reales de la carpeta privada (monotributo
+# emitidas por el sitio de ARCA): encabezado boilerplate, tabla "Producto / Servicio"
+# con el ítem, y bloque de totales.
+FACTURA_AFIP_SINTETICA = """\
+                                                     ORIGINAL
+
+     PLOMERIA SINTETICA S.R.L.                            C          FACTURA
+                                                       COD. 011
+                                                                     Punto de Venta: 00003    Comp. Nro: 00000268
+Razón Social: PLOMERIA SINTETICA S.R.L.                              Fecha de Emisión: 29/07/2026
+Domicilio Comercial: Calle Falsa 123 - Ciudad de Buenos Aires        CUIT: 20111111112
+Condición frente al IVA: Responsable Monotributo                     Ingresos Brutos: EXENTO
+Período Facturado Desde: 29/07/2026     Hasta: 29/07/2026            Fecha de Vto. para el pago: 29/07/2026
+CUIT: 33600391459           Apellido y Nombre / Razón Social: CONSORCIO DE PROPIETARIOS AV RIVADAVIA 2067 69 71
+Condición frente al IVA:  Consumidor Final          Domicilio: Rivadavia Av. 2069
+Condición de venta:  Contado
+
+Código    Producto / Servicio            Cantidad     U. Medida    Precio Unit.    % Bonif    Imp. Bonif.    Subtotal
+
+1        REPARACIÓN DE BOMBA DE AGUA          1,00      unidades      135000,00      0,00           0,00     135000,00
+
+
+                                                                                       Subtotal: $     135000,00
+                                                                      Importe Otros Tributos: $              0,00
+                                                                                Importe Total: $       135000,00
+"""
+
+
+def test_fragmento_relevante_arranca_en_el_item_de_la_factura_afip():
+    frag = fragmento_relevante(FACTURA_AFIP_SINTETICA)
+    assert "REPARACIÓN DE BOMBA DE AGUA" in frag
+    # nada del boilerplate del encabezado ni de los totales
+    assert "ORIGINAL" not in frag
+    assert "Punto de Venta" not in frag
+    assert "Importe Total" not in frag
+    assert len(frag) <= 300
+
+
+def test_fragmento_relevante_sin_marcadores_saltea_boilerplate():
+    texto = ("CUIT: 30-11111111-1\n"
+             "Fecha de emisión: 01/08/2026\n"
+             "Trabajos de pintura en palier del 3er piso\n"
+             "Mano de obra y materiales\n")
+    frag = fragmento_relevante(texto)
+    assert frag.startswith("Trabajos de pintura")
+    assert "Mano de obra y materiales" in frag
+    assert "CUIT" not in frag
+
+
+def test_fragmento_relevante_texto_corto_plano_va_tal_cual():
+    assert fragmento_relevante("Pago de plomeria urgente") == "Pago de plomeria urgente"
+    assert fragmento_relevante("") == ""
+
+
+def test_fragmento_relevante_nunca_vacio_aunque_todo_sea_boilerplate():
+    frag = fragmento_relevante("FACTURA\nCUIT: 20111111112\nPunto de Venta: 00003\n")
+    assert frag  # último recurso: primeros n caracteres, como antes
+    assert "FACTURA" in frag
+
+
+def test_fragmento_relevante_respeta_n():
+    assert len(fragmento_relevante(FACTURA_AFIP_SINTETICA, n=40)) <= 40
+
+
+def test_semantica_usa_fragmento_relevante(db, auditor, monkeypatch):
+    _tres_documentos(db)
+    _habilitar(monkeypatch, lambda textos: [[1.0, 0.0, 0.0]])
+    monkeypatch.setattr("app.routers.consulta.extraer_texto",
+                        lambda storage, d: FACTURA_AFIP_SINTETICA)
+    res = auditor.get("/consulta/semantica?q=bomba de agua").json()["resultados"]
+    assert "REPARACIÓN DE BOMBA DE AGUA" in res[0]["fragmento"]
+    assert "ORIGINAL" not in res[0]["fragmento"]
 
 
 def test_semantica_es_solo_del_equipo(db, auditor, cliente):
