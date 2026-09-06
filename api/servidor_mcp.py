@@ -22,6 +22,8 @@ class ClienteApi:
         self.base = os.environ.get("CT_API_URL", "https://api-consorcio.neuralcore.dev")
         jar = CookieJar()
         self.opener = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(jar))
+        # el Browser Integrity Check de Cloudflare banea el UA default de Python (error 1010)
+        self.opener.addheaders = [("User-Agent", "ConsorcioTransparente/1.0")]
         body = json.dumps({"email": os.environ["CT_API_BOT_EMAIL"],
                            "clave": os.environ["CT_API_BOT_CLAVE"]}).encode()
         req = urllib.request.Request(self.base + "/auth/login", data=body,

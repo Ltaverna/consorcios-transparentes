@@ -69,7 +69,8 @@ class ApiPanel:
         self.timeout = timeout
         self.jar = CookieJar()
         self.opener = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(self.jar))
-        self.opener.addheaders = [("User-Agent", "ConsorcioTransparente-sincronizador/0.1")]
+        # el Browser Integrity Check de Cloudflare banea el UA default de Python (error 1010)
+        self.opener.addheaders = [("User-Agent", "ConsorcioTransparente/1.0")]
 
     def _abrir(self, req: urllib.request.Request):
         try:
