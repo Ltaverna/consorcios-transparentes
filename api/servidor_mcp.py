@@ -299,7 +299,156 @@ def fetch(id: str) -> dict:
     raise ValueError(f"id no reconocido: {id}")
 
 
-for fn in (consultar_gastos, agregados, listar_hallazgos, detalle_hallazgo, estado_liquidaciones, reglamento):
+@_con_api
+def leer_comprobante(documento_id: int) -> str:
+    """Devuelve el texto extraído del comprobante (PDF digital). Para escaneos o imágenes
+    sin capa de texto indica que el documento no es extraíble y sugiere bajarlo del panel."""
+    d = _cliente().get(f"/documentos/{documento_id}/texto")
+    if not d["extraible"]:
+        return (f"Documento {documento_id}: sin texto extraíble (escaneo o imagen). "
+                f"Descargalo desde el panel con /documentos/{documento_id}/contenido.")
+    return d["texto"]
+
+
+@_con_api
+def buscar_en_comprobantes(texto: str, periodo: str = "") -> str:
+    """Busca `texto` (case-insensitive) en el contenido de todos los comprobantes del período
+    (o de todos los períodos si no se especifica). Devuelve un fragmento de ±200 caracteres
+    alrededor de cada coincidencia, con el documento y el gasto al que pertenece."""
+    params = {"q": texto}
+    if periodo:
+        params["periodo"] = periodo
+    d = _cliente().get("/consulta/comprobantes", params)
+    resultados = d.get("resultados", [])
+    if not resultados:
+        return f"Ningún comprobante contiene '{texto}'."
+    lineas = [f"{len(resultados)} coincidencia(s):"]
+    for r in resultados:
+        lineas.append(
+            f"  Doc {r['documento_id']} · gasto {r['gasto_n']} · {r['periodo']} · {r['tipo']}\n"
+            f"  …{r['fragmento']}…"
+        )
+    return "\n".join(lineas)
+
+
+@_con_api
+def deudores(periodo: str = "") -> str:
+    """Lista las unidades funcionales con deuda del período indicado (default: el último con
+    liquidación procesada), ordenadas de mayor a menor deuda."""
+    params = {}
+    if periodo:
+        params["periodo"] = periodo
+    d = _cliente().get("/consulta/deudores", params)
+    lineas = [f"Deudores al {d['periodo']} — total {_plata(d['total'])}:"]
+    for u in d["deudores"]:
+        meses = f"{u['meses_equivalentes']:.1f} mes(es)" if u["meses_equivalentes"] is not None else "s/d meses"
+        lineas.append(
+            f"  UF {u['uf']} ({u['piso_depto']}) {u['propietario']}: "
+            f"{_plata(u['deuda'])} — {meses}"
+        )
+    return "\n".join(lineas) or "Sin deudores en ese período."
+
+
+@_con_api
+def detalle_liquidacion(periodo: str) -> str:
+    """Estado, cuadre y checks de una liquidación: busca el id a partir del período y trae el
+    detalle completo (checks fallidos, totales por categoría)."""
+    liqs = _cliente().get("/liquidaciones")
+    fila = next((l for l in liqs if l["periodo"] == periodo), None)
+    if not fila:
+        return f"No hay liquidación cargada para el período {periodo}."
+    liq = _cliente().get(f"/liquidaciones/{fila['id']}")
+    lineas = [
+        f"Liquidación {liq['periodo']} — {liq['estado']}",
+        f"Cuadre: {'cuadra' if liq['cuadra'] else 'NO cuadra'}",
+        f"Checks: {liq['checks_ok']} OK, {liq['checks_mal']} fallido(s)",
+    ]
+    for c in liq.get("checks", []):
+        lineas.append(f"  ✗ {c['nombre']}: {c['detalle']}")
+    if liq.get("totales_categoria"):
+        lineas.append("Totales por categoría:")
+        for cat, total in sorted(liq["totales_categoria"].items(), key=lambda x: -x[1]):
+            lineas.append(f"  {cat}: {_plata(total)}")
+    return "\n".join(lineas)
+
+
+def resumen_mensual(periodo: str = "") -> str:
+    """Resumen ejecutivo del mes: cuadre de la liquidación, top 10 gastos, hallazgos,
+    variaciones fuertes y total de deudores. Cada sección degrada individualmente si
+    la fuente falla — el resumen siempre sale aunque haya errores parciales."""
+    # Determinar el período: el más reciente si no se especifica.
+    if not periodo:
+        try:
+            liqs = _cliente().get("/liquidaciones")
+            periodo = liqs[0]["periodo"] if liqs else ""
+        except Exception:
+            periodo = ""
+    if not periodo:
+        return "No hay liquidaciones cargadas para resumir."
+
+    partes = [f"=== Resumen mensual {periodo} ===\n"]
+
+    # Sección 1: cuadre y estado de la liquidación
+    try:
+        partes.append(detalle_liquidacion(periodo=periodo))
+    except Exception:
+        partes.append("Estado/cuadre: no disponible")
+    partes.append("")
+
+    # Sección 2: top 10 gastos del período
+    try:
+        d = _cliente().get("/consulta/gastos", {"periodo_desde": periodo, "periodo_hasta": periodo})
+        filas = d["filas"][:10]
+        partes.append(f"Top gastos de {periodo} ({d['cantidad']} total, {_plata(d['total'])}):")
+        for f in filas:
+            partes.append(f"  {f['proveedor']} · {f['concepto'][:60]} · {_plata(f['importe'])}")
+    except Exception:
+        partes.append("Top gastos: no disponible")
+    partes.append("")
+
+    # Sección 3: hallazgos del período
+    try:
+        hs = _cliente().get("/hallazgos", {"periodo": periodo})
+        if hs:
+            partes.append(f"Hallazgos de {periodo}:")
+            for h in hs:
+                partes.append(f"  #{h['id']} [{h['severidad']}] {h['titulo']} ({h['estado']})")
+        else:
+            partes.append(f"Sin hallazgos en {periodo}.")
+    except Exception:
+        partes.append("Hallazgos: no disponible")
+    partes.append("")
+
+    # Sección 4: proveedores con variación fuerte (|variación| > 20%)
+    try:
+        ag = _cliente().get("/consulta/agregados", {"por": "proveedor",
+                                                    "periodo_desde": periodo,
+                                                    "periodo_hasta": periodo})
+        fuertes = [g for g in ag["grupos"] if g.get("variacion") is not None and abs(g["variacion"]) > 0.2]
+        if fuertes:
+            partes.append("Variaciones fuertes por proveedor:")
+            for g in fuertes:
+                partes.append(f"  {g['clave']}: {g['variacion']:+.0%} ({_plata(g['total'])})")
+        else:
+            partes.append("Sin variaciones fuertes de proveedores.")
+    except Exception:
+        partes.append("Variaciones de proveedores: no disponible")
+    partes.append("")
+
+    # Sección 5: total de deudores
+    try:
+        dds = _cliente().get("/consulta/deudores", {"periodo": periodo})
+        partes.append(
+            f"Deudores: {len(dds['deudores'])} unidad(es), total {_plata(dds['total'])}"
+        )
+    except Exception:
+        partes.append("Deudores: no disponible")
+
+    return "\n".join(partes)
+
+
+for fn in (consultar_gastos, agregados, listar_hallazgos, detalle_hallazgo, estado_liquidaciones, reglamento,
+           leer_comprobante, buscar_en_comprobantes, deudores, detalle_liquidacion, resumen_mensual):
     mcp.tool()(fn)
 # search/fetch devuelven dict pero sin output estructurado: ante un error de red
 # el wrapper devuelve un string legible, y ChatGPT espera el JSON como texto.

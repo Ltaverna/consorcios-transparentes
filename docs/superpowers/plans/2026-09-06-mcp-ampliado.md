@@ -20,9 +20,9 @@
 - Modify: `api/app/routers/documentos.py` (endpoint texto), `api/app/routers/consulta.py` (comprobantes y deudores)
 - Test: `api/tests/test_documentos_api.py`, `api/tests/test_consulta_api.py`
 
-- [ ] **Step 0: Verificar el shape de `liq.datos`.** Leer `api/app/ingesta.py` y el endpoint `/mi-unidad` (`api/app/routers/documentos.py`) para ver EXACTAMENTE cómo está guardado el estado de cuenta por unidad (deuda, expensas del mes, piso_depto). Los campos del endpoint de deudores salen de ahí — reportar el shape encontrado.
+- [x] **Step 0: Verificar el shape de `liq.datos`.** Leer `api/app/ingesta.py` y el endpoint `/mi-unidad` (`api/app/routers/documentos.py`) para ver EXACTAMENTE cómo está guardado el estado de cuenta por unidad (deuda, expensas del mes, piso_depto). Los campos del endpoint de deudores salen de ahí — reportar el shape encontrado.
 
-- [ ] **Step 1: Tests que fallan.**
+- [x] **Step 1: Tests que fallan.**
 
 En `api/tests/test_documentos_api.py` (generar un PDF sintético con texto conocido — sin dependencias: un PDF mínimo válido se puede armar a mano con el esqueleto clásico de objetos + stream `BT /F1 12 Tf (CUIT 30-11222333-4 IMPERMEABILIZACION) Tj ET`; si resulta frágil, usar `pdftotext` inverso no existe — alternativa robusta: generar con `fpdf2`? NO — sin deps nuevas: el PDF mínimo a mano es estándar y estable; probalo primero en un script efímero):
 
@@ -66,9 +66,9 @@ def test_deudores_ordenados(db, auditor):
 
 (Y el 403 de propietario para los tres endpoints, sumado al test de roles existente.)
 
-- [ ] **Step 2:** correr → FAIL.
+- [x] **Step 2:** correr → FAIL.
 
-- [ ] **Step 3: Implementar.**
+- [x] **Step 3: Implementar.**
 - `documentos.py`: `GET /documentos/{d_id}/texto` (equipo-only, mismo `requiere` que listar):
 
 ```python
@@ -101,9 +101,9 @@ def texto(d_id: int, request: Request, db: Session = Depends(get_db),
 
 - `consulta.py`: `GET /consulta/comprobantes?q=&periodo=` — itera los documentos (del período si se dio, join con Liquidacion), reusa la MISMA extracción/cache (factorizar la función de extracción a `documentos.py` y exportarla, o moverla a un helper compartido — decidir por claridad, sin duplicar); por cada doc cuyo texto contenga `q` (case-insensitive), armar el fragmento ±200 chars del primer match; shape del spec. `GET /consulta/deudores?periodo=` — del `datos` de la liquidación del período (o la última), según el shape del Step 0; `meses_equivalentes = deuda / total_mes` de esa unidad (guarda de división por cero → None), orden deuda desc, incluir `{"deudores": [...], "total": suma}`.
 
-- [ ] **Step 4:** suite api completa → 123 + 5 = 128 passed (ajustar al número real).
+- [x] **Step 4:** suite api completa → 123 + 5 = 128 passed (ajustar al número real).
 
-- [ ] **Step 5: Commit.**
+- [x] **Step 5: Commit.**
 
 ```bash
 git add api/app/routers/documentos.py api/app/routers/consulta.py api/tests/
