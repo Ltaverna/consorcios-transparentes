@@ -269,11 +269,18 @@ def chequear_pagos_declarados(g: Gasto, pagos_docs: list[Documento]) -> list[Hal
                  for d in pagos_docs)
         if ok:
             continue
-        fechas = ", ".join(sorted({str(d.fecha) for d in pagos_docs if d.fecha})) or "sin fecha legible"
+        cercanos = [d for d in pagos_docs
+                    if d.fecha and abs((d.fecha - p.fecha).days) <= DIAS_TOLERANCIA_PAGO]
+        if cercanos:
+            montos = ", ".join(fmt(d.importe) for d in cercanos if d.importe is not None) or "sin importe legible"
+            evidencia = f"Hay comprobantes de esa fecha, pero no cubren el pago declarado: {montos}."
+        else:
+            fechas = ", ".join(sorted({str(d.fecha) for d in pagos_docs if d.fecha})) or "sin fecha legible"
+            evidencia = f"Los comprobantes de pago adjuntos son de otras fechas: {fechas}."
         out.append(Hallazgo(
             "comprobantes", "ALTO", "Control de pagos",
-            f"{g.proveedor}: la transferencia declarada el {p.fecha} por {fmt(p.importe)} no tiene comprobante adjunto",
-            f"Los comprobantes de pago adjuntos son de otras fechas: {fechas}.",
+            f"{g.proveedor}: la transferencia declarada el {p.fecha} por {fmt(p.importe)} no está respaldada por los comprobantes adjuntos",
+            evidencia,
             p.importe, "Pedir el comprobante de esa transferencia.",
             [str(g.n)], clave=f"pago-sin-comp|{p.fecha.isoformat()}"))
     return out

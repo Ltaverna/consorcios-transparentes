@@ -61,3 +61,13 @@ def test_tolerancia_de_fecha_tres_dias():
     g = _gasto(pagos=[Pago(date(2026, 8, 21), 2_650_000.0, "BANCO", "Transferencia")])
     assert chequear_pagos_declarados(g, [_pago_doc(date(2026, 8, 18), 2_650_000.0)]) == []
     assert len(chequear_pagos_declarados(g, [_pago_doc(date(2026, 8, 17), 2_650_000.0)])) == 1
+
+
+def test_pago_con_comprobante_de_la_fecha_pero_importe_insuficiente():
+    # sueldos de agosto: el doc es del mismo día pero por menos plata
+    g = _gasto(importe=1_424_799.0,
+               pagos=[Pago(date(2026, 8, 4), 1_424_799.0, "BANCO", "Transferencia")])
+    hs = chequear_pagos_declarados(g, [_pago_doc(date(2026, 8, 4), 1_324_798.66)])
+    assert len(hs) == 1
+    assert "no cubren el pago declarado" in hs[0].evidencia
+    assert "otras fechas" not in hs[0].evidencia
