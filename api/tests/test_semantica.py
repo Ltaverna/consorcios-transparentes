@@ -208,3 +208,67 @@ def test_semantica_es_solo_del_equipo(db, auditor, cliente):
     codigo = admin.generar_codigo(db, uf)
     assert cliente.post("/auth/login-unidad", json={"uf": uf, "codigo": codigo}).status_code == 200
     assert cliente.get("/consulta/semantica?q=x").status_code == 403
+
+
+# ---------------------------------------------------------------------------
+# Tests del payload de embeber: dimensions configurable
+# ---------------------------------------------------------------------------
+
+def _stub_urlopen(monkeypatch, vectores):
+    """Stubbea urllib.request.urlopen en el módulo embeddings para capturar la
+    Request enviada y devolver una respuesta JSON sintética."""
+    import io as _io
+    import json as _json
+    import urllib.request as _urllib_req
+
+    payloads_capturados = []
+
+    class _RespFake:
+        def __init__(self, data):
+            self._data = data
+        def __enter__(self):
+            return self
+        def __exit__(self, *a):
+            pass
+        def read(self, amt=-1):
+            return self._data
+
+    def _fake_urlopen(req, timeout=None):
+        payloads_capturados.append(_json.loads(req.data))
+        resp_data = _json.dumps({
+            "data": [{"index": i, "embedding": v} for i, v in enumerate(vectores)]
+        }).encode()
+        # json.load(resp) llama a resp.read() internamente → usamos BytesIO
+        return _io.BytesIO(resp_data)
+
+    monkeypatch.setattr("app.embeddings.urllib.request.urlopen", _fake_urlopen)
+    monkeypatch.setattr(settings, "embeddings_api_key", "clave-de-test")
+    return payloads_capturados
+
+
+def test_embeber_incluye_dimensions_cuando_esta_configurado(monkeypatch):
+    """Con CT_EMBEDDINGS_DIMENSIONES=1536 el payload lleva la clave dimensions."""
+    from app.embeddings import embeber
+
+    monkeypatch.setattr(settings, "embeddings_dimensiones", 1536)
+    payloads = _stub_urlopen(monkeypatch, [[0.1, 0.2]])
+
+    resultado = embeber(["texto de prueba"])
+
+    assert resultado == [[0.1, 0.2]]
+    assert len(payloads) == 1
+    assert payloads[0]["dimensions"] == 1536
+
+
+def test_embeber_no_incluye_dimensions_cuando_es_cero(monkeypatch):
+    """Con CT_EMBEDDINGS_DIMENSIONES=0 (default) el payload NO lleva la clave dimensions."""
+    from app.embeddings import embeber
+
+    monkeypatch.setattr(settings, "embeddings_dimensiones", 0)
+    payloads = _stub_urlopen(monkeypatch, [[0.3, 0.4]])
+
+    resultado = embeber(["otro texto"])
+
+    assert resultado == [[0.3, 0.4]]
+    assert len(payloads) == 1
+    assert "dimensions" not in payloads[0]

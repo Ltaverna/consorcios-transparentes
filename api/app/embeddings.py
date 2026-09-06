@@ -24,8 +24,11 @@ def embeber(textos: list[str]) -> list[list[float]] | None:
         return None
     if not textos:
         return []
-    cuerpo = json.dumps({"model": settings.embeddings_modelo,
-                         "input": [t[:MAX_CARACTERES] for t in textos]}).encode()
+    payload: dict = {"model": settings.embeddings_modelo,
+                     "input": [t[:MAX_CARACTERES] for t in textos]}
+    if settings.embeddings_dimensiones > 0:
+        payload["dimensions"] = settings.embeddings_dimensiones
+    cuerpo = json.dumps(payload).encode()
     req = urllib.request.Request(
         settings.embeddings_url.rstrip("/") + "/embeddings", data=cuerpo,
         headers={"Content-Type": "application/json",
