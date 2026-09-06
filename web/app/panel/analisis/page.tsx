@@ -20,7 +20,7 @@ function variacionTexto(v: number | null): string {
 
 function variacionClase(v: number | null): string {
   if (v === null) return "";
-  return v > 0 ? "text-red-600" : v < 0 ? "text-green-700" : "";
+  return v > 0 ? "text-[#B42318]" : v < 0 ? "text-[#1B7A43]" : "";
 }
 
 // ---- sub-componentes
@@ -175,8 +175,8 @@ function CardBusqueda() {
 
         {resultado && (
           <div className="flex flex-col gap-2">
-            <p className="text-sm text-tinta-suave">
-              {resultado.cantidad} resultado{resultado.cantidad !== 1 ? "s" : ""}
+            <p className="text-sm text-tinta-suave" data-testid="total-busqueda">
+              {resultado.cantidad} gasto{resultado.cantidad !== 1 ? "s" : ""} · total {moneda(resultado.total)}
             </p>
             {resultado.filas.length > 0 && (
               <div className="overflow-x-auto">

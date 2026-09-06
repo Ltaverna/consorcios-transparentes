@@ -37,5 +37,6 @@ test("el buscador de gastos consulta y muestra resultados", async () => {
   fireEvent.change(await screen.findByLabelText(/Proveedor/), { target: { value: "sacze" } });
   fireEvent.click(screen.getByRole("button", { name: /Buscar/ }));
   expect(await screen.findByText(/Impermeabilización/)).toBeInTheDocument();
-  expect(screen.getByText(/2\.552\.000/)).toBeInTheDocument();
+  expect(screen.getAllByText(/2\.552\.000/).length).toBeGreaterThanOrEqual(1);
+  expect(screen.getByTestId("total-busqueda")).toHaveTextContent(/1 gasto/);
 });
