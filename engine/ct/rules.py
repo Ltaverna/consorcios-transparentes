@@ -38,6 +38,11 @@ class Config:
     abono_ascensores_ref: float = 0.0      # tope mensual por rubro de abono
     abono_matafuegos_ref: float = 0.0
     abono_limpieza_ref: float = 0.0
+    # --- reglas históricas (serie de meses previos) ---
+    salto_puntos_medio: float = 0.25       # exceso sobre la mediana de variaciones del mes
+    salto_puntos_alto: float = 0.50
+    salto_importe_min: float = 50_000      # gastos chicos no ameritan hallazgo
+    concentracion_proveedor: float = 0.25  # share de un proveedor sobre el gasto sin sueldos
 
     @classmethod
     def desde_dict(cls, d: dict | None) -> "Config":
