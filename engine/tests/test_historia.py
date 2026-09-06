@@ -238,3 +238,13 @@ def test_concentracion_estable_y_baja_no_dispara():
         _boost_hasta_share(l, prov, 0.12)
     assert [h for h in _hallazgos("historia_concentracion", liq, serie, Config())
             if h.clave == f"concentracion|{prov}"] == []
+
+
+def test_concentracion_estable_con_ruido_no_es_creciente():
+    serie, liq = _serie_sintetica()
+    prov, _, _ = _clave_objetivo(liq)
+    _boost_hasta_share(serie[0], prov, 0.179)
+    _boost_hasta_share(serie[1], prov, 0.180)   # sube 0,1 pp: ruido, no crecimiento
+    _boost_hasta_share(liq, prov, 0.181)
+    assert [h for h in _hallazgos("historia_concentracion", liq, serie, Config())
+            if h.clave == f"concentracion|{prov}"] == []

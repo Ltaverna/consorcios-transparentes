@@ -69,7 +69,8 @@ comparan la liquidación actual contra toda su historia. Es el primero de cuatro
   numerador y denominador. Con ≥2 períodos previos:
   - share actual > `concentracion_proveedor` (default 0,25) → **MEDIO**;
   - o share creciente estrictamente durante los últimos 3 períodos (incluido el actual) y actual
-    > 0,15 → **MEDIO** (informativo: "viene creciendo").
+    > 0,15 → **MEDIO** (informativo: "viene creciendo");
+  (con un paso mínimo de 0,5 pp por mes, para que el ruido de redondeo no cuente como crecimiento);
 - Evidencia: shares por período. Refs: los `n` del proveedor en el mes. Clave:
   `concentracion|{proveedor_normalizado}`.
 

@@ -144,6 +144,9 @@ def r_salto(liq, serie, cfg, *_):
     return out
 
 
+# paso mínimo de 0,5 pp por mes: el ruido de redondeo no es "crecimiento"
+PASO_CRECIENTE = 0.005
+
 # ------------------------------------------------------------- concentración de proveedores
 def _shares(l: Liquidacion) -> dict[str, float]:
     gastos = [g for g in l.gastos if not _excluida(g.categoria)]
@@ -164,7 +167,7 @@ def r_concentracion(liq, serie, cfg, *_):
     out: list[Hallazgo] = []
     for k, sh in sorted(s_act.items()):
         alto = sh > cfg.concentracion_proveedor
-        creciente = s_prev2.get(k, 0.0) < s_prev1.get(k, 0.0) < sh
+        creciente = s_prev2.get(k, 0.0) + PASO_CRECIENTE <= s_prev1.get(k, 0.0) <= sh - PASO_CRECIENTE
         if not alto and not (creciente and sh > 0.15):
             continue
         gs = [g for g in liq.gastos if not _excluida(g.categoria) and _norm(g.proveedor) == k]
