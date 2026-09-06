@@ -34,12 +34,15 @@ def test_norm_nro():
     assert _norm_nro("0000-00000000") is None
     assert _norm_nro("s/n") is None
     assert _norm_nro(None) is None
+    assert _norm_nro("0010-00000001") == "10-1"  # 101 junto: pasa el umbral
 
 
 def test_excluida():
     assert _excluida("SUELDOS Y CARGAS SOCIALES")
     assert _excluida("Cargas sociales")
     assert not _excluida("ABONOS DE MANTENIMIENTO")
+    assert not _excluida("DESCARGA DE AGUA")
+    assert not _excluida("GASTOS DEL ENCARGADO")
 
 
 def test_serie_vacia_no_emite_nada():

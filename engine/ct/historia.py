@@ -29,15 +29,17 @@ def _norm(s: str) -> str:
     return re.sub(r"[^a-z0-9]", "", (s or "").lower())
 
 
+_RE_EXCLUIDA = re.compile(r"\bSUELDOS?\b|\bCARGAS?\b")
+
+
 def _excluida(categoria: str) -> bool:
     """Sueldos y cargas sociales quedan afuera de salto/concentración: el SAC de junio y
     diciembre y los aportes distorsionan, y ya los cubren sueldo_mercado y costos."""
-    c = categoria.upper()
-    return "SUELDO" in c or "CARGA" in c
+    return bool(_RE_EXCLUIDA.search(categoria.upper()))
 
 
 def _norm_nro(nro: Optional[str]) -> Optional[str]:
-    """'0003-00001234' -> '3-1234'. None si no llega a 3 dígitos significativos (relleno)."""
+    """'0003-00001234' -> '3-1234'. None si el número junto no llega a 100 (relleno)."""
     partes = re.findall(r"\d+", nro or "")
     if not partes:
         return None
