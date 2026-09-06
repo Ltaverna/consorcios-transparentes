@@ -188,3 +188,18 @@ docker compose logs -f worker                        # corrida inicial de sincro
 
 Nada de systemd, nada de venvs: los venvs (`engine/.venv`, `api/.venv`) son solo para desarrollo y
 tests, en producción todo corre en los contenedores.
+
+## 10. MCP de consultas
+
+El contenedor `mcp` expone las consultas del consorcio como servidor MCP (read-only) para Claude Code,
+claude.ai y ChatGPT, en `https://mcp-consorcio.neuralcore.dev/mcp/<CT_MCP_TOKEN>`.
+
+1. Generar el token y agregarlo al `.env` raíz: `CT_MCP_TOKEN=$(python3 -c "import secrets; print(secrets.token_urlsafe(24))")`.
+2. Agregar el ingress al `cloudflared/config.yml` real (el example ya lo trae): hostname
+   `mcp-consorcio.neuralcore.dev` → `service: http://mcp:8765`, antes del catch-all. (La carpeta es del
+   uid 65532: editar con sudo.)
+3. Una única vez: `cloudflared tunnel route dns consorcio mcp-consorcio.neuralcore.dev`.
+4. `docker compose up -d mcp && docker compose restart tunnel`.
+5. Alta en los clientes con la URL completa (con token): claude.ai → Configuración → Conectores;
+   ChatGPT → Conectores / modo desarrollador; Claude Code → `claude mcp add --transport http consorcio <URL>`.
+6. Rotar el token = cambiarlo en `.env` + `docker compose up -d mcp` + actualizar los clientes.

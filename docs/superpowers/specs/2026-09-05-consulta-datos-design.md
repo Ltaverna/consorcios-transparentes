@@ -38,8 +38,11 @@ Sin acciones de escritura; misma estética del panel.
   - `search(query)` y `fetch(id)`: wrappers de compatibilidad con el modo investigación de ChatGPT
     (search → consultar_gastos+hallazgos por texto; fetch → detalle del recurso por id compuesto).
 - **Auth pragmática**: los conectores no mandan headers custom, así que el server exige un segmento
-  secreto largo en el path (`/mcp/<token>/`); token en el `.env` raíz (rotable), rate limit básico,
-  y 404 sin pistas ante un path incorrecto.
+  secreto largo en el path (`/mcp/<token>/`); token en el `.env` raíz (rotable) y 404 sin pistas ante
+  un path incorrecto. Sin rate limit propio (decisión del review: el token de 24 bytes hace inviable el
+  brute-force y los 404 son baratos; si hiciera falta, una rate rule de Cloudflare sobre el hostname).
+  El access log del server va apagado (el path contiene el token) y el contenedor recibe SOLO las 4
+  variables que necesita (mínimo privilegio: sin credenciales del portal).
 - Publicación: regla de ingress nueva en `cloudflared/config.yml` → `mcp-consorcio.neuralcore.dev`
   hacia el contenedor `mcp`, + ruta DNS del tunnel. Alta en clientes: URL con el token en claude.ai
   (Conectores), ChatGPT (Conectores/modo desarrollador) y `claude mcp add --transport http`.

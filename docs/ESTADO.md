@@ -69,6 +69,12 @@
   del auditor en Consorcio), y los propietarios ven los hallazgos publicados en `/mi-unidad` con sus
   comprobantes descargables (solo refs de origen "comprobantes" — el review cazó la colisión con las UFs
   de morosidad). Tests: api 106 · web 40.
+- **Consulta de datos** (5/09, rama `consulta-datos`; spec
+  `docs/superpowers/specs/2026-09-05-consulta-datos-design.md`): endpoints `/consulta/gastos` y
+  `/consulta/agregados` (variación intra-rango), vista analítica en `/panel/analisis` (ranking de
+  proveedores, categorías, buscador con total), y servidor MCP read-only en
+  `mcp-consorcio.neuralcore.dev` (7 tools, incl. search/fetch para ChatGPT; token secreto en el path,
+  DEPLOY.md §10) para consultar en lenguaje natural desde Claude Code, claude.ai y ChatGPT.
 - **Reglas de mercado + normativa + PWA** (5/09, rama `reglas-mercado`; spec
   `docs/superpowers/specs/2026-09-05-reglas-mercado-design.md`): tres reglas nuevas del motor calibradas
   contra los gastos reales (`sueldo_mercado` con detección de SAC, `honorarios_mercado`, `abonos_mercado`

@@ -5,4 +5,6 @@ credentials-file: /etc/cloudflared/f35df675-d3d7-4ee3-8f50-4bdaf3afb11a.json
 ingress:
   - hostname: api-consorcio.neuralcore.dev
     service: http://api:8080
+  - hostname: mcp-consorcio.neuralcore.dev
+    service: http://mcp:8765
   - service: http_status:404

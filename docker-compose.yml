@@ -29,6 +29,18 @@ services:
       - ${CT_PRIVADO_HOST:?definir CT_PRIVADO_HOST en .env (ruta absoluta de la carpeta privada)}:/srv/privado
     restart: unless-stopped
 
+  mcp:
+    build:
+      context: .
+      dockerfile: api/Dockerfile
+    command: python servidor_mcp.py
+    environment:
+      CT_API_BOT_EMAIL: ${CT_API_BOT_EMAIL:?}
+      CT_API_BOT_CLAVE: ${CT_API_BOT_CLAVE:?}
+      CT_MCP_TOKEN: ${CT_MCP_TOKEN:?definir CT_MCP_TOKEN en .env}
+      CT_API_URL: ${CT_API_URL:-https://api-consorcio.neuralcore.dev}
+    restart: unless-stopped
+
   tunnel:
     image: cloudflare/cloudflared:latest
     command: tunnel --no-autoupdate --config /etc/cloudflared/config.yml run
