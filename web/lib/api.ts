@@ -193,6 +193,29 @@ export interface GrupoAgregado {
   variacion: number | null;
 }
 
+export interface StatsTransparencia {
+  periodo?: string;
+  indice: number;
+  dinero_total: number; dinero_verificado: number; dinero_con_factura: number; dinero_pago_respaldado: number;
+  pct_trazable: number; pct_con_factura: number; pct_pago_respaldado: number;
+  gastos_por_estado: Record<string, { cantidad: number; importe: number }>;
+  hallazgos_abiertos: Record<string, number>;
+  hallazgos_resueltos: number;
+}
+
+export interface IndiceTransparencia {
+  indice: number;
+  rango: { desde: string; hasta: string };
+  totales: StatsTransparencia;
+  periodos: StatsTransparencia[];
+}
+
+export interface GastoConEstado {
+  n: number; proveedor: string; categoria: string; concepto: string; importe: number; estado: string;
+  hallazgos: { id: number; severidad: string; estado: string; titulo: string }[];
+  documentos: { id: number; tipo: string; archivo: string }[];
+}
+
 // ---- llamadas
 
 export const api = {
@@ -354,6 +377,20 @@ export const api = {
     if (filtros?.periodo_hasta) params.set("periodo_hasta", filtros.periodo_hasta);
     if (filtros?.importe_min !== undefined) params.set("importe_min", String(filtros.importe_min));
     return pedir<{ grupos: GrupoAgregado[] }>(`/consulta/agregados?${params.toString()}`);
+  },
+
+  indiceTransparencia(desde?: string, hasta?: string) {
+    const p = new URLSearchParams();
+    if (desde) p.set("desde", desde);
+    if (hasta) p.set("hasta", hasta);
+    const qs = p.toString();
+    return pedir<IndiceTransparencia>(`/analitica/indice${qs ? `?${qs}` : ""}`);
+  },
+
+  gastosTransparencia(periodo: string, estado?: string) {
+    const p = new URLSearchParams({ periodo });
+    if (estado) p.set("estado", estado);
+    return pedir<{ periodo: string; gastos: GastoConEstado[] }>(`/analitica/gastos?${p}`);
   },
 };
 
