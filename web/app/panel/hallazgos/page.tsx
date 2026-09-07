@@ -267,7 +267,7 @@ function ContenidoHallazgos() {
     <div className="flex flex-col gap-4">
       <h1 className="font-titulos text-xl font-bold">Hallazgos</h1>
 
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <Kpi etiqueta="Críticos" valor={String(criticos)} tono={criticos > 0 ? "critico" : "normal"} />
         <Kpi etiqueta="Pendientes" valor={String(pendientes)} />
         <Kpi etiqueta="Publicados" valor={String(publicados)} tono="exito" />

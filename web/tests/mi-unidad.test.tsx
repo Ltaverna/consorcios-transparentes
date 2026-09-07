@@ -1,4 +1,5 @@
 import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { http, HttpResponse } from "msw";
 import { servidor, API } from "./msw";
 import PaginaMiUnidad from "@/app/mi-unidad/page";
@@ -6,6 +7,32 @@ import PaginaMiUnidad from "@/app/mi-unidad/page";
 // Handler de /analitica/indice con 500 → la card se oculta en silencio, el resto de la página sigue funcionando.
 const handlerIndice500 = http.get(`${API}/analitica/indice`, () =>
   HttpResponse.json({ detail: "no data" }, { status: 500 }));
+
+const handlerMiUnidad = http.get(`${API}/mi-unidad`, () => HttpResponse.json({
+  uf: 27, periodo: "2026-08",
+  estado_cuenta: { uf: 27, piso_depto: "13-B", propietario: "X", total_mes: 120000, a_pagar: 125000, deuda: 5000 },
+  informes: ["/informes/2026-08/html", "/informes/2026-08/xlsx"],
+}));
+
+// Un hallazgo publicado con su detalle y un documento de pago asociado.
+const RESUMEN_61 = { id: 61, liquidacion_id: 2, periodo: "2026-08", regla: "comprobantes", origen: "comprobantes",
+  severidad: "CRÍTICO", area: "Comprobantes", titulo: "Pago a un tercero distinto del proveedor",
+  monto: 2552000, estado: "pendiente", publicado: true };
+
+function conHallazgoPublicado() {
+  servidor.use(
+    handlerMiUnidad,
+    http.get(`${API}/hallazgos`, () => HttpResponse.json([RESUMEN_61])),
+    http.get(`${API}/hallazgos/61`, () => HttpResponse.json({
+      ...RESUMEN_61, refs: ["32"],
+      evidencia: "El pago fue a otro CUIT", recomendacion: "Pedir explicación", respuesta_admin: "",
+    })),
+    http.get(`${API}/documentos`, () => HttpResponse.json([
+      { id: 400, gasto_n: 32, tipo: "pago", hash: "x", metadatos: {} },
+    ])),
+    handlerIndice500,
+  );
+}
 
 // Fixture mínimo de transparencia reutilizado en el test de la card.
 const INDICE_MINIMO = {
@@ -43,11 +70,7 @@ const INDICE_MINIMO = {
 
 test("muestra el informe publicado, la descarga y el estado de cuenta", async () => {
   servidor.use(
-    http.get(`${API}/mi-unidad`, () => HttpResponse.json({
-      uf: 27, periodo: "2026-08",
-      estado_cuenta: { uf: 27, piso_depto: "13-B", propietario: "X", total_mes: 120000, a_pagar: 125000, deuda: 5000 },
-      informes: ["/informes/2026-08/html", "/informes/2026-08/xlsx"],
-    })),
+    handlerMiUnidad,
     http.get(`${API}/hallazgos`, () => HttpResponse.json([])),
     handlerIndice500,
   );
@@ -56,6 +79,8 @@ test("muestra el informe publicado, la descarga y el estado de cuenta", async ()
   expect(screen.getByText(/2026-08/)).toBeInTheDocument();
   expect(screen.getByRole("link", { name: /Descargar Excel/ })).toHaveAttribute("href", expect.stringContaining("/informes/2026-08/xlsx"));
   expect(document.querySelector("iframe")!.getAttribute("src")).toContain("/informes/2026-08/html");
+  // el iframe embebido tiene su link para abrir el informe en una pestaña propia
+  expect(screen.getByRole("link", { name: /Abrir informe completo/ })).toHaveAttribute("href", expect.stringContaining("/informes/2026-08/html"));
 });
 
 test("sin informe publicado muestra un mensaje amable", async () => {
@@ -69,43 +94,64 @@ test("sin informe publicado muestra un mensaje amable", async () => {
   expect(await screen.findByText(/Todavía no hay ningún informe publicado/)).toBeInTheDocument();
 });
 
-test("muestra los hallazgos publicados con sus comprobantes", async () => {
+test("los hallazgos publicados arrancan colapsados y se expanden al tocar", async () => {
+  conHallazgoPublicado();
+  render(<PaginaMiUnidad />);
+  const boton = await screen.findByRole("button", { name: /Pago a un tercero/ });
+  // colapsado: título, severidad y monto visibles, pero la evidencia todavía no está en el DOM
+  expect(boton).toHaveAttribute("aria-expanded", "false");
+  expect(screen.getByText("CRÍTICO")).toBeInTheDocument();
+  expect(screen.getByText(/2\.552\.000/)).toBeInTheDocument();
+  expect(screen.queryByText(/El pago fue a otro CUIT/)).not.toBeInTheDocument();
+  expect(document.querySelector("iframe[src*='vista=1']")).toBeNull();
+  await userEvent.click(boton);
+  expect(boton).toHaveAttribute("aria-expanded", "true");
+  expect(screen.getByText(/El pago fue a otro CUIT/)).toBeInTheDocument();
+  expect(screen.getByText(/Pedir explicación/)).toBeInTheDocument();
+});
+
+test("el comprobante se abre en un dialog y el PDF recién carga ahí", async () => {
+  conHallazgoPublicado();
+  render(<PaginaMiUnidad />);
+  await userEvent.click(await screen.findByRole("button", { name: /Pago a un tercero/ }));
+  // expandido: botón del visor y link directo, pero sin iframe hasta abrir el dialog
+  expect(screen.getByRole("link", { name: /pestaña nueva/i })).toHaveAttribute("href", expect.stringContaining("/documentos/400/contenido"));
+  expect(document.querySelector("iframe[src*='vista=1']")).toBeNull();
+  await userEvent.click(screen.getByRole("button", { name: /Ver comprobante/ }));
+  const visor = await screen.findByTitle(/Documento pago/);
+  expect(visor.getAttribute("src")).toContain("/documentos/400/contenido");
+  expect(visor.getAttribute("src")).toContain("vista=1");
+});
+
+test("los hallazgos publicados aparecen antes del informe embebido", async () => {
+  conHallazgoPublicado();
+  render(<PaginaMiUnidad />);
+  const titulo = await screen.findByRole("heading", { name: /Hallazgos publicados/ });
+  const informe = screen.getByTitle("Informe de expensas");
+  expect(titulo.compareDocumentPosition(informe) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+});
+
+test("si fallan los hallazgos publicados hay mensaje con Reintentar (no silencio)", async () => {
   servidor.use(
-    http.get(`${API}/mi-unidad`, () => HttpResponse.json({
-      uf: 27, periodo: "2026-08",
-      estado_cuenta: { uf: 27, piso_depto: "13-B", propietario: "X", total_mes: 120000, a_pagar: 125000, deuda: 5000 },
-      informes: ["/informes/2026-08/html", "/informes/2026-08/xlsx"],
-    })),
-    http.get(`${API}/hallazgos`, () => HttpResponse.json([
-      { id: 61, liquidacion_id: 2, periodo: "2026-08", regla: "comprobantes", origen: "comprobantes",
-        severidad: "CRÍTICO", area: "Comprobantes", titulo: "Pago a un tercero distinto del proveedor",
-        monto: 2552000, estado: "pendiente", publicado: true },
-    ])),
+    handlerMiUnidad,
+    http.get(`${API}/hallazgos`, () => HttpResponse.json({ detail: "boom" }, { status: 500 }), { once: true }),
+    http.get(`${API}/hallazgos`, () => HttpResponse.json([RESUMEN_61])),
     http.get(`${API}/hallazgos/61`, () => HttpResponse.json({
-      id: 61, liquidacion_id: 2, periodo: "2026-08", regla: "comprobantes", origen: "comprobantes",
-      severidad: "CRÍTICO", area: "Comprobantes", titulo: "Pago a un tercero distinto del proveedor",
-      monto: 2552000, estado: "pendiente", publicado: true, refs: ["32"],
+      ...RESUMEN_61, refs: ["32"],
       evidencia: "El pago fue a otro CUIT", recomendacion: "Pedir explicación", respuesta_admin: "",
     })),
-    http.get(`${API}/documentos`, () => HttpResponse.json([
-      { id: 400, gasto_n: 32, tipo: "pago", hash: "x", metadatos: {} },
-    ])),
+    http.get(`${API}/documentos`, () => HttpResponse.json([])),
     handlerIndice500,
   );
   render(<PaginaMiUnidad />);
-  expect(await screen.findByText(/Pago a un tercero/)).toBeInTheDocument();
-  expect(screen.getByText(/El pago fue a otro CUIT/)).toBeInTheDocument();
-  expect(screen.getByRole("link", { name: /pago/i })).toHaveAttribute("href", expect.stringContaining("/documentos/400/contenido"));
-  expect(document.querySelector("iframe[src*='vista=1']")).toBeTruthy();
+  expect(await screen.findByText(/No pudimos cargar los hallazgos publicados/)).toBeInTheDocument();
+  await userEvent.click(screen.getByRole("button", { name: /Reintentar/ }));
+  expect(await screen.findByRole("button", { name: /Pago a un tercero/ })).toBeInTheDocument();
 });
 
 test("muestra la card de transparencia con el índice y métricas cuando hay períodos publicados", async () => {
   servidor.use(
-    http.get(`${API}/mi-unidad`, () => HttpResponse.json({
-      uf: 27, periodo: "2026-08",
-      estado_cuenta: { uf: 27, piso_depto: "13-B", propietario: "X", total_mes: 120000, a_pagar: 125000, deuda: 5000 },
-      informes: ["/informes/2026-08/html", "/informes/2026-08/xlsx"],
-    })),
+    handlerMiUnidad,
     http.get(`${API}/hallazgos`, () => HttpResponse.json([])),
     http.get(`${API}/analitica/indice`, () => HttpResponse.json(INDICE_MINIMO)),
   );

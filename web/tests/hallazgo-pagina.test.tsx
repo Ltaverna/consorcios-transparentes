@@ -1,4 +1,5 @@
 import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { http, HttpResponse } from "msw";
 import { servidor, API } from "./msw";
 import PaginaHallazgo from "@/app/panel/hallazgos/[id]/page";
@@ -22,11 +23,15 @@ test("la página carga el hallazgo con evidencia e historial", async () => {
   expect(await screen.findAllByText(/Pagos a la propietaria/)).not.toHaveLength(0);
   expect(screen.getByText(/CUIT destino/)).toBeInTheDocument();
   expect(screen.getByText(/en asamblea/)).toBeInTheDocument();
-  // visor lado a lado: dos iframes (factura y pago del gasto 2)
-  expect(document.querySelectorAll("iframe").length).toBe(2);
-  // el visor pide la vista inline; el link de al lado sigue siendo descarga
-  const iframes = Array.from(document.querySelectorAll("iframe"));
-  expect(iframes.every((f) => f.getAttribute("src")?.endsWith("?vista=1"))).toBe(true);
+  // visor bajo demanda: un botón por documento (factura y pago del gasto 2) y ningún iframe hasta abrirlo
+  expect(document.querySelectorAll("iframe").length).toBe(0);
+  expect(screen.getByRole("button", { name: /Ver comprobante: factura/ })).toBeInTheDocument();
+  // cada documento también se puede abrir en una pestaña propia
+  expect(screen.getAllByRole("link", { name: /pestaña nueva/i }).length).toBe(2);
+  await userEvent.click(screen.getByRole("button", { name: /Ver comprobante: pago/ }));
+  const visor = await screen.findByTitle("Documento pago");
+  expect(visor.getAttribute("src")).toContain("/documentos/5/contenido");
+  expect(visor.getAttribute("src")).toContain("vista=1");
 });
 
 test("consejo ve el hallazgo sin controles de auditor", async () => {

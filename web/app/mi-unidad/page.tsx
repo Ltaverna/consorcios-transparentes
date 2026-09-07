@@ -1,14 +1,17 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { ChevronDown } from "lucide-react";
 import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ChipSeveridad } from "@/components/severidad";
 import { ChipEstadoGasto } from "@/components/estado-gasto";
-import { api, ApiError, urlInforme, urlContenidoDocumento, type MiUnidad, type HallazgoDetalle, type DocumentoInfo, type IndiceTransparencia } from "@/lib/api";
+import { api, ApiError, urlInforme, type MiUnidad, type HallazgoDetalle, type DocumentoInfo, type IndiceTransparencia } from "@/lib/api";
 import { documentosDelHallazgo } from "@/components/hallazgos/documentos-de";
+import { VisorDocumento } from "@/components/hallazgos/visor-documento";
+import { cn } from "@/lib/utils";
 import { COMPONENTES_INDICE, cuentaPenalizacion, moneda, mensajeError, puntosIndice } from "@/lib/formato";
 
 interface HallazgoConDocs {
@@ -16,11 +19,71 @@ interface HallazgoConDocs {
   documentos: DocumentoInfo[];
 }
 
+/**
+ * Tarjeta colapsada de un hallazgo publicado: título + severidad + monto.
+ * Al tocarla se expande con la evidencia, qué pedir y los documentos (el PDF
+ * recién se carga si se abre el visor).
+ */
+function HallazgoPublicado({ detalle, documentos }: HallazgoConDocs) {
+  const [expandido, setExpandido] = useState(false);
+  return (
+    <Card>
+      <CardContent className="flex flex-col gap-3 py-4">
+        <button
+          type="button"
+          aria-expanded={expandido}
+          onClick={() => setExpandido((previo) => !previo)}
+          className="flex min-h-11 w-full cursor-pointer items-center justify-between gap-3 rounded-lg text-left outline-none focus-visible:ring-2 focus-visible:ring-[#123A5C]"
+        >
+          <span className="flex flex-col gap-1">
+            <span className="flex flex-wrap items-center gap-2">
+              <ChipSeveridad severidad={detalle.severidad} />
+              <span className="font-semibold">{detalle.titulo}</span>
+            </span>
+            <span className="text-sm tabular-nums text-tinta-suave">{moneda(detalle.monto)}</span>
+          </span>
+          <ChevronDown
+            aria-hidden
+            className={cn("h-5 w-5 shrink-0 text-tinta-suave transition-transform", expandido && "rotate-180")}
+          />
+        </button>
+        {expandido && (
+          <>
+            <div className="flex flex-col gap-1">
+              <span className="text-sm font-semibold">Evidencia</span>
+              <p className="text-sm leading-relaxed">{String(detalle.evidencia)}</p>
+            </div>
+            <div className="flex flex-col gap-1">
+              <span className="text-sm font-semibold">Qué pedir</span>
+              <p className="text-sm leading-relaxed">{detalle.recomendacion}</p>
+            </div>
+            {detalle.respuesta_admin && (
+              <div className="flex flex-col gap-1">
+                <span className="text-sm font-semibold">Respuesta de la administración</span>
+                <p className="text-sm leading-relaxed">{detalle.respuesta_admin}</p>
+              </div>
+            )}
+            {documentos.length > 0 && (
+              <div className="flex flex-col gap-2">
+                <span className="text-sm font-semibold">Documentos</span>
+                {documentos.map((d) => (
+                  <VisorDocumento key={d.id} documento={d} />
+                ))}
+              </div>
+            )}
+          </>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
 export default function PaginaMiUnidad() {
   const [datos, setDatos] = useState<MiUnidad | null>(null);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [hallazgos, setHallazgos] = useState<HallazgoConDocs[]>([]);
+  const [errorHallazgos, setErrorHallazgos] = useState(false);
   const [indice, setIndice] = useState<IndiceTransparencia | null>(null);
 
   useEffect(() => {
@@ -42,26 +105,31 @@ export default function PaginaMiUnidad() {
     })();
   }, []);
 
-  useEffect(() => {
-    (async () => {
-      try {
-        const resumenes = await api.listarHallazgos();
-        if (resumenes.length === 0) return;
-        const resultado: HallazgoConDocs[] = [];
-        for (const r of resumenes) {
+  // Detalles y documentos en paralelo: en el celular la diferencia se nota.
+  const cargarHallazgos = useCallback(async () => {
+    setErrorHallazgos(false);
+    try {
+      const resumenes = await api.listarHallazgos();
+      const resultado = await Promise.all(
+        resumenes.map(async (r) => {
           const [detalle, documentosTodos] = await Promise.all([
             api.detalleHallazgo(r.id),
             api.listarDocumentos(r.liquidacion_id),
           ]);
-          const documentos = documentosDelHallazgo(detalle, documentosTodos);
-          resultado.push({ detalle, documentos });
-        }
-        setHallazgos(resultado);
-      } catch {
-        // error no crítico: no rompe el resto de la página
-      }
-    })();
+          return { detalle, documentos: documentosDelHallazgo(detalle, documentosTodos) };
+        })
+      );
+      setHallazgos(resultado);
+    } catch {
+      // no rompe el resto de la página, pero el propietario tiene que enterarse
+      setErrorHallazgos(true);
+    }
   }, []);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- patrón de carga establecido
+    cargarHallazgos();
+  }, [cargarHallazgos]);
 
   useEffect(() => {
     (async () => {
@@ -118,17 +186,17 @@ export default function PaginaMiUnidad() {
             </CardHeader>
             <CardContent>
               {datos.estado_cuenta ? (
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                   <div>
-                    <div className="text-xs text-tinta-suave">Expensas del mes</div>
+                    <div className="text-sm text-tinta-suave">Expensas del mes</div>
                     <div className="text-lg font-semibold tabular-nums">{moneda(datos.estado_cuenta.total_mes)}</div>
                   </div>
                   <div>
-                    <div className="text-xs text-tinta-suave">A pagar</div>
+                    <div className="text-sm text-tinta-suave">A pagar</div>
                     <div className="text-lg font-semibold tabular-nums">{moneda(datos.estado_cuenta.a_pagar)}</div>
                   </div>
                   <div>
-                    <div className="text-xs text-tinta-suave">Deuda</div>
+                    <div className="text-sm text-tinta-suave">Deuda</div>
                     <div className={`text-lg font-semibold tabular-nums ${datos.estado_cuenta.deuda > 0 ? "text-[#B42318]" : "text-exito"}`}>
                       {datos.estado_cuenta.deuda > 0 ? moneda(datos.estado_cuenta.deuda) : "Sin deuda"}
                     </div>
@@ -145,13 +213,13 @@ export default function PaginaMiUnidad() {
           <div className="flex items-center justify-between">
             <a
               href={urlInforme(datos.periodo, "xlsx")}
-              className="inline-flex h-8 items-center justify-center gap-1.5 rounded-lg bg-primary px-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/80"
+              className={buttonVariants({ size: "lg", className: "min-h-11" })}
             >
               Descargar Excel
             </a>
             <a
               href="/reglamento"
-              className="text-sm text-tinta-suave underline underline-offset-2 hover:text-tinta"
+              className="inline-flex min-h-11 items-center text-sm text-tinta-suave underline underline-offset-2 hover:text-tinta"
             >
               Reglamento de copropiedad
             </a>
@@ -236,66 +304,44 @@ export default function PaginaMiUnidad() {
             </Card>
           )}
 
-          <iframe
-            src={urlInforme(datos.periodo, "html")}
-            className="w-full min-h-[70vh] bg-white border border-borde-suave rounded-lg"
-            title="Informe de expensas"
-          />
-
-          {hallazgos.length > 0 && (
-            <div className="flex flex-col gap-4">
+          {(hallazgos.length > 0 || errorHallazgos) && (
+            <section className="flex flex-col gap-4">
               <h2 className="font-titulos text-lg font-bold">Hallazgos publicados</h2>
-              {hallazgos.map(({ detalle, documentos }) => (
-                <Card key={detalle.id}>
-                  <CardContent className="flex flex-col gap-3 py-4">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <ChipSeveridad severidad={detalle.severidad} />
-                      <span className="font-semibold">{detalle.titulo}</span>
-                    </div>
-                    <p className="text-sm tabular-nums text-tinta-suave">{moneda(detalle.monto)}</p>
-                    <div className="flex flex-col gap-1">
-                      <span className="text-sm font-semibold">Evidencia</span>
-                      <p className="text-sm leading-relaxed">{String(detalle.evidencia)}</p>
-                    </div>
-                    <div className="flex flex-col gap-1">
-                      <span className="text-sm font-semibold">Qué pedir</span>
-                      <p className="text-sm leading-relaxed">{detalle.recomendacion}</p>
-                    </div>
-                    {detalle.respuesta_admin && (
-                      <div className="flex flex-col gap-1">
-                        <span className="text-sm font-semibold">Respuesta de la administración</span>
-                        <p className="text-sm leading-relaxed">{detalle.respuesta_admin}</p>
-                      </div>
-                    )}
-                    {documentos.length > 0 && (
-                      <div className="flex flex-col gap-1">
-                        <span className="text-sm font-semibold">Documentos</span>
-                        <div className="grid gap-3 md:grid-cols-2">
-                          {documentos.map((d) => (
-                            <div key={d.id} className="flex flex-col gap-1">
-                              <a
-                                href={urlContenidoDocumento(d.id)}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="text-institucional hover:underline text-sm inline-flex items-center gap-1"
-                              >
-                                {d.tipo}
-                              </a>
-                              <iframe
-                                src={urlContenidoDocumento(d.id, { vista: true })}
-                                className="w-full h-64 border rounded"
-                                title={`Documento ${d.tipo}`}
-                              />
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
+              {errorHallazgos ? (
+                <Card>
+                  <CardContent className="flex flex-col items-center gap-3 py-6 text-center">
+                    <p className="text-tinta-suave">No pudimos cargar los hallazgos publicados.</p>
+                    <Button variant="outline" size="lg" className="min-h-11" onClick={cargarHallazgos}>
+                      Reintentar
+                    </Button>
                   </CardContent>
                 </Card>
-              ))}
-            </div>
+              ) : (
+                hallazgos.map(({ detalle, documentos }) => (
+                  <HallazgoPublicado key={detalle.id} detalle={detalle} documentos={documentos} />
+                ))
+              )}
+            </section>
           )}
+
+          <section className="flex flex-col gap-2">
+            <div className="flex flex-wrap items-baseline justify-between gap-2">
+              <h2 className="font-titulos text-lg font-bold">Informe del período</h2>
+              <a
+                href={urlInforme(datos.periodo, "html")}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex min-h-11 items-center text-sm text-institucional underline underline-offset-2"
+              >
+                Abrir informe completo
+              </a>
+            </div>
+            <iframe
+              src={urlInforme(datos.periodo, "html")}
+              className="w-full min-h-[70vh] bg-white border border-borde-suave rounded-lg"
+              title="Informe de expensas"
+            />
+          </section>
         </div>
       ) : null}
     </div>

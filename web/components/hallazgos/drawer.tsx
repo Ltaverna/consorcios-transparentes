@@ -99,7 +99,6 @@ export function DrawerHallazgo({
                   const actualizado = id !== null ? await cargar(id) : null;
                   alCambiar(actualizado ?? undefined);
                 }}
-                conVisor={false}
               />
               <Link href={`/panel/hallazgos/${detalle.id}`} className="text-sm underline">
                 Abrir completo →

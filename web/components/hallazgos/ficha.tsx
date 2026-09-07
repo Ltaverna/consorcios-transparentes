@@ -2,7 +2,6 @@
 
 import { useId, useState } from "react";
 import { useRol } from "@/components/rol-context";
-import { FileText } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -11,13 +10,9 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { ChipSeveridad } from "@/components/severidad";
 import { ChipEstado } from "@/components/estado-hallazgo";
+import { VisorDocumento } from "@/components/hallazgos/visor-documento";
 import { moneda, fecha, mensajeError } from "@/lib/formato";
-import {
-  api,
-  urlContenidoDocumento,
-  type DocumentoInfo,
-  type HallazgoDetalle,
-} from "@/lib/api";
+import { api, type DocumentoInfo, type HallazgoDetalle } from "@/lib/api";
 
 const ESTADOS = ["pendiente", "preguntado", "respondido", "descartado", "cerrado"] as const;
 
@@ -172,19 +167,18 @@ function RespuestaAdmin({
 
 /**
  * Cuerpo compartido entre el drawer de triage y la página de detalle: muestra
- * la evidencia, la recomendación, los documentos, el cambio de estado, el
- * toggle de publicación, la respuesta de la administración y el historial.
+ * la evidencia, la recomendación, los documentos (con visor bajo demanda), el
+ * cambio de estado, el toggle de publicación, la respuesta de la
+ * administración y el historial.
  */
 export function FichaHallazgo({
   detalle,
   documentos,
   alCambiar,
-  conVisor = true,
 }: {
   detalle: HallazgoDetalle;
   documentos: DocumentoInfo[];
   alCambiar: () => void;
-  conVisor?: boolean;
 }) {
   const rol = useRol();
   return (
@@ -211,26 +205,9 @@ export function FichaHallazgo({
       {documentos.length > 0 && (
         <div className="flex flex-col gap-2">
           <h3 className="text-sm font-semibold">Documentos</h3>
-          <div className={conVisor ? "grid gap-3 md:grid-cols-2" : "flex flex-col gap-2"}>
+          <div className="flex flex-col gap-2">
             {documentos.map((d) => (
-              <div key={d.id} className="flex flex-col gap-1">
-                <a
-                  href={urlContenidoDocumento(d.id)}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-institucional hover:underline inline-flex items-center gap-1 text-sm"
-                >
-                  <FileText className="w-4 h-4" />
-                  {d.tipo}
-                </a>
-                {conVisor && (
-                  <iframe
-                    src={urlContenidoDocumento(d.id, { vista: true })}
-                    className="w-full h-64 border rounded"
-                    title={`Documento ${d.tipo}`}
-                  />
-                )}
-              </div>
+              <VisorDocumento key={d.id} documento={d} />
             ))}
           </div>
         </div>

@@ -71,7 +71,6 @@ export default function PaginaHallazgo({
           detalle={detalle}
           documentos={docsDelHallazgo}
           alCambiar={cargar}
-          conVisor
         />
       ) : null}
     </div>
