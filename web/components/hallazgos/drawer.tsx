@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
 import {
@@ -24,36 +24,47 @@ export function DrawerHallazgo({
 }: {
   id: number | null;
   alCerrar: () => void;
-  alCambiar: () => void;
+  /** Recibe la fila actualizada cuando el triage la cambió, para refrescarla en memoria. */
+  alCambiar: (actualizado?: HallazgoDetalle) => void;
 }) {
   const [detalle, setDetalle] = useState<HallazgoDetalle | null>(null);
   const [documentos, setDocumentos] = useState<DocumentoInfo[]>([]);
   const [cargando, setCargando] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const cargar = useCallback(async (hallazgoId: number) => {
+  // Guard de vigencia: si se abre A y enseguida B, la respuesta tardía de A se descarta.
+  const pedidoRef = useRef(0);
+
+  const cargar = useCallback(async (hallazgoId: number): Promise<HallazgoDetalle | null> => {
+    const mio = ++pedidoRef.current;
     setCargando(true);
     setError(null);
     try {
       const det = await api.detalleHallazgo(hallazgoId);
       const docs = await api.listarDocumentos(det.liquidacion_id);
+      if (pedidoRef.current !== mio) return null;
       setDetalle(det);
       setDocumentos(documentosDelHallazgo(det, docs));
+      return det;
     } catch (err) {
+      if (pedidoRef.current !== mio) return null;
       const mensaje = mensajeError(err);
       toast.error(mensaje);
       setError(mensaje);
+      return null;
     } finally {
-      setCargando(false);
+      if (pedidoRef.current === mio) setCargando(false);
     }
   }, []);
 
   useEffect(() => {
     if (id === null) {
+      pedidoRef.current++;
       // eslint-disable-next-line react-hooks/set-state-in-effect -- patrón de carga establecido; ver plan Task 12
       setDetalle(null);
       setDocumentos([]);
       setError(null);
+      setCargando(false);
       return;
     }
     cargar(id);
@@ -84,9 +95,9 @@ export function DrawerHallazgo({
               <FichaHallazgo
                 detalle={detalle}
                 documentos={documentos}
-                alCambiar={() => {
-                  if (id !== null) cargar(id);
-                  alCambiar();
+                alCambiar={async () => {
+                  const actualizado = id !== null ? await cargar(id) : null;
+                  alCambiar(actualizado ?? undefined);
                 }}
                 conVisor={false}
               />

@@ -55,22 +55,35 @@ function SelectorEstado({
 
   return (
     <div className="flex flex-col gap-2">
+      <h3 className="text-sm font-semibold">Estado</h3>
       <div className="flex flex-wrap gap-2">
-        {ESTADOS.map((estado) => (
-          <Button
-            key={estado}
-            type="button"
-            variant={estado === estadoActual ? "default" : "outline"}
-            size="sm"
-            className={cn("min-h-9 px-3.5", estado === estadoActual ? "bg-[#123A5C] text-white" : "")}
-            onClick={() => setElegido(estado === elegido ? null : estado)}
-          >
-            {estado}
-          </Button>
-        ))}
+        {ESTADOS.map((estado) => {
+          const esActual = estado === estadoActual;
+          const esElegido = estado === elegido;
+          return (
+            <Button
+              key={estado}
+              type="button"
+              variant={esActual ? "default" : "outline"}
+              size="sm"
+              aria-pressed={esElegido}
+              className={cn(
+                "min-h-9 px-3.5",
+                esActual && "bg-[#123A5C] text-white",
+                esElegido && "ring-2 ring-[#123A5C] ring-offset-1 border-[#123A5C] bg-[#E8EFF6] text-[#123A5C]"
+              )}
+              onClick={() => setElegido(estado === elegido ? null : estado)}
+            >
+              {estado}
+            </Button>
+          );
+        })}
       </div>
       {elegido && (
         <div className="flex flex-col gap-2 border border-borde-suave rounded-lg p-3">
+          <p className="text-sm">
+            Cambiar a <strong>{elegido}</strong>
+          </p>
           <Label htmlFor={idNota}>Nota (opcional)</Label>
           <Textarea id={idNota} value={nota} onChange={(e) => setNota(e.target.value)} />
           <Button type="button" onClick={confirmar} disabled={enviando}>
