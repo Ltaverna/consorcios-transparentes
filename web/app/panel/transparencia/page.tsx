@@ -6,7 +6,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { mensajeError, moneda } from "@/lib/formato";
+import { COMPONENTES_INDICE, cuentaPenalizacion, mensajeError, moneda, puntosIndice } from "@/lib/formato";
 import { api, type IndiceTransparencia, type StatsTransparencia, type GastoConEstado } from "@/lib/api";
 import { ChipEstadoGasto } from "@/components/estado-gasto";
 import { ChipSeveridad } from "@/components/severidad";
@@ -57,18 +57,63 @@ function CardIndice({ datos }: { datos: IndiceTransparencia }) {
           </span>
         </div>
         <p className="text-sm text-tinta-suave">
-          Porcentaje del dinero trazable: gastos con respaldo documental y sin ninguna cuestión
-          abierta.
+          {t.componentes
+            ? "Índice compuesto: cinco componentes ponderados, menos una penalización por cuestiones críticas abiertas."
+            : "Porcentaje del dinero trazable: gastos con respaldo documental y sin ninguna cuestión abierta."}
         </p>
         <div className="flex flex-col gap-3">
           <Barra etiqueta="Dinero verificado" pct={t.pct_trazable} importe={t.dinero_verificado} />
           <Barra etiqueta="Con factura adjunta" pct={t.pct_con_factura} importe={t.dinero_con_factura} />
           <Barra etiqueta="Pagos respaldados" pct={t.pct_pago_respaldado} importe={t.dinero_pago_respaldado} />
         </div>
-        <p className="text-xs text-tinta-suave">
-          Fórmula: índice = dinero verificado ÷ dinero total × 100 = {moneda(t.dinero_verificado)} ÷{" "}
-          {moneda(t.dinero_total)}. Cifras calculadas del cruce de documentos, sin intervención de IA.
-        </p>
+        {t.componentes ? (
+          <div className="flex flex-col gap-2">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b text-left text-xs text-tinta-suave">
+                  <th className="pb-1.5 pr-4 font-medium">Componente</th>
+                  <th className="pb-1.5 pr-4 font-medium text-right">Valor</th>
+                  <th className="pb-1.5 pr-4 font-medium text-right">Peso</th>
+                  <th className="pb-1.5 font-medium text-right">Puntos</th>
+                </tr>
+              </thead>
+              <tbody>
+                {COMPONENTES_INDICE.filter(({ clave }) => t.componentes![clave]).map(({ clave, etiqueta }) => {
+                  const c = t.componentes![clave];
+                  return (
+                    <tr key={clave} className="border-b last:border-0">
+                      <td className="py-1.5 pr-4">
+                        {etiqueta}
+                        {c.periodos_cuadran !== undefined && c.periodos_totales !== undefined && (
+                          <span className="text-xs text-tinta-suave">
+                            {" "}({c.periodos_cuadran} de {c.periodos_totales} períodos cuadran)
+                          </span>
+                        )}
+                      </td>
+                      <td className="py-1.5 pr-4 text-right tabular-nums">{porcentaje(c.valor)}</td>
+                      <td className="py-1.5 pr-4 text-right tabular-nums">{porcentaje(c.peso)}</td>
+                      <td className="py-1.5 text-right tabular-nums">{puntosIndice(c.puntos)}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+            {t.penalizacion && (
+              <p className="text-sm tabular-nums">
+                Penalización: {cuentaPenalizacion(t.penalizacion)}
+                {t.penalizacion.criticos_abiertos > 0 && <> · −{t.penalizacion.puntos} puntos</>}
+              </p>
+            )}
+            <p className="text-xs text-tinta-suave">
+              índice = suma de puntos − penalización, recortado a 0-100 · ninguna cifra la genera una IA
+            </p>
+          </div>
+        ) : (
+          <p className="text-xs text-tinta-suave">
+            Fórmula: índice = dinero verificado ÷ dinero total × 100 = {moneda(t.dinero_verificado)} ÷{" "}
+            {moneda(t.dinero_total)}. Cifras calculadas del cruce de documentos, sin intervención de IA.
+          </p>
+        )}
       </CardContent>
     </Card>
   );

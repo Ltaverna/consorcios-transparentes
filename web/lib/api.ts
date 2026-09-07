@@ -201,6 +201,9 @@ export interface StatsTransparencia {
   gastos_por_estado: Record<string, { cantidad: number; importe: number }>;
   hallazgos_abiertos: Record<string, number>;
   hallazgos_resueltos: number;
+  // Desglose del índice compuesto (opcionales: respuestas viejas no los traen).
+  componentes?: Record<string, { peso: number; valor: number; puntos: number; periodos_cuadran?: number; periodos_totales?: number }>;
+  penalizacion?: { criticos_abiertos: number; por_critico: number; tope: number; puntos: number };
 }
 
 export interface IndiceTransparencia {

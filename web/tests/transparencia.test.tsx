@@ -15,6 +15,14 @@ const INDICE = {
       sin_informacion: { cantidad: 1, importe: 50 },
     },
     hallazgos_abiertos: { "CRÍTICO": 1, ALTO: 2, MEDIO: 3, BAJO: 0 }, hallazgos_resueltos: 4,
+    componentes: {
+      documentacion: { peso: 0.3, valor: 0.64, puntos: 19.2 },
+      conciliacion: { peso: 0.3, valor: 0.54, puntos: 16.2 },
+      trazabilidad: { peso: 0.2, valor: 0.1, puntos: 2.0 },
+      consistencia: { peso: 0.1, valor: 0.8, puntos: 8.0, periodos_cuadran: 8, periodos_totales: 10 },
+      explicaciones: { peso: 0.1, valor: 0.0, puntos: 0.0 },
+    },
+    penalizacion: { criticos_abiertos: 36, por_critico: 2, tope: 25, puntos: 25 },
   },
   periodos: [{ periodo: "2026-08", indice: 62, pct_trazable: 0.62, pct_con_factura: 0.81,
                pct_pago_respaldado: 0.7, dinero_total: 1000, dinero_verificado: 620,
@@ -38,7 +46,20 @@ test("muestra el índice, las métricas y el drill-down", async () => {
   render(<PaginaTransparencia />);
   // /^62$/ y no /62/: los importes de las barras y la tabla ($ 620) también contienen "62".
   expect(await screen.findByText(/^62$/)).toBeInTheDocument();
-  expect(screen.getByText(/trazable/i)).toBeInTheDocument();
   expect(await screen.findByText(/ROTH/)).toBeInTheDocument();
   expect(screen.getByText(/transferencia sin respaldo/)).toBeInTheDocument();
+
+  // Desglose del índice compuesto: tabla de componentes con etiquetas en español.
+  expect(screen.getByText("Documentación")).toBeInTheDocument();
+  expect(screen.getByText("Conciliación de pagos")).toBeInTheDocument();
+  expect(screen.getByText("Trazabilidad")).toBeInTheDocument();
+  expect(screen.getByText(/8 de 10 períodos cuadran/)).toBeInTheDocument();
+  expect(screen.getByText("Explicaciones")).toBeInTheDocument();
+  // Peso 0.30 → "30 %" (documentación y conciliación lo comparten) y puntos "19,2".
+  expect(screen.getAllByText("30 %").length).toBeGreaterThan(0);
+  expect(screen.getByText("19,2")).toBeInTheDocument();
+  // La penalización muestra la cuenta completa: 36 críticos × 2 = 72 → tope 25.
+  expect(screen.getByText(/36 críticos × 2 = 72 → tope 25/)).toBeInTheDocument();
+  // Cierra con la fórmula del compuesto.
+  expect(screen.getByText(/suma de puntos − penalización/)).toBeInTheDocument();
 });

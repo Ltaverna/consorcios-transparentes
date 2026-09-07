@@ -21,6 +21,36 @@ export function moneda(v: number): string {
 }
 
 /**
+ * Componentes del índice compuesto, en el orden de la fórmula, con su etiqueta en español.
+ */
+export const COMPONENTES_INDICE: { clave: string; etiqueta: string }[] = [
+  { clave: "documentacion", etiqueta: "Documentación" },
+  { clave: "conciliacion", etiqueta: "Conciliación de pagos" },
+  { clave: "trazabilidad", etiqueta: "Trazabilidad" },
+  { clave: "consistencia", etiqueta: "Consistencia" },
+  { clave: "explicaciones", etiqueta: "Explicaciones" },
+];
+
+/**
+ * Formatea los puntos de un componente del índice: un decimal, coma decimal (es-AR).
+ */
+export function puntosIndice(v: number): string {
+  return v.toLocaleString("es-AR", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+}
+
+/**
+ * La cuenta de la penalización del índice, tal como se calcula:
+ * "36 críticos × 2 = 72 → tope 25", o "sin penalización" cuando no hay críticos abiertos.
+ */
+export function cuentaPenalizacion(p: { criticos_abiertos: number; por_critico: number; tope: number }): string {
+  if (p.criticos_abiertos === 0) return "sin penalización";
+  const base = p.criticos_abiertos * p.por_critico;
+  const criticos = p.criticos_abiertos === 1 ? "crítico" : "críticos";
+  const cuenta = `${p.criticos_abiertos} ${criticos} × ${p.por_critico} = ${base}`;
+  return base > p.tope ? `${cuenta} → tope ${p.tope}` : cuenta;
+}
+
+/**
  * Formatea una fecha ISO como DD/MM/AAAA HH:mm en horario de Argentina.
  */
 export function fecha(iso: string): string {

@@ -9,7 +9,7 @@ import { ChipSeveridad } from "@/components/severidad";
 import { ChipEstadoGasto } from "@/components/estado-gasto";
 import { api, ApiError, urlInforme, urlContenidoDocumento, type MiUnidad, type HallazgoDetalle, type DocumentoInfo, type IndiceTransparencia } from "@/lib/api";
 import { documentosDelHallazgo } from "@/components/hallazgos/documentos-de";
-import { moneda, mensajeError } from "@/lib/formato";
+import { COMPONENTES_INDICE, cuentaPenalizacion, moneda, mensajeError, puntosIndice } from "@/lib/formato";
 
 interface HallazgoConDocs {
   detalle: HallazgoDetalle;
@@ -195,6 +195,27 @@ export default function PaginaMiUnidad() {
                         </div>
                       ))}
                     </div>
+
+                    {indice.totales.componentes && (
+                      <div className="flex flex-col gap-1">
+                        <span className="text-xs font-semibold text-tinta-suave uppercase tracking-wide">Desglose del índice</span>
+                        {COMPONENTES_INDICE.filter(({ clave }) => indice.totales.componentes![clave]).map(({ clave, etiqueta }) => {
+                          const c = indice.totales.componentes![clave];
+                          return (
+                            <div key={clave} className="flex justify-between text-xs">
+                              <span>{etiqueta}</span>
+                              <span className="tabular-nums">{puntosIndice(c.puntos)} pts</span>
+                            </div>
+                          );
+                        })}
+                        {indice.totales.penalizacion && indice.totales.penalizacion.criticos_abiertos > 0 && (
+                          <div className="flex justify-between text-xs">
+                            <span>Penalización: {cuentaPenalizacion(indice.totales.penalizacion)}</span>
+                            <span className="tabular-nums">−{indice.totales.penalizacion.puntos} pts</span>
+                          </div>
+                        )}
+                      </div>
+                    )}
 
                     <div className="flex flex-col gap-1">
                       <span className="text-xs font-semibold text-tinta-suave uppercase tracking-wide">Estados de los gastos</span>
