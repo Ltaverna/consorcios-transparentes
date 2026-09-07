@@ -415,11 +415,11 @@ def _formatear_componentes(componentes: dict, penalizacion: dict) -> list[str]:
     """Devuelve las líneas de la tabla de componentes y la línea de penalización."""
     lineas = ["Componentes del índice:"]
     _NOMBRES = {
-        "documentacion": "documentacion",
-        "conciliacion": "conciliacion",
-        "trazabilidad": "trazabilidad",
-        "consistencia": "consistencia",
-        "explicaciones": "explicaciones",
+        "documentacion": "Documentación",
+        "conciliacion": "Conciliación de pagos",
+        "trazabilidad": "Trazabilidad",
+        "consistencia": "Consistencia",
+        "explicaciones": "Explicaciones",
     }
     for nombre, comp in componentes.items():
         valor_pct = f"{comp['valor']:.0%}"
@@ -451,9 +451,10 @@ def _formatear_componentes(componentes: dict, penalizacion: dict) -> list[str]:
 
 @_con_api
 def indice_transparencia(desde: str = "", hasta: str = "") -> str:
-    """Índice de transparencia del consorcio: % del dinero trazable de punta a punta
-    (gastos verificados), % con factura adjunta, % de pagos respaldados y cuestiones
-    pendientes por severidad. Rango opcional de períodos AAAA-MM."""
+    """Índice de transparencia compuesto (0-100): documentación 30% + conciliación de
+    pagos 30% + trazabilidad 20% + consistencia 10% + explicaciones 10%, menos una
+    penalización por hallazgos críticos abiertos (2 puntos c/u, tope 25). Devuelve el
+    desglose completo y reproducible. Rango opcional de períodos AAAA-MM."""
     d = _cliente().get("/analitica/indice", {"desde": desde, "hasta": hasta})
     t = d["totales"]
     lineas = [

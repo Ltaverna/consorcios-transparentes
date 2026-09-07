@@ -105,7 +105,7 @@ function CardIndice({ datos }: { datos: IndiceTransparencia }) {
               </p>
             )}
             <p className="text-xs text-tinta-suave">
-              índice = suma de puntos − penalización, recortado a 0-100 · ninguna cifra la genera una IA
+              índice = suma de puntos − penalización, redondeado y recortado a 0-100 · ninguna cifra la genera una IA
             </p>
           </div>
         ) : (

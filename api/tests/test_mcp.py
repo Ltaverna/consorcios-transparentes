@@ -535,8 +535,8 @@ def test_indice_transparencia_incluye_componentes_y_penalizacion(monkeypatch):
     monkeypatch.setattr(servidor_mcp, "_cliente", lambda: ClienteFalsoConAnalitica())
     out = servidor_mcp.indice_transparencia()
 
-    # Tabla de componentes: debe haber una línea con "documentacion" y "peso"
-    assert "documentacion" in out
+    # Tabla de componentes: debe haber una línea con "Documentación" y "peso"
+    assert "Documentación" in out
     assert "peso" in out
     # Valores del fixture: 64% × peso 30% = 19,2 puntos
     assert "64%" in out
@@ -544,7 +544,7 @@ def test_indice_transparencia_incluye_componentes_y_penalizacion(monkeypatch):
     assert "19,2" in out
 
     # Consistencia incluye el desglose de períodos
-    assert "consistencia" in out
+    assert "Consistencia" in out
     assert "8 de 10" in out
 
     # Penalización con tope: 36 abiertos × 2 = 72 → tope 25
