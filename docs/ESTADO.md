@@ -1,5 +1,15 @@
 # Estado del proyecto (6 de septiembre de 2026)
 
+## Índice de transparencia compuesto (6/09/2026)
+- El índice pasa a score compuesto 0-100: documentación 30% + conciliación 30% + trazabilidad 20% +
+  consistencia 10% (las `no_cuadra` cuentan en el denominador) + explicaciones 10%, menos 2 puntos por
+  CRÍTICO abierto (tope 25). Constantes con nombre en `analitica.py`; el índice se redondea sobre los
+  productos crudos (reproducible al entero desde la fórmula publicada). Spec:
+  `docs/superpowers/specs/2026-09-06-indice-compuesto-design.md`.
+- Desglose visible en el panel, en mi-unidad y en el MCP (con la cuenta de la penalización).
+  Vista propietario: solo sobre publicadas, sin conteos de no_cuadra. API 188 · web 44 tests.
+- Pendiente de deploy. Pesos configurables desde el panel: anotado para después.
+
 ## Backfill de la serie histórica (6/09/2026)
 - `ct sincronizar --desde AAAA-MM` (spec `docs/superpowers/specs/2026-09-06-backfill-sincronizacion-design.md`):
   el pipeline mensual corre para todos los períodos del portal desde la fecha, del más viejo al más nuevo.
