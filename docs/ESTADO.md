@@ -16,9 +16,10 @@
   El worker diario no cambia. Motor: 106 tests.
 - Corrido el 6/09 con `--desde 2025-11`: **2026-01 a 2026-08 procesadas y cuadradas al centavo** (serie de
   8 meses en la base; julio y agosto reprocesadas con la serie completa). **2025-11 y 2025-12 en `no_cuadra`
-  por diferencias reales del documento**: noviembre difiere +$149.000 entre el listado de gastos y los egresos
-  del estado financiero; diciembre tiene $300 corridos entre las columnas A y B del prorrateo. Quedan visibles
-  en el panel con sus checks; pedir a la administración la aclaración o la liquidación corregida.
+  por diferencias reales del documento** (noviembre: +$149.000 entre gastos y egresos; diciembre: $300
+  corridos entre columnas A y B). El 6/09 el dueño decidió **eliminarlas de la base**: el período auditable
+  arranca en 2026-01. Los PDFs quedan en la carpeta privada; futuros backfills usar `--desde 2026-01`.
+  El reclamo a la administración por esos dos meses puede hacerse por fuera del sistema.
 - Foto post-backfill: índice de transparencia 15/100 (ene-ago), 366 hallazgos abiertos
   (36 CRÍTICO · 121 ALTO · 199 MEDIO · 10 BAJO), triage pendiente.
 
