@@ -54,6 +54,15 @@ def test_url_no_arca_devuelve_none():
     assert decodificar_payload("no es una url") is None
 
 
+def test_host_spoofing_devuelve_none():
+    # afip.gob.ar como subdominio de un host malicioso → None
+    assert decodificar_payload(_url(PAYLOAD).replace("www.afip.gob.ar", "afip.gob.ar.evil.com")) is None
+    # afip.gob.ar como credencial (userinfo) → None
+    assert decodificar_payload(_url(PAYLOAD).replace("www.afip.gob.ar", "www.afip.gob.ar@evil.com")) is None
+    # host legítimo con subdominio → decodifica
+    assert decodificar_payload(_url(PAYLOAD))["nro_cmp"] == 56068
+
+
 def test_tipo_doc_receptor_distinto_de_80_sin_cuit_receptor():
     p = dict(PAYLOAD, tipoDocRec=96, nroDocRec=12345678)   # DNI, no CUIT
     q = decodificar_payload(_url(p))
@@ -221,4 +230,42 @@ def test_cruzar_qr_consistente_no_dispara(monkeypatch):
 
 def test_cruzar_sin_nro_en_liquidacion_no_dispara_numeracion(monkeypatch):
     hs = _cruzar_con_doc(monkeypatch, _liq_qr(factura_nro=None), _doc_qr())
+    assert not any(x.clave == "qr-numeracion" for x in hs)
+
+
+# ---- bare-number: citación sin punto de venta no es divergencia ----
+
+def _doc_qr_nro(pto_vta, nro_cmp):
+    """Documento con QR cuyo nroCmp = nro_cmp (para tests de bare-number)."""
+    qr = dict(QR_EJEMPLO, pto_vta=pto_vta, nro_cmp=nro_cmp)
+    factura_nro = f"{pto_vta:04d}-{nro_cmp:08d}"
+    d = Documento(archivo="fact.pdf", gasto_n=10, tipo="factura", texto_len=500,
+                  qr=qr, factura_nro=factura_nro,
+                  emisor_cuit="30708293632", receptor_cuit="30707090954",
+                  importe=987_969.0, fecha=date(2026, 3, 25))
+    d.notas = []
+    return d
+
+
+def test_cruzar_qr_numeracion_bare_igual_nro_no_dispara(monkeypatch):
+    # liquidación cita "8675" (sin ptoVta); QR dice ptoVta=5, nroCmp=8675 → misma factura
+    hs = _cruzar_con_doc(monkeypatch, _liq_qr(factura_nro="8675"), _doc_qr_nro(5, 8675))
+    assert not any(x.clave == "qr-numeracion" for x in hs)
+
+
+def test_cruzar_qr_numeracion_bare_ceros_no_dispara(monkeypatch):
+    # "00007897" normalizado es "7897" (bare), QR nroCmp=7897 → misma factura
+    hs = _cruzar_con_doc(monkeypatch, _liq_qr(factura_nro="00007897"), _doc_qr_nro(3, 7897))
+    assert not any(x.clave == "qr-numeracion" for x in hs)
+
+
+def test_cruzar_qr_numeracion_bare_nro_distinto_dispara(monkeypatch):
+    # "9234" (bare) vs QR nroCmp=19234 → distinto comprobante → hallazgo
+    hs = _cruzar_con_doc(monkeypatch, _liq_qr(factura_nro="9234"), _doc_qr_nro(5, 19234))
+    assert any(x.clave == "qr-numeracion" for x in hs)
+
+
+def test_cruzar_qr_numeracion_pto_vta_completo_no_dispara(monkeypatch):
+    # "0501-76051312" completo: ptoVta=501, nroCmp=76051312 → coincide
+    hs = _cruzar_con_doc(monkeypatch, _liq_qr(factura_nro="0501-76051312"), _doc_qr_nro(501, 76051312))
     assert not any(x.clave == "qr-numeracion" for x in hs)

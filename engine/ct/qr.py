@@ -57,7 +57,10 @@ def decodificar_payload(url: str) -> Optional[dict]:
     se puede leer. Campos ausentes quedan en None; nunca lanza excepción."""
     try:
         parts = urlsplit(url)
-        if "afip.gob.ar" not in parts.netloc.lower() or "/fe/qr" not in parts.path.lower():
+        host = (parts.hostname or "").lower()
+        if not (host == "afip.gob.ar" or host.endswith(".afip.gob.ar")):
+            return None
+        if "/fe/qr" not in parts.path.lower():
             return None
         p = parse_qs(parts.query).get("p", [None])[0]
         if not p:

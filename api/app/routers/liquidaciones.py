@@ -106,7 +106,7 @@ def subir_comprobantes(liq_id: int, request: Request, archivo: UploadFile,
     if len(data) > tope:
         raise HTTPException(413, f"El ZIP supera los {settings.max_zip_mb} MB")
     try:
-        # sincrónico: son segundos, y así el error llega directo al auditor
+        # sincrónico: tarda ~15-20 s cuando hay renders de QR, así el error llega directo al auditor
         ingesta.cruzar_comprobantes(db, liq.id, data, request.app.state.storage)
     except ValueError as e:
         raise HTTPException(422, str(e))

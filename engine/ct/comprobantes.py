@@ -116,6 +116,8 @@ def nombre_vinculado(texto: str, nombres: dict[str, str]) -> Optional[tuple[str,
 
 # prefijo estable de las notas de divergencia texto↔QR (lo consume el check `qr-texto` de cruzar)
 PREFIJO_QR_DIVERGENCIA = "QR: el texto de la factura dice "
+# prefijo de las notas de imagen sin texto (limpiado cuando el QR clasifica el doc)
+_NOTA_SIN_TEXTO = "Sin texto:"
 
 
 def _aplicar_qr(doc: Documento, path: str) -> None:
@@ -145,7 +147,7 @@ def _aplicar_qr(doc: Documento, path: str) -> None:
         doc.receptor_cuit = q["cuit_receptor"]
     if doc.tipo == "imagen":
         doc.tipo = "factura"
-        doc.notas = [n for n in doc.notas if not n.startswith("Sin texto:")]   # ya no requiere revisión visual
+        doc.notas = [n for n in doc.notas if not n.startswith(_NOTA_SIN_TEXTO)]   # ya no requiere revisión visual
         doc.notas.append("Clasificada por el QR de ARCA (sin texto extraíble).")
 
 
@@ -159,7 +161,7 @@ def interpretar(path: str, gasto_n: Optional[int], cuit_consorcio: str) -> Docum
     doc.texto_len = len(t.strip())
     if doc.texto_len < 40:
         doc.tipo = "imagen"
-        doc.notas.append("Sin texto: es una imagen o un recibo manuscrito; requiere revisión visual.")
+        doc.notas.append(f"{_NOTA_SIN_TEXTO} es una imagen o un recibo manuscrito; requiere revisión visual.")
         _aplicar_qr(doc, path)
         return doc
     flat = re.sub(r"[ \t]+", " ", t)
@@ -465,9 +467,18 @@ def cruzar(liq: Liquidacion, items: list[ItemManifiesto], carpeta: Optional[str]
                                        f"El texto de la factura de {g.proveedor} no coincide con su QR de ARCA",
                                        " ".join(divs) + f" {f.archivo}.", 0,
                                        "Pedir la factura original: el PDF puede estar adulterado o mal generado.", ref, clave="qr-texto"))
-                # numeración: la liquidación cita una factura y el QR dice que la adjunta es otra
+                # numeración: la liquidación cita una factura y el QR dice que la adjunta es otra.
+                # Si la liquidación cita sólo el número de comprobante sin punto de venta (bare),
+                # comparamos contra nroCmp del QR; exigir el par completo sería un falso positivo.
                 nro_liq, nro_qr = _norm_nro(g.factura_nro), _norm_nro(f.factura_nro)
-                if nro_liq and nro_qr and nro_liq != nro_qr:
+                if nro_liq and nro_qr:
+                    if "-" not in nro_liq:
+                        # bare: sólo nro de comprobante → comparar contra nroCmp del QR
+                        nro_cmp_qr = str(f.qr["nro_cmp"]) if f.qr.get("nro_cmp") is not None else None
+                        diverge = nro_cmp_qr is None or nro_liq != nro_cmp_qr
+                    else:
+                        diverge = nro_liq != nro_qr
+                if nro_liq and nro_qr and diverge:
                     hs.append(Hallazgo("comprobantes", "MEDIO", "Respaldo documental",
                                        f"La factura adjunta de {g.proveedor} no es la citada en la liquidación",
                                        f"La liquidación cita la factura {g.factura_nro}; el QR de ARCA de {f.archivo} dice {f.factura_nro}.", 0,
