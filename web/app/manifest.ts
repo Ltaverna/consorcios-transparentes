@@ -5,7 +5,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: "Consorcio Transparente",
     short_name: "Consorcio",
     description: "Panel de expensas del consorcio: liquidaciones, hallazgos e informes.",
-    start_url: "/entrar",
+    start_url: "/",
     display: "standalone",
     background_color: "#FFFFFF",
     theme_color: "#123A5C",

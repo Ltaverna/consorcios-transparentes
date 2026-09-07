@@ -173,6 +173,9 @@ function FormPropietario({ alEntrar }: { alEntrar: (rol: Rol) => void }) {
           onChange={(e) => setCodigo(e.target.value)}
           required
         />
+        <p className="text-sm text-tinta-suave">
+          Es el código que te entregó el consejo o el auditor. Si no lo tenés, pedilo en la administración del consorcio.
+        </p>
       </div>
       <MensajeError mensaje={error} />
       <Button type="submit" disabled={enviando} className="w-full">
@@ -184,7 +187,7 @@ function FormPropietario({ alEntrar }: { alEntrar: (rol: Rol) => void }) {
 
 export function FormulariosEntrar({ alEntrar }: { alEntrar: (rol: Rol) => void }) {
   return (
-    <Tabs defaultValue="equipo">
+    <Tabs defaultValue="propietario">
       <TabsList className="w-full">
         <TabsTrigger value="equipo" className="flex-1">
           Equipo
