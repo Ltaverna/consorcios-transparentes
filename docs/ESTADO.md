@@ -7,6 +7,10 @@
   paralela, hallazgos colapsados, visor de comprobantes en dialog), PWA/login (start_url "/", tab
   propietario por defecto), y transversales (teclado en transparencia, guards de carrera, títulos por
   página, aria). Web: 64 tests. Sev 1 anotados en la spec, no hechos.
+- Backlog motor (caso Saczewiczyk, 6/09): extraer "inicio de actividades" del texto de la factura para
+  enriquecer la regla de numeración baja; regla simple de correlatividad (mismo emisor, números
+  consecutivos en meses consecutivos). Los 3 hallazgos de numeración quedaron en "preguntado" con la
+  pregunta para la administración.
 
 ## Índice de transparencia compuesto (6/09/2026)
 - El índice pasa a score compuesto 0-100: documentación 30% + conciliación 30% + trazabilidad 20% +
