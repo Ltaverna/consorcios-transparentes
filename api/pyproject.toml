@@ -18,6 +18,8 @@ dependencies = [
   "apscheduler>=3.10,<4",
   "mcp>=2,<3",
   "pgvector>=0.3",
+  "pyzbar>=0.1.9",  # QR de ARCA en facturas (requiere libzbar0 en la imagen)
+  "pillow>=10",
 ]
 
 [project.optional-dependencies]
