@@ -411,6 +411,44 @@ def buscar_semantico(texto: str) -> str:
     return "\n".join(lineas)
 
 
+def _formatear_componentes(componentes: dict, penalizacion: dict) -> list[str]:
+    """Devuelve las líneas de la tabla de componentes y la línea de penalización."""
+    lineas = ["Componentes del índice:"]
+    _NOMBRES = {
+        "documentacion": "documentacion",
+        "conciliacion": "conciliacion",
+        "trazabilidad": "trazabilidad",
+        "consistencia": "consistencia",
+        "explicaciones": "explicaciones",
+    }
+    for nombre, comp in componentes.items():
+        valor_pct = f"{comp['valor']:.0%}"
+        peso_pct = f"{comp['peso']:.0%}"
+        puntos_str = f"{comp['puntos']:.1f}".replace(".", ",")
+        linea = f"  {_NOMBRES.get(nombre, nombre)}: {valor_pct} × peso {peso_pct} = {puntos_str} puntos"
+        if nombre == "consistencia" and "periodos_cuadran" in comp:
+            linea += f" ({comp['periodos_cuadran']} de {comp['periodos_totales']} períodos cuadran)"
+        lineas.append(linea)
+    # Línea de penalización
+    criticos = penalizacion["criticos_abiertos"]
+    por_critico = penalizacion["por_critico"]
+    tope = penalizacion["tope"]
+    puntos_pen = penalizacion["puntos"]
+    if criticos == 0:
+        lineas.append("Penalización por críticos: sin penalización")
+    else:
+        bruto = criticos * por_critico
+        if puntos_pen >= tope:
+            lineas.append(
+                f"Penalización por críticos: {criticos} abiertos × {por_critico} = {bruto} → tope {tope} (se restan {puntos_pen} puntos)"
+            )
+        else:
+            lineas.append(
+                f"Penalización por críticos: {criticos} abiertos × {por_critico} = {bruto} (se restan {puntos_pen} puntos)"
+            )
+    return lineas
+
+
 @_con_api
 def indice_transparencia(desde: str = "", hasta: str = "") -> str:
     """Índice de transparencia del consorcio: % del dinero trazable de punta a punta
@@ -424,8 +462,10 @@ def indice_transparencia(desde: str = "", hasta: str = "") -> str:
         f"Con factura adjunta: {t['pct_con_factura']:.0%} · pagos respaldados: {t['pct_pago_respaldado']:.0%}",
         "Cuestiones abiertas: " + (", ".join(f"{k} {v}" for k, v in t["hallazgos_abiertos"].items() if v) or "ninguna")
         + f" · resueltas: {t['hallazgos_resueltos']}",
-        "Gastos por estado:",
     ]
+    if t.get("componentes") and t.get("penalizacion"):
+        lineas += _formatear_componentes(t["componentes"], t["penalizacion"])
+    lineas.append("Gastos por estado:")
     for est, v in t["gastos_por_estado"].items():
         if v["cantidad"]:
             lineas.append(f"  {est}: {v['cantidad']} gasto(s), {_plata(v['importe'])}")

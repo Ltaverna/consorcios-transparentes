@@ -462,7 +462,7 @@ def test_wrapper_error_de_red_no_escribe_cache_negativa():
 
 
 _INDICE_FALSO = {
-    "indice": 62,
+    "indice": 20,
     "rango": {"desde": "2026-07", "hasta": "2026-08"},
     "totales": {
         "dinero_total": 1000.0,
@@ -472,7 +472,7 @@ _INDICE_FALSO = {
         "pct_trazable": 0.62,
         "pct_con_factura": 0.81,
         "pct_pago_respaldado": 0.7,
-        "indice": 62,
+        "indice": 20,
         "gastos_por_estado": {
             "verificado": {"cantidad": 10, "importe": 620.0},
             "requiere_explicacion": {"cantidad": 3, "importe": 100.0},
@@ -482,8 +482,17 @@ _INDICE_FALSO = {
         },
         "hallazgos_abiertos": {"CRÍTICO": 1, "ALTO": 2, "MEDIO": 3, "BAJO": 0},
         "hallazgos_resueltos": 4,
+        "componentes": {
+            "documentacion":  {"peso": 0.30, "valor": 0.64, "puntos": 19.2},
+            "conciliacion":   {"peso": 0.30, "valor": 0.54, "puntos": 16.2},
+            "trazabilidad":   {"peso": 0.20, "valor": 0.10, "puntos": 2.0},
+            "consistencia":   {"peso": 0.10, "valor": 0.80, "puntos": 8.0,
+                               "periodos_cuadran": 8, "periodos_totales": 10},
+            "explicaciones":  {"peso": 0.10, "valor": 0.0,  "puntos": 0.0},
+        },
+        "penalizacion": {"criticos_abiertos": 36, "por_critico": 2, "tope": 25, "puntos": 25},
     },
-    "periodos": [{"periodo": "2026-08", "indice": 62}],
+    "periodos": [{"periodo": "2026-08", "indice": 20}],
 }
 
 _GASTOS_FALSOS = {
@@ -518,7 +527,72 @@ def test_indice_transparencia_contiene_indice_y_titulo(monkeypatch):
     monkeypatch.setattr(servidor_mcp, "_cliente", lambda: ClienteFalsoConAnalitica())
     out = servidor_mcp.indice_transparencia()
     assert "ÍNDICE DE TRANSPARENCIA" in out
-    assert "62" in out
+    assert "20" in out
+
+
+def test_indice_transparencia_incluye_componentes_y_penalizacion(monkeypatch):
+    """indice_transparencia incluye la tabla de componentes y la cuenta de penalización."""
+    monkeypatch.setattr(servidor_mcp, "_cliente", lambda: ClienteFalsoConAnalitica())
+    out = servidor_mcp.indice_transparencia()
+
+    # Tabla de componentes: debe haber una línea con "documentacion" y "peso"
+    assert "documentacion" in out
+    assert "peso" in out
+    # Valores del fixture: 64% × peso 30% = 19,2 puntos
+    assert "64%" in out
+    assert "30%" in out
+    assert "19,2" in out
+
+    # Consistencia incluye el desglose de períodos
+    assert "consistencia" in out
+    assert "8 de 10" in out
+
+    # Penalización con tope: 36 abiertos × 2 = 72 → tope 25
+    assert "36" in out
+    assert "tope 25" in out
+    assert "25 puntos" in out
+
+
+def test_indice_transparencia_penalizacion_sin_tope(monkeypatch):
+    """Cuando la penalización no llega al tope, no muestra la flecha al tope."""
+    import copy
+    indice_bajo = copy.deepcopy(_INDICE_FALSO)
+    indice_bajo["totales"]["penalizacion"] = {
+        "criticos_abiertos": 4, "por_critico": 2, "tope": 25, "puntos": 8
+    }
+
+    class ClienteConPenalizacionBaja(ClienteFalsoConAnalitica):
+        def get(self, path, params=None):
+            if path == "/analitica/indice":
+                return indice_bajo
+            return super().get(path, params)
+
+    monkeypatch.setattr(servidor_mcp, "_cliente", lambda: ClienteConPenalizacionBaja())
+    out = servidor_mcp.indice_transparencia()
+    # Debe mostrar la aritmética sin la flecha al tope
+    assert "4" in out
+    assert "se restan 8 puntos" in out
+    # No debe mencionar "tope 25" (no se alcanzó el tope)
+    assert "tope 25" not in out
+
+
+def test_indice_transparencia_penalizacion_cero(monkeypatch):
+    """Cuando no hay críticos abiertos, muestra 'sin penalización'."""
+    import copy
+    indice_sin_pen = copy.deepcopy(_INDICE_FALSO)
+    indice_sin_pen["totales"]["penalizacion"] = {
+        "criticos_abiertos": 0, "por_critico": 2, "tope": 25, "puntos": 0
+    }
+
+    class ClienteSinCriticos(ClienteFalsoConAnalitica):
+        def get(self, path, params=None):
+            if path == "/analitica/indice":
+                return indice_sin_pen
+            return super().get(path, params)
+
+    monkeypatch.setattr(servidor_mcp, "_cliente", lambda: ClienteSinCriticos())
+    out = servidor_mcp.indice_transparencia()
+    assert "sin penalización" in out
 
 
 def test_estado_gastos_lista_con_estado_uppercase(monkeypatch):
