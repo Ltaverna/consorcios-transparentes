@@ -1,5 +1,17 @@
 # Estado del proyecto (6 de septiembre de 2026)
 
+## Ciclo D-QR (7/09/2026)
+- El motor lee el QR de ARCA de facturas e imágenes (`engine/ct/qr.py`, spec
+  `docs/superpowers/specs/2026-09-07-qr-arca-design.md`): datos autoritativos (emisor, importe,
+  fecha, numeración, receptor) que pisan lo parseado del texto, con dos cross-checks nuevos
+  (`qr-texto` ALTO: el texto no coincide con el QR; `qr-numeracion` MEDIO: la factura adjunta no
+  es la citada — tolera citas sin punto de venta). Dependencia opcional (pyzbar/libzbar0 en la
+  imagen; sin ella el motor sigue igual). Motor: 135 tests.
+- Re-cruce real: 26/575 documentos con QR legible a 200 dpi (mejora futura: más DPI/páginas);
+  1 hallazgo nuevo (Maxicopy abril). Los 2 falsos positivos del 6/09 (EDESUR/Tecno Sim) fueron
+  además corregidos de raíz en el parser. OCR de manuscritos: solo ~5 docs ciegos quedan,
+  se evalúa si hace falta. Pendiente opcional: constatación online ARCA (WSCDC).
+
 ## Ciclo de UX (6/09/2026)
 - Auditoría completa (`docs/superpowers/specs/2026-09-06-auditoria-ux.md`: 28 hallazgos, 15 principios)
   y arreglados los 22 de severidad 4-2 + 4 menores de las revisiones, en 4 frentes: hallazgos escala al
