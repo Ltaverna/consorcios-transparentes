@@ -12,6 +12,7 @@ from collections.abc import Iterable
 from sqlalchemy.orm import Session
 
 from ct.comprobantes import cargar_manifiesto_redconar, cruzar
+from ct.escritura import evaluar_escritura, parsear_porcentuales
 from ct.historia import evaluar_historia
 from ct.model import Liquidacion as LiqMotor
 from ct.redconar import parse_pdf, parse_text
@@ -149,6 +150,23 @@ def recalcular_historia(db: Session, liq_row: models.Liquidacion, storage,
                        liq_row.periodo, exc_info=True)
 
 
+REGLAMENTO_KEY = "consorcio/reglamento.md"
+
+
+def _hallazgos_escritura(storage, liq: LiqMotor) -> list[HallazgoMotor]:
+    """Prorrateo contra la escritura si la transcripción está en storage. Sin transcripción
+    o con parseo vacío no corre; cualquier falla se loguea y devuelve []: la ingesta JAMÁS
+    se cae por esta comparación."""
+    try:
+        if not storage.existe(REGLAMENTO_KEY):
+            return []
+        porcentuales, complementaria = parsear_porcentuales(storage.leer(REGLAMENTO_KEY).decode("utf-8"))
+        return evaluar_escritura(liq, porcentuales, complementaria)
+    except Exception:
+        logger.warning("Falló la comparación contra la escritura (la ingesta sigue)", exc_info=True)
+        return []
+
+
 def guardar_gastos(db: Session, liq_row: models.Liquidacion, liq: LiqMotor) -> None:
     db.query(models.Gasto).filter_by(liquidacion_id=liq_row.id).delete()
     for g in liq.gastos:
@@ -249,6 +267,7 @@ def procesar(db: Session, liq_id: int, storage) -> None:
                 storage.borrar(clave)
             return
         hs = evaluar(liq, cargar_anterior(db, storage, liq_row.periodo), config_consorcio(db))
+        hs += _hallazgos_escritura(storage, liq)
         guardar_gastos(db, liq_row, liq)
         mas_reciente = (db.query(models.Liquidacion.periodo)
                           .filter(models.Liquidacion.estado.in_(("procesada", "publicada")),

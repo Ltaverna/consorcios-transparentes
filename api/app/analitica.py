@@ -10,8 +10,8 @@ ABIERTOS = ("pendiente", "preguntado", "respondido")
 RESUELTOS = ("descartado", "cerrado")
 ESTADOS_GASTO = ("verificado", "requiere_explicacion", "anomalia", "inconsistencia", "sin_informacion")
 SEVERIDADES = ("CRÍTICO", "ALTO", "MEDIO", "BAJO")
-# los refs de morosidad son UFs, no números de gasto: esa regla no clasifica gastos
-REGLAS_REFS_UF = {"morosidad"}
+# los refs de estas reglas son UFs, no números de gasto: no clasifican gastos
+REGLAS_REFS_UF = {"morosidad", "prorrateo_escritura"}
 
 # Índice compuesto: pesos definidos por el dueño (la spec es normativa, no estos comentarios).
 # documentacion = dinero_con_factura/total · conciliacion = dinero_pago_respaldado/total

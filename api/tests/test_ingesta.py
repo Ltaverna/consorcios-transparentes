@@ -146,3 +146,39 @@ def test_upsert_hallazgos_desambigua_clave_de_exactamente_500_caracteres(db):
     filas = db.query(models.Hallazgo).filter_by(liquidacion_id=liq.id).all()
     assert len(filas) == 3
     assert len({f.clave for f in filas}) == 3
+
+
+# --------------------------------------------------------------- prorrateo vs escritura
+MD_REGLAMENTO = ("### Artículo 6°\n\nPorcentuales de dominio: número 2: 3,0000%.\n\n"
+                 "**b) Unidad Complementaria I:** 8,7361%.\n")
+
+
+def test_procesar_con_reglamento_compara_contra_la_escritura(db, tmp_path):
+    st, liq = preparar(db, tmp_path)
+    st.guardar("consorcio/reglamento.md", MD_REGLAMENTO.encode())
+    ingesta.procesar(db, liq.id, st)
+    db.refresh(liq)
+    assert liq.estado == "procesada"
+    hs = db.query(models.Hallazgo).filter_by(liquidacion_id=liq.id,
+                                             regla="prorrateo_escritura").all()
+    claves = {h.clave for h in hs}
+    assert "prorrateo_escritura|escritura|2|2" in claves    # la UF 2 paga 1,44 y el md dice 3,0000
+    assert all(h.origen == "liquidacion" for h in hs)       # el upsert único los cubre
+
+
+def test_procesar_sin_reglamento_no_agrega_hallazgos_de_escritura(db, tmp_path):
+    st, liq = preparar(db, tmp_path)
+    ingesta.procesar(db, liq.id, st)
+    db.refresh(liq)
+    assert liq.estado == "procesada"
+    assert db.query(models.Hallazgo).filter_by(regla="prorrateo_escritura").count() == 0
+
+
+def test_parser_de_escritura_roto_no_cae_la_ingesta(db, tmp_path, monkeypatch):
+    st, liq = preparar(db, tmp_path)
+    st.guardar("consorcio/reglamento.md", MD_REGLAMENTO.encode())
+    monkeypatch.setattr(ingesta, "parsear_porcentuales", lambda texto: 1 / 0)
+    ingesta.procesar(db, liq.id, st)
+    db.refresh(liq)
+    assert liq.estado == "procesada"
+    assert db.query(models.Hallazgo).filter_by(regla="prorrateo_escritura").count() == 0

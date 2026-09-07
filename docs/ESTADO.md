@@ -163,6 +163,17 @@
   si no hay períodos publicados o hay error de red). Motor 99 tests · API 180 tests · web 44.
   **Pendiente de deploy** (api + worker + mcp + web con `npm run deploy:cf`).
   Próximos ciclos: B (prorrateo vs escritura del reglamento) → D (OCR de imágenes/recibos manuscritos).
+- **Prorrateo vs escritura — ciclo B** (7/09, rama `main`; spec
+  `docs/superpowers/specs/2026-09-07-prorrateo-escritura-design.md`): `engine/ct/escritura.py` parsea los
+  porcentuales de dominio del art. 6° de la transcripción del reglamento (`consorcio/reglamento.md` en storage)
+  y la regla `prorrateo_escritura` compara la clase A de cada UF (tolerancia 0,01 por el truncado a 2 decimales),
+  UFs faltantes/sobrantes, las cocheras como grupo contra la Complementaria I (tolerancia escalada) y la sanidad
+  de la propia transcripción (suma 100,0000%). Corre dentro de `procesar()` (mismo upsert origen `"liquidacion"`,
+  con try/except: la ingesta jamás se cae por esto); `analitica.REGLAS_REFS_UF` la excluye del clasificador de
+  gastos (sus refs son UFs). Smoke real: los 10 meses (nov-2025 a ago-2026) dan cero hallazgos — la administración
+  prorratea exactamente la escritura truncada. Motor 151 tests · API 192 tests. **Pendiente de deploy + re-subir
+  el reglamento.md al panel + reproceso**. Pendiente anotado: analizar qué distribución es la clase D (fuera de
+  alcance del ciclo; la B parece ser la de cocheras).
 - **Reglas de mercado + normativa + PWA** (5/09, rama `reglas-mercado`; spec
   `docs/superpowers/specs/2026-09-05-reglas-mercado-design.md`): tres reglas nuevas del motor calibradas
   contra los gastos reales (`sueldo_mercado` con detección de SAC, `honorarios_mercado`, `abonos_mercado`

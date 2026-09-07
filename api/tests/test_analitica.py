@@ -298,3 +298,16 @@ def test_endpoint_propietario_ve_solo_publicado(db, tmp_path, cliente, auditor):
     r2 = cliente.get("/analitica/indice")
     assert r2.status_code == 200
     assert r2.json()["periodos"][0]["periodo"] == "2026-08"
+
+
+def test_prorrateo_escritura_no_clasifica_gastos(db, tmp_path):
+    """Sus refs son UFs: un hallazgo abierto de la regla no baja el estado del gasto homónimo."""
+    st, liq = preparar(db, tmp_path)
+    _limpiar_hallazgos(db, liq)
+    gastos = db.query(models.Gasto).filter_by(liquidacion_id=liq.id).order_by(models.Gasto.n).all()
+    n = next((g.n for g in gastos if g.n == 5), gastos[0].n)
+    _doc(db, liq, n)
+    _hallazgo(db, liq, n, "ALTO", regla="prorrateo_escritura")  # refs=["5"] es la UF 5, no el gasto
+    filas, _, _ = analitica.evaluar_liquidacion(db, liq, solo_publicado=False)
+    por_n = {g.n: est for g, est, _h, _d in filas}
+    assert por_n[n] == "verificado"
