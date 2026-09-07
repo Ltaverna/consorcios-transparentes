@@ -3,9 +3,10 @@ Números reales de agosto 2026: cuotas de Roth (FC de mayo por $7.950.000, cuota
 declarada el 21-08 sin comprobante propio) y saldo de Saczewiczyk."""
 from datetime import date
 
+import ct.comprobantes as comprobantes
 from ct.comprobantes import (Documento, chequear_importe_factura, chequear_pagos_declarados,
-                             ItemManifiesto, _match_gasto)
-from ct.model import Gasto, Liquidacion, Pago
+                             cruzar, interpretar, nombre_vinculado, ItemManifiesto, _match_gasto)
+from ct.model import Gasto, Liquidacion, Pago, Unidad
 
 
 def _gasto(n=25, proveedor="MARIO LEONARDO ROTH", importe=2_650_000.0, pagos=(),
@@ -162,3 +163,92 @@ def test_match_irresoluble_devuelve_primero_sin_certeza():
 def test_match_sin_candidatos():
     g, certero = _match_gasto(ItemManifiesto(None, "X", 999.0, None, []), _liq_con(_gasto(n=1, importe=100.0)))
     assert g is None and certero
+
+
+# ------------------------------------------------------------------ casos reales de falsos positivos, 06-09-2026
+
+PAGO_EDESUR = """Comprobante de transferencia
+Detalle de la operación
+Fecha 10/03/2026
+Importe $ 1.234.567,89
+Leyendas adicionales
+EDESUR
+008005215300
+589244000759530437
+"""
+
+FACTURA_TECNO_SIM = """                 FACTURA B
+ Nro: 0003-00012345
+                      Dirección: 3480 Av. F Fernandez de la Cruz          CUIT: 30-70829363-2
+                                                                          IIBB: 30-70829363-2
+ Cliente:       CONSORCIO DE PROPIETARIOS AV RIVADAVIA
+                2067 69 71
+ Email:         luisa_escuredo@yahoo.com.ar
+ Condición:     CONSUMIDOR FINAL
+ CAE: 75123456789012
+ Importe Total: $ 27.500,00
+"""
+
+
+def test_referencia_de_pago_no_es_cuit(monkeypatch):
+    # Edesur adjunta el pago con una referencia de 12 dígitos bajo 'Leyendas adicionales':
+    # una ventana de 11 dígitos de esa referencia NO es un CUIT del destinatario.
+    monkeypatch.setattr(comprobantes, "leer_texto", lambda path: PAGO_EDESUR)
+    doc = interpretar("pago_edesur.pdf", 10, "30-70709095-4")
+    assert doc.tipo == "pago"
+    assert doc.destinatario_cuit is None
+
+
+def test_cuit_duplicado_no_es_receptor(monkeypatch):
+    # Tecno Sim imprime el CUIT del emisor dos veces (CUIT + IIBB): el duplicado
+    # no debe interpretarse como CUIT del receptor.
+    monkeypatch.setattr(comprobantes, "leer_texto", lambda path: FACTURA_TECNO_SIM)
+    doc = interpretar("factura_tecnosim.pdf", 10, "30-70709095-4")
+    assert doc.tipo == "factura"
+    assert doc.emisor_cuit == "30708293632"
+    assert doc.receptor_cuit != doc.emisor_cuit
+    assert doc.receptor_cuit is None
+
+
+def _liq_cruce(gasto):
+    liq = Liquidacion(sistema="test", periodo="Marzo 2026", cuit_consorcio="30-70709095-4")
+    liq.gastos = [gasto]
+    liq.unidades = [Unidad(13, "UC-13", "ESCUREDO LUISA", "V", 0, 0, 0, 0, 0, {}, {}, 0, 0, 0)]
+    return liq
+
+
+def _cruzar_con_factura(monkeypatch, receptor, texto):
+    g = _gasto(n=10, proveedor="TECNO SIM SA", importe=27_500.0)
+    liq = _liq_cruce(g)
+
+    def fake_interpretar(path, gasto_n, cuit_consorcio):
+        d = Documento(archivo=path, gasto_n=gasto_n, tipo="factura", texto_len=len(texto))
+        d.emisor_cuit = "30708293632"
+        d.receptor = receptor
+        d.notas.append("__texto__:" + texto)
+        return d
+
+    monkeypatch.setattr(comprobantes, "interpretar", fake_interpretar)
+    item = ItemManifiesto(None, "TECNO SIM SA", 27_500.0, None, ["fact.pdf"])
+    _, hs = cruzar(liq, [item])
+    return hs
+
+
+def test_email_de_contacto_no_vincula_al_propietario(monkeypatch):
+    # el mail de contacto luisa_escuredo@... no convierte a la propietaria en titular
+    # de la factura cuando el cliente es el propio consorcio
+    hs = _cruzar_con_factura(monkeypatch, "CONSORCIO DE PROPIETARIOS AV RIVADAVIA", FACTURA_TECNO_SIM)
+    assert not any(h.area == "Gasto ajeno al consorcio" for h in hs)
+
+
+def test_email_sin_receptor_legible_tampoco_vincula(monkeypatch):
+    # aun sin receptor parseado, un email es dato de contacto, no titularidad
+    hs = _cruzar_con_factura(monkeypatch, None, "Email: luisa_escuredo@yahoo.com.ar\nCAE: 75123456789012\n")
+    assert not any(h.area == "Gasto ajeno al consorcio" for h in hs)
+
+
+def test_nombre_fuera_de_email_sigue_vinculando(monkeypatch):
+    # regresión: si el nombre figura como titular (no dentro de un email), la regla sigue
+    assert nombre_vinculado("Titular: Escuredo Luisa", {"Escuredo Luisa": "propietario de UC-13"})
+    hs = _cruzar_con_factura(monkeypatch, None, "FACTURA\nTitular: Escuredo Luisa\nCAE: 75123456789012\n")
+    assert any(h.area == "Gasto ajeno al consorcio" and "Escuredo" in h.titulo for h in hs)

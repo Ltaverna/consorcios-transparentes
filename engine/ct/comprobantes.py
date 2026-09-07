@@ -72,6 +72,12 @@ class Documento:
         return d
 
 
+def _cuit_o_none(c: Optional[str]) -> Optional[str]:
+    """Los comprobantes de pago traen referencias y códigos de entidad con ventanas de 11
+    dígitos que no son CUITs (caso real: Edesur). Solo se acepta un CUIT válido."""
+    return c if c and cuit_valido(c) else None
+
+
 def leer_texto(path: str) -> str:
     try:
         return subprocess.run(["pdftotext", "-layout", path, "-"], capture_output=True, text=True, timeout=60).stdout
@@ -122,19 +128,19 @@ def interpretar(path: str, gasto_n: Optional[int], cuit_consorcio: str) -> Docum
     # ---- comprobantes de pago (Office Banking / Galicia / MercadoPago)
     if re.search(r"Datos del destinatario|Detalle de movimiento|Detalle de la operaci[oó]n|Identificador de la operaci[oó]n|Trf Inmed|N[uú]mero de comprobante\s*\n\s*\d{6,}", flat, re.I) and not re.search(r"\bCAE\b|Comp\.? ?Nro", flat):
         doc.tipo = "pago"
-        m = re.search(r"Datos del destinatario[\s\S]{0,300}?(\d{11})\s+([^\n]{3,60})", flat)
+        m = re.search(r"Datos del destinatario[\s\S]{0,300}?(?<!\d)(\d{11})(?!\d)\s+([^\n]{3,60})", flat)
         if m:
-            doc.destinatario_cuit, doc.destinatario = m.group(1), m.group(2).strip()
+            doc.destinatario_cuit, doc.destinatario = _cuit_o_none(m.group(1)), m.group(2).strip()
         else:
-            m = re.search(r"Datos del destinatario\s*\n\s*(?:Nombre|Raz[oó]n Social)\s+(?:CUIL|CUIT)\s*\n\s*(.+?)\s{2,}(\d{11})", flat)
+            m = re.search(r"Datos del destinatario\s*\n\s*(?:Nombre|Raz[oó]n Social)\s+(?:CUIL|CUIT)\s*\n\s*(.+?)\s{2,}(?<!\d)(\d{11})(?!\d)", flat)
             if m:
-                doc.destinatario, doc.destinatario_cuit = m.group(1).strip(), m.group(2)
+                doc.destinatario, doc.destinatario_cuit = m.group(1).strip(), _cuit_o_none(m.group(2))
             else:
-                m = re.search(r"Leyendas adicionales\s*\n\s*(.+?)\s*\n\s*(\d{11})", flat)
+                m = re.search(r"Leyendas adicionales\s*\n\s*(.+?)\s*\n\s*(?<!\d)(\d{11})(?!\d)", flat)
                 if m:
-                    doc.destinatario, doc.destinatario_cuit = m.group(1).strip(), m.group(2)
-        mp = re.search(r"Datos del pagador[\s\S]{0,200}?(\d{11})", flat)
-        doc.pagador_cuit = mp.group(1) if mp else (cons if cons in flat.replace("-", "") else None)
+                    doc.destinatario, doc.destinatario_cuit = m.group(1).strip(), _cuit_o_none(m.group(2))
+        mp = re.search(r"Datos del pagador[\s\S]{0,200}?(?<!\d)(\d{11})(?!\d)", flat)
+        doc.pagador_cuit = _cuit_o_none(mp.group(1)) if mp else (cons if cons in flat.replace("-", "") else None)
         mo = re.search(r"(?:Identificador de la operaci[oó]n|N[uú]mero de operaci[oó]n|Número de comprobante)\s*:?\s*\n?\s*([A-Za-z0-9]{6,})", flat)
         doc.operacion = mo.group(1) if mo else None
         mm = re.search(r"Motivo\s+Tipo de transferencia\s*\n\s*(.+?)\s{2,}(.+)", flat)
@@ -163,7 +169,8 @@ def interpretar(path: str, gasto_n: Optional[int], cuit_consorcio: str) -> Docum
         me = re.search(r"Raz[oó]n Social:\s*(.+?)\s{2,}", flat)
         # emisor: primer CUIT; receptor: CUIT del consorcio si aparece, o segundo CUIT
         doc.emisor_cuit = cuits[0] if cuits else None
-        rest = [c for c in cuits[1:]]
+        # el emisor suele imprimir su CUIT más de una vez (CUIT + IIBB): el duplicado no es el receptor
+        rest = [c for c in cuits[1:] if c != doc.emisor_cuit]
         if cons and cons in cuits:
             doc.receptor_cuit = cons
             if doc.emisor_cuit == cons:
@@ -395,7 +402,10 @@ def cruzar(liq: Liquidacion, items: list[ItemManifiesto], carpeta: Optional[str]
         # factura a nombre de otro
         for f in facts:
             txt = next((n[9:] for n in f.notas if n.startswith("__texto__:")), "")
-            vinc = nombre_vinculado(txt, nombres) if (f.receptor_cuit != cons) else None
+            # un email es dato de contacto, no titularidad (caso real: luisa_escuredo@... en factura al consorcio)
+            txt = re.sub(r"\S+@\S+", " ", txt)
+            receptor_es_consorcio = bool(f.receptor and "CONSORCIO" in f.receptor.upper())
+            vinc = nombre_vinculado(txt, nombres) if (f.receptor_cuit != cons and not receptor_es_consorcio) else None
             if vinc and (not f.receptor_cuit or f.receptor_cuit != cons):
                 hs.append(Hallazgo("comprobantes", "CRÍTICO", "Gasto ajeno al consorcio", f"La factura de {g.proveedor} está a nombre de {vinc[0].title()} ({vinc[1]}), no del consorcio",
                                    f"{f.archivo}: el nombre figura como titular o cliente. Importe {fmt(g.importe)}.", g.importe, "Verificar quién contrató el servicio y por qué lo paga el consorcio.", ref))
