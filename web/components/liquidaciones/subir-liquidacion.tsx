@@ -8,11 +8,17 @@ import { Button } from "@/components/ui/button";
 import { api } from "@/lib/api";
 import { mensajeError } from "@/lib/formato";
 
+/** El período en formato AAAA-MM (el que espera la API), precargado con el mes actual. */
+function mesActual(): string {
+  const hoy = new Date();
+  return `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, "0")}`;
+}
+
 /** Tarjeta para subir el PDF de una liquidación y disparar su procesamiento. */
 export function SubirLiquidacion({ alSubir }: { alSubir: () => void }) {
   const idPeriodo = useId();
   const idArchivo = useId();
-  const [periodo, setPeriodo] = useState("");
+  const [periodo, setPeriodo] = useState(mesActual);
   const [archivo, setArchivo] = useState<File | null>(null);
   const [enviando, setEnviando] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -42,9 +48,12 @@ export function SubirLiquidacion({ alSubir }: { alSubir: () => void }) {
     <div className="bg-white border border-borde-suave rounded-lg p-4">
       <form onSubmit={alEnviar} className="flex flex-wrap items-end gap-3">
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor={idPeriodo}>Período (AAAA-MM)</Label>
+          <Label htmlFor={idPeriodo}>Período</Label>
+          {/* type="month" da AAAA-MM (lo que espera la API); pattern y placeholder cubren navegadores sin selector de mes */}
           <Input
             id={idPeriodo}
+            type="month"
+            pattern="\d{4}-\d{2}"
             placeholder="2026-09"
             value={periodo}
             onChange={(e) => setPeriodo(e.target.value)}

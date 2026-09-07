@@ -1,7 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -149,16 +150,36 @@ function CardEstados({
             <tbody>
               {filas.map((estado) => {
                 const { cantidad, importe } = stats.gastos_por_estado[estado];
+                const activo = seleccionado === estado;
                 return (
                   <tr
                     key={estado}
+                    role="button"
+                    tabIndex={0}
+                    aria-pressed={activo}
                     onClick={() => onElegir(estado)}
-                    className={`cursor-pointer border-b last:border-0 hover:bg-black/5 ${
-                      seleccionado === estado ? "bg-black/5" : ""
-                    }`}
+                    onKeyDown={(e) => {
+                      // Solo la fila misma: nada interior maneja teclas, pero por las dudas.
+                      if (e.target !== e.currentTarget) return;
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        onElegir(estado);
+                      }
+                    }}
+                    className={cn(
+                      "cursor-pointer border-b border-l-4 last:border-b-0 hover:bg-black/5 outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#123A5C]",
+                      activo ? "border-l-[#123A5C] bg-black/5" : "border-l-transparent"
+                    )}
                   >
                     <td className="py-1.5 pr-4">
-                      <ChipEstadoGasto estado={estado} />
+                      <span className="flex items-center gap-2">
+                        <ChipEstadoGasto estado={estado} />
+                        {activo && (
+                          <span className="rounded-full bg-[#123A5C] px-2 py-0.5 text-xs font-semibold text-white">
+                            filtrando
+                          </span>
+                        )}
+                      </span>
                     </td>
                     <td className="py-1.5 pr-4 text-right tabular-nums">{cantidad}</td>
                     <td className="py-1.5 text-right tabular-nums">{moneda(importe)}</td>
@@ -169,7 +190,7 @@ function CardEstados({
           </table>
         )}
         <p className="mt-2 text-xs text-tinta-suave">
-          Hacé clic en un estado para ver los gastos; otro clic saca el filtro.
+          Hacé clic (o Enter) en un estado para ver los gastos; otra vez saca el filtro.
         </p>
       </CardContent>
     </Card>
@@ -322,23 +343,32 @@ export default function PaginaTransparencia() {
   const [gastos, setGastos] = useState<GastoConEstado[] | null>(null);
   const [cargandoGastos, setCargandoGastos] = useState(false);
 
+  // Guard de vigencia: si se cambia rápido de período o estado, solo la última
+  // respuesta toca el estado (mismo patrón que la lista de hallazgos).
+  const pedidoGastosRef = useRef(0);
   const cargarGastos = useCallback(async (p: string, estado?: string) => {
+    const mio = ++pedidoGastosRef.current;
     setCargandoGastos(true);
     try {
       const res = await api.gastosTransparencia(p, estado);
+      if (pedidoGastosRef.current !== mio) return;
       setGastos(res.gastos);
     } catch (err) {
+      if (pedidoGastosRef.current !== mio) return;
       toast.error(mensajeError(err));
     } finally {
-      setCargandoGastos(false);
+      if (pedidoGastosRef.current === mio) setCargandoGastos(false);
     }
   }, []);
 
+  const pedidoRef = useRef(0);
   const cargar = useCallback(async () => {
+    const mio = ++pedidoRef.current;
     setCargando(true);
     setError(null);
     try {
       const res = await api.indiceTransparencia();
+      if (pedidoRef.current !== mio) return;
       setDatos(res);
       const ultimo = res.periodos.at(-1)?.periodo;
       if (ultimo) {
@@ -347,11 +377,12 @@ export default function PaginaTransparencia() {
         await cargarGastos(ultimo);
       }
     } catch (err) {
+      if (pedidoRef.current !== mio) return;
       const mensaje = mensajeError(err);
       toast.error(mensaje);
       setError(mensaje);
     } finally {
-      setCargando(false);
+      if (pedidoRef.current === mio) setCargando(false);
     }
   }, [cargarGastos]);
 

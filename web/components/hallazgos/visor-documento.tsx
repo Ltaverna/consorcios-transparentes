@@ -5,6 +5,7 @@ import { ExternalLink, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogTitle,
   DialogTrigger,
@@ -28,8 +29,11 @@ export function VisorDocumento({ documento }: { documento: DocumentoInfo }) {
           <FileText />
           Ver comprobante: {documento.tipo}
         </DialogTrigger>
-        <DialogContent className="h-[92dvh] w-[calc(100vw-1rem)] max-w-[calc(100vw-1rem)] sm:max-w-4xl grid-rows-[auto_minmax(0,1fr)] gap-2 p-3">
-          <DialogTitle className="pr-10">Comprobante: {documento.tipo}</DialogTitle>
+        <DialogContent
+          showCloseButton={false}
+          className="h-[92dvh] w-[calc(100vw-1rem)] max-w-[calc(100vw-1rem)] sm:max-w-4xl grid-rows-[auto_minmax(0,1fr)_auto] gap-2 p-3"
+        >
+          <DialogTitle>Comprobante: {documento.tipo}</DialogTitle>
           {abierto && (
             <iframe
               src={urlContenidoDocumento(documento.id, { vista: true })}
@@ -37,6 +41,10 @@ export function VisorDocumento({ documento }: { documento: DocumentoInfo }) {
               title={`Documento ${documento.tipo}`}
             />
           )}
+          {/* botón grande abajo, al alcance del pulgar, en lugar de la X chiquita arriba */}
+          <DialogClose render={<Button type="button" variant="outline" size="lg" className="min-h-11 w-full" />}>
+            Cerrar
+          </DialogClose>
         </DialogContent>
       </Dialog>
       <a

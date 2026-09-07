@@ -106,15 +106,26 @@ export default function PaginaMiUnidad() {
   }, []);
 
   // Detalles y documentos en paralelo: en el celular la diferencia se nota.
+  // Los documentos se piden una sola vez por liquidación (varios hallazgos
+  // suelen compartirla): la promesa se memoiza en un Map local.
   const cargarHallazgos = useCallback(async () => {
     setErrorHallazgos(false);
     try {
       const resumenes = await api.listarHallazgos();
+      const docsPorLiquidacion = new Map<number, Promise<DocumentoInfo[]>>();
+      const documentosDeLiquidacion = (liquidacionId: number) => {
+        let promesa = docsPorLiquidacion.get(liquidacionId);
+        if (!promesa) {
+          promesa = api.listarDocumentos(liquidacionId);
+          docsPorLiquidacion.set(liquidacionId, promesa);
+        }
+        return promesa;
+      };
       const resultado = await Promise.all(
         resumenes.map(async (r) => {
           const [detalle, documentosTodos] = await Promise.all([
             api.detalleHallazgo(r.id),
-            api.listarDocumentos(r.liquidacion_id),
+            documentosDeLiquidacion(r.liquidacion_id),
           ]);
           return { detalle, documentos: documentosDelHallazgo(detalle, documentosTodos) };
         })

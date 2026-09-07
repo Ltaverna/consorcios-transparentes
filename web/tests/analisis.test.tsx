@@ -34,7 +34,10 @@ test("el buscador de gastos consulta y muestra resultados", async () => {
   );
   render(<PaginaAnalisis />);
   const { fireEvent } = await import("@testing-library/react");
-  fireEvent.change(await screen.findByLabelText(/Proveedor/), { target: { value: "sacze" } });
+  // los períodos son selectores de mes (AAAA-MM, lo que espera la API)
+  expect(await screen.findByLabelText("Desde")).toHaveAttribute("type", "month");
+  expect(screen.getByLabelText("Hasta")).toHaveAttribute("type", "month");
+  fireEvent.change(screen.getByLabelText(/Proveedor/), { target: { value: "sacze" } });
   fireEvent.click(screen.getByRole("button", { name: /Buscar/ }));
   expect(await screen.findByText(/Impermeabilización/)).toBeInTheDocument();
   expect(screen.getAllByText(/2\.552\.000/).length).toBeGreaterThanOrEqual(1);

@@ -5,6 +5,11 @@ import { servidor, API } from "./msw";
 import PaginaHallazgo from "@/app/panel/hallazgos/[id]/page";
 import { RolProvider } from "@/components/rol-context";
 
+// La página usa router.refresh() tras el triage (badge de pendientes de la sidebar).
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ replace: vi.fn(), push: vi.fn(), refresh: vi.fn() }),
+}));
+
 const DETALLE = { id: 1, liquidacion_id: 1, periodo: "2026-08", regla: "comprobantes", origen: "comprobantes",
   severidad: "CRÍTICO", area: "Comprobantes", titulo: "Pagos a la propietaria de 13-B", monto: 4700000,
   estado: "pendiente", publicado: false, evidencia: "CUIT destino ≠ CUIT emisor", recomendacion: "Pedir explicación",

@@ -18,7 +18,7 @@ export function Kpi({
 }) {
   return (
     <div className="bg-white border border-borde-suave rounded-lg p-4">
-      <div className="text-[10px] uppercase tracking-wide text-tinta-suave">
+      <div className="text-xs uppercase tracking-wide text-tinta-suave">
         {etiqueta}
       </div>
       <div className={`font-titulos text-2xl font-bold ${COLOR_POR_TONO[tono]}`}>

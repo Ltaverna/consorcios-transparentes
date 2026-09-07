@@ -101,7 +101,8 @@ function PublicarInforme({
             {error}
           </p>
         )}
-        <Button onClick={confirmar} disabled={publicando || cargando || !!error}>
+        {/* un error previo no bloquea el botón: publicar se puede reintentar */}
+        <Button onClick={confirmar} disabled={publicando || cargando}>
           {publicando ? "Publicando…" : "Confirmar"}
         </Button>
       </DialogContent>

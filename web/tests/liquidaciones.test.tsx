@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { http, HttpResponse } from "msw";
 import { servidor, API } from "./msw";
@@ -26,7 +26,12 @@ test("subir una liquidación manda el archivo y avisa el resultado", async () =>
     HttpResponse.json({ id: 9, periodo: "2026-09", estado: "procesando" })));
   const alSubir = vi.fn();
   render(<SubirLiquidacion alSubir={alSubir} />);
-  await userEvent.type(screen.getByLabelText("Período (AAAA-MM)"), "2026-09");
+  // el período es un selector de mes precargado con el mes actual (AAAA-MM, lo que espera la API)
+  const periodo = screen.getByLabelText("Período") as HTMLInputElement;
+  expect(periodo).toHaveAttribute("type", "month");
+  const hoy = new Date();
+  expect(periodo.value).toBe(`${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, "0")}`);
+  fireEvent.change(periodo, { target: { value: "2026-09" } });
   const archivo = new File(["contenido"], "septiembre.pdf", { type: "application/pdf" });
   await userEvent.upload(screen.getByLabelText(/Liquidación en PDF/), archivo);
   await userEvent.click(screen.getByRole("button", { name: "Subir y procesar" }));
@@ -38,7 +43,7 @@ test("un 413 de la API se muestra tal cual", async () => {
   servidor.use(http.post(`${API}/liquidaciones`, () =>
     HttpResponse.json({ detail: "El archivo supera los 30 MB" }, { status: 413 })));
   render(<SubirLiquidacion alSubir={() => {}} />);
-  await userEvent.type(screen.getByLabelText("Período (AAAA-MM)"), "2026-09");
+  fireEvent.change(screen.getByLabelText("Período"), { target: { value: "2026-09" } });
   await userEvent.upload(screen.getByLabelText(/Liquidación en PDF/), new File(["x"], "x.pdf"));
   await userEvent.click(screen.getByRole("button", { name: "Subir y procesar" }));
   expect(await screen.findByText("El archivo supera los 30 MB")).toBeInTheDocument();

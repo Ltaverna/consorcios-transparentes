@@ -41,6 +41,7 @@ function Nav({ activa, pendientes }: { activa: string; pendientes: number }) {
           <Link
             key={href}
             href={href}
+            aria-current={activo ? "page" : undefined}
             className={cn(
               "flex items-center gap-2 px-4 py-2.5 border-l-2 border-transparent",
               activo
@@ -51,7 +52,12 @@ function Nav({ activa, pendientes }: { activa: string; pendientes: number }) {
             <Icono className="w-4 h-4" />
             <span>{texto}</span>
             {texto === "Hallazgos" && pendientes > 0 && (
-              <span className="bg-[#B42318] rounded-full px-2 text-xs">{pendientes}</span>
+              <span
+                aria-label={pendientes === 1 ? "1 pendiente" : `${pendientes} pendientes`}
+                className="bg-[#B42318] rounded-full px-2 text-xs"
+              >
+                {pendientes}
+              </span>
             )}
           </Link>
         );

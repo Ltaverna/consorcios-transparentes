@@ -11,4 +11,8 @@ test("la sidebar muestra las secciones y el contador de pendientes", () => {
   expect(screen.getByText(/Asamblea/)).toBeInTheDocument();
   expect(screen.getByText(/Lucas/)).toBeInTheDocument();
   expect(screen.getByRole("button", { name: "Salir" })).toBeInTheDocument();
+  // accesibilidad: la sección activa se anuncia y el badge dice qué cuenta
+  expect(screen.getByRole("link", { name: /Hallazgos/ })).toHaveAttribute("aria-current", "page");
+  expect(screen.getByRole("link", { name: /Liquidaciones/ })).not.toHaveAttribute("aria-current");
+  expect(screen.getByLabelText("10 pendientes")).toBeInTheDocument();
 });

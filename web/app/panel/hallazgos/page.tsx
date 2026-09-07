@@ -85,7 +85,7 @@ function GrupoFiltro({
 }) {
   return (
     <div className="flex flex-col gap-1.5">
-      <span className="text-[10px] uppercase tracking-wide text-tinta-suave">{etiqueta}</span>
+      <span className="text-xs uppercase tracking-wide text-tinta-suave">{etiqueta}</span>
       <div className="flex flex-wrap gap-2">
         {opciones.map((op) => {
           const activo = valores.includes(op);
@@ -164,19 +164,39 @@ function ContenidoHallazgos() {
   }, []);
 
   // Los filtros viven en la URL: sobreviven a navegar al detalle y volver.
+  // La escritura se debouncea (~300 ms) para no reescribir la URL tecla a tecla
+  // mientras se busca; el filtrado en memoria sigue siendo inmediato.
   useEffect(() => {
-    const p = new URLSearchParams();
-    for (const v of severidades) p.append("severidad", v);
-    for (const v of estados) p.append("estado", v);
-    for (const v of periodosElegidos) p.append("periodo", v);
-    for (const v of reglasElegidas) p.append("regla", v);
-    if (busqueda) p.set("q", busqueda);
-    if (orden !== "severidad") p.set("orden", orden);
-    const qs = p.toString();
-    if (qs !== searchParams.toString()) {
-      router.replace(`${pathname}${qs ? `?${qs}` : ""}`, { scroll: false });
-    }
+    const temporizador = setTimeout(() => {
+      const p = new URLSearchParams();
+      for (const v of severidades) p.append("severidad", v);
+      for (const v of estados) p.append("estado", v);
+      for (const v of periodosElegidos) p.append("periodo", v);
+      for (const v of reglasElegidas) p.append("regla", v);
+      if (busqueda) p.set("q", busqueda);
+      if (orden !== "severidad") p.set("orden", orden);
+      const qs = p.toString();
+      if (qs !== searchParams.toString()) {
+        router.replace(`${pathname}${qs ? `?${qs}` : ""}`, { scroll: false });
+      }
+    }, 300);
+    return () => clearTimeout(temporizador);
   }, [severidades, estados, periodosElegidos, reglasElegidas, busqueda, orden, pathname, router, searchParams]);
+
+  // Cambiar filtros o búsqueda limpia la selección de lote: evita operar sobre
+  // filas seleccionadas que ya no se ven.
+  const firmaFiltros = JSON.stringify([severidades, estados, periodosElegidos, reglasElegidas, busqueda]);
+  const firmaRef = useRef(firmaFiltros);
+  useEffect(() => {
+    if (firmaRef.current === firmaFiltros) return;
+    firmaRef.current = firmaFiltros;
+    if (seleccionados.size > 0) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- reacción puntual a un cambio de filtros, guardada por firma
+      setSeleccionados(new Set());
+      setAccionLote(null);
+      toast.info("Selección limpiada al cambiar los filtros");
+    }
+  }, [firmaFiltros, seleccionados]);
 
   const periodos = Array.from(new Set(liquidaciones.map((l) => l.periodo))).sort().reverse();
   const reglas = useMemo(
@@ -206,6 +226,8 @@ function ContenidoHallazgos() {
 
   // Tras un triage en el drawer: la fila se actualiza en memoria y la recarga
   // corre en segundo plano (la lista nunca se desmonta ni pierde el scroll).
+  // router.refresh() revalida el layout del panel: el badge de pendientes de
+  // la sidebar se recalcula en el servidor.
   const alCambiarDrawer = useCallback(
     (actualizado?: HallazgoResumen) => {
       if (actualizado) {
@@ -218,8 +240,9 @@ function ContenidoHallazgos() {
         );
       }
       cargar();
+      router.refresh();
     },
-    [cargar]
+    [cargar, router]
   );
 
   function alSeleccionar(id: number, marcado: boolean) {
@@ -259,6 +282,7 @@ function ContenidoHallazgos() {
       setSeleccionados(new Set(fallidos));
     }
     cargar();
+    router.refresh(); // el badge de pendientes de la sidebar se recalcula en el servidor
   }
 
   const primeraCarga = filas.length === 0 && cargando;

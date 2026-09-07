@@ -1,5 +1,6 @@
 import { http, HttpResponse } from "msw";
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { servidor, API } from "./msw";
 import PaginaTransparencia from "@/app/panel/transparencia/page";
 
@@ -62,4 +63,32 @@ test("muestra el índice, las métricas y el drill-down", async () => {
   expect(screen.getByText(/36 críticos × 2 = 72 → tope 25/)).toBeInTheDocument();
   // Cierra con la fórmula del compuesto.
   expect(screen.getByText(/suma de puntos − penalización/)).toBeInTheDocument();
+});
+
+test("las filas de estado se operan con teclado y la activa muestra 'filtrando'", async () => {
+  const estadosPedidos: (string | null)[] = [];
+  servidor.use(
+    http.get(`${API}/analitica/indice`, () => HttpResponse.json(INDICE)),
+    http.get(`${API}/analitica/gastos`, ({ request }) => {
+      estadosPedidos.push(new URL(request.url).searchParams.get("estado"));
+      return HttpResponse.json(GASTOS);
+    }),
+  );
+  render(<PaginaTransparencia />);
+  await screen.findByText(/ROTH/);
+
+  // la fila es accesible: role="button", enfocable y con Enter aplica el filtro
+  const fila = screen.getByRole("button", { name: /Anomalía/ });
+  expect(fila).toHaveAttribute("tabindex", "0");
+  expect(fila).toHaveAttribute("aria-pressed", "false");
+  fila.focus();
+  await userEvent.keyboard("{Enter}");
+  await waitFor(() => expect(estadosPedidos).toContain("anomalia"));
+  expect(fila).toHaveAttribute("aria-pressed", "true");
+  expect(screen.getByText("filtrando")).toBeInTheDocument();
+
+  // Espacio en la fila activa saca el filtro
+  await userEvent.keyboard(" ");
+  await waitFor(() => expect(fila).toHaveAttribute("aria-pressed", "false"));
+  expect(screen.queryByText("filtrando")).not.toBeInTheDocument();
 });

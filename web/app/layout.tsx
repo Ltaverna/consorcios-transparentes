@@ -6,8 +6,9 @@ import "./globals.css";
 const lexend = Lexend({ subsets: ["latin"], variable: "--font-titulos" });
 const sourceSans = Source_Sans_3({ subsets: ["latin"], variable: "--font-cuerpo" });
 
+// Título neutro: cada sección pone el suyo en su layout ("Hallazgos — Consorcio Transparente").
 export const metadata: Metadata = {
-  title: "Consorcio Transparente — Panel",
+  title: "Consorcio Transparente",
   description: "Panel de auditoría de expensas del Consorcio Rivadavia 2069",
 };
 

@@ -208,6 +208,39 @@ test("seleccionar tarjetas muestra la barra de lote y dispara los pedidos por id
   expect(cambiados.every((c) => c.estado === "preguntado")).toBe(true);
 });
 
+test("cambiar un filtro limpia la selección de lote (no se opera sobre filas ocultas)", async () => {
+  conApi();
+  render(<HallazgosPage />);
+  await screen.findByText(/Pagos a la propietaria/);
+  await userEvent.click(screen.getByRole("checkbox", { name: /Seleccionar Pagos a la propietaria/ }));
+  expect(screen.getByText("1 seleccionado")).toBeInTheDocument();
+  // el filtro ALTO oculta la fila seleccionada (CRÍTICO): la selección se limpia
+  await userEvent.click(screen.getByRole("button", { name: "ALTO" }));
+  expect(screen.queryByText("1 seleccionado")).not.toBeInTheDocument();
+  expect(screen.getByText(/68 % de la liquidez/)).toBeInTheDocument();
+});
+
+test("la búsqueda filtra al instante pero la URL se escribe con debounce", async () => {
+  conApi();
+  const { fireEvent } = await import("@testing-library/react");
+  render(<HallazgosPage />);
+  await screen.findByText(/Pagos a la propietaria/);
+  navegacion.replace.mockClear();
+  vi.useFakeTimers();
+  try {
+    fireEvent.change(screen.getByRole("searchbox", { name: /Buscar/ }), { target: { value: "efectivo" } });
+    // el filtrado en memoria es inmediato…
+    expect(screen.queryByText(/Pagos a la propietaria/)).not.toBeInTheDocument();
+    // …pero la URL espera el debounce
+    expect(navegacion.replace).not.toHaveBeenCalled();
+    await vi.advanceTimersByTimeAsync(350);
+    expect(navegacion.replace).toHaveBeenCalled();
+    expect(navegacion.replace.mock.lastCall?.[0]).toContain("q=efectivo");
+  } finally {
+    vi.useRealTimers();
+  }
+});
+
 test("si parte del lote falla, los fallidos quedan seleccionados para reintentar", async () => {
   conApi();
   servidor.use(

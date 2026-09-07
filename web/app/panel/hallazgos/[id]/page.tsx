@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -16,6 +17,7 @@ export default function PaginaHallazgo({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  const router = useRouter();
   const [detalle, setDetalle] = useState<HallazgoDetalle | null>(null);
   const [documentos, setDocumentos] = useState<DocumentoInfo[]>([]);
   const [cargando, setCargando] = useState(true);
@@ -70,7 +72,10 @@ export default function PaginaHallazgo({
         <FichaHallazgo
           detalle={detalle}
           documentos={docsDelHallazgo}
-          alCambiar={cargar}
+          alCambiar={() => {
+            cargar();
+            router.refresh(); // el badge de pendientes de la sidebar se recalcula en el servidor
+          }}
         />
       ) : null}
     </div>

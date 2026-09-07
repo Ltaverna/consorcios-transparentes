@@ -151,8 +151,11 @@ function CardBusqueda() {
             </div>
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="busqueda-desde">Desde</Label>
+              {/* type="month" da AAAA-MM (lo que espera la API); pattern y placeholder cubren navegadores sin selector de mes */}
               <Input
                 id="busqueda-desde"
+                type="month"
+                pattern="\d{4}-\d{2}"
                 value={filtros.periodo_desde}
                 onChange={setFiltro("periodo_desde")}
                 placeholder="2026-01"
@@ -162,6 +165,8 @@ function CardBusqueda() {
               <Label htmlFor="busqueda-hasta">Hasta</Label>
               <Input
                 id="busqueda-hasta"
+                type="month"
+                pattern="\d{4}-\d{2}"
                 value={filtros.periodo_hasta}
                 onChange={setFiltro("periodo_hasta")}
                 placeholder="2026-12"
