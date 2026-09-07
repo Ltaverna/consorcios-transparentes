@@ -16,6 +16,8 @@ from typing import Optional
 
 from .model import Gasto, Liquidacion
 from .rules import Hallazgo, fmt
+from .historia import _norm_nro
+from .qr import leer_qr
 
 RE_CUIT = re.compile(r"\b(\d{2})[- ]?(\d{8})[- ]?(\d)\b")
 RE_FECHA = re.compile(r"\b(\d{2})/(\d{2})/(\d{4})\b")
@@ -63,6 +65,7 @@ class Documento:
     pagador_cuit: Optional[str] = None
     operacion: Optional[str] = None
     motivo: Optional[str] = None
+    qr: Optional[dict] = None           # payload del QR de ARCA (autoritativo) si se pudo leer
     notas: list[str] = field(default_factory=list)
 
     def to_dict(self) -> dict:
@@ -111,6 +114,41 @@ def nombre_vinculado(texto: str, nombres: dict[str, str]) -> Optional[tuple[str,
     return None
 
 
+# prefijo estable de las notas de divergencia texto↔QR (lo consume el check `qr-texto` de cruzar)
+PREFIJO_QR_DIVERGENCIA = "QR: el texto de la factura dice "
+
+
+def _aplicar_qr(doc: Documento, path: str) -> None:
+    """El QR de ARCA es autoritativo: pisa emisor, importe, fecha y numeración. Las
+    divergencias materiales con lo parseado del texto (importe ±$1, CUIT distinto) quedan
+    anotadas; una imagen sin texto con QR pasa a ser factura."""
+    q = leer_qr(path)
+    if not q:
+        return
+    doc.qr = q
+    if q["importe"] is not None:
+        if doc.importe is not None and abs(doc.importe - q["importe"]) > 1:
+            doc.notas.append(f"{PREFIJO_QR_DIVERGENCIA}importe {fmt(doc.importe)} pero el QR de ARCA dice {fmt(q['importe'])}.")
+        doc.importe = q["importe"]
+    if q["cuit_emisor"]:
+        if doc.emisor_cuit and doc.emisor_cuit != q["cuit_emisor"]:
+            doc.notas.append(f"{PREFIJO_QR_DIVERGENCIA}CUIT emisor {doc.emisor_cuit} pero el QR de ARCA dice {q['cuit_emisor']}.")
+        doc.emisor_cuit = q["cuit_emisor"]
+    if q["fecha"]:
+        try:
+            doc.fecha = date.fromisoformat(q["fecha"])
+        except ValueError:
+            pass
+    if q["pto_vta"] is not None and q["nro_cmp"] is not None:
+        doc.factura_nro = f"{q['pto_vta']:04d}-{q['nro_cmp']:08d}"
+    if q["cuit_receptor"]:
+        doc.receptor_cuit = q["cuit_receptor"]
+    if doc.tipo == "imagen":
+        doc.tipo = "factura"
+        doc.notas = [n for n in doc.notas if not n.startswith("Sin texto:")]   # ya no requiere revisión visual
+        doc.notas.append("Clasificada por el QR de ARCA (sin texto extraíble).")
+
+
 def interpretar(path: str, gasto_n: Optional[int], cuit_consorcio: str) -> Documento:
     doc = Documento(archivo=os.path.basename(path), gasto_n=gasto_n)
     try:
@@ -122,6 +160,7 @@ def interpretar(path: str, gasto_n: Optional[int], cuit_consorcio: str) -> Docum
     if doc.texto_len < 40:
         doc.tipo = "imagen"
         doc.notas.append("Sin texto: es una imagen o un recibo manuscrito; requiere revisión visual.")
+        _aplicar_qr(doc, path)
         return doc
     flat = re.sub(r"[ \t]+", " ", t)
     cons = cuit_consorcio.replace("-", "")
@@ -199,6 +238,7 @@ def interpretar(path: str, gasto_n: Optional[int], cuit_consorcio: str) -> Docum
         if re.search(r"INACTIVA EN LOS PADRONES", flat, re.I):
             doc.notas.append("Leyenda de ARCA: CUIT del receptor inactiva o no inscripta en la condición seleccionada.")
         doc.notas.append("__texto__:" + flat[:3000])
+        _aplicar_qr(doc, path)
         return doc
     # ---- recibos u otros con texto
     if re.search(r"RECIB[IÍ]|Recibo", flat, re.I):
@@ -417,6 +457,21 @@ def cruzar(liq: Liquidacion, items: list[ItemManifiesto], carpeta: Optional[str]
             for n in f.notas:
                 if n.startswith("Leyenda de ARCA"):
                     hs.append(Hallazgo("comprobantes", "BAJO", "Calidad de datos", f"Factura de {g.proveedor} con leyenda de ARCA sobre la CUIT del consorcio", n, 0, "Verificar la situación fiscal del consorcio.", ref))
+            if f.qr:
+                # texto ↔ QR: las divergencias anotadas en interpretar indican adulteración o PDF mal generado
+                divs = [n for n in f.notas if n.startswith(PREFIJO_QR_DIVERGENCIA)]
+                if divs:
+                    hs.append(Hallazgo("comprobantes", "ALTO", "Respaldo documental",
+                                       f"El texto de la factura de {g.proveedor} no coincide con su QR de ARCA",
+                                       " ".join(divs) + f" {f.archivo}.", 0,
+                                       "Pedir la factura original: el PDF puede estar adulterado o mal generado.", ref, clave="qr-texto"))
+                # numeración: la liquidación cita una factura y el QR dice que la adjunta es otra
+                nro_liq, nro_qr = _norm_nro(g.factura_nro), _norm_nro(f.factura_nro)
+                if nro_liq and nro_qr and nro_liq != nro_qr:
+                    hs.append(Hallazgo("comprobantes", "MEDIO", "Respaldo documental",
+                                       f"La factura adjunta de {g.proveedor} no es la citada en la liquidación",
+                                       f"La liquidación cita la factura {g.factura_nro}; el QR de ARCA de {f.archivo} dice {f.factura_nro}.", 0,
+                                       "Verificar que se haya adjuntado la factura que respalda este gasto.", ref, clave="qr-numeracion"))
         # pago a un tercero distinto del emisor
         emisores = {f.emisor_cuit for f in facts if f.emisor_cuit}
         for p in pagos:
