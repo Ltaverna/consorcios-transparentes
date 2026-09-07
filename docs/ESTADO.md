@@ -1,5 +1,13 @@
 # Estado del proyecto (6 de septiembre de 2026)
 
+## Ciclo de UX (6/09/2026)
+- Auditoría completa (`docs/superpowers/specs/2026-09-06-auditoria-ux.md`: 28 hallazgos, 15 principios)
+  y arreglados los 22 de severidad 4-2 + 4 menores de las revisiones, en 4 frentes: hallazgos escala al
+  triage real (búsqueda, orden, lote, filtros en URL, sin pérdida de scroll), mi-unidad móvil (carga
+  paralela, hallazgos colapsados, visor de comprobantes en dialog), PWA/login (start_url "/", tab
+  propietario por defecto), y transversales (teclado en transparencia, guards de carrera, títulos por
+  página, aria). Web: 64 tests. Sev 1 anotados en la spec, no hechos.
+
 ## Índice de transparencia compuesto (6/09/2026)
 - El índice pasa a score compuesto 0-100: documentación 30% + conciliación 30% + trazabilidad 20% +
   consistencia 10% (las `no_cuadra` cuentan en el denominador) + explicaciones 10%, menos 2 puntos por
