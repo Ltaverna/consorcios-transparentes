@@ -122,7 +122,9 @@ def _cerrar(s: dict, periodos_cuadran: int = 1, periodos_totales: int = 1) -> di
     s["componentes"] = comp
     s["penalizacion"] = {"criticos_abiertos": criticos, "por_critico": PENALIZACION_POR_CRITICO,
                          "tope": PENALIZACION_TOPE, "puntos": pen}
-    s["indice"] = max(0, min(100, round(sum(c["puntos"] for c in comp.values()) - pen)))
+    # el índice se calcula sobre los productos crudos: los "puntos" redondeados son solo display
+    crudo = sum(PESOS[k] * valores[k] * 100 for k in PESOS)
+    s["indice"] = max(0, min(100, round(crudo - pen)))
     return s
 
 

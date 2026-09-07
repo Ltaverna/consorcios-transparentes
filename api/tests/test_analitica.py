@@ -120,8 +120,8 @@ def test_indice_formula_a_mano(db, tmp_path):
                                  "periodos_cuadran": 1, "periodos_totales": 1}
     assert c["explicaciones"] == {"peso": 0.10, "valor": 1.0, "puntos": 10.0}
     assert t["penalizacion"] == {"criticos_abiertos": 0, "por_critico": 2, "tope": 25, "puntos": 0}
-    esperado = max(0, min(100, round(round(0.30 * v_doc * 100, 1) + round(0.30 * v_conc * 100, 1)
-                                     + round(0.20 * v_traz * 100, 1) + 10.0 + 10.0)))
+    esperado = max(0, min(100, round(0.30 * v_doc * 100 + 0.30 * v_conc * 100
+                                     + 0.20 * v_traz * 100 + 10.0 + 10.0)))
     assert m["indice"] == esperado
     # lo viejo sigue: pct_trazable no cambió de significado
     assert t["pct_trazable"] == round(v_traz, 4)
@@ -138,11 +138,47 @@ def test_penalizacion_por_criticos_con_tope(db, tmp_path):
     m = analitica.metricas(db, solo_publicado=False)
     t = m["totales"]
     assert t["penalizacion"] == {"criticos_abiertos": 15, "por_critico": 2, "tope": 25, "puntos": 25}
-    esperado = max(0, min(100, round(sum(c["puntos"] for c in t["componentes"].values()) - 25)))
+    comp = t["componentes"]
+    crudo = sum(comp[k]["peso"] * comp[k]["valor"] * 100 for k in comp)
+    esperado = max(0, min(100, round(crudo - 25)))
     assert m["indice"] == esperado
     assert 0 <= m["indice"] <= 100
     # el período también arrastra su propia penalización
     assert m["periodos"][0]["penalizacion"]["puntos"] == 25
+
+
+def test_indice_redondea_sobre_los_productos_crudos(db, tmp_path):
+    """Regresión del 06-09: sumar los puntos ya redondeados puede dar otro entero.
+    Caso construido: total=100 000, df=82 791,32, dp=86 988,64, dv=78 001,73,
+    consistencia=9/9, sin hallazgos, sin críticos.
+      Productos crudos: 24,8374 + 26,0966 + 15,6003 + 10,0 + 10,0 = 86,5343 → round → 87
+      Puntos display:   24,8    + 26,1    + 15,6    + 10,0 + 10,0 = 86,5    → round → 86 (mal)
+    El índice debe ser 87.
+    Se pasa a _cerrar directamente con un stats sintético (sin BD) para aislar la fórmula.
+    """
+    from app.analitica import _cerrar, _stats_vacias
+
+    # Construir un stats_vacias con los dineros del caso de divergencia.
+    # _cerrar recalcula totales internamente a partir de dinero_* / dinero_total.
+    s = _stats_vacias()
+    s["dinero_total"]          = 100_000.00
+    s["dinero_con_factura"]    = 82_791.32
+    s["dinero_pago_respaldado"] = 86_988.64
+    s["dinero_verificado"]     = 78_001.73
+    # sin hallazgos: hallazgos_abiertos todo a 0, hallazgos_resueltos=0
+    # consistencia: 9 de 9 períodos cuadran → valor 1.0
+    resultado = _cerrar(s, periodos_cuadran=9, periodos_totales=9)
+
+    # verificar la aritmética directamente
+    total = 100_000.00
+    crudo = (0.30 * 82_791.32 / total * 100
+             + 0.30 * 86_988.64 / total * 100
+             + 0.20 * 78_001.73 / total * 100
+             + 10.0   # consistencia 1.0 × peso 0.10 × 100
+             + 10.0)  # explicaciones 1.0 × peso 0.10 × 100
+    # crudo ≈ 86.5343 → round → 87; la suma de puntos display ≈ 86.5 → round → 86
+    assert round(crudo) == 87, "el caso de divergencia ya no diverge: revisar fixture"
+    assert resultado["indice"] == 87
 
 
 def test_explicaciones_sin_hallazgos_es_uno(db, tmp_path):
