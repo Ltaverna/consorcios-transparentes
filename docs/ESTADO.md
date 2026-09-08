@@ -1,4 +1,11 @@
-# Estado del proyecto (6 de septiembre de 2026)
+# Estado del proyecto (7 de septiembre de 2026)
+
+> Este documento es la **bitácora**: qué se hizo en cada ciclo, qué se decidió y qué falta. La
+> documentación de referencia del sistema vive aparte:
+> [ORIGEN](ORIGEN.md) (por qué existe) · [ARQUITECTURA](ARQUITECTURA.md) (cómo está construido) ·
+> [PIPELINE](PIPELINE.md) (del portal al índice) · [FUNCIONALIDADES](FUNCIONALIDADES.md) (qué hace) ·
+> [USO](USO.md) (cómo se usa) · [ANALISIS-RIVADAVIA-2069](ANALISIS-RIVADAVIA-2069.md) (qué encontró) ·
+> [reglas](reglas.md) · [DEPLOY](DEPLOY.md) · [MCP](MCP.md) / [MCP-TOKENS](MCP-TOKENS.md).
 
 ## Ciclo D-QR (7/09/2026)
 - El motor lee el QR de ARCA de facturas e imágenes (`engine/ct/qr.py`, spec
