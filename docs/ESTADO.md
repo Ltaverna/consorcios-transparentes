@@ -1,4 +1,4 @@
-# Estado del proyecto (7 de septiembre de 2026)
+# Estado del proyecto (24 de septiembre de 2026)
 
 > Este documento es la **bitácora**: qué se hizo en cada ciclo, qué se decidió y qué falta. La
 > documentación de referencia del sistema vive aparte:
@@ -6,6 +6,20 @@
 > [PIPELINE](PIPELINE.md) (del portal al índice) · [FUNCIONALIDADES](FUNCIONALIDADES.md) (qué hace) ·
 > [USO](USO.md) (cómo se usa) · [ANALISIS-RIVADAVIA-2069](ANALISIS-RIVADAVIA-2069.md) (qué encontró) ·
 > [reglas](reglas.md) · [DEPLOY](DEPLOY.md) · [MCP](MCP.md) / [MCP-TOKENS](MCP-TOKENS.md).
+
+## Ciclo auth Bearer del worker (24/09/2026)
+- El worker de sincronización le hablaba a la API por su URL pública (`api-consorcio.neuralcore.dev`) y
+  fallaba intermitente por el DNS embebido de Docker (`error de red: No address associated with hostname`):
+  bajaba del portal pero no podía subir. Ahora habla por la **red interna** (`CT_API_URL=http://api:8080`,
+  en el `.env` raíz) y autentica por `Authorization: Bearer`. Spec/plan:
+  `docs/superpowers/specs/2026-09-20-bearer-auth-worker-design.md`,
+  `docs/superpowers/plans/2026-09-24-bearer-auth-worker.md`.
+- `api/app/security.py` `sesion()` acepta el JWT por header además de la cookie (cookie primero → navegador
+  intacto). `engine/ct/sincronizar.py` `ApiPanel` parsea el token del `Set-Cookie` del login y lo manda como
+  Bearer (el `CookieJar` descarta la cookie por el `Domain` sobre HTTP interno). API 196 · motor 154 tests.
+- Desplegado y verificado: corrida manual con código 0, los 43 gastos de agosto sin `error de red` ni `401`.
+  No hay período nuevo en el portal (sigue en 2026-08); cuando septiembre se publique, la ingesta ya es
+  confiable.
 
 ## Ciclo D-QR (7/09/2026)
 - El motor lee el QR de ARCA de facturas e imágenes (`engine/ct/qr.py`, spec
