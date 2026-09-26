@@ -43,6 +43,12 @@ def leer_token(token: str) -> dict:
 def sesion(request: Request) -> dict:
     token = request.cookies.get(COOKIE)
     if not token:
+        # Fallback para clientes sin cookie (el worker sobre http://api:8080, donde la
+        # cookie Secure+Domain no aplica). El navegador sigue usando la cookie httpOnly.
+        autorizacion = request.headers.get("Authorization", "")
+        if autorizacion.startswith("Bearer "):
+            token = autorizacion[len("Bearer "):].strip()
+    if not token:
         raise HTTPException(401, "Hay que iniciar sesión")
     return leer_token(token)
 

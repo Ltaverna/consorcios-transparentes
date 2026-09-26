@@ -117,3 +117,30 @@ def test_cookie_con_dominio_configurado(db, cliente, monkeypatch):
     admin.crear_usuario(db, "d@example.com", "D", "auditor", "clave-de-test")
     r = cliente.post("/auth/login", json={"email": "d@example.com", "clave": "clave-de-test"})
     assert "domain=.neuralcore.dev" in r.headers.get("set-cookie", "").lower()
+
+
+def test_sesion_por_bearer_sin_cookie(db, cliente):
+    admin.crear_usuario(db, "bearer@example.com", "Bearer", "auditor", "clave-de-test-larga")
+    r = cliente.post("/auth/login", json={"email": "bearer@example.com", "clave": "clave-de-test-larga"})
+    assert r.status_code == 200
+    token = cliente.cookies.get(security.COOKIE)
+    assert token
+    cliente.cookies.clear()  # sin cookie: la sesión tiene que sostenerse por el header
+    r2 = cliente.get("/auth/yo", headers={"Authorization": f"Bearer {token}"})
+    assert r2.status_code == 200
+    assert r2.json()["rol"] == "auditor"
+
+
+def test_bearer_invalido_da_401(cliente):
+    r = cliente.get("/auth/yo", headers={"Authorization": "Bearer no-es-un-jwt"})
+    assert r.status_code == 401
+
+
+def test_bearer_vacio_da_401(cliente):
+    r = cliente.get("/auth/yo", headers={"Authorization": "Bearer "})
+    assert r.status_code == 401
+
+
+def test_authorization_scheme_distinto_da_401(cliente):
+    r = cliente.get("/auth/yo", headers={"Authorization": "Basic dXNlcjpwYXNz"})
+    assert r.status_code == 401
