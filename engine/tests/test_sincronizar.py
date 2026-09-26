@@ -300,3 +300,57 @@ def test_backfill_ignora_option_vacio_del_select(tmp_path, monkeypatch):
     rc = s.correr(desde="2026-08")
     assert rc == 0                               # no crasheó con el option vacío
     assert [x for x in api.subidas if x[0] == "liq"] == [("liq", "2026-08")]
+
+
+def test_token_de_set_cookie_extrae_el_jwt():
+    from ct.sincronizar import _token_de_set_cookie
+    hdrs = ["ct_sesion=abc.def.ghi; Domain=.neuralcore.dev; Path=/; Secure; HttpOnly"]
+    assert _token_de_set_cookie(hdrs) == "abc.def.ghi"
+
+
+def test_token_de_set_cookie_sin_la_cookie_devuelve_none():
+    from ct.sincronizar import _token_de_set_cookie
+    assert _token_de_set_cookie(["otra=1; Path=/"]) is None
+    assert _token_de_set_cookie([]) is None
+    assert _token_de_set_cookie(None) is None
+
+
+def test_apipanel_autentica_por_bearer_aunque_el_jar_descarte_la_cookie():
+    import http.server
+    import threading
+    from ct.sincronizar import ApiPanel
+
+    recibido = {}
+
+    class Handler(http.server.BaseHTTPRequestHandler):
+        def log_message(self, *a):
+            pass
+
+        def do_POST(self):  # /auth/login
+            self.rfile.read(int(self.headers.get("Content-Length", 0) or 0))  # drena el body
+            self.send_response(200)
+            # Domain que NO matchea 127.0.0.1: el jar la descarta, el token sale del header.
+            self.send_header("Set-Cookie",
+                             "ct_sesion=jwt-de-prueba; Domain=.neuralcore.dev; Path=/; Secure; HttpOnly")
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(b"{}")
+
+        def do_GET(self):  # /liquidaciones (protegido)
+            recibido["authorization"] = self.headers.get("Authorization")
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(b"[]")
+
+    srv = http.server.HTTPServer(("127.0.0.1", 0), Handler)
+    hilo = threading.Thread(target=srv.serve_forever, daemon=True)
+    hilo.start()
+    try:
+        api = ApiPanel(f"http://127.0.0.1:{srv.server_address[1]}", "bot@x", "clave")
+        api.login()
+        assert api.token == "jwt-de-prueba"
+        assert api.liquidaciones() == []
+        assert recibido["authorization"] == "Bearer jwt-de-prueba"
+    finally:
+        srv.shutdown()

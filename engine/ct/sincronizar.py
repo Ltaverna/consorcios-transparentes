@@ -27,6 +27,23 @@ from .portal import PortalError
 
 CARPETA_COMPROBANTES = "Comprobantes Rivadavia 2069"
 
+COOKIE_SESION = "ct_sesion"  # debe coincidir con api/app/security.py:COOKIE
+
+
+def _token_de_set_cookie(headers, nombre: str = COOKIE_SESION) -> str | None:
+    """Extrae el valor de la cookie `nombre` de una lista de headers Set-Cookie.
+
+    Se parsea a mano en vez de leer del CookieJar: sobre http://api:8080 la cookie
+    llega con Domain=.neuralcore.dev, que el jar descarta por no matchear el host, así
+    que su valor nunca queda en el jar."""
+    for h in headers or []:
+        primera = h.split(";", 1)[0].strip()      # 'ct_sesion=<jwt>'
+        if "=" in primera:
+            k, v = primera.split("=", 1)
+            if k.strip() == nombre:
+                return v.strip()
+    return None
+
 
 class ApiError(Exception):
     pass
@@ -75,8 +92,11 @@ class ApiPanel:
         self.opener = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(self.jar))
         # el Browser Integrity Check de Cloudflare banea el UA default de Python (error 1010)
         self.opener.addheaders = [("User-Agent", "ConsorcioTransparente/1.0")]
+        self.token: str | None = None  # JWT de sesión para Authorization: Bearer (ver login)
 
     def _abrir(self, req: urllib.request.Request):
+        if self.token:
+            req.add_header("Authorization", "Bearer " + self.token)
         try:
             with self.opener.open(req, timeout=self.timeout) as r:
                 cuerpo = r.read().decode("utf-8", "ignore")
@@ -108,7 +128,20 @@ class ApiPanel:
         return self._abrir(req)
 
     def login(self) -> None:
-        self._json("/auth/login", {"email": self.email, "clave": self.clave})
+        body = json.dumps({"email": self.email, "clave": self.clave}).encode()
+        req = urllib.request.Request(self.base + "/auth/login", data=body,
+                                     headers={"Content-Type": "application/json"})
+        try:
+            with self.opener.open(req, timeout=self.timeout) as r:
+                set_cookies = r.headers.get_all("Set-Cookie") or []
+        except urllib.error.HTTPError as e:
+            cuerpo = e.read().decode("utf-8", "ignore")
+            try:
+                detalle = json.loads(cuerpo).get("detail", cuerpo)
+            except (ValueError, AttributeError):
+                detalle = cuerpo[:300]
+            raise ApiError(f"la API respondió {e.code}: {detalle}") from None
+        self.token = _token_de_set_cookie(set_cookies) or None  # un valor vacío no es sesión
 
     def liquidaciones(self) -> list[dict]:
         return self._json("/liquidaciones")
