@@ -115,6 +115,16 @@ En cualquiera de las dos variantes, verificar:
 - **Rate limit detrás del tunnel**: con `CT_CONFIAR_PROXY=true` la API toma la IP real del header
   `CF-Connecting-IP`. Ese header es confiable solo si la API no es alcanzable de forma directa:
   el contenedor publica el puerto solo en localhost y el único camino externo es el tunnel.
+- **DNS estable de los contenedores** (`dns: [1.1.1.1, 8.8.8.8]` en el compose, ancla `x-dns-estable`):
+  el resolver embebido de Docker (`127.0.0.11`) hereda su upstream externo del `/etc/resolv.conf` del host
+  al **crear** el contenedor y lo fija de por vida. En una máquina que cambia de red (WiFi casa/oficina,
+  lease DHCP nueva), ese upstream se invalida y las consultas externas empiezan a fallar con
+  `Temporary failure in name resolution` —el síntoma fue el worker dejando de resolver `redconar.net` tras
+  ~2 días, mientras `api` interno seguía OK—. Fijar resolvers públicos no reemplaza el embedded (los nombres
+  internos siguen resolviendo): solo cambia a dónde reenvía lo externo. Verificar en un contenedor:
+  `docker compose exec worker cat /etc/resolv.conf` debe mostrar `ExtServers: [1.1.1.1 8.8.8.8]`.
+  Nota aparte: la **corrida inicial** del worker al arrancar puede fallar por un race con el DNS recién
+  levantado; la corrida diaria de 06:30 ya corre con el resolver estable.
 - **Warning esperado en el deploy del front**: `npm run deploy:cf` avisa "Node.js middleware support is
   experimental in cloudflare" — es por `proxy.ts`, que solo lee la cookie y redirige; no bloquea. Ante
   dudas, probar antes con `npm run preview:cf` (requiere la API de producción accesible).

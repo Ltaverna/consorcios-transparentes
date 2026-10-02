@@ -1,7 +1,20 @@
 # Consorcio Transparente — API en la máquina que hace el tunnel cloudflared.
 # Uso: cp api/.env.example api/.env (completar) && docker compose up -d --build
+
+# DNS upstream estable para el embedded resolver de Docker (127.0.0.11): sin esto, el
+# upstream se hereda del /etc/resolv.conf del host al crear el contenedor y queda fijo; en
+# una máquina que cambia de red, ese upstream se invalida y las consultas externas empiezan
+# a fallar ("Temporary failure in name resolution") mientras los nombres internos siguen OK.
+# Fijar 1.1.1.1/8.8.8.8 no reemplaza al embedded (api/mcp/etc. siguen resolviendo): solo
+# cambia a dónde reenvía lo externo. Ver DEPLOY.md §7.
+x-dns-estable: &dns-estable
+  dns:
+    - 1.1.1.1
+    - 8.8.8.8
+
 services:
   api:
+    <<: *dns-estable
     build:
       context: .
       dockerfile: api/Dockerfile
@@ -17,6 +30,7 @@ services:
     #   - ./datos-api/storage:/srv/storage
 
   worker:
+    <<: *dns-estable
     build:
       context: .
       dockerfile: api/Dockerfile
@@ -32,6 +46,7 @@ services:
     restart: unless-stopped
 
   mcp:
+    <<: *dns-estable
     build:
       context: .
       dockerfile: api/Dockerfile
@@ -44,6 +59,7 @@ services:
     restart: unless-stopped
 
   tunnel:
+    <<: *dns-estable
     image: cloudflare/cloudflared:latest
     command: tunnel --no-autoupdate --config /etc/cloudflared/config.yml run
     volumes:
