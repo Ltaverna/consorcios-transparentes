@@ -40,6 +40,15 @@ const CTLogica = (function () {
     return { ok:true };
   }
 
-  return { veredicto, contarRepresentados, puedeAsignarMandatario };
+  // Estado de una proposición del art. 2060. La oposición de ausentes tumba la proposición
+  // solo si alcanza la MISMA mayoría absoluta del total (doble: unidades y porcentual).
+  function evaluarProposicion(oposicion, totales, vencida){
+    const tumba = oposicion.n > totales.N/2 && oposicion.pct > totales.totalPct/2;
+    if(tumba) return { estado:'decaida', tumba:true };
+    if(!vencida) return { estado:'circulando', tumba:false };
+    return { estado:'firme', tumba:false };
+  }
+
+  return { veredicto, contarRepresentados, puedeAsignarMandatario, evaluarProposicion };
 })();
 if (typeof module !== 'undefined' && module.exports) module.exports = CTLogica;

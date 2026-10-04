@@ -780,12 +780,16 @@ function renderPropos(){
   const q=quorumInfo(); const ausentes = UNITS.filter(u=>!participa(u)); const ausN=ausentes.length, ausPct=ausentes.reduce((s,u)=>s+u.pct,0);
   $('#proposLead').innerHTML = q.firm ? `Hubo ${q.partN} unidades y ${fp(q.partPct)} del porcentual: <b>se alcanzó el 50 % + 1 del total</b>, las decisiones son firmes y no corresponde el régimen de proposiciones.` :
     `Quórum: ${q.partN} unidades y ${fp(q.partPct)}. <b>No se alcanzó el 50 % + 1 del total</b>, así que cada moción votada es una proposición (art. 2060 CCyC). Los propietarios ausentes (${ausN} unidades, ${fp(ausPct)}) pueden objetarla hasta el <b>${DEADLINE.toLocaleDateString('es-AR')}</b>. Criterio de esta app: la proposición queda objetada si las objeciones alcanzan la mayoría de los ausentes en unidades y en porcentual.`;
-  $('#proposList').innerHTML = S.mociones.map((m,i)=>{ const c=compute(m); const win=c.opts.filter(o=>!o.abst).sort((a,b)=>b.pct-a.pct)[0]; const objs=OBJ()[i]||{}; const oe=Object.keys(objs).map(k=>({uf:+k, ...objs[k]})).filter(o=>uf(o.uf)); const oN=oe.length, oPct=oe.reduce((s,o)=>s+uf(o.uf).pct,0);
-    const votada = c.opts.reduce((s,o)=>s+o.n,0)>0; const objetada = !q.firm && ausN>0 && oN > ausN/2 && oPct > ausPct/2; const vencida = Date.now()>DEADLINE.getTime();
-    const estado = !votada ? 'Sin votar todavía' : q.firm ? 'Decisión firme' : objetada ? 'Objetada por los ausentes' : vencida ? 'Proposición firme (venció el plazo)' : 'Proposición en circulación';
-    return `<div class="card prop"><h3>Moción ${i+1}: ${esc(m.titulo)}</h3><span class="pill ${objetada?'':votada?(q.firm||vencida?'tratado':'curso'):'pend'}">${estado}</span>
+  const vencida = Date.now()>DEADLINE.getTime();
+  $('#proposList').innerHTML = S.mociones.map((m,i)=>{ const c=compute(m); const win=c.opts.filter(o=>!o.abst).sort((a,b)=>b.pct-a.pct)[0]; const objs=OBJ()[i]||{}; const oe=Object.keys(objs).map(k=>({uf:+k, ...objs[k]})).filter(o=>uf(o.uf)); const opoN=oe.length, opoPct=oe.reduce((s,o)=>s+uf(o.uf).pct,0);
+    const votada = c.opts.reduce((s,o)=>s+o.n,0)>0;
+    const ep = CTLogica.evaluarProposicion({n:opoN, pct:opoPct}, {N:N, totalPct:TOTAL_PCT}, vencida);
+    const estadoLabel = !votada ? 'Sin votar todavía' : q.firm ? 'Decisión firme' : ep.estado==='decaida' ? 'Decaída (oposición alcanzó mayoría absoluta del total)' : ep.estado==='firme' ? 'Proposición firme (venció el plazo)' : 'Proposición en circulación';
+    const pillClass = !votada ? 'pend' : q.firm ? 'tratado' : ep.estado==='decaida' ? '' : ep.estado==='firme' ? 'tratado' : 'curso';
+    return `<div class="card prop"><h3>Moción ${i+1}: ${esc(m.titulo)}</h3><span class="pill ${pillClass}">${estadoLabel}</span>
       ${votada?`<div class="note">Resultado: ${c.opts.map(o=>`${esc(o.name)} ${fp(o.pct)} (${o.n} UF)`).join(' · ')}${win?` → mayoría: <b>${esc(win.name)}</b>`:''}</div>`:''}
-      ${!q.firm&&votada?`<div class="stat"><div>Objeciones<b>${oN}</b></div><div>Porcentual objetante<b>${fp(oPct)}</b></div><div>Ausentes<b>${ausN} · ${fp(ausPct)}</b></div><div>Vence<b style="font-size:15px">${DEADLINE.toLocaleDateString('es-AR')}</b></div></div>
+      ${!q.firm&&votada?`<div class="stat"><div>Objeciones<b>${opoN}</b></div><div>Porcentual objetante<b>${fp(opoPct)}</b></div><div>Ausentes<b>${ausN} · ${fp(ausPct)}</b></div><div>Cierre<b style="font-size:15px">${DEADLINE.toLocaleDateString('es-AR')}</b></div></div>
+      <div class="note">Oposición: ${opoN} UF / ${fp(opoPct)} — se necesita mayoría absoluta del total (${Math.floor(N/2)+1} UF y ${fp(TOTAL_PCT/2)}) para tumbarla</div>
       <div class="objlist">${oe.length?oe.map(o=>`<div class="obj"><b>${esc(uf(o.uf).piso)}</b><span>${esc(o.nombre||uf(o.uf).prop)}${o.motivo?` — <i>${esc(o.motivo)}</i>`:''}</span><span class="note">${new Date(o.ts).toLocaleDateString('es-AR')}</span></div>`).join(''):'<div class="note">Sin objeciones registradas.</div>'}</div>
       <div class="actions">${vencida?'':`<button class="btn primary sm" data-obj="${i}">Registrar objeción</button>`}</div>`:''}</div>`; }).join('') || '<div class="note">Todavía no hay mociones.</div>';
 }

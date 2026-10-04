@@ -75,3 +75,21 @@ test('un poder pendiente (true, sin mandatario) no dispara el tope', () => {
   const poderes = {1:true,2:true,3:true,4:true,5:true};
   assert.equal(puedeAsignarMandatario(true, 6, poderes, UNITS3).ok, true);
 });
+
+const { evaluarProposicion } = require('./logica.js');
+
+test('firme si la oposición no alcanza la mayoría absoluta del total', () => {
+  assert.equal(evaluarProposicion({n:10, pct:10}, {N:100, totalPct:100}, true).estado, 'firme');
+});
+test('decae si la oposición alcanza igual mayoría (ambos ejes)', () => {
+  assert.equal(evaluarProposicion({n:51, pct:51}, {N:100, totalPct:100}, true).estado, 'decaida');
+});
+test('en una sola dimensión no alcanza: sigue firme', () => {
+  assert.equal(evaluarProposicion({n:51, pct:49}, {N:100, totalPct:100}, true).estado, 'firme');
+});
+test('antes del vencimiento está en circulación', () => {
+  assert.equal(evaluarProposicion({n:10, pct:10}, {N:100, totalPct:100}, false).estado, 'circulando');
+});
+test('si la oposición tumba, decae aún antes del vencimiento', () => {
+  assert.equal(evaluarProposicion({n:60, pct:60}, {N:100, totalPct:100}, false).estado, 'decaida');
+});
