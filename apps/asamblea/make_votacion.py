@@ -447,7 +447,7 @@ dialog textarea{font:inherit;font-size:12.5px;width:100%;min-height:220px;border
 </div>
 <div class="wrap view" id="view-preguntas">
   <h2 class="sec">Preguntas a la administración</h2>
-  <p class="lead">Surgen de las liquidaciones de julio y agosto 2026 y de los 150 comprobantes cargados en Redconar. Cada pregunta cita el documento exacto; los comprobantes se ven en Redconar → Mi cuenta → Gastos y comprobantes. Las respuestas que dé la administración quedan registradas.</p>
+  <p class="lead">Preguntas para la administración de esta asamblea. Las respuestas que dé quedan registradas. Para las preguntas sobre la continuidad del encargado, ver la pestaña Encargado.</p>
   <div id="preguntasList" style="display:grid;gap:12px"></div>
 </div>
 <div class="wrap view" id="view-propos">
@@ -989,6 +989,7 @@ $('#palOk').addEventListener('click', ()=>{ const u=+$('#palUf').value; if(!u){ 
 
 // ---- preguntas
 function renderPreguntas(){
+  if(!C.preguntas || !C.preguntas.length){ $('#preguntasList').innerHTML = '<div class="card"><p class="note">Todavía no hay preguntas cargadas para esta asamblea. Las preguntas sobre la continuidad del encargado están en la pestaña <b>Encargado</b>.</p></div>'; return; }
   $('#preguntasList').innerHTML = C.preguntas.map((q,i)=>{ const r=RESP()[q.id]; return `<div class="card q" data-q="${q.id}"><span class="tema">${i+1} · ${esc(q.tema)}${q.monto?` · ${fmt.format(q.monto)}`:''}</span><p class="txt">${esc(q.pregunta)}</p><div class="doc">Documento: ${esc(q.doc)}</div>
     ${r&&r.texto?`<div class="resp"><b>Respuesta de la administración</b> (${hhmm(r.ts)}): ${esc(r.texto)}</div>`:'<div class="note">Sin respuesta registrada.</div>'}
     <div class="mod-only actions"><button class="btn sm" data-resp="${q.id}">${r&&r.texto?'Editar respuesta':'Registrar respuesta'}</button></div></div>`; }).join('');
