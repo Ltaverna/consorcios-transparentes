@@ -7,8 +7,9 @@ SC = HERE + "/"
 LOGICA = open(SC + "logica.js", encoding="utf-8").read()
 UNITS = json.load(open(SC + "votacion_units.json"))
 from asamblea_content import AGENDA, PREGUNTAS, CONVOCATORIA, PODER
+from normativa import NORMATIVA
 REGLAMENTO = open(SC + "reglamento.md", encoding="utf-8").read()
-CONTENT = json.dumps(dict(agenda=AGENDA, preguntas=PREGUNTAS, convocatoria=CONVOCATORIA, poder=PODER, reglamento=REGLAMENTO), ensure_ascii=False).replace("</", "<\\/")
+CONTENT = json.dumps(dict(agenda=AGENDA, preguntas=PREGUNTAS, convocatoria=CONVOCATORIA, poder=PODER, reglamento=REGLAMENTO, normativa=NORMATIVA), ensure_ascii=False).replace("</", "<\\/")
 DATA = json.dumps(UNITS, ensure_ascii=False).replace("</", "<\\/")
 
 HTML = r"""<meta charset="utf-8">
@@ -289,6 +290,7 @@ dialog textarea{font:inherit;font-size:12.5px;width:100%;min-height:220px;border
   <button role="tab" data-tab="propos" aria-selected="false">Proposiciones</button>
   <button role="tab" data-tab="docs" aria-selected="false">Documentos</button>
   <button role="tab" data-tab="reglamento" aria-selected="false">Reglamento</button>
+  <button role="tab" data-tab="normativa" aria-selected="false">Normativa</button>
 </nav>
 <div class="top" id="top">
   <div class="wrap">
@@ -350,6 +352,11 @@ Modo moderador (PIN): en Agenda, botón "Soy moderador".</pre></div>
   <input id="regBuscar" type="search" placeholder="Buscar en el reglamento…" aria-label="Buscar en el reglamento" style="width:100%;padding:10px;font-size:16px;margin-bottom:10px">
   <details id="regIndice" class="card"><summary>Índice de artículos</summary><nav id="regIndiceNav"></nav></details>
   <div id="regTexto" class="doc"></div>
+</div>
+<div class="wrap view" id="view-normativa">
+  <h2 class="sec">Normativa de referencia</h2>
+  <p class="lead">Marco legal aplicable a la asamblea. Cada ítem resume la norma y enlaza al texto oficial; verificá en la fuente ante cualquier duda.</p>
+  <div id="normativaList" style="display:grid;gap:12px"></div>
 </div>
 <dialog id="dlgPin"><form method="dialog" class="body"><h3>Modo moderador</h3><label>PIN <input id="pinInput" type="password" inputmode="numeric" autocomplete="off" placeholder="PIN"></label><p class="note">Habilita marcar presencia y votos, cambiar el punto en tratamiento, dar la palabra y registrar respuestas.</p><div class="row"><button class="btn" value="cancel">Cancelar</button><button class="btn primary" id="pinOk" value="ok">Entrar</button></div></form></dialog>
 <dialog id="dlgPalabra"><div class="body"><h3>Pedir la palabra</h3><div class="form"><label>Unidad <select id="palUf"></select></label><label>Nombre <input id="palNombre" placeholder="Nombre y apellido" autocomplete="name"></label></div><div class="row"><button class="btn" id="palCancel">Cancelar</button><button class="btn primary" id="palOk">Anotarme</button></div></div></dialog>
@@ -786,7 +793,7 @@ $('#pinOk').addEventListener('click', e=>{ if($('#pinInput').value.trim()===PIN)
 let TAB = 'agenda';
 function setTab(t){ TAB=t; document.querySelectorAll('.tabs button').forEach(b=>b.setAttribute('aria-selected', String(b.dataset.tab===t)));
   const votar = t==='votar'; $('#top').classList.toggle('vhide', !votar); $('#votarWrap').classList.toggle('vhide', !votar); document.querySelector('.bottom').classList.toggle('vhide', !votar);
-  ['agenda','preguntas','propos','docs','reglamento'].forEach(v=>$('#view-'+v).classList.toggle('vhide', t!==v));
+  ['agenda','preguntas','propos','docs','reglamento','normativa'].forEach(v=>$('#view-'+v).classList.toggle('vhide', t!==v));
   window.scrollTo(0,0); renderAll(); try{ localStorage.setItem(KEY+'-tab', t); }catch(e){} }
 document.querySelector('.tabs').addEventListener('click', e=>{ const b=e.target.closest('button[data-tab]'); if(b) setTab(b.dataset.tab); });
 
@@ -893,6 +900,18 @@ function irAReglamento(texto){ setTab('reglamento'); setTimeout(()=>{ const t=(t
   for(const el of $('#regTexto').querySelectorAll('h2,h3,h4')){ if(el.textContent.toLowerCase().includes(t)){ el.scrollIntoView({behavior:'smooth',block:'start'}); break; } } }, 60); }
 $('#regBuscar').addEventListener('input', e=>filtrarReglamento(e.target.value));
 
+// ---- normativa
+function renderNormativa(){
+  const items = C.normativa || [];
+  $('#normativaList').innerHTML = items.map(n => `
+    <div class="card" id="norm-${esc(n.id)}">
+      <h3>${esc(n.titulo)}</h3>
+      <p>${esc(n.resumen)}</p>
+      <p class="note">Fuente: ${esc(n.fuente)} — <a href="${esc(n.url)}" target="_blank" rel="noopener noreferrer">ver texto oficial</a></p>
+    </div>`).join('');
+}
+function irANormativa(id){ setTab('normativa'); setTimeout(()=>{ const el=$('#norm-'+id); if(el) el.scrollIntoView({behavior:'smooth',block:'start'}); }, 60); }
+
 // ---- documentos
 $('#docConv').textContent = C.convocatoria; $('#docPoder').textContent = C.poder;
 
@@ -906,7 +925,7 @@ buildPrint = function(){ _buildPrint(); const q=quorumInfo(); let h='';
 
 // ---- render hooks
 const _renderAll = renderAll;
-renderAll = function(){ _renderAll(); if(TAB==='agenda') renderAgenda(); else if(TAB==='preguntas') renderPreguntas(); else if(TAB==='propos') renderPropos(); else if(TAB==='reglamento') renderReglamento(); };
+renderAll = function(){ _renderAll(); if(TAB==='agenda') renderAgenda(); else if(TAB==='preguntas') renderPreguntas(); else if(TAB==='propos') renderPropos(); else if(TAB==='reglamento') renderReglamento(); else if(TAB==='normativa') renderNormativa(); };
 (function(){ let t='agenda'; try{ t=localStorage.getItem(KEY+'-tab')||'agenda'; }catch(e){} setTab(t); })();
 
 let tt; function toast(msg){ const t=$('#toast'); t.textContent=msg; t.style.display='block'; clearTimeout(tt); tt=setTimeout(()=>t.style.display='none',1800); }
