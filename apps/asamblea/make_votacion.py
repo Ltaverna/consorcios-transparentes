@@ -4,6 +4,7 @@ DATOS = os.path.join(HERE, "datos") + "/"
 PRIVADO = os.environ.get("CT_PRIVADO", os.path.expanduser("~/consorcio-transparente-privado")) + "/"
 import json
 SC = HERE + "/"
+LOGICA = open(SC + "logica.js", encoding="utf-8").read()
 UNITS = json.load(open(SC + "votacion_units.json"))
 from asamblea_content import AGENDA, PREGUNTAS, CONVOCATORIA, PODER
 CONTENT = json.dumps(dict(agenda=AGENDA, preguntas=PREGUNTAS, convocatoria=CONVOCATORIA, poder=PODER), ensure_ascii=False).replace("</", "<\\/")
@@ -390,6 +391,7 @@ Modo moderador (PIN): en Agenda, botón "Soy moderador".</pre></div>
 
 <script id="data" type="application/json">__DATA__</script>
 <script id="content" type="application/json">__CONTENT__</script>
+<script>__LOGICA__</script>
 <script>
 (function(){
 const UNITS = JSON.parse(document.getElementById('data').textContent);
@@ -430,16 +432,7 @@ function compute(m){
   const partN = presN+poderN, partPct = presPct+poderPct;
   return {opts,presN,presPct,poderN,poderPct,partN,partPct,votN,votPct};
 }
-function verdict(m, c, o){
-  if(o.abst) return null;
-  let needN, needPct, base;
-  if(m.regla==='abs'){ needN = N/2; needPct = TOTAL_PCT/2; base='del total'; }
-  else if(m.regla==='2/3'){ needN = N*2/3; needPct = TOTAL_PCT*2/3; base='del total'; }
-  else { needN = c.partN/2; needPct = c.partPct/2; base='de los presentes'; }
-  const okN = m.regla==='2/3' ? o.n >= needN : o.n > needN;
-  const okP = m.regla==='2/3' ? o.pct >= needPct : o.pct > needPct;
-  return {ok: okN && okP, okN, okP, needN, needPct, base};
-}
+function verdict(m, c, o){ return CTLogica.veredicto(m.regla, o, {N:N, totalPct:TOTAL_PCT}, {partN:c.partN, partPct:c.partPct}); }
 
 // ---------- render top
 function renderTop(){
@@ -774,7 +767,7 @@ renderAll();
 })();
 </script>
 """
-out = HTML.replace("__DATA__", DATA).replace("__CONTENT__", CONTENT)
+out = HTML.replace("__DATA__", DATA).replace("__CONTENT__", CONTENT).replace("__LOGICA__", LOGICA)
 open(SC + "votacion-rivadavia-2069.html", "w", encoding="utf-8").write(out)
 open(SC + "pages-out/index.html", "w", encoding="utf-8").write("<!doctype html>\n<html lang=\"es\">\n" + out + "\n</html>\n")
 print("ok")
