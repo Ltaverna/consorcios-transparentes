@@ -9,7 +9,8 @@ UNITS = json.load(open(SC + "votacion_units.json"))
 from asamblea_content import AGENDA, PREGUNTAS, CONVOCATORIA, PODER
 from normativa import NORMATIVA
 REGLAMENTO = open(SC + "reglamento.md", encoding="utf-8").read()
-CONTENT = json.dumps(dict(agenda=AGENDA, preguntas=PREGUNTAS, convocatoria=CONVOCATORIA, poder=PODER, reglamento=REGLAMENTO, normativa=NORMATIVA), ensure_ascii=False).replace("</", "<\\/")
+ENCARGADO = open(SC + "encargado.md", encoding="utf-8").read()
+CONTENT = json.dumps(dict(agenda=AGENDA, preguntas=PREGUNTAS, convocatoria=CONVOCATORIA, poder=PODER, reglamento=REGLAMENTO, normativa=NORMATIVA, encargado=ENCARGADO), ensure_ascii=False).replace("</", "<\\/")
 DATA = json.dumps(UNITS, ensure_ascii=False).replace("</", "<\\/")
 
 HTML = r"""<meta charset="utf-8">
@@ -20,38 +21,72 @@ HTML = r"""<meta charset="utf-8">
 <meta name="apple-mobile-web-app-title" content="Asamblea 2069">
 <title>Asamblea Rivadavia 2069</title>
 <meta name="description" content="Cómputo de asamblea del Consorcio Rivadavia 2069: presentes, poderes, votos y porcentajes en tiempo real.">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,600&display=swap">
+<!-- ui-ux-pro-max tokens: Accessible & Ethical / Government-Institutional
+     Paleta: navy #1b2536 · acento blue #2563eb · presente #0d7e4b · poder #a86200 · crítico #c0392b
+     Tipo: Inter (body, tabular-nums) + Source Serif 4 (títulos/marca)
+     Espaciado: base 4px; escala 4/8/12/16/24/32; radios: input 8px, card 14px, pill 999px
+     Sombras: sutiles—capa 1 color, capa 2 difusa larga
+     Modo oscuro: tonos desaturados, no invertidos; contraste AA en ambos modos -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;600&display=swap">
 <style>
 :root{
-  --bg:#f3f4f6; --surface:#ffffff; --surface-2:#f7f8fa; --ink:#1b2536; --ink-2:#414a58; --muted:#5f6875; --hair:#d5dae2; --hair-2:#e8ebf0;
-  --accent:#2a5db0; --accent-soft:#e6eefb;
-  --o1:#2a78d6; --o1-soft:#e3eefb; --o2:#eb6834; --o2-soft:#fdeadf; --o3:#8a8f98; --o3-soft:#eceef2; --o4:#1baf7a; --o4-soft:#e0f5ec;
-  --good:#0ca30c; --good-soft:#e2f5e2; --warn:#c98500; --warn-soft:#fff3cf; --critical:#d03b3b; --critical-soft:#fbe4e4;
-  --good-btn:#0b7d0b; --o1-btn:#1f63bd; --o2-btn:#c44d1c; --o3-btn:#5f6875; --o4-btn:#157d58;
-  --tabs-bg:#1b2536; --tabs-ink:#ffffff; --tabs-muted:rgba(255,255,255,.72); --pill-curso-ink:#7a5200; --pill-ok-ink:#0b6a0b; --primary-bg:#1b2536; --primary-ink:#ffffff;
-  --shadow:0 1px 2px rgba(27,37,54,.08),0 10px 30px -14px rgba(27,37,54,.25);
+  /* Superficie y fondo */
+  --bg:#f0f2f5; --surface:#ffffff; --surface-2:#f7f8fa; --ink:#1b2536; --ink-2:#3d4a5c; --muted:#667080; --hair:#cdd3dc; --hair-2:#e4e8ee;
+  /* Acento institucional */
+  --accent:#1e50a2; --accent-soft:#e8eef8; --accent-ink:#1e50a2;
+  /* Opciones de votación */
+  --o1:#1a5fb4; --o1-soft:#deeafa; --o2:#c44c00; --o2-soft:#fce9dd; --o3:#6b7280; --o3-soft:#ebebed; --o4:#0d7e4b; --o4-soft:#d8f2e7;
+  /* Estados semánticos (contraste ≥4.5:1 sobre su soft) */
+  --good:#0d7e4b; --good-soft:#d8f2e7; --good-ink:#08512f;
+  --warn:#a86200; --warn-soft:#fdf0d7; --warn-ink:#7a4700;
+  --critical:#c0392b; --critical-soft:#fbe5e3; --critical-ink:#96201a;
+  /* Botones activos */
+  --good-btn:#0a6b3e; --o1-btn:#1a5fb4; --o2-btn:#c44c00; --o3-btn:#4b5563; --o4-btn:#0a6b3e;
+  /* Barra de pestañas */
+  --tabs-bg:#1b2536; --tabs-ink:#ffffff; --tabs-muted:rgba(255,255,255,.65); --tabs-active-line:#e8b84b;
+  /* Pills */
+  --pill-curso-ink:#7a4700; --pill-ok-ink:#08512f;
+  /* Botón primario */
+  --primary-bg:#1b2536; --primary-ink:#ffffff;
+  /* Sombra: capa 1 color sutil + capa 2 difusa larga */
+  --shadow:0 1px 3px rgba(27,37,54,.07),0 8px 24px -10px rgba(27,37,54,.18);
+  --shadow-sm:0 1px 2px rgba(27,37,54,.06),0 4px 12px -6px rgba(27,37,54,.12);
+  /* Radios */
+  --r-sm:8px; --r-md:14px; --r-lg:18px;
   color-scheme:light;
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
-    --bg:#0f1318; --surface:#171c24; --surface-2:#1d232c; --ink:#eef1f5; --ink-2:#c3cad4; --muted:#8e98a6; --hair:#2a313c; --hair-2:#222932;
-    --accent:#6f9ee8; --accent-soft:#1c2a42;
-    --o1:#3987e5; --o1-soft:#1c2a42; --o2:#d95926; --o2-soft:#3b261a; --o3:#8e98a6; --o3-soft:#262c36; --o4:#199e70; --o4-soft:#16302a;
-    --good:#0ca30c; --good-soft:#163016; --warn:#fab219; --warn-soft:#3a3113; --critical:#e66767; --critical-soft:#3a1d1d;
-    --good-btn:#0b7d0b; --o1-btn:#1f63bd; --o2-btn:#c44d1c; --o3-btn:#5f6875; --o4-btn:#157d58;
-    --tabs-bg:#0b0e13; --tabs-ink:#ffffff; --tabs-muted:rgba(255,255,255,.7); --pill-curso-ink:#ffd27a; --pill-ok-ink:#7fe07f; --primary-bg:#e6eaf0; --primary-ink:#0f1318;
-    --shadow:0 1px 2px rgba(0,0,0,.5),0 10px 30px -14px rgba(0,0,0,.7);
+    --bg:#0e1318; --surface:#161c25; --surface-2:#1c232e; --ink:#e8ecf2; --ink-2:#b8c2d0; --muted:#7e8fa3; --hair:#252e3b; --hair-2:#1e2530;
+    --accent:#6b9fde; --accent-soft:#1a2740; --accent-ink:#9bbde8;
+    --o1:#3d8ae8; --o1-soft:#19273d; --o2:#d95c18; --o2-soft:#3a2116; --o3:#7e8fa3; --o3-soft:#252e3b; --o4:#17a864; --o4-soft:#112e21;
+    --good:#17a864; --good-soft:#112e21; --good-ink:#5ad49a;
+    --warn:#e8a020; --warn-soft:#382b0e; --warn-ink:#f0c060;
+    --critical:#e05252; --critical-soft:#3a1818; --critical-ink:#f08080;
+    --good-btn:#0f8a50; --o1-btn:#2870c8; --o2-btn:#c24810; --o3-btn:#4b5563; --o4-btn:#0f8a50;
+    --tabs-bg:#0a0d12; --tabs-ink:#ffffff; --tabs-muted:rgba(255,255,255,.6); --tabs-active-line:#e8b84b;
+    --pill-curso-ink:#f0c060; --pill-ok-ink:#5ad49a;
+    --primary-bg:#d8e2f0; --primary-ink:#0e1318;
+    --shadow:0 1px 3px rgba(0,0,0,.45),0 8px 24px -10px rgba(0,0,0,.65);
+    --shadow-sm:0 1px 2px rgba(0,0,0,.35),0 4px 12px -6px rgba(0,0,0,.5);
     color-scheme:dark;
   }
 }
 :root[data-theme="dark"]{
-  --bg:#0f1318; --surface:#171c24; --surface-2:#1d232c; --ink:#eef1f5; --ink-2:#c3cad4; --muted:#8e98a6; --hair:#2a313c; --hair-2:#222932;
-  --accent:#6f9ee8; --accent-soft:#1c2a42;
-  --o1:#3987e5; --o1-soft:#1c2a42; --o2:#d95926; --o2-soft:#3b261a; --o3:#8e98a6; --o3-soft:#262c36; --o4:#199e70; --o4-soft:#16302a;
-  --good:#0ca30c; --good-soft:#163016; --warn:#fab219; --warn-soft:#3a3113; --critical:#e66767; --critical-soft:#3a1d1d;
-  --good-btn:#0b7d0b; --o1-btn:#1f63bd; --o2-btn:#c44d1c; --o3-btn:#5f6875; --o4-btn:#157d58;
-  --tabs-bg:#0b0e13; --tabs-ink:#ffffff; --tabs-muted:rgba(255,255,255,.7); --pill-curso-ink:#ffd27a; --pill-ok-ink:#7fe07f; --primary-bg:#e6eaf0; --primary-ink:#0f1318;
-  --shadow:0 1px 2px rgba(0,0,0,.5),0 10px 30px -14px rgba(0,0,0,.7);
+  --bg:#0e1318; --surface:#161c25; --surface-2:#1c232e; --ink:#e8ecf2; --ink-2:#b8c2d0; --muted:#7e8fa3; --hair:#252e3b; --hair-2:#1e2530;
+  --accent:#6b9fde; --accent-soft:#1a2740; --accent-ink:#9bbde8;
+  --o1:#3d8ae8; --o1-soft:#19273d; --o2:#d95c18; --o2-soft:#3a2116; --o3:#7e8fa3; --o3-soft:#252e3b; --o4:#17a864; --o4-soft:#112e21;
+  --good:#17a864; --good-soft:#112e21; --good-ink:#5ad49a;
+  --warn:#e8a020; --warn-soft:#382b0e; --warn-ink:#f0c060;
+  --critical:#e05252; --critical-soft:#3a1818; --critical-ink:#f08080;
+  --good-btn:#0f8a50; --o1-btn:#2870c8; --o2-btn:#c24810; --o3-btn:#4b5563; --o4-btn:#0f8a50;
+  --tabs-bg:#0a0d12; --tabs-ink:#ffffff; --tabs-muted:rgba(255,255,255,.6); --tabs-active-line:#e8b84b;
+  --pill-curso-ink:#f0c060; --pill-ok-ink:#5ad49a;
+  --primary-bg:#d8e2f0; --primary-ink:#0e1318;
+  --shadow:0 1px 3px rgba(0,0,0,.45),0 8px 24px -10px rgba(0,0,0,.65);
+  --shadow-sm:0 1px 2px rgba(0,0,0,.35),0 4px 12px -6px rgba(0,0,0,.5);
   color-scheme:dark;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -291,6 +326,7 @@ dialog textarea{font:inherit;font-size:12.5px;width:100%;min-height:220px;border
   <button role="tab" data-tab="docs" aria-selected="false">Documentos</button>
   <button role="tab" data-tab="reglamento" aria-selected="false">Reglamento</button>
   <button role="tab" data-tab="normativa" aria-selected="false">Normativa</button>
+  <button role="tab" data-tab="encargado" aria-selected="false">Encargado</button>
 </nav>
 <div class="top" id="top">
   <div class="wrap">
@@ -357,6 +393,13 @@ Modo moderador (PIN): en Agenda, botón "Soy moderador".</pre></div>
   <h2 class="sec">Normativa de referencia</h2>
   <p class="lead">Marco legal aplicable a la asamblea. Cada ítem resume la norma y enlaza al texto oficial; verificá en la fuente ante cualquier duda.</p>
   <div id="normativaList" style="display:grid;gap:12px"></div>
+</div>
+<div class="wrap view" id="view-encargado">
+  <h2 class="sec">Continuidad del encargado</h2>
+  <p class="lead">Preguntas para consultar a la Administración y al Consejo antes de decidir sobre la continuidad del encargado. Buscá por tema o usá el índice.</p>
+  <input id="encBuscar" type="search" placeholder="Buscar…" aria-label="Buscar en el documento del encargado" style="width:100%;padding:10px;font-size:16px;margin-bottom:10px">
+  <details id="encIndice" class="card"><summary>Índice</summary><nav id="encIndiceNav"></nav></details>
+  <div id="encTexto" class="doc"></div>
 </div>
 <dialog id="dlgPin"><form method="dialog" class="body"><h3>Modo moderador</h3><label>PIN <input id="pinInput" type="password" inputmode="numeric" autocomplete="off" placeholder="PIN"></label><p class="note">Habilita marcar presencia y votos, cambiar el punto en tratamiento, dar la palabra y registrar respuestas.</p><div class="row"><button class="btn" value="cancel">Cancelar</button><button class="btn primary" id="pinOk" value="ok">Entrar</button></div></form></dialog>
 <dialog id="dlgPalabra"><div class="body"><h3>Pedir la palabra</h3><div class="form"><label>Unidad <select id="palUf"></select></label><label>Nombre <input id="palNombre" placeholder="Nombre y apellido" autocomplete="name"></label></div><div class="row"><button class="btn" id="palCancel">Cancelar</button><button class="btn primary" id="palOk">Anotarme</button></div></div></dialog>
@@ -793,7 +836,7 @@ $('#pinOk').addEventListener('click', e=>{ if($('#pinInput').value.trim()===PIN)
 let TAB = 'agenda';
 function setTab(t){ TAB=t; document.querySelectorAll('.tabs button').forEach(b=>b.setAttribute('aria-selected', String(b.dataset.tab===t)));
   const votar = t==='votar'; $('#top').classList.toggle('vhide', !votar); $('#votarWrap').classList.toggle('vhide', !votar); document.querySelector('.bottom').classList.toggle('vhide', !votar);
-  ['agenda','preguntas','propos','docs','reglamento','normativa'].forEach(v=>$('#view-'+v).classList.toggle('vhide', t!==v));
+  ['agenda','preguntas','propos','docs','reglamento','normativa','encargado'].forEach(v=>$('#view-'+v).classList.toggle('vhide', t!==v));
   window.scrollTo(0,0); renderAll(); try{ localStorage.setItem(KEY+'-tab', t); }catch(e){} }
 document.querySelector('.tabs').addEventListener('click', e=>{ const b=e.target.closest('button[data-tab]'); if(b) setTab(b.dataset.tab); });
 
@@ -872,33 +915,105 @@ $('#view-propos').addEventListener('click', e=>{ const b=e.target.closest('butto
 $('#objCancel').addEventListener('click', ()=>$('#dlgObj').close());
 $('#objOk').addEventListener('click', ()=>{ const i=+$('#dlgObj').dataset.m; const u=+$('#objUf').value; if(!u){ toast('Elegí tu unidad'); return; } const nombre=$('#objNombre').value.trim(); if(!nombre){ toast('Escribí tu nombre'); return; } const motivo=$('#objMotivo').value.trim(); OBJ()[i]=OBJ()[i]||{}; OBJ()[i][u]={nombre, motivo, ts:Date.now()}; save(); sync.send({t:'objecion', m:i, uf:u, nombre, motivo}); $('#dlgObj').close(); renderAll(); toast('Objeción registrada'); });
 
-// ---- reglamento
+// ---- reglamento / encargado — renderer compartido
 function _mdInline(s){ return esc(s).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>'); }
-function renderReglamento(){
-  const md = C.reglamento || '';
-  const nav = []; let html = ''; let i = 0;
-  for(const raw of md.split('\n')){
+function renderMarkdownEn(contenedorSel, indiceSel, md){
+  const lines = (md||'').split('\n');
+  const nav = []; let html = ''; let idCnt = 0;
+  let inUl = false, inOl = false, inBq = false, inPre = false;
+  const closeUl  = ()=>{ if(inUl ){ html+='</ul>';  inUl =false; } };
+  const closeOl  = ()=>{ if(inOl ){ html+='</ol>';  inOl =false; } };
+  const closeBq  = ()=>{ if(inBq ){ html+='</blockquote>'; inBq=false; } };
+  const closePre = ()=>{ if(inPre){ html+='</pre>'; inPre=false; } };
+  const closeAll = ()=>{ closeUl(); closeOl(); closeBq(); closePre(); };
+  for(const raw of lines){
     const line = raw.replace(/\r$/,'');
+    // encabezado
     const h = /^(#{1,4})\s+(.*)$/.exec(line);
-    if(h){ const lvl=h[1].length, id='reg-'+(i++), txt=h[2];
+    if(h){
+      closeAll();
+      const lvl=h[1].length, id='md-'+(idCnt++), txt=h[2];
       if(lvl>=3) nav.push(`<a href="#${id}">${esc(txt)}</a>`);
       html += `<h${lvl+1} id="${id}">${_mdInline(txt)}</h${lvl+1}>`;
-    } else if(line.trim()==='') { /* salto */ }
-    else { html += `<p>${_mdInline(line)}</p>`; }
+      continue;
+    }
+    // línea vacía
+    if(line.trim()===''){
+      closeAll();
+      continue;
+    }
+    // separador (línea de solo ---/***/ === con ≥3 chars)
+    if(/^\s*([*\-=])\1{2,}\s*$/.test(line)){
+      closeAll();
+      html += '<hr>';
+      continue;
+    }
+    // bloque pre para arte-ASCII / tablas con corridas largas de guiones
+    if(/\-{10,}/.test(line)){
+      closeUl(); closeOl(); closeBq();
+      if(!inPre){ html+='<pre class="doc">'; inPre=true; }
+      html += esc(line)+'\n';
+      continue;
+    }
+    // si estamos en pre y la línea no tiene guiones largos, seguimos en pre
+    // (se cierra en línea vacía, encabezado o separador via closeAll arriba)
+    if(inPre){
+      html += esc(line)+'\n';
+      continue;
+    }
+    // blockquote
+    const bq = /^>\s?(.*)$/.exec(line);
+    if(bq){
+      closeUl(); closeOl();
+      if(!inBq){ html+='<blockquote>'; inBq=true; }
+      html += `<p>${_mdInline(bq[1])}</p>`;
+      continue;
+    }
+    closeBq();
+    // lista con viñeta
+    const ul = /^[-*]\s+(.+)$/.exec(line);
+    if(ul){
+      closeOl();
+      if(!inUl){ html+='<ul>'; inUl=true; }
+      html += `<li>${_mdInline(ul[1])}</li>`;
+      continue;
+    }
+    // lista numerada
+    const ol = /^\d+\.\s+(.+)$/.exec(line);
+    if(ol){
+      closeUl();
+      if(!inOl){ html+='<ol>'; inOl=true; }
+      html += `<li>${_mdInline(ol[1])}</li>`;
+      continue;
+    }
+    // párrafo
+    closeUl(); closeOl();
+    html += `<p>${_mdInline(line)}</p>`;
   }
-  $('#regTexto').innerHTML = html;
-  $('#regIndiceNav').innerHTML = nav.join('');
+  closeAll();
+  $(contenedorSel).innerHTML = html;
+  $(indiceSel).innerHTML = nav.join('');
 }
-function filtrarReglamento(q){
+function filtrarDoc(contenedorSel, q){
   q = (q||'').trim().toLowerCase();
-  for(const el of $('#regTexto').querySelectorAll('p,h2,h3,h4,h5')){
+  for(const el of $(contenedorSel).querySelectorAll('p,h2,h3,h4,h5,li,blockquote,pre')){
     el.style.display = (!q || el.textContent.toLowerCase().includes(q)) ? '' : 'none';
   }
 }
+function renderReglamento(){
+  renderMarkdownEn('#regTexto','#regIndiceNav', C.reglamento);
+  filtrarDoc('#regTexto', ($('#regBuscar')||{}).value||'');
+}
+function filtrarReglamento(q){ filtrarDoc('#regTexto', q); }
 // Cambia a la pestaña Reglamento y hace scroll al primer encabezado que incluya `texto`.
 function irAReglamento(texto){ setTab('reglamento'); setTimeout(()=>{ const t=(texto||'').toLowerCase();
   for(const el of $('#regTexto').querySelectorAll('h2,h3,h4')){ if(el.textContent.toLowerCase().includes(t)){ el.scrollIntoView({behavior:'smooth',block:'start'}); break; } } }, 60); }
-$('#regBuscar').addEventListener('input', e=>filtrarReglamento(e.target.value));
+$('#regBuscar').addEventListener('input', e=>filtrarDoc('#regTexto', e.target.value));
+function renderEncargado(){
+  renderMarkdownEn('#encTexto','#encIndiceNav', C.encargado);
+  filtrarDoc('#encTexto', ($('#encBuscar')||{}).value||'');
+}
+$('#encBuscar').addEventListener('input', e=>filtrarDoc('#encTexto', e.target.value));
 
 // ---- normativa
 function renderNormativa(){
@@ -925,7 +1040,7 @@ buildPrint = function(){ _buildPrint(); const q=quorumInfo(); let h='';
 
 // ---- render hooks
 const _renderAll = renderAll;
-renderAll = function(){ _renderAll(); if(TAB==='agenda') renderAgenda(); else if(TAB==='preguntas') renderPreguntas(); else if(TAB==='propos') renderPropos(); else if(TAB==='reglamento') renderReglamento(); else if(TAB==='normativa') renderNormativa(); };
+renderAll = function(){ _renderAll(); if(TAB==='agenda') renderAgenda(); else if(TAB==='preguntas') renderPreguntas(); else if(TAB==='propos') renderPropos(); else if(TAB==='reglamento') renderReglamento(); else if(TAB==='normativa') renderNormativa(); else if(TAB==='encargado') renderEncargado(); };
 (function(){ let t='agenda'; try{ t=localStorage.getItem(KEY+'-tab')||'agenda'; }catch(e){} setTab(t); })();
 
 let tt; function toast(msg){ const t=$('#toast'); t.textContent=msg; t.style.display='block'; clearTimeout(tt); tt=setTimeout(()=>t.style.display='none',1800); }
