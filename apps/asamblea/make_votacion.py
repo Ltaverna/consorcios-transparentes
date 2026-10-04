@@ -477,7 +477,15 @@ function rowHTML(u){
       <div class="r1"><button class="tog pres" data-act="pres" aria-pressed="${p}">Presente</button><button class="tog poder" data-act="poder" aria-pressed="${pd}">Poder</button>${same>1?`<button class="tog multi" data-act="multi" title="Aplicar presencia y voto a las ${same} unidades de ${esc(u.prop)}">× ${same}</button>`:''}</div>
       <div class="r2">${m.opciones.map((o,i)=>`<button class="tog ${COLORS[i%4]}" data-act="vote" data-i="${i}" aria-pressed="${v===i}" ${part?'':'disabled'}>${esc(o)}</button>`).join('')}</div>
     </div>
-    ${pd?`<div class="poderinput"><label for="poder-${u.uf}">Representado por</label><input id="poder-${u.uf}" data-act="poderName" enterkeyhint="done" autocomplete="off" value="${esc(S.poderes[u.uf]===true?'':S.poderes[u.uf])}" placeholder="nombre del apoderado (opcional)"></div>`:''}
+    ${pd?(()=>{
+      const mandActual = S.poderes[u.uf];
+      const esTercero = typeof mandActual === 'string' && mandActual.startsWith('tercero:');
+      const mandLabel = esTercero ? mandActual.slice(8) : (typeof mandActual === 'string' ? mandActual : '');
+      const presentes = UNITS.filter(x => S.presentes[x.uf] && !x.admin);
+      const opsProp = presentes.filter(x => x.prop !== u.prop).map(x => `<option value="${esc(x.prop)}" ${mandActual===x.prop?'selected':''}>${esc(x.prop)}</option>`);
+      const contador = typeof mandActual === 'string' ? ` <span class="note" style="margin-left:4px">(representa ${CTLogica.contarRepresentados(mandActual, S.poderes, UNITS)}/5)</span>` : '';
+      return `<div class="poderinput"><label for="poder-${u.uf}">Representado por${contador}</label><select id="poder-${u.uf}" data-act="poderSel"><option value="">— sin asignar —</option>${opsProp.join('')}<option value="tercero" ${esTercero?'selected':''}>Tercero con carta poder…</option></select>${esTercero?`<span class="note" style="margin-left:6px">${esc(mandLabel)}</span>`:''}</div>`;
+    })():''}
   </div>`;
 }
 function filtered(){
@@ -512,14 +520,33 @@ function renderRoll(){
 }
 function setMode(m){ mode=m; pinned=false; const roll = m==='lista'; $('#roll').hidden=!roll; $('#list').hidden=roll; $('.toolbar').hidden=roll; $('#btnLista').textContent = roll?'Volver a votar':'Pasar lista'; renderAll(); window.scrollTo(0,0); applyCompact(); }
 $('#roll').addEventListener('click', e=>{ const b=e.target.closest('button[data-act]'); if(!b) return; const uf=+b.closest('.chipu').dataset.uf; const u=UNITS.find(x=>x.uf===uf);
-  if(b.dataset.act==='rpres') setPresent(u, !S.presentes[uf]); else setPoder(u, !S.poderes[uf]);
-  save(); renderTop(); renderRoll(); });
+  if(b.dataset.act==='rpres'){ setPresent(u, !S.presentes[uf]); save(); renderTop(); renderRoll(); }
+  else {
+    if(S.poderes[uf]){ setPoder(u, null); save(); renderTop(); renderRoll(); }
+    else {
+      // Marcar primero como poder pendiente, luego pedir mandatario en la vista lista
+      S.poderes[uf]=true; delete S.presentes[uf]; sync.send({t:'poder', uf, v:true}); save(); renderTop(); renderRoll();
+      toast('Poder marcado. Completá el mandatario en la tarjeta de la unidad.');
+    }
+  }
+});
 $('#btnLista').addEventListener('click', ()=>setMode(mode==='lista'?'votar':'lista'));
 function renderAll(){ renderTop(); if(mode==='lista') renderRoll(); else renderList(); }
 
 // ---------- actions
 function setPresent(u, val){ if(val){ S.presentes[u.uf]=true; delete S.poderes[u.uf]; } else { delete S.presentes[u.uf]; if(!S.poderes[u.uf]) for(const m of S.mociones) delete m.votos[u.uf]; } sync.send({t:'presente', uf:u.uf, v:!!val}); }
-function setPoder(u, val){ if(val){ S.poderes[u.uf]=S.poderes[u.uf]||true; delete S.presentes[u.uf]; } else { delete S.poderes[u.uf]; if(!S.presentes[u.uf]) for(const m of S.mociones) delete m.votos[u.uf]; } sync.send({t:'poder', uf:u.uf, v:val?S.poderes[u.uf]:false}); }
+function setPoder(u, mandatario){
+  if(mandatario){
+    const r = CTLogica.puedeAsignarMandatario(mandatario, u.uf, S.poderes, UNITS);
+    if(!r.ok){
+      const el=$('#toast'); el.innerHTML=esc(r.motivo)+' <button onclick="irAReglamento(\'Representación\')" style="background:none;border:0;color:inherit;text-decoration:underline;cursor:pointer;font:inherit;padding:0">Ver art. 25 h</button>';
+      el.style.display='block'; clearTimeout(tt); tt=setTimeout(()=>el.style.display='none',4000);
+      return;
+    }
+    S.poderes[u.uf]=mandatario; delete S.presentes[u.uf];
+  } else { delete S.poderes[u.uf]; if(!S.presentes[u.uf]) for(const m of S.mociones) delete m.votos[u.uf]; }
+  sync.send({t:'poder', uf:u.uf, v:mandatario||false});
+}
 function setVote(u, i){ const m=M(); if(m.votos[u.uf]===i) delete m.votos[u.uf]; else m.votos[u.uf]=i; sync.send({t:'voto', m:S.activa, uf:u.uf, v:(m.votos[u.uf]==null?null:m.votos[u.uf])}); }
 
 $('#list').addEventListener('click', e=>{
@@ -537,7 +564,19 @@ $('#list').addEventListener('click', e=>{
   }
   save(); renderTop(); renderRow(u.uf);
 });
-$('#list').addEventListener('change', e=>{ const inp=e.target.closest('input[data-act="poderName"]'); if(!inp) return; const uf=+inp.closest('.unit').dataset.uf; S.poderes[uf]=inp.value.trim()||true; save(); sync.send({t:'poder', uf, v:S.poderes[uf]}); });
+$('#list').addEventListener('change', e=>{
+  const sel=e.target.closest('select[data-act="poderSel"]'); if(!sel) return;
+  const uf=+sel.closest('.unit').dataset.uf; const u=UNITS.find(x=>x.uf===uf);
+  const val=sel.value;
+  if(!val){ setPoder(u, null); save(); renderTop(); renderRow(uf); return; }
+  if(val==='tercero'){
+    const nombre=(prompt('Nombre completo del tercero con carta poder:')||'').trim();
+    if(!nombre){ sel.value=typeof S.poderes[uf]==='string'&&S.poderes[uf].startsWith('tercero:')?'tercero':''; return; }
+    setPoder(u, 'tercero:'+nombre); save(); renderTop(); renderRow(uf);
+  } else {
+    setPoder(u, val); save(); renderTop(); renderRow(uf);
+  }
+});
 $('#q').addEventListener('input', renderList); $('#filter').addEventListener('change', renderList);
 let pinned=false;
 function applyCompact(){ const top=$('#top'); const c = mode==='lista' ? !pinned : (!pinned && window.scrollY>140); top.classList.toggle('compact', c); $('#btnCollapse').setAttribute('aria-expanded', String(!c)); }

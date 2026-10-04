@@ -24,3 +24,10 @@ Cada vez que haya una version nueva del index.html, repetir el deploy (opcion A 
 SINCRONIZACION Y HISTORIAL EN GOOGLE SHEETS
   Ver las instrucciones al principio de apps-script/Code.gs. Con eso, todos los telefonos que abran la app
   con la misma URL de Apps Script ven y cargan lo mismo, y la hoja guarda el historial de cada toque.
+
+PODERES CON MANDATARIO (art. 25 h del reglamento)
+  Un mandatario no puede representar a más de cinco propietarios (el condominio con varias unidades
+  cuenta como uno). El administrador no puede ser mandatario. La app valida esto al asignar el
+  representante en la tarjeta de cada unidad.
+  Si el administrador fuera propietario, agregar "admin": true a su unidad en votacion_units.json
+  para excluirlo como mandatario posible.

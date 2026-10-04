@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
-const { veredicto } = require('./logica.js');
+const { veredicto, contarRepresentados, puedeAsignarMandatario } = require('./logica.js');
 
 const TOT = { N: 100, totalPct: 100 };
 const PART = { partN: 60, partPct: 60 };
@@ -44,4 +44,34 @@ test('pres: no alcanza si solo una de las dos mayorías llega', () => {
 
 test('abstención devuelve null', () => {
   assert.equal(veredicto('abs', { n: 0, pct: 0, abst: true }, TOT, PART), null);
+});
+
+const UNITS3 = [
+  {uf:1, prop:'A'}, {uf:2, prop:'A'},
+  {uf:3, prop:'B'}, {uf:4, prop:'C'}, {uf:5, prop:'D'},
+  {uf:6, prop:'E'}, {uf:7, prop:'F'}, {uf:8, prop:'ADMIN', admin:true},
+];
+
+test('cuenta propietarios representados, no unidades', () => {
+  assert.equal(contarRepresentados('MAND', {1:'MAND', 2:'MAND'}, UNITS3), 1);
+});
+test('permite hasta 5 propietarios y bloquea el 6º', () => {
+  const poderes = {3:'MAND',4:'MAND',5:'MAND',6:'MAND',7:'MAND'};
+  const r = puedeAsignarMandatario('MAND', 1, poderes, UNITS3);
+  assert.equal(r.ok, false);
+  assert.match(r.motivo, /cinco|5/i);
+});
+test('el administrador no puede ser mandatario', () => {
+  const r = puedeAsignarMandatario('ADMIN', 3, {}, UNITS3);
+  assert.equal(r.ok, false);
+  assert.match(r.motivo, /administrador/i);
+});
+test('reasignar una unidad ya contada al mismo mandatario no suma de más', () => {
+  const poderes = {3:'MAND',4:'MAND',5:'MAND',6:'MAND',7:'MAND'};
+  assert.equal(puedeAsignarMandatario('MAND', 3, poderes, UNITS3).ok, true);
+});
+test('un poder pendiente (true, sin mandatario) no dispara el tope', () => {
+  // 5 poderes pendientes (true) no son un mandatario: marcar un 6º debe permitirse
+  const poderes = {1:true,2:true,3:true,4:true,5:true};
+  assert.equal(puedeAsignarMandatario(true, 6, poderes, UNITS3).ok, true);
 });

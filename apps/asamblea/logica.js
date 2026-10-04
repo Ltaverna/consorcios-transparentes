@@ -17,6 +17,29 @@ const CTLogica = (function () {
     return { ok: okN && okP, okN, okP, needN, needPct, base };
   }
 
-  return { veredicto };
+  function _propDe(uf, units){ const u = units.find(x => x.uf === uf); return u ? u.prop : null; }
+
+  // Cuántos propietarios DISTINTOS (por 'prop') representa un mandatario.
+  function contarRepresentados(mandatario, poderes, units){
+    const props = new Set();
+    for(const uf in poderes){ if(poderes[uf] === mandatario){ const p = _propDe(Number(uf), units); if(p) props.add(p); } }
+    return props.size;
+  }
+
+  // ¿Puede 'mandatario' tomar el poder de la unidad 'uf'? Art. 25 h.
+  function puedeAsignarMandatario(mandatario, uf, poderes, units){
+    // Poder pendiente sin mandatario asignado (true/no-string): no aplica la validación.
+    if(typeof mandatario !== 'string') return { ok:true };
+    const mandUnit = units.find(x => x.prop === mandatario || ('tercero:' + x.prop) === mandatario);
+    if(mandUnit && mandUnit.admin) return { ok:false, motivo:'El administrador no puede actuar como mandatario (art. 25 h).' };
+    const u = units.find(x => x.uf === uf);
+    const propDeUf = u ? u.prop : null;
+    const props = new Set();
+    for(const k in poderes){ if(poderes[k] === mandatario){ const p = _propDe(Number(k), units); if(p && p !== propDeUf) props.add(p); } }
+    if(props.size >= 5) return { ok:false, motivo:'Un mandatario no puede representar a más de cinco propietarios (art. 25 h).' };
+    return { ok:true };
+  }
+
+  return { veredicto, contarRepresentados, puedeAsignarMandatario };
 })();
 if (typeof module !== 'undefined' && module.exports) module.exports = CTLogica;
