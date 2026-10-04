@@ -5,6 +5,7 @@ PRIVADO = os.environ.get("CT_PRIVADO", os.path.expanduser("~/consorcio-transpare
 import json
 SC = HERE + "/"
 LOGICA = open(SC + "logica.js", encoding="utf-8").read()
+MARKED = open(SC + "vendor/marked.min.js", encoding="utf-8").read()
 UNITS = json.load(open(SC + "votacion_units.json"))
 from asamblea_content import AGENDA, PREGUNTAS, CONVOCATORIA, PODER
 from normativa import NORMATIVA
@@ -401,8 +402,15 @@ div.doc li{
 }
 div.doc li:last-child{ margin-bottom:0; }
 
+/* --- Negritas generadas por marked (<strong>) --- */
+div.doc strong{
+  font-weight:700;
+  color:var(--ink);
+}
+
 /* --- pre: matriz y arte-ASCII — no rompe el ancho en móvil --- */
-div.doc pre.doc{
+div.doc pre.doc,
+div.doc pre{
   font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
   font-size:12.5px;
   line-height:1.55;
@@ -416,8 +424,15 @@ div.doc pre.doc{
   color:var(--ink-2);
   -webkit-overflow-scrolling:touch;
 }
+div.doc pre code{
+  font:inherit;
+  background:none;
+  border:none;
+  padding:0;
+}
 @media (max-width:640px){
-  div.doc pre.doc{ font-size:11.5px; padding:.6rem .75rem; }
+  div.doc pre.doc,
+  div.doc pre{ font-size:11.5px; padding:.6rem .75rem; }
 }
 
 /* --- Separadores hr: sutiles, con margen generoso --- */
@@ -770,6 +785,7 @@ Modo moderador (PIN): en Agenda, botón "Soy moderador".</pre></div>
 
 <script id="data" type="application/json">__DATA__</script>
 <script id="content" type="application/json">__CONTENT__</script>
+<script>__MARKED__</script>
 <script>__LOGICA__</script>
 <script>
 (function(){
@@ -1243,88 +1259,40 @@ $('#view-propos').addEventListener('click', e=>{ const b=e.target.closest('butto
 $('#objCancel').addEventListener('click', ()=>$('#dlgObj').close());
 $('#objOk').addEventListener('click', ()=>{ const i=+$('#dlgObj').dataset.m; const u=+$('#objUf').value; if(!u){ toast('Elegí tu unidad'); return; } const nombre=$('#objNombre').value.trim(); if(!nombre){ toast('Escribí tu nombre'); return; } const motivo=$('#objMotivo').value.trim(); OBJ()[i]=OBJ()[i]||{}; OBJ()[i][u]={nombre, motivo, ts:Date.now()}; save(); sync.send({t:'objecion', m:i, uf:u, nombre, motivo}); $('#dlgObj').close(); renderAll(); toast('Objeción registrada'); });
 
-// ---- reglamento / encargado — renderer compartido
-function _mdInline(s){ return esc(s).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>'); }
+// ---- reglamento / encargado — renderer con marked.js
+// Pre-procesa encargado.md: envuelve la tabla Pandoc (grid-table) en un code fence
+// para que marked la renderice como bloque monoespaciado en lugar de párrafos rotos.
+function _preprocMd(md){
+  // Detecta bloque de grid-table Pandoc: comienza con una línea de solo guiones/espacios
+  // (al menos 20 guiones) y termina en la siguiente línea vacía tras la última fila.
+  // Lo envuelve en ``` para que marked lo renderice como <pre><code>.
+  return md.replace(/(^|\n)([ \t]*-{20,}[ \t\-]*\n[\s\S]*?-{20,}[ \t\-]*\n)(\n|$)/g,
+    (_, pre, block, post) => pre + '```\n' + block + '```\n' + post);
+}
 function renderMarkdownEn(contenedorSel, indiceSel, md){
-  const lines = (md||'').split('\n');
-  const nav = []; let html = ''; let idCnt = 0;
-  let inUl = false, inOl = false, inBq = false, inPre = false;
-  const closeUl  = ()=>{ if(inUl ){ html+='</ul>';  inUl =false; } };
-  const closeOl  = ()=>{ if(inOl ){ html+='</ol>';  inOl =false; } };
-  const closeBq  = ()=>{ if(inBq ){ html+='</blockquote>'; inBq=false; } };
-  const closePre = ()=>{ if(inPre){ html+='</pre>'; inPre=false; } };
-  const closeAll = ()=>{ closeUl(); closeOl(); closeBq(); closePre(); };
-  for(const raw of lines){
-    const line = raw.replace(/\r$/,'');
-    // encabezado
-    const h = /^(#{1,4})\s+(.*)$/.exec(line);
-    if(h){
-      closeAll();
-      const lvl=h[1].length, id='md-'+(idCnt++), txt=h[2];
-      if(lvl>=3) nav.push(`<a href="#${id}">${esc(txt)}</a>`);
-      html += `<h${lvl+1} id="${id}">${_mdInline(txt)}</h${lvl+1}>`;
-      continue;
-    }
-    // línea vacía
-    if(line.trim()===''){
-      closeAll();
-      continue;
-    }
-    // separador (línea de solo ---/***/ === con ≥3 chars)
-    if(/^\s*([*\-=])\1{2,}\s*$/.test(line)){
-      closeAll();
-      html += '<hr>';
-      continue;
-    }
-    // bloque pre para arte-ASCII / tablas con corridas largas de guiones
-    if(/\-{10,}/.test(line)){
-      closeUl(); closeOl(); closeBq();
-      if(!inPre){ html+='<pre class="doc">'; inPre=true; }
-      html += esc(line)+'\n';
-      continue;
-    }
-    // si estamos en pre y la línea no tiene guiones largos, seguimos en pre
-    // (se cierra en línea vacía, encabezado o separador via closeAll arriba)
-    if(inPre){
-      html += esc(line)+'\n';
-      continue;
-    }
-    // blockquote
-    const bq = /^>\s?(.*)$/.exec(line);
-    if(bq){
-      closeUl(); closeOl();
-      if(!inBq){ html+='<blockquote>'; inBq=true; }
-      html += `<p>${_mdInline(bq[1])}</p>`;
-      continue;
-    }
-    closeBq();
-    // lista con viñeta
-    const ul = /^[-*]\s+(.+)$/.exec(line);
-    if(ul){
-      closeOl();
-      if(!inUl){ html+='<ul>'; inUl=true; }
-      html += `<li>${_mdInline(ul[1])}</li>`;
-      continue;
-    }
-    // lista numerada
-    const ol = /^\d+\.\s+(.+)$/.exec(line);
-    if(ol){
-      closeUl();
-      if(!inOl){ html+='<ol>'; inOl=true; }
-      html += `<li>${_mdInline(ol[1])}</li>`;
-      continue;
-    }
-    // párrafo
-    closeUl(); closeOl();
-    html += `<p>${_mdInline(line)}</p>`;
-  }
-  closeAll();
-  $(contenedorSel).innerHTML = html;
-  $(indiceSel).innerHTML = nav.join('');
+  const cont = $(contenedorSel);
+  const indice = $(indiceSel);
+  const prepared = _preprocMd(md || '');
+  const html = marked.parse(prepared);
+  cont.innerHTML = html;
+  // Construir índice a partir de los headings ya renderizados
+  const headings = cont.querySelectorAll('h2, h3');
+  const nav = [];
+  headings.forEach((el, i) => {
+    const id = 'doc-' + i;
+    el.id = id;
+    const indent = el.tagName === 'H3' ? 'margin-left:1em;' : '';
+    nav.push(`<a href="#${id}" style="${indent}" onclick="event.preventDefault();document.getElementById('${id}').scrollIntoView({behavior:'smooth',block:'start'})">${el.textContent}</a>`);
+  });
+  indice.innerHTML = nav.join('');
+  // Reaplicar el filtro del buscador si ya hay algo escrito
+  const buscarSel = contenedorSel === '#regTexto' ? '#regBuscar' : '#encBuscar';
+  const q = ($( buscarSel)||{}).value||'';
+  if(q) filtrarDoc(contenedorSel, q);
 }
 function filtrarDoc(contenedorSel, q){
   q = (q||'').trim().toLowerCase();
-  for(const el of $(contenedorSel).querySelectorAll('p,h2,h3,h4,h5,li,blockquote,pre')){
+  for(const el of $(contenedorSel).querySelectorAll(':scope > p, :scope > h1, :scope > h2, :scope > h3, :scope > h4, :scope > h5, :scope > h6, :scope > ul, :scope > ol, :scope > blockquote, :scope > pre, :scope > table, :scope > hr')){
     el.style.display = (!q || el.textContent.toLowerCase().includes(q)) ? '' : 'none';
   }
 }
@@ -1382,7 +1350,7 @@ renderAll();
 })();
 </script>
 """
-out = HTML.replace("__DATA__", DATA).replace("__CONTENT__", CONTENT).replace("__LOGICA__", LOGICA)
+out = HTML.replace("__DATA__", DATA).replace("__CONTENT__", CONTENT).replace("__LOGICA__", LOGICA).replace("__MARKED__", MARKED)
 open(SC + "votacion-rivadavia-2069.html", "w", encoding="utf-8").write(out)
 open(SC + "pages-out/index.html", "w", encoding="utf-8").write("<!doctype html>\n<html lang=\"es\">\n" + out + "\n</html>\n")
 print("ok")
