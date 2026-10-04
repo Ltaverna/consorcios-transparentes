@@ -101,11 +101,11 @@ input,select{font:inherit;color:var(--ink);background:var(--surface);border:1px 
 .res .bar b{position:absolute;top:-2px;width:2px;height:12px;background:var(--ink);opacity:.6}
 .verdict{font-size:11.5px;font-weight:600;padding:3px 8px;border-radius:6px;display:inline-flex;gap:6px;align-items:center;white-space:nowrap}
 .verdict.ok{background:var(--good-soft);color:var(--good)} .verdict.no{background:var(--surface-2);color:var(--muted)} .verdict.pend{background:var(--warn-soft);color:var(--warn)}
-.top.collapsed .results,.top.collapsed .mocion{display:none}
+.top.collapsed .results,.top.collapsed .mocion,.top.collapsed .cump{display:none}
 .mini{display:none;gap:6px 14px;flex-wrap:wrap;font-size:14px;align-items:center}
 .mini b{font-weight:700} .mini i{width:9px;height:9px;border-radius:2px;display:inline-block;margin-right:5px;vertical-align:middle}
 .mini .q{color:var(--muted);font-weight:500}
-.top.compact .mocion,.top.compact .quorum,.top.compact .results,.top.compact .titlebar{display:none}
+.top.compact .mocion,.top.compact .quorum,.top.compact .results,.top.compact .titlebar,.top.compact .cump{display:none}
 .top.compact .mini{cursor:pointer;padding-right:26px;position:relative}
 .top.compact .mini::after{content:'';position:absolute;right:4px;top:2px;width:14px;height:14px;background:currentColor;-webkit-mask:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><path d='M6 9l6 6 6-6'/></svg>") center/contain no-repeat;mask:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><path d='M6 9l6 6 6-6'/></svg>") center/contain no-repeat;color:var(--muted)}
 .top.compact .mini{display:flex}
@@ -263,6 +263,17 @@ dialog textarea{font:inherit;font-size:12.5px;width:100%;min-height:220px;border
   .note{font-size:14px}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+/* ---- panel de cumplimiento del reglamento */
+.cump{display:grid;gap:4px;padding:6px 0 2px}
+.cump-row{display:grid;grid-template-columns:auto 1fr auto;gap:6px 8px;align-items:center;font-size:12.5px;padding:3px 0}
+.cump-row .cump-ico{font-size:13px;width:18px;text-align:center;flex:none}
+.cump-row .cump-lbl{color:var(--ink-2);min-width:0}
+.cump-row .cump-lnk{font-size:11px;color:var(--accent);background:none;border:0;padding:0;cursor:pointer;white-space:nowrap;text-decoration:underline;text-underline-offset:2px}
+.cump-row .cump-tog{font-size:11px;padding:2px 7px;border-radius:5px;border:1px solid var(--hair);background:var(--surface-2);color:var(--ink-2);cursor:pointer;white-space:nowrap}
+.cump-row .cump-tog:hover{background:var(--hair-2)}
+.cump-row.ok .cump-ico{color:var(--good)} .cump-row.no .cump-ico{color:var(--critical)} .cump-row.pend .cump-ico{color:var(--muted)}
+.cump h2{font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);font-weight:600;padding-bottom:2px;border-bottom:1px solid var(--hair-2)}
+@media (max-width:640px){ .cump-row{font-size:13.5px} .cump-row .cump-lnk{font-size:12px} .cump-row .cump-tog{font-size:12px;padding:3px 9px} }
 #printArea{font-family:"IBM Plex Sans",system-ui,sans-serif;color:#000;background:#fff;padding:20px;max-width:900px;margin:0 auto}
 #printArea h1{font-size:20px;margin:0 0 4px} #printArea h2{font-size:14px;letter-spacing:0;text-transform:none;color:#000;margin:18px 0 6px;font-weight:700}
 #printArea table{border-collapse:collapse;width:100%;font-size:12px;margin-bottom:8px} #printArea th,#printArea td{border:1px solid #bbb;padding:4px 6px;text-align:left} #printArea th{background:#eee} #printArea td.r,#printArea th.r{text-align:right}
@@ -288,6 +299,7 @@ dialog textarea{font:inherit;font-size:12.5px;width:100%;min-height:220px;border
     <div class="mocion" id="mociones"></div>
     <div class="mini" id="mini" title="Tocá para ver el detalle"></div>
     <div class="quorum" id="quorum"></div>
+    <div class="cump" id="cumplimiento"></div>
     <div class="results" id="results"></div>
   </div>
 </div>
@@ -418,9 +430,10 @@ let CFG = {url:DEFAULT_URL, dev:''}; try{ CFG = Object.assign(CFG, JSON.parse(lo
 if(!CFG.url) CFG.url = DEFAULT_URL;
 if(!CFG.dev){ CFG.dev = 'Teléfono ' + Math.floor(1000 + Math.random()*9000); try{ localStorage.setItem(CFG_KEY, JSON.stringify(CFG)); }catch(e){} }
 function saveCfg(){ try{ localStorage.setItem(CFG_KEY, JSON.stringify(CFG)); }catch(e){} }
-const fresh = ()=>({ presentes:{}, poderes:{}, activa:0, agenda:{}, palabra:[], respuestas:{}, objeciones:{}, mociones:[ { titulo:'Que Ramón Gonzalez continúe como encargado', opciones:['A favor','En contra','Abstención'], regla:'abs', votos:{} }, { titulo:'Aprobar el reglamento interno con régimen de multas', opciones:['A favor','En contra','Abstención'], regla:'abs', votos:{} }, { titulo:'Constituir el tribunal de multas', opciones:['A favor','En contra','Abstención'], regla:'abs', votos:{} } ] });
+const fresh = ()=>({ presentes:{}, poderes:{}, activa:0, agenda:{}, palabra:[], respuestas:{}, objeciones:{}, cumplimiento:{ presidentePropietario:null, dosFirmantes:null, antelacionOk:null }, mociones:[ { titulo:'Que Ramón Gonzalez continúe como encargado', opciones:['A favor','En contra','Abstención'], regla:'abs', votos:{} }, { titulo:'Aprobar el reglamento interno con régimen de multas', opciones:['A favor','En contra','Abstención'], regla:'abs', votos:{} }, { titulo:'Constituir el tribunal de multas', opciones:['A favor','En contra','Abstención'], regla:'abs', votos:{} } ] });
 let S = fresh();
 try { const raw = localStorage.getItem(KEY); if(raw){ const p = JSON.parse(raw); if(p && p.mociones && p.mociones.length) S = p; } } catch(e){}
+if(!S.cumplimiento) S.cumplimiento = { presidentePropietario:null, dosFirmantes:null, antelacionOk:null };
 function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
 const M = ()=>S.mociones[S.activa];
 const isAbst = (m,i)=>/^abst/i.test(m.opciones[i]||'');
@@ -464,6 +477,61 @@ function renderTop(){
   }).join('') + `<div class="note">Total porcentual del edificio: ${fp(TOTAL_PCT)} (redondeo de la planilla). Presentes sin votar: ${c.partN - c.opts.reduce((s,o)=>s+o.n,0)}.</div>`;
   $('#subtitle').textContent = `${esc(m.titulo)} · ${N} unidades · porcentual columna A`;
   $('#mini').innerHTML = `<span class="q">Quórum <b>${fp(c.partPct)}</b> · ${c.partN} UF</span>` + c.opts.map(o=>`<span><i style="background:var(--${COLORS[o.i%4]})"></i>${esc(o.name)} <b class="num">${fp(o.pct)}</b></span>`).join('');
+  renderCumplimiento(c);
+}
+
+// ---------- panel de cumplimiento del reglamento (art. 25 del Reglamento de Copropiedad)
+function setCumplimiento(k, v){ S.cumplimiento[k]=v; sync.send({t:'cumplimiento', k, v}); save(); renderCumplimiento(); }
+function renderCumplimiento(c){
+  if(!c){ const m=M(); c=compute(m); }
+  const cum = S.cumplimiento || {};
+  // Checks automáticos
+  const partPct = c.partPct;
+  const quorumOk = partPct > TOTAL_PCT/2;
+  const excedidos = CTLogica.mandatariosExcedidos(S.poderes, UNITS);
+  const poderOk = excedidos.length === 0;
+  // Admin no vota: ✗ si alguna UF admin tiene voto en alguna moción
+  const adminUfs = UNITS.filter(u=>u.admin).map(u=>u.uf);
+  const adminVota = S.mociones.some(m=>adminUfs.some(uf=>m.votos[uf]!=null));
+  // Mayoría moción activa
+  const ma = M(); const ca = (c.partPct!=null && S.mociones[S.activa]===ma) ? c : compute(ma);
+  const winOpt = ca.opts.filter(o=>!o.abst).sort((a,b)=>b.pct-a.pct)[0];
+  const mocVerdict = winOpt ? CTLogica.veredicto(ma.regla, winOpt, {N:N, totalPct:TOTAL_PCT}, {partN:ca.partN, partPct:ca.partPct}) : null;
+  const mocAprobada = mocVerdict && mocVerdict.ok;
+  const mocVotada = ca.opts.reduce((s,o)=>s+o.n,0)>0;
+  // Checks manuales: null=pendiente, true=✓, false=✗
+  function icopar(v){ return v===true?'✓':v===false?'✗':'—'; }
+  function clspar(v){ return v===true?'ok':v===false?'no':'pend'; }
+  function nextVal(v){ return v===null?true:v===true?false:null; }
+  const rows = [
+    // Automáticos
+    { auto:true, cls:quorumOk?'ok':'no', ico:quorumOk?'✓':'✗',
+      lbl:'Quórum (art. 25 e): '+fp(partPct)+' de presentes'+(!quorumOk?' — necesita más del '+fp(TOTAL_PCT/2):''),
+      art:'quórum' },
+    { auto:true, cls:poderOk?'ok':'no', ico:poderOk?'✓':'✗',
+      lbl:'Tope de poderes (art. 25 h)'+(poderOk?'':': excede — '+excedidos.map(x=>esc(x)).join(', ')),
+      art:'Representación' },
+    { auto:true, cls:adminVota?'no':'ok', ico:adminVota?'✗':'✓',
+      lbl:'Admin no vota (art. 25 c)'+(adminVota?' — hay voto del administrador':''),
+      art:'administrador' },
+    { auto:true, cls:!mocVotada?'pend':mocAprobada?'ok':'no', ico:!mocVotada?'—':mocAprobada?'✓':'✗',
+      lbl:'Mayoría moción activa (art. 25 g)'+(mocVotada&&!mocAprobada?' — no alcanza':''),
+      art:'mayoría' },
+    // Manuales
+    { auto:false, k:'presidentePropietario', lbl:'Presidente de la asamblea es propietario (art. 25 b)', art:'presidente' },
+    { auto:false, k:'dosFirmantes',          lbl:'Acta firmada por 2 propietarios (art. 25 i)',         art:'firma' },
+    { auto:false, k:'antelacionOk',          lbl:'Convocatoria con antelación debida (art. 25 d)',      art:'convocatoria' },
+  ];
+  let html = '<h2>Cumplimiento del reglamento</h2>';
+  for(const r of rows){
+    if(r.auto){
+      html += `<div class="cump-row ${r.cls}"><span class="cump-ico">${r.ico}</span><span class="cump-lbl">${r.lbl}</span><button class="cump-lnk" onclick="irAReglamento('${r.art}')">art.</button></div>`;
+    } else {
+      const v = cum[r.k]; const cls=clspar(v); const ico=icopar(v);
+      html += `<div class="cump-row ${cls}"><span class="cump-ico">${ico}</span><span class="cump-lbl">${r.lbl}</span><button class="cump-tog mod-only" onclick="setCumplimiento('${r.k}', ${JSON.stringify(nextVal(v))})">cambiar</button><button class="cump-lnk" onclick="irAReglamento('${r.art}')">art.</button></div>`;
+    }
+  }
+  $('#cumplimiento').innerHTML = html;
 }
 
 // ---------- render list
@@ -649,7 +717,7 @@ const sync = {
     sync.sending=false; if(sync.queue.length) setTimeout(sync.flush, 1500); },
   async pull(){ if(!CFG.url||sync.sending||sync.queue.length) return; try{ const r=await fetch(CFG.url+(CFG.url.includes('?')?'&':'?')+'t='+Date.now(),{redirect:'follow'}); const j=await r.json(); if(j&&j.state) sync.apply(j.state); sync.status='ok'; sync.dot('ok'); }catch(e){ sync.status='error: '+e.message; sync.dot('err'); } },
   apply(st){ if(!st||!st.mociones||!st.mociones.length) return; if((st.ts||0)<=sync.lastServer) return; sync.lastServer=st.ts||0;
-    const act=Math.min(S.activa, st.mociones.length-1); S={presentes:st.presentes||{}, poderes:st.poderes||{}, mociones:st.mociones, activa:act, agenda:st.agenda||S.agenda||{}, palabra:st.palabra||S.palabra||[], respuestas:st.respuestas||S.respuestas||{}, objeciones:st.objeciones||S.objeciones||{}}; if(st.agenda===undefined) sync.legacy=true; save(); renderAll(); }
+    const act=Math.min(S.activa, st.mociones.length-1); S={presentes:st.presentes||{}, poderes:st.poderes||{}, mociones:st.mociones, activa:act, agenda:st.agenda||S.agenda||{}, palabra:st.palabra||S.palabra||[], respuestas:st.respuestas||S.respuestas||{}, objeciones:st.objeciones||S.objeciones||{}, cumplimiento:st.cumplimiento||S.cumplimiento||{presidentePropietario:null,dosFirmantes:null,antelacionOk:null}}; if(st.agenda===undefined) sync.legacy=true; save(); renderAll(); }
 };
 sync.start();
 // ---------- exportar

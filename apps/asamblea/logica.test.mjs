@@ -93,3 +93,21 @@ test('antes del vencimiento está en circulación', () => {
 test('si la oposición tumba, decae aún antes del vencimiento', () => {
   assert.equal(evaluarProposicion({n:60, pct:60}, {N:100, totalPct:100}, false).estado, 'decaida');
 });
+
+const { mandatariosExcedidos } = require('./logica.js');
+
+test('lista los mandatarios que superan el tope de 5 propietarios', () => {
+  const units = [];
+  for (let uf = 1; uf <= 7; uf++) units.push({ uf, prop: 'P' + uf });
+  units.push({ uf: 8, prop: 'MAND' });
+  const poderes = {}; for (let uf = 1; uf <= 6; uf++) poderes[uf] = 'MAND'; // 6 propietarios
+  assert.deepEqual(mandatariosExcedidos(poderes, units), ['MAND']);
+});
+test('sin excesos devuelve lista vacía', () => {
+  const units = [{ uf: 1, prop: 'A' }, { uf: 2, prop: 'B' }, { uf: 3, prop: 'M' }];
+  assert.deepEqual(mandatariosExcedidos({ 1: 'M', 2: 'M' }, units), []);
+});
+test('ignora poderes pendientes (true) y false', () => {
+  const units = [{ uf: 1, prop: 'A' }, { uf: 2, prop: 'B' }];
+  assert.deepEqual(mandatariosExcedidos({ 1: true, 2: false }, units), []);
+});

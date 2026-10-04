@@ -49,6 +49,14 @@ const CTLogica = (function () {
     return { estado:'firme', tumba:false };
   }
 
-  return { veredicto, contarRepresentados, puedeAsignarMandatario, evaluarProposicion };
+  // Mandatarios que representan a MÁS de 5 propietarios (violan el art. 25 h).
+  function mandatariosExcedidos(poderes, units){
+    const mandatarios = new Set(Object.values(poderes).filter(v => typeof v === 'string'));
+    const out = [];
+    for(const m of mandatarios){ if(contarRepresentados(m, poderes, units) > 5) out.push(m); }
+    return out;
+  }
+
+  return { veredicto, contarRepresentados, puedeAsignarMandatario, evaluarProposicion, mandatariosExcedidos };
 })();
 if (typeof module !== 'undefined' && module.exports) module.exports = CTLogica;

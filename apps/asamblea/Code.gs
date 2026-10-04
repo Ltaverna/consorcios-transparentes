@@ -58,10 +58,10 @@ function doPost(e) {
 
 // ---------------------------------------------------------------- estado
 function fresh_() {
-  return { presentes: {}, poderes: {}, mociones: [], agenda: {}, palabra: [], respuestas: {}, objeciones: {}, ts: 0 };
+  return { presentes: {}, poderes: {}, mociones: [], agenda: {}, palabra: [], respuestas: {}, objeciones: {}, cumplimiento: { presidentePropietario: null, dosFirmantes: null, antelacionOk: null }, ts: 0 };
 }
 function norm_(state) {
-  state.agenda = state.agenda || {}; state.palabra = state.palabra || []; state.respuestas = state.respuestas || {}; state.objeciones = state.objeciones || {};
+  state.agenda = state.agenda || {}; state.palabra = state.palabra || []; state.respuestas = state.respuestas || {}; state.objeciones = state.objeciones || {}; state.cumplimiento = state.cumplimiento || { presidentePropietario: null, dosFirmantes: null, antelacionOk: null };
   return state;
 }
 function getState_() {
@@ -122,7 +122,7 @@ function apply_(state, ev, hist) {
       hist.push([when, dev, 'Configuración de mociones', '', '', '', state.mociones.map(m => m.titulo + ' [' + m.opciones.join(' / ') + ']').join(' | ')]);
       return state;
     case 'state':
-      state = norm_({ presentes: ev.v.presentes || {}, poderes: ev.v.poderes || {}, mociones: ev.v.mociones || [], agenda: ev.v.agenda || state.agenda, palabra: state.palabra, respuestas: ev.v.respuestas || state.respuestas, objeciones: ev.v.objeciones || state.objeciones, ts: 0 });
+      state = norm_({ presentes: ev.v.presentes || {}, poderes: ev.v.poderes || {}, mociones: ev.v.mociones || [], agenda: ev.v.agenda || state.agenda, palabra: state.palabra, respuestas: ev.v.respuestas || state.respuestas, objeciones: ev.v.objeciones || state.objeciones, cumplimiento: ev.v.cumplimiento || state.cumplimiento, ts: 0 });
       hist.push([when, dev, 'Carga completa de estado', '', '', '', '']);
       return state;
     case 'agenda': {
@@ -150,6 +150,14 @@ function apply_(state, ev, hist) {
       else { state.objeciones[key][u] = { nombre: ev.nombre || '', motivo: ev.motivo || '', ts: ev.ts || Date.now() }; }
       hist.push([when, dev, (ev.retira ? 'Retira objeción' : 'OBJECIÓN') + ' · moción ' + (Number(ev.m) + 1), ev.uf, unit.piso, unit.prop, (ev.nombre || '') + (ev.motivo ? ' — ' + ev.motivo : '')]);
       appendObjecion_([when, Number(ev.m) + 1, (state.mociones[ev.m] || {}).titulo || '', ev.uf, unit.piso, unit.prop, ev.nombre || '', ev.motivo || '', ev.retira ? 'RETIRADA' : 'VIGENTE', dev]);
+      return state;
+    }
+    case 'cumplimiento': {
+      state.cumplimiento = state.cumplimiento || {};
+      if (ev.k && Object.prototype.hasOwnProperty.call({ presidentePropietario: 1, dosFirmantes: 1, antelacionOk: 1 }, ev.k)) {
+        state.cumplimiento[ev.k] = ev.v;
+        hist.push([when, dev, 'Cumplimiento · ' + ev.k, '', '', '', String(ev.v)]);
+      }
       return state;
     }
     case 'reset':
