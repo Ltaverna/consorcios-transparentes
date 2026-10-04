@@ -301,6 +301,231 @@ input,select{font:inherit;color:var(--ink);background:var(--surface);border:1px 
 .objlist{display:grid;gap:6px} .obj{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center;background:var(--surface-2);border-radius:var(--r-sm);padding:8px 12px;font-size:14px}
 .docs a{color:var(--accent-ink);font-weight:600;text-decoration-thickness:1.5px;text-underline-offset:2px}
 pre.doc{white-space:pre-wrap;font:inherit;font-size:14.5px;line-height:1.55;color:var(--ink-2);margin:0}
+
+/* ================================================================
+   Pestaña Encargado y Reglamento — contenedor .doc (documento largo)
+   ui-ux-pro-max v2: jerarquía editorial institucional, móvil primero
+   ================================================================ */
+
+/* Contenedor raíz: ancho de lectura cómodo, espacio generoso */
+div.doc{
+  max-width:68ch;          /* ~65–70 chars/línea: punto óptimo de lectura */
+  font-size:15px;
+  line-height:1.75;
+  color:var(--ink-2);
+}
+@media (max-width:640px){
+  div.doc{ font-size:16px; line-height:1.7; }
+}
+
+/* --- Encabezados dentro de .doc ---
+   h2 → sección principal: Source Serif + acento
+   h3 → subsección: Inter 600 + ink
+   h4 → nivel terciario: Inter 500 + muted
+   (El renderer suma +1 al nivel, así que ## → h3, ### → h4, #### → h5)
+*/
+div.doc h2{
+  font-family:"Source Serif 4",Georgia,serif;
+  font-size:21px; font-weight:600; letter-spacing:-.02em;
+  text-transform:none; color:var(--ink);
+  margin:2rem 0 .5rem; line-height:1.25;
+  border-bottom:2px solid var(--accent-soft);
+  padding-bottom:.35rem;
+}
+div.doc h3{
+  font-family:Inter,system-ui,sans-serif;
+  font-size:16px; font-weight:700; letter-spacing:0;
+  color:var(--accent-ink); text-transform:none;
+  margin:1.6rem 0 .35rem; line-height:1.3;
+}
+div.doc h4{
+  font-family:Inter,system-ui,sans-serif;
+  font-size:14px; font-weight:600; letter-spacing:.03em;
+  text-transform:uppercase; color:var(--muted);
+  margin:1.4rem 0 .3rem; line-height:1.3;
+}
+div.doc h5{
+  font-family:Inter,system-ui,sans-serif;
+  font-size:13px; font-weight:600; letter-spacing:.04em;
+  text-transform:uppercase; color:var(--muted);
+  margin:1.2rem 0 .25rem; line-height:1.3;
+}
+@media (max-width:640px){
+  div.doc h2{ font-size:19px; margin-top:1.75rem; }
+  div.doc h3{ font-size:15.5px; }
+}
+
+/* Primer encabezado: menos espacio arriba */
+div.doc>h2:first-child,
+div.doc>h3:first-child{
+  margin-top:.5rem;
+}
+
+/* --- Párrafos --- */
+div.doc p{
+  margin:.65rem 0;
+  color:var(--ink-2);
+}
+
+/* --- Blockquotes: formulaciones sugeridas y preguntas clave --- */
+div.doc blockquote{
+  margin:1.1rem 0;
+  padding:.75rem 1rem .75rem 1.1rem;
+  border-left:4px solid var(--accent);
+  background:var(--accent-soft);
+  border-radius:0 var(--r-sm) var(--r-sm) 0;
+  color:var(--accent-ink);
+  font-style:normal;
+}
+div.doc blockquote p{
+  margin:.3rem 0;
+  color:var(--accent-ink);
+  font-size:14.5px;
+  line-height:1.6;
+}
+div.doc blockquote p:first-child{ margin-top:0; }
+div.doc blockquote p:last-child{ margin-bottom:0; }
+
+/* --- Listas: preguntas numeradas, ventajas/desventajas --- */
+div.doc ol,
+div.doc ul{
+  margin:.65rem 0;
+  padding-left:1.6em;
+}
+div.doc ol{ list-style:decimal; }
+div.doc ul{ list-style:disc; }
+div.doc li{
+  margin-bottom:.55rem;
+  line-height:1.65;
+  color:var(--ink-2);
+}
+div.doc li:last-child{ margin-bottom:0; }
+
+/* --- pre: matriz y arte-ASCII — no rompe el ancho en móvil --- */
+div.doc pre.doc{
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  font-size:12.5px;
+  line-height:1.55;
+  white-space:pre;           /* preservar alineación */
+  overflow-x:auto;           /* scroll horizontal en móvil */
+  background:var(--surface-2);
+  border:1px solid var(--hair);
+  border-radius:var(--r-sm);
+  padding:.75rem 1rem;
+  margin:.9rem 0;
+  color:var(--ink-2);
+  -webkit-overflow-scrolling:touch;
+}
+@media (max-width:640px){
+  div.doc pre.doc{ font-size:11.5px; padding:.6rem .75rem; }
+}
+
+/* --- Separadores hr: sutiles, con margen generoso --- */
+div.doc hr{
+  border:none;
+  border-top:1px solid var(--hair);
+  margin:1.75rem 0;
+}
+
+/* --- details / summary: buscador e índice dentro del contenedor --- */
+details.card summary{
+  cursor:pointer;
+  font-size:14px;
+  font-weight:600;
+  color:var(--accent-ink);
+  padding:2px 0;
+  list-style:none;            /* quita triángulo nativo en Safari */
+  -webkit-appearance:none;
+  user-select:none;
+}
+details.card summary::-webkit-details-marker{ display:none; }
+details.card summary::before{
+  content:'▶ ';
+  font-size:10px;
+  display:inline-block;
+  transition:transform .15s ease;
+  color:var(--accent);
+}
+details[open].card summary::before{ transform:rotate(90deg); }
+details.card[open]{ gap:12px; }
+
+/* --- details de texto completo de artículo (normativa) --- */
+.norm-texto-details{
+  margin-top:8px;
+}
+.norm-texto-details summary{
+  cursor:pointer;
+  font-size:13px;
+  font-weight:600;
+  color:var(--accent-ink);
+  list-style:none;
+  -webkit-appearance:none;
+  user-select:none;
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:4px 0;
+}
+.norm-texto-details summary::-webkit-details-marker{ display:none; }
+.norm-texto-details summary::before{
+  content:'▶';
+  font-size:10px;
+  display:inline-block;
+  transition:transform .15s ease;
+  color:var(--accent);
+  flex:none;
+}
+.norm-texto-details[open] summary::before{ transform:rotate(90deg); }
+.norm-texto-body{
+  margin-top:10px;
+  padding:12px 14px;
+  background:var(--surface-2);
+  border-left:3px solid var(--accent);
+  border-radius:0 var(--r-sm) var(--r-sm) 0;
+  font-size:13.5px;
+  line-height:1.7;
+  color:var(--ink-2);
+}
+.norm-texto-body p{
+  margin:.55rem 0;
+}
+.norm-texto-body p:first-child{ margin-top:0; }
+.norm-texto-body p:last-child{ margin-bottom:0; }
+
+/* Buscador y details de índice en pestaña encargado/reglamento */
+#encBuscar,#regBuscar{
+  display:block;
+  width:100%;
+  padding:10px 12px;
+  font-size:16px;
+  border:1px solid var(--hair);
+  border-radius:var(--r-sm);
+  background:var(--surface);
+  color:var(--ink);
+  margin-bottom:10px;
+  box-sizing:border-box;
+}
+#encIndice,#regIndice{
+  margin-bottom:12px;
+}
+#encIndiceNav,#regIndiceNav{
+  display:grid;
+  gap:4px;
+  padding-top:8px;
+}
+#encIndiceNav a,#regIndiceNav a{
+  color:var(--accent-ink);
+  text-decoration:none;
+  font-size:13.5px;
+  font-weight:500;
+  padding:4px 2px;
+  border-bottom:1px solid var(--hair-2);
+  display:block;
+}
+#encIndiceNav a:hover,#regIndiceNav a:hover{
+  color:var(--accent);
+}
+
 .vhide{display:none!important}
 @media (max-width:640px){ .tabs button{font-size:12px;padding:12px 7px 10px;min-width:52px} .tabs .brand{display:none} .view h2.sec{font-size:19px} .wrap{padding:0 12px} }
 
@@ -1121,12 +1346,18 @@ $('#encBuscar').addEventListener('input', e=>filtrarDoc('#encTexto', e.target.va
 // ---- normativa
 function renderNormativa(){
   const items = C.normativa || [];
-  $('#normativaList').innerHTML = items.map(n => `
+  $('#normativaList').innerHTML = items.map(n => {
+    const textoHtml = n.texto
+      ? `<details class="norm-texto-details"><summary>Ver texto completo del artículo</summary><div class="norm-texto-body">${n.texto.split('\n\n').map(p=>`<p>${esc(p)}</p>`).join('')}</div></details>`
+      : '';
+    return `
     <div class="card" id="norm-${esc(n.id)}">
       <h3>${esc(n.titulo)}</h3>
       <p>${esc(n.resumen)}</p>
+      ${textoHtml}
       <p class="note">Fuente: ${esc(n.fuente)} — <a href="${esc(n.url)}" target="_blank" rel="noopener noreferrer">ver texto oficial</a></p>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 }
 function irANormativa(id){ setTab('normativa'); setTimeout(()=>{ const el=$('#norm-'+id); if(el) el.scrollIntoView({behavior:'smooth',block:'start'}); }, 60); }
 
