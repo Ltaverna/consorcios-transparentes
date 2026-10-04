@@ -7,7 +7,8 @@ SC = HERE + "/"
 LOGICA = open(SC + "logica.js", encoding="utf-8").read()
 UNITS = json.load(open(SC + "votacion_units.json"))
 from asamblea_content import AGENDA, PREGUNTAS, CONVOCATORIA, PODER
-CONTENT = json.dumps(dict(agenda=AGENDA, preguntas=PREGUNTAS, convocatoria=CONVOCATORIA, poder=PODER), ensure_ascii=False).replace("</", "<\\/")
+REGLAMENTO = open(SC + "reglamento.md", encoding="utf-8").read()
+CONTENT = json.dumps(dict(agenda=AGENDA, preguntas=PREGUNTAS, convocatoria=CONVOCATORIA, poder=PODER, reglamento=REGLAMENTO), ensure_ascii=False).replace("</", "<\\/")
 DATA = json.dumps(UNITS, ensure_ascii=False).replace("</", "<\\/")
 
 HTML = r"""<meta charset="utf-8">
@@ -276,6 +277,7 @@ dialog textarea{font:inherit;font-size:12.5px;width:100%;min-height:220px;border
   <button role="tab" data-tab="preguntas" aria-selected="false">Preguntas</button>
   <button role="tab" data-tab="propos" aria-selected="false">Proposiciones</button>
   <button role="tab" data-tab="docs" aria-selected="false">Documentos</button>
+  <button role="tab" data-tab="reglamento" aria-selected="false">Reglamento</button>
 </nav>
 <div class="top" id="top">
   <div class="wrap">
@@ -330,6 +332,12 @@ Preguntas: las preguntas a la administración con su documento de respaldo y la 
 Proposiciones: si no hubo 50 % + 1, lo votado es proposición; los ausentes pueden objetar hasta el 18/09/2026.
 Documentos: informe, convocatoria y poder.
 Modo moderador (PIN): en Agenda, botón "Soy moderador".</pre></div>
+</div>
+<div class="wrap view" id="view-reglamento">
+  <h2 class="sec">Reglamento de copropiedad</h2>
+  <input id="regBuscar" type="search" placeholder="Buscar en el reglamento…" aria-label="Buscar en el reglamento" style="width:100%;padding:10px;font-size:16px;margin-bottom:10px">
+  <details id="regIndice" class="card"><summary>Índice de artículos</summary><nav id="regIndiceNav"></nav></details>
+  <div id="regTexto" class="doc"></div>
 </div>
 <dialog id="dlgPin"><form method="dialog" class="body"><h3>Modo moderador</h3><label>PIN <input id="pinInput" type="password" inputmode="numeric" autocomplete="off" placeholder="PIN"></label><p class="note">Habilita marcar presencia y votos, cambiar el punto en tratamiento, dar la palabra y registrar respuestas.</p><div class="row"><button class="btn" value="cancel">Cancelar</button><button class="btn primary" id="pinOk" value="ok">Entrar</button></div></form></dialog>
 <dialog id="dlgPalabra"><div class="body"><h3>Pedir la palabra</h3><div class="form"><label>Unidad <select id="palUf"></select></label><label>Nombre <input id="palNombre" placeholder="Nombre y apellido" autocomplete="name"></label></div><div class="row"><button class="btn" id="palCancel">Cancelar</button><button class="btn primary" id="palOk">Anotarme</button></div></div></dialog>
@@ -671,7 +679,7 @@ $('#pinOk').addEventListener('click', e=>{ if($('#pinInput').value.trim()===PIN)
 let TAB = 'agenda';
 function setTab(t){ TAB=t; document.querySelectorAll('.tabs button').forEach(b=>b.setAttribute('aria-selected', String(b.dataset.tab===t)));
   const votar = t==='votar'; $('#top').classList.toggle('vhide', !votar); $('#votarWrap').classList.toggle('vhide', !votar); document.querySelector('.bottom').classList.toggle('vhide', !votar);
-  ['agenda','preguntas','propos','docs'].forEach(v=>$('#view-'+v).classList.toggle('vhide', t!==v));
+  ['agenda','preguntas','propos','docs','reglamento'].forEach(v=>$('#view-'+v).classList.toggle('vhide', t!==v));
   window.scrollTo(0,0); renderAll(); try{ localStorage.setItem(KEY+'-tab', t); }catch(e){} }
 document.querySelector('.tabs').addEventListener('click', e=>{ const b=e.target.closest('button[data-tab]'); if(b) setTab(b.dataset.tab); });
 
@@ -746,6 +754,34 @@ $('#view-propos').addEventListener('click', e=>{ const b=e.target.closest('butto
 $('#objCancel').addEventListener('click', ()=>$('#dlgObj').close());
 $('#objOk').addEventListener('click', ()=>{ const i=+$('#dlgObj').dataset.m; const u=+$('#objUf').value; if(!u){ toast('Elegí tu unidad'); return; } const nombre=$('#objNombre').value.trim(); if(!nombre){ toast('Escribí tu nombre'); return; } const motivo=$('#objMotivo').value.trim(); OBJ()[i]=OBJ()[i]||{}; OBJ()[i][u]={nombre, motivo, ts:Date.now()}; save(); sync.send({t:'objecion', m:i, uf:u, nombre, motivo}); $('#dlgObj').close(); renderAll(); toast('Objeción registrada'); });
 
+// ---- reglamento
+function _mdInline(s){ return esc(s).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>'); }
+function renderReglamento(){
+  const md = C.reglamento || '';
+  const nav = []; let html = ''; let i = 0;
+  for(const raw of md.split('\n')){
+    const line = raw.replace(/\r$/,'');
+    const h = /^(#{1,4})\s+(.*)$/.exec(line);
+    if(h){ const lvl=h[1].length, id='reg-'+(i++), txt=h[2];
+      if(lvl>=3) nav.push(`<a href="#${id}">${esc(txt)}</a>`);
+      html += `<h${lvl+1} id="${id}">${_mdInline(txt)}</h${lvl+1}>`;
+    } else if(line.trim()==='') { /* salto */ }
+    else { html += `<p>${_mdInline(line)}</p>`; }
+  }
+  $('#regTexto').innerHTML = html;
+  $('#regIndiceNav').innerHTML = nav.join('');
+}
+function filtrarReglamento(q){
+  q = (q||'').trim().toLowerCase();
+  for(const el of $('#regTexto').querySelectorAll('p,h2,h3,h4,h5')){
+    el.style.display = (!q || el.textContent.toLowerCase().includes(q)) ? '' : 'none';
+  }
+}
+// Cambia a la pestaña Reglamento y hace scroll al primer encabezado que incluya `texto`.
+function irAReglamento(texto){ setTab('reglamento'); setTimeout(()=>{ const t=(texto||'').toLowerCase();
+  for(const el of $('#regTexto').querySelectorAll('h2,h3,h4')){ if(el.textContent.toLowerCase().includes(t)){ el.scrollIntoView({behavior:'smooth',block:'start'}); break; } } }, 60); }
+$('#regBuscar').addEventListener('input', e=>filtrarReglamento(e.target.value));
+
 // ---- documentos
 $('#docConv').textContent = C.convocatoria; $('#docPoder').textContent = C.poder;
 
@@ -759,7 +795,7 @@ buildPrint = function(){ _buildPrint(); const q=quorumInfo(); let h='';
 
 // ---- render hooks
 const _renderAll = renderAll;
-renderAll = function(){ _renderAll(); if(TAB==='agenda') renderAgenda(); else if(TAB==='preguntas') renderPreguntas(); else if(TAB==='propos') renderPropos(); };
+renderAll = function(){ _renderAll(); if(TAB==='agenda') renderAgenda(); else if(TAB==='preguntas') renderPreguntas(); else if(TAB==='propos') renderPropos(); else if(TAB==='reglamento') renderReglamento(); };
 (function(){ let t='agenda'; try{ t=localStorage.getItem(KEY+'-tab')||'agenda'; }catch(e){} setTab(t); })();
 
 let tt; function toast(msg){ const t=$('#toast'); t.textContent=msg; t.style.display='block'; clearTimeout(tt); tt=setTimeout(()=>t.style.display='none',1800); }
