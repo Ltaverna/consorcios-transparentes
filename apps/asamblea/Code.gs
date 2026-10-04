@@ -234,6 +234,55 @@ function rebuildTables_(state) {
     });
     out.push(['', '', '', '']);
   });
+
+  // ---- Poderes con mandatario
+  out.push(['PODERES (mandatarios)', 'UF', 'Propietario', 'Mandatario']);
+  const podUfs = us.filter(u => state.poderes[String(u.uf)]);
+  if (podUfs.length) {
+    podUfs.forEach(u => { out.push(['', u.uf, u.prop, state.poderes[String(u.uf)]]); });
+  } else {
+    out.push(['(ningún poder registrado)', '', '', '']);
+  }
+  // control: cuántas unidades representa cada mandatario (art. 25 h: tope 5)
+  out.push(['', '', '', '']);
+  out.push(['Control por mandatario (art. 25 h — tope 5 poderes)', 'Mandatario', 'N° poderes', 'Alerta']);
+  const porMandatario = {};
+  podUfs.forEach(u => { const m = state.poderes[String(u.uf)]; porMandatario[m] = (porMandatario[m] || 0) + 1; });
+  Object.keys(porMandatario).sort().forEach(m => {
+    const n = porMandatario[m];
+    out.push(['', m, n, n > 5 ? 'SUPERA EL TOPE' : (n === 5 ? 'en el límite' : '')]);
+  });
+  if (!Object.keys(porMandatario).length) out.push(['(sin datos)', '', '', '']);
+  out.push(['', '', '', '']);
+
+  // ---- Proposiciones art. 2060 (objeciones por moción)
+  out.push(['PROPOSICIONES ART. 2060 (objeciones de ausentes)', 'Moción', 'N° objeciones', 'Unidades objetantes']);
+  const objKeys = Object.keys(state.objeciones || {});
+  if (objKeys.length) {
+    objKeys.forEach(mk => {
+      const objMap = state.objeciones[mk] || {};
+      const mIdx = Number(mk);
+      const mTitulo = (state.mociones[mIdx] || {}).titulo || ('Moción ' + (mIdx + 1));
+      const objUfs = Object.keys(objMap);
+      const nObj = objUfs.length;
+      out.push(['', mTitulo, nObj, objUfs.join(', ')]);
+    });
+  } else {
+    out.push(['(sin objeciones registradas)', '', '', '']);
+  }
+  out.push(['', '', '', '']);
+
+  // ---- Cumplimiento (checks manuales del panel)
+  const CUMPL_LABELS = { presidentePropietario: 'Presidente de asamblea es propietario (art. 2059)', dosFirmantes: 'Acta firmada por dos propietarios (art. 2062)', antelacionOk: 'Convocatoria con antelación reglamentaria (art. 2061)' };
+  out.push(['CUMPLIMIENTO FORMAL', 'Condición', 'Estado', '']);
+  const cumpl = state.cumplimiento || {};
+  Object.keys(CUMPL_LABELS).forEach(k => {
+    const v = cumpl[k];
+    const label = v === true ? 'Sí' : (v === false ? 'No' : 'Pendiente');
+    out.push(['', CUMPL_LABELS[k], label, '']);
+  });
+  out.push(['', '', '', '']);
+
   const sr = sheet_(SHEET_RESULT);
   sr.clear();
   sr.getRange(1, 1, out.length, 4).setValues(out);
