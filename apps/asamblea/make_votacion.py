@@ -7,6 +7,8 @@ SC = HERE + "/"
 LOGICA = open(SC + "logica.js", encoding="utf-8").read()
 MARKED = open(SC + "vendor/marked.min.js", encoding="utf-8").read()
 UNITS = json.load(open(SC + "votacion_units.json"))
+API_URL = os.environ.get("CT_ASAMBLEA_API_URL", "https://api-consorcio.neuralcore.dev")
+ASAMBLEA_TOKEN = os.environ.get("CT_ASAMBLEA_TOKEN", "")
 from asamblea_content import AGENDA, PREGUNTAS, CONVOCATORIA, PODER
 from normativa import NORMATIVA
 REGLAMENTO = open(SC + "reglamento.md", encoding="utf-8").read()
@@ -655,6 +657,17 @@ dialog textarea{font:inherit;font-size:12.5px;width:100%;min-height:220px;border
 #printArea table{border-collapse:collapse;width:100%;font-size:12px;margin-bottom:8px} #printArea th,#printArea td{border:1px solid #bbb;padding:4px 6px;text-align:left} #printArea th{background:#eee} #printArea td.r,#printArea th.r{text-align:right}
 #printArea .sig{margin-top:40px;display:flex;gap:40px} #printArea .sig div{flex:1;border-top:1px solid #000;padding-top:4px;font-size:12px}
 @media print{ body{background:#fff;padding:0} .top,.toolbar,.list,.roll,.bottom,.toast,dialog{display:none!important} #printArea{display:block!important} @page{margin:14mm} }
+
+#dlgRevision{max-height:90vh;display:flex;flex-direction:column}
+#dlgRevision .body{flex:1;overflow-y:auto;display:grid;gap:14px}
+#dlgRevision .rev-footer{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;padding:14px 20px;border-top:1px solid var(--hair);background:var(--surface);flex-shrink:0}
+#revMociones{display:grid;gap:10px}
+.rev-card{background:var(--surface-2);border:1px solid var(--hair);border-radius:var(--r-md,12px);padding:12px 14px;display:grid;gap:8px}
+.rev-card input[type=text]{font-size:15px;font-weight:500;padding:10px 12px;border:1px solid var(--hair);border-radius:var(--r-sm,6px);background:var(--surface);color:var(--ink);width:100%;min-height:44px}
+.rev-card .rev-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.rev-card select{flex:1;min-width:180px;min-height:44px;padding:10px 12px;font-size:14px}
+.rev-card .btn.sm{flex-shrink:0;min-height:44px}
+@media (max-width:480px){#dlgRevision .rev-footer{justify-content:stretch}#dlgRevision .rev-footer .btn{flex:1 1 0;text-align:center}}
 </style>
 
 <nav class="tabs" role="tablist" aria-label="Secciones">
@@ -763,6 +776,8 @@ Modo moderador (PIN): en Agenda, botón "Soy moderador".</pre></div>
     <button class="btn" id="btnPresentes">Marcar presentes por texto…</button>
     <button class="btn" id="btnSettings2">Configurar moción y sincronización</button>
     <button class="btn" id="btnPlanilla">Cargar precarga de la planilla</button>
+    <button class="btn" id="btnConvocatoria">Subir convocatoria (IA)…</button>
+    <input type="file" id="convFile" accept=".pdf,.doc,.docx" hidden>
     <button class="btn danger" id="btnReset">Reiniciar toda la votación</button>
   </div>
   <div class="row"><button class="btn" id="btnMasCerrar">Cerrar</button></div>
@@ -803,6 +818,15 @@ Modo moderador (PIN): en Agenda, botón "Soy moderador".</pre></div>
   <div class="row"><button class="btn" id="btnPresTodos">Marcar todas presentes</button><button class="btn" id="btnPresNinguno">Limpiar presencia</button><button class="btn" id="btnPresCancel">Cerrar</button><button class="btn primary" id="btnPresOk">Marcar</button></div>
 </div></dialog>
 
+<dialog id="dlgRevision"><div class="body"><h3>Revisar mociones propuestas</h3>
+  <div id="revMeta"></div>
+  <div id="revMociones"></div>
+  <button class="btn" id="revAgregar" type="button">Agregar moción</button>
+</div><div class="rev-footer">
+  <button class="btn" id="revCancelar" type="button">Cancelar</button>
+  <button class="btn primary" id="revCargar" type="button">Cargar estas mociones</button>
+</div></dialog>
+
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script id="data" type="application/json">__DATA__</script>
@@ -811,6 +835,7 @@ Modo moderador (PIN): en Agenda, botón "Soy moderador".</pre></div>
 <script>__LOGICA__</script>
 <script>
 (function(){
+const API_URL='__API_URL__', ASAMBLEA_TOKEN='__ASAMBLEA_TOKEN__';
 const UNITS = JSON.parse(document.getElementById('data').textContent);
 const TOTAL_PCT = UNITS.reduce((s,u)=>s+u.pct,0);
 const N = UNITS.length;
@@ -1121,6 +1146,47 @@ function resetVotacion(){ if(!confirm('¿Reiniciar toda la votación? Se borran 
 $('#btnReset').addEventListener('click', ()=>{ $('#dlgMas').close(); resetVotacion(); });
 $('#btnResetBar').addEventListener('click', resetVotacion);
 
+// ---------- subir convocatoria (IA)
+let REV=[];
+$('#btnConvocatoria').addEventListener('click', ()=>{ if(!MOD){ needMod(); return; } $('#convFile').click(); });
+$('#convFile').addEventListener('change', e=>{ const f=e.target.files[0]; if(f) subirConvocatoria(f); e.target.value=''; });
+async function subirConvocatoria(file){
+  toast('Analizando la convocatoria…');
+  const fd=new FormData(); fd.append('archivo', file);
+  try{
+    const r=await fetch(API_URL+'/asamblea/convocatoria',{method:'POST',headers:{'X-Asamblea-Token':ASAMBLEA_TOKEN},body:fd});
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    const prop=await r.json();
+    REV=(prop.mociones||[]).map(m=>({titulo:m.titulo,opciones:m.opciones||['A favor','En contra','Abstención'],regla:m.regla||'abs'}));
+    renderRevision(prop); $('#dlgMas').close(); $('#dlgRevision').showModal();
+  }catch(err){ toast('No se pudo analizar: '+err.message+'. Podés cargar las mociones a mano.'); }
+}
+function renderRevision(prop){
+  const md=prop.metadatos||{}, ag=prop.agenda||[];
+  $('#revMeta').innerHTML=`<div class="note">${Object.entries(md).filter(([k,v])=>v).map(([k,v])=>`<b>${esc(k)}:</b> ${esc(String(v))}`).join(' · ')||'Sin metadatos'}</div>`
+    +(ag.length?`<div class="note">Orden del día: ${ag.map(a=>esc(a.titulo)+(a.tipo?` (${esc(a.tipo)})`:'')).join(' · ')}</div>`:'');
+  pintarMociones();
+}
+function pintarMociones(){
+  $('#revMociones').innerHTML=REV.map((m,i)=>`<div class="rev-card">
+    <input type="text" data-rev="${i}" data-campo="titulo" value="${esc(m.titulo)}">
+    <div class="rev-row">
+      <select data-rev="${i}" data-campo="regla"><option value="abs"${m.regla==='abs'?' selected':''}>Mayoría absoluta del total</option><option value="pres"${m.regla==='pres'?' selected':''}>Simple de presentes</option><option value="2/3"${m.regla==='2/3'?' selected':''}>Dos tercios del total</option></select>
+      <button class="btn sm" type="button" data-del="${i}">Borrar</button>
+    </div></div>`).join('')||'<div class="note">No hay mociones. Agregá una.</div>';
+}
+$('#revMociones').addEventListener('input', e=>{ const el=e.target.closest('[data-rev]'); if(!el) return; REV[+el.dataset.rev][el.dataset.campo]=el.value; });
+$('#revMociones').addEventListener('click', e=>{ const b=e.target.closest('[data-del]'); if(!b) return; REV.splice(+b.dataset.del,1); pintarMociones(); });
+$('#revAgregar').addEventListener('click', ()=>{ REV.push({titulo:'',opciones:['A favor','En contra','Abstención'],regla:'abs'}); pintarMociones(); });
+$('#revCancelar').addEventListener('click', ()=>$('#dlgRevision').close());
+$('#revCargar').addEventListener('click', ()=>{
+  const limpias=REV.filter(m=>(m.titulo||'').trim());
+  if(!limpias.length){ toast('No hay mociones con título.'); return; }
+  if(!confirm('Esto reemplaza las mociones actuales de la votación. ¿Seguir?')) return;
+  S.mociones=limpias.map(m=>({titulo:m.titulo.trim(),opciones:m.opciones||['A favor','En contra','Abstención'],regla:m.regla||'abs',votos:{}}));
+  S.activa=0; save(); sync.send({t:'mociones', v:S.mociones}); renderAll(); $('#dlgRevision').close(); toast('Mociones cargadas.');
+});
+
 // ---------- sincronización con Google Sheets (Apps Script)
 const sync = {
   status:'inactiva', timer:null, queue:[], sending:false, lastServer:0,
@@ -1223,7 +1289,7 @@ document.querySelector('.tabs').addEventListener('click', e=>{ const b=e.target.
 const _listClick = $('#list');
 _listClick.addEventListener('click', e=>{ if(!MOD && e.target.closest('button[data-act]')){ e.stopImmediatePropagation(); needMod(); } }, true);
 $('#roll').addEventListener('click', e=>{ if(!MOD && e.target.closest('button[data-act]')){ e.stopImmediatePropagation(); needMod(); } }, true);
-['btnPresentes','btnPlanilla','btnReset','btnSettings','btnSettings2'].forEach(id=>{ const el=$('#'+id); if(el) el.addEventListener('click', e=>{ if(!MOD){ e.stopImmediatePropagation(); $('#dlgMas').close(); needMod(); } }, true); });
+['btnPresentes','btnPlanilla','btnReset','btnSettings','btnSettings2','btnConvocatoria'].forEach(id=>{ const el=$('#'+id); if(el) el.addEventListener('click', e=>{ if(!MOD){ e.stopImmediatePropagation(); $('#dlgMas').close(); needMod(); } }, true); });
 
 // ---- helpers
 const A = ()=>S.agenda||(S.agenda={}); const PAL = ()=>S.palabra||(S.palabra=[]); const RESP = ()=>S.respuestas||(S.respuestas={}); const OBJ = ()=>S.objeciones||(S.objeciones={});
@@ -1387,7 +1453,7 @@ renderAll();
 })();
 </script>
 """
-out = HTML.replace("__DATA__", DATA).replace("__CONTENT__", CONTENT).replace("__LOGICA__", LOGICA).replace("__MARKED__", MARKED)
+out = HTML.replace("__DATA__", DATA).replace("__CONTENT__", CONTENT).replace("__LOGICA__", LOGICA).replace("__MARKED__", MARKED).replace("__API_URL__", API_URL).replace("__ASAMBLEA_TOKEN__", ASAMBLEA_TOKEN)
 open(SC + "votacion-rivadavia-2069.html", "w", encoding="utf-8").write(out)
 open(SC + "pages-out/index.html", "w", encoding="utf-8").write("<!doctype html>\n<html lang=\"es\">\n" + out + "\n</html>\n")
 print("ok")
