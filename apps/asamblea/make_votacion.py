@@ -143,8 +143,13 @@ HTML = r"""<meta charset="utf-8">
 [hidden]{display:none!important}
 button,input,select,label{touch-action:manipulation}
 input[type=search]{-webkit-appearance:none;appearance:none}
-html{-webkit-text-size-adjust:100%;overscroll-behavior-y:contain}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased;padding-bottom:84px}
+html{-webkit-text-size-adjust:100%;overscroll-behavior-y:contain;overflow-x:hidden}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased;padding-bottom:84px;overflow-x:hidden;max-width:100%}
+/* defensa contra scroll horizontal en móvil/tablet */
+.view,.wrap,.card,.doc{min-width:0;max-width:100%}
+.doc{overflow-wrap:anywhere}
+.doc pre,.doc table,.doc img,img{max-width:100%}
+.doc pre{overflow-x:auto}
 /* Títulos: Source Serif 4 para identidad institucional */
 h1{font-family:"Source Serif 4",Georgia,serif;font-weight:600;font-size:20px;margin:0;letter-spacing:-.02em;line-height:1.2}
 h2{font-size:11.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin:0}
