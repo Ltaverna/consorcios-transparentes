@@ -11,7 +11,8 @@ from asamblea_content import AGENDA, PREGUNTAS, CONVOCATORIA, PODER
 from normativa import NORMATIVA
 REGLAMENTO = open(SC + "reglamento.md", encoding="utf-8").read()
 ENCARGADO = open(SC + "encargado.md", encoding="utf-8").read()
-CONTENT = json.dumps(dict(agenda=AGENDA, preguntas=PREGUNTAS, convocatoria=CONVOCATORIA, poder=PODER, reglamento=REGLAMENTO, normativa=NORMATIVA, encargado=ENCARGADO), ensure_ascii=False).replace("</", "<\\/")
+INFORME_ADMIN = open(SC + "informe_admin.md", encoding="utf-8").read()
+CONTENT = json.dumps(dict(agenda=AGENDA, preguntas=PREGUNTAS, convocatoria=CONVOCATORIA, poder=PODER, reglamento=REGLAMENTO, normativa=NORMATIVA, encargado=ENCARGADO, informe_admin=INFORME_ADMIN), ensure_ascii=False).replace("</", "<\\/")
 DATA = json.dumps(UNITS, ensure_ascii=False).replace("</", "<\\/")
 
 HTML = r"""<meta charset="utf-8">
@@ -1306,7 +1307,8 @@ function irAReglamento(texto){ setTab('reglamento'); setTimeout(()=>{ const t=(t
   for(const el of $('#regTexto').querySelectorAll('h2,h3,h4')){ if(el.textContent.toLowerCase().includes(t)){ el.scrollIntoView({behavior:'smooth',block:'start'}); break; } } }, 60); }
 $('#regBuscar').addEventListener('input', e=>filtrarDoc('#regTexto', e.target.value));
 function renderEncargado(){
-  renderMarkdownEn('#encTexto','#encIndiceNav', C.encargado);
+  const md = (C.informe_admin||'') + '\n\n---\n\n' + (C.encargado||'');
+  renderMarkdownEn('#encTexto','#encIndiceNav', md);
   filtrarDoc('#encTexto', ($('#encBuscar')||{}).value||'');
 }
 $('#encBuscar').addEventListener('input', e=>filtrarDoc('#encTexto', e.target.value));
