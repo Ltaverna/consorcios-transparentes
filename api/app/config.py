@@ -24,6 +24,8 @@ class Settings(BaseSettings):
     embeddings_dimensiones: int = 0          # 0 = no mandar el parámetro (usa el default del modelo)
     anthropic_api_key: str = ""              # vacía = análisis de convocatoria deshabilitado
     anthropic_modelo: str = "claude-sonnet-4-6"
+    asamblea_token: str = ""                 # vacío = endpoint deshabilitado (401 siempre)
+    asamblea_origin: str = "https://asamblea.neuralcore.dev"
 
     model_config = {"env_prefix": "CT_", "env_file": ".env"}
 
