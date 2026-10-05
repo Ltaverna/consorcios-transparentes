@@ -548,7 +548,17 @@ details.card[open]{ gap:12px; }
 }
 
 .vhide{display:none!important}
-@media (max-width:640px){ .tabs button{font-size:12px;padding:12px 7px 10px;min-width:52px} .tabs .brand{display:none} .view h2.sec{font-size:19px} .wrap{padding:0 12px} }
+@media (max-width:640px){ .tabs button{font-size:12px;padding:12px 7px 10px;min-width:48px} .tabs .brand{display:none} .view h2.sec{font-size:19px} .wrap{padding:0 12px} }
+@media (max-width:390px){ .tabs button{font-size:11.5px;padding:12px 5px 10px;min-width:44px} }
+
+/* ---- Sub-navegación de la pestaña Documentos ---- */
+.doc-subnav{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px;flex-wrap:nowrap}
+.doc-subnav::-webkit-scrollbar{display:none}
+.doc-subnav button{flex:1 1 auto;min-width:0;white-space:nowrap;padding:10px 14px;border-radius:999px;border:1px solid var(--hair);font-size:13px;font-weight:600;color:var(--ink-2);background:var(--surface);transition:background-color .15s ease,border-color .15s ease,color .15s ease;min-height:44px}
+.doc-subnav button[aria-selected="true"]{background:var(--accent);color:#fff;border-color:var(--accent)}
+@media (hover:hover){.doc-subnav button:not([aria-selected="true"]):hover{background:var(--surface-2);border-color:var(--muted)}}
+@media (max-width:640px){.doc-subnav button{font-size:13px;padding:10px 12px;min-height:44px}}
+.doc-sub{display:none}.doc-sub.active{display:block}
 
 /* ---- bottom bar */
 .bottom{position:fixed;left:0;right:0;bottom:0;z-index:10;background:var(--surface);border-top:1px solid var(--hair);padding:8px 16px calc(8px + env(safe-area-inset-bottom));box-shadow:var(--shadow-top)}
@@ -654,9 +664,6 @@ dialog textarea{font:inherit;font-size:12.5px;width:100%;min-height:220px;border
   <button role="tab" data-tab="preguntas" aria-selected="false">Preguntas</button>
   <button role="tab" data-tab="propos" aria-selected="false">Proposiciones</button>
   <button role="tab" data-tab="docs" aria-selected="false">Documentos</button>
-  <button role="tab" data-tab="reglamento" aria-selected="false">Reglamento</button>
-  <button role="tab" data-tab="normativa" aria-selected="false">Normativa</button>
-  <button role="tab" data-tab="encargado" aria-selected="false">Encargado</button>
 </nav>
 <div class="top" id="top">
   <div class="wrap">
@@ -703,33 +710,42 @@ dialog textarea{font:inherit;font-size:12.5px;width:100%;min-height:220px;border
 </div>
 <div class="wrap view" id="view-docs">
   <h2 class="sec">Documentos</h2>
-  <div class="card docs"><h3>Informe de expensas (julio y agosto 2026)</h3><p class="lead">Gastos, proveedores, deudores, flujo de fondos, hallazgos y comprobantes verificados.</p><div class="actions"><a class="btn primary sm" href="/informe-expensas.html" target="_blank" rel="noopener">Abrir informe</a><a class="btn sm" href="/analisis-expensas.xlsx">Descargar Excel</a></div></div>
-  <div class="card docs"><h3>Convocatoria</h3><pre class="doc" id="docConv"></pre></div>
-  <div class="card docs"><h3>Modelo de poder</h3><pre class="doc" id="docPoder"></pre></div>
-  <div class="card docs"><h3>Cómo se usa esta app</h3><pre class="doc">Agenda: seguí el punto en tratamiento y anotate para hablar.
+  <nav class="doc-subnav" role="tablist" aria-label="Sección de documentos">
+    <button role="tab" data-docsub="reglamento" aria-selected="true">Reglamento</button>
+    <button role="tab" data-docsub="normativa" aria-selected="false">Normativa</button>
+    <button role="tab" data-docsub="encargado" aria-selected="false">Encargado</button>
+    <button role="tab" data-docsub="convocatoria" aria-selected="false">Convocatoria y poder</button>
+  </nav>
+
+  <div class="doc-sub active" id="docsub-reglamento">
+    <input id="regBuscar" type="search" placeholder="Buscar en el reglamento…" aria-label="Buscar en el reglamento" style="width:100%;padding:10px;font-size:16px;margin-bottom:10px">
+    <details id="regIndice" class="card"><summary>Índice de artículos</summary><nav id="regIndiceNav"></nav></details>
+    <div id="regTexto" class="doc"></div>
+  </div>
+
+  <div class="doc-sub" id="docsub-normativa">
+    <p class="lead">Marco legal aplicable a la asamblea. Cada ítem resume la norma y enlaza al texto oficial; verificá en la fuente ante cualquier duda.</p>
+    <div id="normativaList" style="display:grid;gap:12px"></div>
+  </div>
+
+  <div class="doc-sub" id="docsub-encargado">
+    <p class="lead">Preguntas para consultar a la Administración y al Consejo antes de decidir sobre la continuidad del encargado. Buscá por tema o usá el índice.</p>
+    <input id="encBuscar" type="search" placeholder="Buscar…" aria-label="Buscar en el documento del encargado" style="width:100%;padding:10px;font-size:16px;margin-bottom:10px">
+    <details id="encIndice" class="card"><summary>Índice</summary><nav id="encIndiceNav"></nav></details>
+    <div id="encTexto" class="doc"></div>
+  </div>
+
+  <div class="doc-sub" id="docsub-convocatoria">
+    <div class="card docs"><h3>Informe de expensas (julio y agosto 2026)</h3><p class="lead">Gastos, proveedores, deudores, flujo de fondos, hallazgos y comprobantes verificados.</p><div class="actions"><a class="btn primary sm" href="/informe-expensas.html" target="_blank" rel="noopener">Abrir informe</a><a class="btn sm" href="/analisis-expensas.xlsx">Descargar Excel</a></div></div>
+    <div class="card docs"><h3>Convocatoria</h3><pre class="doc" id="docConv"></pre></div>
+    <div class="card docs"><h3>Modelo de poder</h3><pre class="doc" id="docPoder"></pre></div>
+    <div class="card docs"><h3>Cómo se usa esta app</h3><pre class="doc">Agenda: seguí el punto en tratamiento y anotate para hablar.
 Votar: el moderador marca presentes, poderes y votos; todos ven el resultado en vivo con la doble mayoría (unidades y porcentual).
 Preguntas: las preguntas a la administración con su documento de respaldo y la respuesta registrada.
 Proposiciones: si no hubo 50 % + 1, lo votado es proposición; los ausentes pueden objetar hasta el 18/09/2026.
-Documentos: informe, convocatoria y poder.
+Documentos: reglamento, normativa, informe del encargado, convocatoria y poder.
 Modo moderador (PIN): en Agenda, botón "Soy moderador".</pre></div>
-</div>
-<div class="wrap view" id="view-reglamento">
-  <h2 class="sec">Reglamento de copropiedad</h2>
-  <input id="regBuscar" type="search" placeholder="Buscar en el reglamento…" aria-label="Buscar en el reglamento" style="width:100%;padding:10px;font-size:16px;margin-bottom:10px">
-  <details id="regIndice" class="card"><summary>Índice de artículos</summary><nav id="regIndiceNav"></nav></details>
-  <div id="regTexto" class="doc"></div>
-</div>
-<div class="wrap view" id="view-normativa">
-  <h2 class="sec">Normativa de referencia</h2>
-  <p class="lead">Marco legal aplicable a la asamblea. Cada ítem resume la norma y enlaza al texto oficial; verificá en la fuente ante cualquier duda.</p>
-  <div id="normativaList" style="display:grid;gap:12px"></div>
-</div>
-<div class="wrap view" id="view-encargado">
-  <h2 class="sec">Continuidad del encargado</h2>
-  <p class="lead">Preguntas para consultar a la Administración y al Consejo antes de decidir sobre la continuidad del encargado. Buscá por tema o usá el índice.</p>
-  <input id="encBuscar" type="search" placeholder="Buscar…" aria-label="Buscar en el documento del encargado" style="width:100%;padding:10px;font-size:16px;margin-bottom:10px">
-  <details id="encIndice" class="card"><summary>Índice</summary><nav id="encIndiceNav"></nav></details>
-  <div id="encTexto" class="doc"></div>
+  </div>
 </div>
 <dialog id="dlgPin"><form method="dialog" class="body"><h3>Modo moderador</h3><label>PIN <input id="pinInput" type="password" inputmode="numeric" autocomplete="off" placeholder="PIN"></label><p class="note">Habilita marcar presencia y votos, cambiar el punto en tratamiento, dar la palabra y registrar respuestas.</p><div class="row"><button class="btn" value="cancel">Cancelar</button><button class="btn primary" id="pinOk" value="ok">Entrar</button></div></form></dialog>
 <dialog id="dlgPalabra"><div class="body"><h3>Pedir la palabra</h3><div class="form"><label>Unidad <select id="palUf"></select></label><label>Nombre <input id="palNombre" placeholder="Nombre y apellido" autocomplete="name"></label></div><div class="row"><button class="btn" id="palCancel">Cancelar</button><button class="btn primary" id="palOk">Anotarme</button></div></div></dialog>
@@ -1185,9 +1201,21 @@ function needMod(){ if(MOD) return true; $('#pinInput').value=''; $('#dlgPin').s
 $('#pinOk').addEventListener('click', e=>{ if($('#pinInput').value.trim()===PIN){ setMod(true); toast('Modo moderador activado'); } else { e.preventDefault(); $('#pinInput').value=''; $('#pinInput').placeholder='PIN incorrecto'; } });
 
 let TAB = 'agenda';
+let DOC_SUB = 'reglamento';
+try{ DOC_SUB = localStorage.getItem(KEY+'-docsub')||'reglamento'; }catch(e){}
+function setDocSub(sub){
+  DOC_SUB=sub;
+  document.querySelectorAll('.doc-subnav button').forEach(b=>b.setAttribute('aria-selected', String(b.dataset.docsub===sub)));
+  document.querySelectorAll('.doc-sub').forEach(el=>el.classList.toggle('active', el.id==='docsub-'+sub));
+  try{ localStorage.setItem(KEY+'-docsub', sub); }catch(e){}
+  if(sub==='reglamento') renderReglamento();
+  else if(sub==='normativa') renderNormativa();
+  else if(sub==='encargado') renderEncargado();
+}
+document.querySelector('#view-docs').addEventListener('click', e=>{ const b=e.target.closest('button[data-docsub]'); if(b) setDocSub(b.dataset.docsub); });
 function setTab(t){ TAB=t; document.querySelectorAll('.tabs button').forEach(b=>b.setAttribute('aria-selected', String(b.dataset.tab===t)));
   const votar = t==='votar'; $('#top').classList.toggle('vhide', !votar); $('#votarWrap').classList.toggle('vhide', !votar); document.querySelector('.bottom').classList.toggle('vhide', !votar);
-  ['agenda','preguntas','propos','docs','reglamento','normativa','encargado'].forEach(v=>$('#view-'+v).classList.toggle('vhide', t!==v));
+  ['agenda','preguntas','propos','docs'].forEach(v=>$('#view-'+v).classList.toggle('vhide', t!==v));
   window.scrollTo(0,0); renderAll(); try{ localStorage.setItem(KEY+'-tab', t); }catch(e){} }
 document.querySelector('.tabs').addEventListener('click', e=>{ const b=e.target.closest('button[data-tab]'); if(b) setTab(b.dataset.tab); });
 
@@ -1309,8 +1337,8 @@ function renderReglamento(){
   filtrarDoc('#regTexto', ($('#regBuscar')||{}).value||'');
 }
 function filtrarReglamento(q){ filtrarDoc('#regTexto', q); }
-// Cambia a la pestaña Reglamento y hace scroll al primer encabezado que incluya `texto`.
-function irAReglamento(texto){ setTab('reglamento'); setTimeout(()=>{ const t=(texto||'').toLowerCase();
+// Cambia a la pestaña Documentos > Reglamento y hace scroll al primer encabezado que incluya `texto`.
+function irAReglamento(texto){ setTab('docs'); setDocSub('reglamento'); setTimeout(()=>{ const t=(texto||'').toLowerCase();
   for(const el of $('#regTexto').querySelectorAll('h2,h3,h4')){ if(el.textContent.toLowerCase().includes(t)){ el.scrollIntoView({behavior:'smooth',block:'start'}); break; } } }, 60); }
 $('#regBuscar').addEventListener('input', e=>filtrarDoc('#regTexto', e.target.value));
 function renderEncargado(){
@@ -1336,7 +1364,7 @@ function renderNormativa(){
     </div>`;
   }).join('');
 }
-function irANormativa(id){ setTab('normativa'); setTimeout(()=>{ const el=$('#norm-'+id); if(el) el.scrollIntoView({behavior:'smooth',block:'start'}); }, 60); }
+function irANormativa(id){ setTab('docs'); setDocSub('normativa'); setTimeout(()=>{ const el=$('#norm-'+id); if(el) el.scrollIntoView({behavior:'smooth',block:'start'}); }, 60); }
 
 // ---- documentos
 $('#docConv').textContent = C.convocatoria; $('#docPoder').textContent = C.poder;
@@ -1351,8 +1379,8 @@ buildPrint = function(){ _buildPrint(); const q=quorumInfo(); let h='';
 
 // ---- render hooks
 const _renderAll = renderAll;
-renderAll = function(){ _renderAll(); if(TAB==='agenda') renderAgenda(); else if(TAB==='preguntas') renderPreguntas(); else if(TAB==='propos') renderPropos(); else if(TAB==='reglamento') renderReglamento(); else if(TAB==='normativa') renderNormativa(); else if(TAB==='encargado') renderEncargado(); };
-(function(){ let t='agenda'; try{ t=localStorage.getItem(KEY+'-tab')||'agenda'; }catch(e){} setTab(t); })();
+renderAll = function(){ _renderAll(); if(TAB==='agenda') renderAgenda(); else if(TAB==='preguntas') renderPreguntas(); else if(TAB==='propos') renderPropos(); else if(TAB==='docs'){ if(DOC_SUB==='reglamento') renderReglamento(); else if(DOC_SUB==='normativa') renderNormativa(); else if(DOC_SUB==='encargado') renderEncargado(); } };
+(function(){ let t='agenda'; try{ t=localStorage.getItem(KEY+'-tab')||'agenda'; }catch(e){} setTab(t); if(t==='docs') setDocSub(DOC_SUB); })();
 
 let tt; function toast(msg){ const t=$('#toast'); t.textContent=msg; t.style.display='block'; clearTimeout(tt); tt=setTimeout(()=>t.style.display='none',1800); }
 renderAll();
