@@ -112,6 +112,11 @@ En cualquiera de las dos variantes, verificar:
 
 ## 7. Notas
 
+- **Convocatoria → mociones (app de asamblea)**: el endpoint `POST /asamblea/convocatoria` usa la Claude API
+  (`CT_ANTHROPIC_API_KEY`, modelo `CT_ANTHROPIC_MODELO`) y valida el header `X-Asamblea-Token` contra
+  `CT_ASAMBLEA_TOKEN` (debe coincidir con el token embebido en la app de asamblea). CORS habilitado para
+  `CT_ASAMBLEA_ORIGIN`. La imagen incluye `libreoffice-writer` para convertir los `.doc` (PDF y DOCX no lo
+  necesitan).
 - **Rate limit detrás del tunnel**: con `CT_CONFIAR_PROXY=true` la API toma la IP real del header
   `CF-Connecting-IP`. Ese header es confiable solo si la API no es alcanzable de forma directa:
   el contenedor publica el puerto solo en localhost y el único camino externo es el tunnel.

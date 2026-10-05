@@ -1,5 +1,5 @@
 FROM python:3.12-slim
-RUN apt-get update && apt-get install -y --no-install-recommends poppler-utils postgresql-client libzbar0 \
+RUN apt-get update && apt-get install -y --no-install-recommends poppler-utils postgresql-client libzbar0 libreoffice-writer \
     && rm -rf /var/lib/apt/lists/*
 WORKDIR /srv
 COPY engine/ engine/
