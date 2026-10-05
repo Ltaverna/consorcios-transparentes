@@ -22,6 +22,8 @@ class Settings(BaseSettings):
     embeddings_modelo: str = "text-embedding-3-small"
     embeddings_url: str = "https://api.openai.com/v1"  # API OpenAI-compatible
     embeddings_dimensiones: int = 0          # 0 = no mandar el parámetro (usa el default del modelo)
+    anthropic_api_key: str = ""              # vacía = análisis de convocatoria deshabilitado
+    anthropic_modelo: str = "claude-sonnet-4-6"
 
     model_config = {"env_prefix": "CT_", "env_file": ".env"}
 

@@ -20,6 +20,7 @@ dependencies = [
   "pgvector>=0.3",
   "pyzbar>=0.1.9",  # QR de ARCA en facturas (requiere libzbar0 en la imagen)
   "pillow>=10",
+  "anthropic>=0.40",
 ]
 
 [project.optional-dependencies]

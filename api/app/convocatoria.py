@@ -1,11 +1,14 @@
 """Convocatoria → propuesta de mociones. Extracción multi-formato + normalización del JSON del LLM.
 El LLM solo PROPONE; el moderador revisa. No toca el motor de análisis."""
+import base64
 import html
 import os
 import re
 import subprocess
 import tempfile
 import zipfile
+
+from .config import settings
 
 OPCIONES_DEF = ["A favor", "En contra", "Abstención"]
 REGLAS = {"abs", "pres", "2/3"}
@@ -46,6 +49,54 @@ def texto_de_pdf(data: bytes) -> str:
         return r.stdout
     finally:
         os.unlink(ruta)
+
+
+_TOOL = {
+    "name": "registrar_convocatoria",
+    "description": "Devuelve el orden del día y las mociones votables extraídas de la convocatoria.",
+    "input_schema": {
+        "type": "object",
+        "properties": {
+            "metadatos": {"type": "object", "description": "fecha, hora, lugar, administracion, art2060 si aparecen"},
+            "agenda": {"type": "array", "items": {"type": "object", "properties": {
+                "n": {"type": "integer"}, "titulo": {"type": "string"},
+                "tipo": {"type": "string", "enum": ["procedimental", "informativo", "deliberativo"]}}}},
+            "mociones": {"type": "array", "items": {"type": "object", "properties": {
+                "titulo": {"type": "string", "description": "moción afirmativa y concreta para votar"}}}},
+        },
+        "required": ["agenda", "mociones"],
+    },
+}
+_PROMPT = ("Sos asistente de una asamblea de consorcio. De esta convocatoria, extraé el orden del día "
+           "(clasificando cada punto como procedimental, informativo o deliberativo) y, por cada punto "
+           "deliberativo, una moción afirmativa y concreta para votar. Devolvé todo con la herramienta "
+           "registrar_convocatoria. No inventes puntos que no estén.")
+
+
+def _cliente():
+    import anthropic
+    return anthropic.Anthropic(api_key=settings.anthropic_api_key)
+
+
+def _contenido(data: bytes, nombre: str):
+    ext = os.path.splitext(nombre)[1].lower()
+    if ext == ".pdf":
+        b64 = base64.standard_b64encode(data).decode()
+        return [{"type": "document", "source": {"type": "base64", "media_type": "application/pdf", "data": b64}},
+                {"type": "text", "text": _PROMPT}]
+    texto = texto_de_docx(data) if ext == ".docx" else texto_de_doc(data) if ext == ".doc" else texto_de_pdf(data)
+    return [{"type": "text", "text": _PROMPT + "\n\n--- CONVOCATORIA ---\n" + texto}]
+
+
+def proponer_mociones(data: bytes, nombre: str) -> dict:
+    msg = _cliente().messages.create(
+        model=settings.anthropic_modelo, max_tokens=2000,
+        tools=[_TOOL], tool_choice={"type": "tool", "name": "registrar_convocatoria"},
+        messages=[{"role": "user", "content": _contenido(data, nombre)}])
+    for bloque in msg.content:
+        if getattr(bloque, "type", None) == "tool_use":
+            return normalizar_propuesta(bloque.input)
+    raise ValueError("el modelo no devolvió la herramienta esperada")
 
 
 def normalizar_propuesta(crudo: dict) -> dict:
