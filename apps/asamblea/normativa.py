@@ -11,6 +11,25 @@ NORMATIVA = [
             "el beneficio antes, el contrato se extingue sin obligación de indemnización por antigüedad. "
             "Es el marco del punto del orden del día sobre el encargado de 70 años."
         ),
+        texto=(
+            "A partir de que el trabajador cumpla setenta (70) años de edad y reúna los requisitos "
+            "necesarios para acceder a la Prestación Básica Universal (PBU) establecida en el artículo 17, "
+            "inciso a) de la ley 24.241 y sus modificaciones, el empleador podrá intimarlo a que inicie los "
+            "trámites pertinentes, extendiéndole los certificados de servicios y demás documentación "
+            "necesaria a esos fines. A partir de ese momento, el empleador deberá mantener la relación de "
+            "trabajo hasta que el trabajador obtenga el beneficio y por un plazo máximo de un (1) año.\n\n"
+            "Lo dispuesto en el párrafo precedente no afecta el derecho del trabajador de solicitar el "
+            "beneficio previsional con anterioridad al cumplimiento de los setenta (70) años de edad.\n\n"
+            "Concedido el beneficio o vencido dicho plazo, el contrato de trabajo quedará extinguido sin "
+            "obligación para el empleador del pago de la indemnización por antigüedad que prevean las leyes "
+            "o estatutos profesionales.\n\n"
+            "La intimación a que se refiere el primer párrafo de este artículo implicará la notificación del "
+            "preaviso establecido por la presente ley o disposiciones similares contenidas en otros "
+            "estatutos, cuyo plazo se considerará comprendido dentro del término durante el cual el empleador "
+            "deberá mantener la relación de trabajo.\n\n"
+            "(Artículo sustituido por art. 7° de la Ley N° 27.426 B.O. 28/12/2017. Vigencia: el día siguiente "
+            "de su publicación en el Boletín Oficial)"
+        ),
         fuente="InfoLeg — Régimen de Contrato de Trabajo (texto actualizado)",
         url="https://servicios.infoleg.gob.ar/infolegInternet/anexos/25000-29999/25552/texact.htm",
     ),
@@ -22,6 +41,20 @@ NORMATIVA = [
             "disponer la extinción invocando esa situación, y a los fines indemnizatorios se computa como "
             "antigüedad sólo el tiempo de servicio posterior al cese por jubilación. Complementa al art. 252 "
             "para definir qué pasa después de la jubilación del encargado."
+        ),
+        texto=(
+            "En caso de que el trabajador titular de un beneficio previsional de cualquier régimen volviera a "
+            "prestar servicios en relación de dependencia, sin que ello implique violación a la legislación "
+            "vigente, el empleador podrá disponer la extinción del contrato invocando esa situación, con "
+            "obligación de preavisarlo y abonar la indemnización en razón de la antigüedad prevista en el "
+            "artículo 245 de esta ley o en su caso lo dispuesto en el artículo 247.\n\n"
+            "En este supuesto sólo se computará como antigüedad el tiempo de servicios posterior al cese. "
+            "(Párrafo incorporado por art. 7 de la Ley N° 24.347 B.O. 29/6/1994)\n\n"
+            "También es aplicable lo dispuesto por el presente artículo al trabajador que sigue prestando "
+            "servicios sin interrupción a las órdenes del mismo empleador, luego del goce del beneficio de la "
+            "jubilación, considerándose la fecha del acuerdo de la prestación como inicio del cómputo de la "
+            "antigüedad posterior al mismo. (Párrafo incorporado por art. 8° de la Ley N° 27.426 B.O. "
+            "28/12/2017. Vigencia: el día siguiente de su publicación en el Boletín Oficial)"
         ),
         fuente="InfoLeg — Régimen de Contrato de Trabajo (texto actualizado)",
         url="https://servicios.infoleg.gob.ar/infolegInternet/anexos/25000-29999/25552/texact.htm",
