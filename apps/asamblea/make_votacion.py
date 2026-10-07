@@ -322,10 +322,13 @@ div.doc{
   font-size:15px;
   line-height:1.75;
   color:var(--ink-2);
+  text-align:justify;
+  hyphens:auto;
+  -webkit-hyphens:auto;
 }
+div.doc pre, div.doc table{ text-align:left; } /* bloques alineados a la izquierda, no justificados */
 @media (max-width:640px){
-  div.doc{ font-size:16px; line-height:1.7; text-align:justify; hyphens:auto; -webkit-hyphens:auto; }
-  div.doc pre, div.doc table{ text-align:left; }
+  div.doc{ font-size:16px; line-height:1.7; }
 }
 
 /* --- Encabezados dentro de .doc ---
