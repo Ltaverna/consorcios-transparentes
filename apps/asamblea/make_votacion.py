@@ -145,8 +145,8 @@ HTML = r"""<meta charset="utf-8">
 [hidden]{display:none!important}
 button,input,select,label{touch-action:manipulation}
 input[type=search]{-webkit-appearance:none;appearance:none}
-html{-webkit-text-size-adjust:100%;overscroll-behavior-y:contain;overflow-x:hidden}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased;padding-bottom:84px;overflow-x:hidden;max-width:100%}
+html{-webkit-text-size-adjust:100%;overscroll-behavior-y:contain;overflow-x:clip}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased;padding-bottom:84px;overflow-x:clip;max-width:100%}
 /* defensa contra scroll horizontal en móvil/tablet */
 .view,.wrap,.card,.doc{min-width:0;max-width:100%}
 .doc{overflow-wrap:anywhere}
@@ -324,7 +324,8 @@ div.doc{
   color:var(--ink-2);
 }
 @media (max-width:640px){
-  div.doc{ font-size:16px; line-height:1.7; }
+  div.doc{ font-size:16px; line-height:1.7; text-align:justify; hyphens:auto; -webkit-hyphens:auto; }
+  div.doc pre, div.doc table{ text-align:left; }
 }
 
 /* --- Encabezados dentro de .doc ---
