@@ -1363,14 +1363,35 @@ $('#objCancel').addEventListener('click', ()=>$('#dlgObj').close());
 $('#objOk').addEventListener('click', ()=>{ const i=+$('#dlgObj').dataset.m; const u=+$('#objUf').value; if(!u){ toast('Elegí tu unidad'); return; } const nombre=$('#objNombre').value.trim(); if(!nombre){ toast('Escribí tu nombre'); return; } const motivo=$('#objMotivo').value.trim(); OBJ()[i]=OBJ()[i]||{}; OBJ()[i][u]={nombre, motivo, ts:Date.now()}; save(); sync.send({t:'objecion', m:i, uf:u, nombre, motivo}); $('#dlgObj').close(); renderAll(); toast('Objeción registrada'); });
 
 // ---- reglamento / encargado — renderer con marked.js
-// Pre-procesa encargado.md: envuelve la tabla Pandoc (grid-table) en un code fence
-// para que marked la renderice como bloque monoespaciado en lugar de párrafos rotos.
+// Pre-procesa el markdown de Pandoc: envuelve solo las tablas (bordes indentados) en un
+// code fence; los separadores de sección a ras de margen quedan como <hr>.
 function _preprocMd(md){
-  // Detecta bloque de grid-table Pandoc: comienza con una línea de solo guiones/espacios
-  // (al menos 20 guiones) y termina en la siguiente línea vacía tras la última fila.
-  // Lo envuelve en ``` para que marked lo renderice como <pre><code>.
-  return md.replace(/(^|\n)([ \t]*-{20,}[ \t\-]*\n[\s\S]*?-{20,}[ \t\-]*\n)(\n|$)/g,
-    (_, pre, block, post) => pre + '```\n' + block + '```\n' + post);
+  // Pandoc produce dos cosas con guiones que marked NO maneja igual:
+  //  1) Separadores de sección: una línea a ras de margen con muchos guiones. marked ya
+  //     los renderiza como <hr> (hay línea en blanco alrededor), así que NO se tocan.
+  //  2) Tablas Pandoc (multiline/simple): sus BORDES van indentados (empiezan con espacios)
+  //     y marked no las parsea → quedan párrafos rotos. Se envuelve cada tabla completa en
+  //     un code fence para que se vea como bloque monoespaciado alineado.
+  // La diferencia clave es la indentación: el borde de tabla arranca con espacio/tab; el
+  // separador de sección arranca en la columna 0.
+  const esBordeTabla = s => /^[ \t]+-{10,}[ \t]*$/.test(s); // borde sólido indentado (no el separador de columnas, que lleva espacios internos)
+  const lineas = (md || '').split('\n');
+  const out = [];
+  for (let i = 0; i < lineas.length; i++){
+    if (esBordeTabla(lineas[i])){
+      let j = i + 1;
+      while (j < lineas.length && !esBordeTabla(lineas[j])) j++;
+      if (j < lineas.length){
+        out.push('```');
+        for (let k = i; k <= j; k++) out.push(lineas[k]);
+        out.push('```');
+        i = j;
+        continue;
+      }
+    }
+    out.push(lineas[i]);
+  }
+  return out.join('\n');
 }
 function renderMarkdownEn(contenedorSel, indiceSel, md){
   const cont = $(contenedorSel);
