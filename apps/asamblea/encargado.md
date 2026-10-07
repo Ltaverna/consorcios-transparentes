@@ -21,6 +21,59 @@ que se comparen, con el mismo criterio, las ventajas y desventajas de
 
 ------------------------------------------------------------------------
 
+## Matriz rápida para discutir cada argumento
+
+  ----------------------------------------------------------------------
+  Argumento del informe    Qué conviene preguntar Qué demostraría una
+                                                  respuesta insuficiente
+  ------------------------ ---------------------- ----------------------
+  Puede disminuir su       ¿Qué limitación        Que se está utilizando
+  capacidad física         concreta tiene Ramón   una hipótesis asociada
+                           hoy?                   a la edad
+
+  Mayor riesgo de          ¿Cuál es su            Que no se evaluó el
+  accidentes               siniestralidad y qué   riesgo individual
+                           dice la ART?           
+
+  ART más cara/restrictiva ¿Dónde está la         Que se presentó un
+                           cotización o           riesgo hipotético como
+                           comunicación?          concreto
+
+  Enfermedad/incapacidad   ¿En qué difiere de     Que se compara contra
+                           contratar otro         "no tener trabajador"
+                           empleado?              
+
+  Fallecimiento            ¿Por qué es            Que se utiliza una
+                           diferencial respecto   contingencia general
+                           de un reemplazante?    como desventaja
+                                                  individual
+
+  Vivienda                 ¿Hay algún antecedente Que se atribuye a
+                           de Ramón que indique   Ramón un riesgo propio
+                           riesgo de no           del puesto
+                           devolución?            
+
+  Entrega de llaves        ¿Qué norma obliga a    Que una estrategia fue
+  indispensable            hacerlo?               presentada como
+                                                  obligación legal
+
+  Vacaciones/licencias     ¿Cuál es el costo      Que no se cuantificó
+  extensas                 diferencial anual      el supuesto perjuicio
+                           exacto?                
+
+  13 años de experiencia   ¿Cuál es el            Que las ventajas
+                           valor/costo de         fueron reconocidas
+                           reemplazar ese         pero no ponderadas
+                           conocimiento?          
+
+  Reemplazo                ¿Dónde están sus       Que el análisis no
+                           riesgos y costos en el compara las dos
+                           informe?               alternativas con igual
+                                                  profundidad
+  ----------------------------------------------------------------------
+
+------------------------------------------------------------------------
+
 ## 1. Sobre el 19/10 y el supuesto cese de tareas
 
 ### Preguntas
@@ -641,58 +694,6 @@ Esa pregunta permite detectar cuánto del análisis responde a
 
 ------------------------------------------------------------------------
 
-## Matriz rápida para discutir cada argumento
-
-  ----------------------------------------------------------------------
-  Argumento del informe    Qué conviene preguntar Qué demostraría una
-                                                  respuesta insuficiente
-  ------------------------ ---------------------- ----------------------
-  Puede disminuir su       ¿Qué limitación        Que se está utilizando
-  capacidad física         concreta tiene Ramón   una hipótesis asociada
-                           hoy?                   a la edad
-
-  Mayor riesgo de          ¿Cuál es su            Que no se evaluó el
-  accidentes               siniestralidad y qué   riesgo individual
-                           dice la ART?           
-
-  ART más cara/restrictiva ¿Dónde está la         Que se presentó un
-                           cotización o           riesgo hipotético como
-                           comunicación?          concreto
-
-  Enfermedad/incapacidad   ¿En qué difiere de     Que se compara contra
-                           contratar otro         "no tener trabajador"
-                           empleado?              
-
-  Fallecimiento            ¿Por qué es            Que se utiliza una
-                           diferencial respecto   contingencia general
-                           de un reemplazante?    como desventaja
-                                                  individual
-
-  Vivienda                 ¿Hay algún antecedente Que se atribuye a
-                           de Ramón que indique   Ramón un riesgo propio
-                           riesgo de no           del puesto
-                           devolución?            
-
-  Entrega de llaves        ¿Qué norma obliga a    Que una estrategia fue
-  indispensable            hacerlo?               presentada como
-                                                  obligación legal
-
-  Vacaciones/licencias     ¿Cuál es el costo      Que no se cuantificó
-  extensas                 diferencial anual      el supuesto perjuicio
-                           exacto?                
-
-  13 años de experiencia   ¿Cuál es el            Que las ventajas
-                           valor/costo de         fueron reconocidas
-                           reemplazar ese         pero no ponderadas
-                           conocimiento?          
-
-  Reemplazo                ¿Dónde están sus       Que el análisis no
-                           riesgos y costos en el compara las dos
-                           informe?               alternativas con igual
-                                                  profundidad
-  ----------------------------------------------------------------------
-
-------------------------------------------------------------------------
 
 ## Pregunta final que ordena toda la discusión
 
