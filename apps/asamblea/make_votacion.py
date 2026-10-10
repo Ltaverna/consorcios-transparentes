@@ -795,10 +795,8 @@ Modo moderador (PIN): en Agenda, botón "Soy moderador".</pre></div>
     <select id="sRegla"><option value="abs">Mayoría absoluta: más del 50% del total (unidades y porcentual)</option><option value="pres">Mayoría simple de los presentes (unidades y porcentual)</option><option value="2/3">Dos tercios del total (unidades y porcentual)</option></select>
   </label>
   <p class="note">Doble mayoría según art. 2060 del Código Civil y Comercial: se computa a la vez la cantidad de unidades y el porcentual. Las abstenciones no suman a ninguna opción.</p>
-  <h3 style="margin-top:6px">Sincronización con Google Sheets</h3>
-  <label>URL de la aplicación web (Apps Script) <input id="sUrl" placeholder="https://script.google.com/macros/s/…/exec" inputmode="url"></label>
   <label>Nombre de este dispositivo <input id="sDev" placeholder="Ej.: celular Hugo"></label>
-  <p class="note" id="sStatus" role="status" aria-live="polite">Conectado a la hoja de Google. No hace falta cambiar nada.</p>
+  <p class="note" id="sStatus" role="status" aria-live="polite">Sincronización en vivo con la API del panel.</p>
   <div class="row"><button class="btn danger" id="sBorrar" type="button">Borrar esta moción</button><button class="btn" value="cancel">Cancelar</button><button class="btn primary" id="sGuardar" value="ok">Guardar</button></div>
 </form></dialog>
 
@@ -853,9 +851,7 @@ const COLORS = ['o1','o2','o3','o4'];
 const CFG_KEY = KEY+'-cfg';
 let MOD_TOKEN = ''; try{ MOD_TOKEN = localStorage.getItem(KEY+'-modtok')||''; }catch(e){}
 const DEVICE_ID = (()=>{ try{ let d=localStorage.getItem(KEY+'-dev'); if(!d){ d='dev-'+Math.random().toString(36).slice(2,10); localStorage.setItem(KEY+'-dev', d);} return d; }catch(e){ return 'dev-x'; } })();
-const DEFAULT_URL = 'https://script.google.com/macros/s/AKfycbz_wM4sUwksIA6V6vPL-yt1f3UL3kNYo3NVgfMd_IBfgcWnfC54MsH224GYvp0A8_w/exec';
-let CFG = {url:DEFAULT_URL, dev:''}; try{ CFG = Object.assign(CFG, JSON.parse(localStorage.getItem(CFG_KEY)||'{}')); }catch(e){}
-if(!CFG.url) CFG.url = DEFAULT_URL;
+let CFG = {dev:''}; try{ CFG = Object.assign(CFG, JSON.parse(localStorage.getItem(CFG_KEY)||'{}')); }catch(e){}
 if(!CFG.dev){ CFG.dev = 'Teléfono ' + Math.floor(1000 + Math.random()*9000); try{ localStorage.setItem(CFG_KEY, JSON.stringify(CFG)); }catch(e){} }
 function saveCfg(){ try{ localStorage.setItem(CFG_KEY, JSON.stringify(CFG)); }catch(e){} }
 const fresh = ()=>({ presentes:{}, poderes:{}, claims:{}, activa:0, agenda:{}, palabra:[], respuestas:{}, objeciones:{}, cumplimiento:{ presidentePropietario:null, dosFirmantes:null, antelacionOk:null }, mociones:[ { titulo:'Que Ramón Gonzalez continúe como encargado', opciones:['A favor','En contra','Abstención'], regla:'abs', abierta:false, votos:{} }, { titulo:'Aprobar el reglamento interno con régimen de multas', opciones:['A favor','En contra','Abstención'], regla:'abs', abierta:false, votos:{} }, { titulo:'Constituir el tribunal de multas', opciones:['A favor','En contra','Abstención'], regla:'abs', abierta:false, votos:{} } ] });
@@ -1102,7 +1098,7 @@ $('#mociones').addEventListener('click', e=>{ const b=e.target.closest('button')
   S.activa=+b.dataset.i; save(); renderAll(); });
 
 // ---------- settings
-function openSettings(){ const m=M(); $('#sTitulo').value=m.titulo; $('#sRegla').value=m.regla; $('#sUrl').value=CFG.url; $('#sDev').value=CFG.dev; $('#sStatus').textContent = CFG.url ? ('Conectado a la hoja de Google (estado: '+sync.status+'). Todos los teléfonos comparten la misma votación.') : 'Sin sincronizar: los datos quedan solo en este dispositivo.';
+function openSettings(){ const m=M(); $('#sTitulo').value=m.titulo; $('#sRegla').value=m.regla; $('#sDev').value=CFG.dev; $('#sStatus').textContent = 'Sincronización en vivo con la API del panel. Todos los dispositivos comparten la votación.';
   $('#sOpts').innerHTML = [0,1,2,3].map(i=>`<div class="opt"><i style="background:var(--${COLORS[i]})"></i><input data-opt="${i}" value="${esc(m.opciones[i]||'')}" placeholder="${i<2?'Opción '+(i+1):'(vacío = sin opción)'}"><span class="note">${i>=2?'opcional':''}</span></div>`).join('');
   $('#dlgSettings').showModal(); }
 $('#btnSettings').addEventListener('click', openSettings);
@@ -1111,7 +1107,7 @@ $('#sGuardar').addEventListener('click', e=>{ const m=M(); m.titulo=$('#sTitulo'
   opts.forEach((o,i)=>{ if(o){ map[i]=newOpts.length; newOpts.push(o);} });
   if(newOpts.length<2){ alert('Se necesitan al menos dos opciones.'); e.preventDefault(); return; }
   const nv={}; for(const k in m.votos){ if(map[m.votos[k]]!=null) nv[k]=map[m.votos[k]]; } m.votos=nv; m.opciones=newOpts;
-  CFG.url=$('#sUrl').value.trim(); CFG.dev=$('#sDev').value.trim(); saveCfg(); save(); sync.send({t:'mociones', v:S.mociones}); renderAll(); sync.start(); });
+  CFG.dev=$('#sDev').value.trim(); saveCfg(); save(); sync.send({t:'mociones', v:S.mociones}); renderAll(); });
 $('#sBorrar').addEventListener('click', ()=>{ if(S.mociones.length<=1){ alert('Tiene que quedar al menos una moción.'); return; } if(!confirm('¿Borrar esta moción y sus votos?')) return; S.mociones.splice(S.activa,1); S.activa=0; save(); sync.send({t:'mociones', v:S.mociones}); renderAll(); $('#dlgSettings').close(); });
 
 // ---------- resumen
@@ -1203,8 +1199,31 @@ const sync = {
   // POST de una acción puntual; mod=true agrega el header de moderador.
   async act(path, body, mod){ sync.sending=true; sync.dot('busy'); try{ const r=await fetch(API_URL+path,{method:'POST',headers:sync.hdr(mod),body:JSON.stringify(body)}); const j=await r.json().catch(()=>({})); sync.sending=false; await sync.pull(); return {status:r.status, body:j}; }catch(e){ sync.sending=false; sync.status='error'; sync.dot('err'); return {status:0, body:{}}; } },
   // Push del doc "blando" completo (agenda/mociones/cumplimiento/…); lo usa el moderador.
-  pushDoc(){ const doc={ mociones:S.mociones.map(m=>({titulo:m.titulo,opciones:m.opciones,regla:m.regla,abierta:!!m.abierta})), activa:S.activa, agenda:S.agenda||{}, palabra:S.palabra||[], respuestas:S.respuestas||{}, objeciones:S.objeciones||{}, cumplimiento:S.cumplimiento||{}, units:UNITS.map(u=>({uf:u.uf,prop:u.prop,pct:u.pct})) }; return sync.act('/asamblea/mod/doc',{doc}, true); },
-  send(){}, // TODO Task 7: reemplazar por act()/pushDoc()
+  _doc(){ return { mociones:S.mociones.map(m=>({titulo:m.titulo,opciones:m.opciones,regla:m.regla,abierta:!!m.abierta})), activa:S.activa, agenda:S.agenda||{}, palabra:S.palabra||[], respuestas:S.respuestas||{}, objeciones:S.objeciones||{}, cumplimiento:S.cumplimiento||{}, units:UNITS.map(u=>({uf:u.uf,prop:u.prop,pct:u.pct})) }; },
+  pushDoc(){ return sync.act('/asamblea/mod/doc',{doc:sync._doc()}, true); },
+  // POST de bajo nivel SIN pull al final; lo usa pushFullState para escrituras en bloque.
+  async post(path, body, mod){ try{ const r=await fetch(API_URL+path,{method:'POST',headers:sync.hdr(mod),body:JSON.stringify(body)}); const j=await r.json().catch(()=>({})); return {status:r.status, body:j}; }catch(e){ return {status:0, body:{}}; } },
+  // Reconstruye todo el estado remoto desde el S local (un solo pull al final).
+  async pushFullState(){ sync.sending=true; sync.dot('busy');
+    await sync.post('/asamblea/mod/reset',{}, true);
+    await sync.post('/asamblea/mod/doc',{doc:sync._doc()}, true);
+    for(const uf in S.presentes){ await sync.post('/asamblea/mod/claim',{uf:+uf, presente:true, rol:'titular', nombre:(UNITS.find(u=>u.uf===+uf)||{}).prop||''}, true); }
+    for(const uf in S.poderes){ const v=S.poderes[uf]; await sync.post('/asamblea/mod/claim',{uf:+uf, presente:true, rol:'mandatario', nombre:(typeof v==='string'?v:'')}, true); }
+    for(let mi=0; mi<S.mociones.length; mi++){ const vt=S.mociones[mi].votos||{}; for(const uf in vt){ if(vt[uf]!=null) await sync.post('/asamblea/mod/voto',{mocion:mi, uf:+uf, opcion:vt[uf]}, true); } }
+    sync.sending=false; await sync.pull(); },
+  // Traductor: mapea el protocolo viejo de eventos a los endpoints de la API (gateado por moderador).
+  send(ev){ if(!MOD) return;
+    switch(ev.t){
+      case 'presente': return ev.v ? sync.act('/asamblea/mod/claim',{uf:ev.uf, presente:true, rol:'titular', nombre:(UNITS.find(u=>u.uf===+ev.uf)||{}).prop||''}, true)
+                                   : sync.act('/asamblea/mod/release',{uf:ev.uf}, true);
+      case 'poder': return (ev.v===false||ev.v==null) ? sync.act('/asamblea/mod/release',{uf:ev.uf}, true)
+                           : sync.act('/asamblea/mod/claim',{uf:ev.uf, presente:true, rol:'mandatario', nombre:(typeof ev.v==='string'?ev.v:'')}, true);
+      case 'voto': return sync.act('/asamblea/mod/voto',{mocion:(ev.m!=null?ev.m:S.activa), uf:ev.uf, opcion:(ev.v==null?null:ev.v)}, true);
+      case 'reset': return sync.act('/asamblea/mod/reset',{}, true);
+      case 'state': return sync.pushFullState();
+      default: return sync.pushDoc();   // agenda/mociones/cumplimiento/respuesta/objecion/palabra: empuja el doc
+    }
+  },
   apply(st){ if(!st||!st.mociones) return; const act=Math.min(S.activa, Math.max(0,st.mociones.length-1));
     S={ presentes:st.presentes||{}, poderes:st.poderes||{}, claims:st.claims||{},
         mociones:st.mociones.map(m=>({titulo:m.titulo,opciones:m.opciones,regla:m.regla,abierta:!!m.abierta,votos:m.votos||{}})),
@@ -1274,7 +1293,7 @@ let MOD = false; try{ MOD = localStorage.getItem(KEY+'-mod')==='1'; }catch(e){}
 function setMod(v){ MOD=v; try{ localStorage.setItem(KEY+'-mod', v?'1':'0'); }catch(e){} document.body.classList.toggle('mod', v); renderAll(); }
 document.body.classList.toggle('mod', MOD);
 function needMod(){ if(MOD) return true; $('#pinInput').value=''; $('#dlgPin').showModal(); return false; }
-$('#pinOk').addEventListener('click', e=>{ if($('#pinInput').value.trim()===PIN){ setMod(true); toast('Modo moderador activado'); } else { e.preventDefault(); $('#pinInput').value=''; $('#pinInput').placeholder='PIN incorrecto'; } });
+$('#pinOk').addEventListener('click', e=>{ if($('#pinInput').value.trim()===PIN){ setMod(true); if(!MOD_TOKEN){ const t=prompt('Secreto de moderador (se guarda en este dispositivo):',''); if(t){ MOD_TOKEN=t.trim(); try{ localStorage.setItem(KEY+'-modtok', MOD_TOKEN); }catch(e){} } } toast('Modo moderador activado'); } else { e.preventDefault(); $('#pinInput').value=''; $('#pinInput').placeholder='PIN incorrecto'; } });
 
 let TAB = 'agenda';
 let DOC_SUB = 'reglamento';
@@ -1312,7 +1331,7 @@ function ufOptions(sel, filter){ const list = UNITS.filter(filter||(()=>true)); 
 // ---- agenda
 function renderAgenda(){
   const q=quorumInfo();
-  $('#modbar').innerHTML = (sync.legacy?`<span style="color:var(--critical)"><b>La hoja de Google tiene el script anterior:</b> agenda, oradores, respuestas y objeciones no se están guardando. Pegá el Code.gs nuevo y creá una nueva versión.</span><br>`:'') + (MOD ? `<span><b>Modo moderador</b> activo en este dispositivo</span><button class="btn sm" id="btnModOff">Salir</button>` : `<span>Ves la asamblea en vivo. Para marcar presencia, votos y agenda:</span><button class="btn primary sm" id="btnModOn">Soy moderador</button>`);
+  $('#modbar').innerHTML = (MOD ? `<span><b>Modo moderador</b> activo en este dispositivo</span><button class="btn sm" id="btnModOff">Salir</button>` : `<span>Ves la asamblea en vivo. Para marcar presencia, votos y agenda:</span><button class="btn primary sm" id="btnModOn">Soy moderador</button>`);
   $('#quorumCard').innerHTML = `<h3>Quórum</h3><div class="prop"><div class="stat"><div>Presentes<b>${q.presN}</b></div><div>Con poder<b>${q.poderN}</b></div><div>Unidades<b>${q.partN} / ${N}</b></div><div>Porcentual<b>${fp(q.partPct)}</b></div></div>
     <div class="note">${q.firm ? '<b style="color:var(--good)">Hay 50 % + 1 del total: las decisiones son firmes.</b>' : 'Sin 50 % + 1 del total (59 unidades y más de 49,96 %): lo votado queda como <b>proposición</b> y se circula 15 días (art. 2060).'}</div></div>`;
   const pal = PAL();
