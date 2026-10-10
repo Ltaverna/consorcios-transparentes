@@ -297,7 +297,7 @@ input,select{font:inherit;color:var(--ink);background:var(--surface);border:1px 
 .mod-only{display:none} body.mod .mod-only{display:initial} body.mod .mod-only.actions,body.mod .mod-only.row{display:flex} body.mod .iconbtn.mod-only{display:inline-flex}
 .oradores{display:grid;gap:6px} .orador{display:flex;justify-content:space-between;align-items:center;gap:10px;background:var(--surface-2);border-radius:var(--r-sm);padding:10px 12px;font-size:15px}
 .orador .n{font-weight:700;color:var(--muted);min-width:22px;font-family:"Source Serif 4",Georgia,serif}
-.miuf{padding:8px 0;border-top:1px solid var(--hair)} #miPanel .chip{display:inline-flex;align-items:center;gap:4px;background:var(--surface-2);border-radius:999px;padding:3px 9px;margin:3px;font-size:13px} #miPanel .chip button{background:none;border:0;cursor:pointer;font:inherit;color:var(--muted)}
+.miuf{padding:8px 0;border-top:1px solid var(--hair)} .miuf .vrow{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap} .miuf .vrow .tog{flex:1 1 0;min-height:48px} .chipu .phone{font-size:12px;margin-left:2px} #miPanel .chip{display:inline-flex;align-items:center;gap:4px;background:var(--surface-2);border-radius:999px;padding:3px 9px;margin:3px;font-size:13px} #miPanel .chip button{background:none;border:0;cursor:pointer;font:inherit;color:var(--muted)}
 .q{display:grid;gap:8px} .q .tema{font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
 .q p.txt{font-size:15.5px;line-height:1.5;color:var(--ink)} .q .doc{font-size:13px;color:var(--ink-2);padding:8px 12px;background:var(--surface-2);border-radius:var(--r-sm);border-left:3px solid var(--hair)}
 .q .resp{border-left:3px solid var(--good);padding:8px 12px;font-size:14.5px;background:var(--good-soft);border-radius:0 var(--r-sm) var(--r-sm) 0;color:var(--good-ink)}
@@ -805,6 +805,7 @@ Modo moderador (PIN): en Agenda, botón "Soy moderador".</pre></div>
   <label>Regla de aprobación
     <select id="sRegla"><option value="abs">Mayoría absoluta: más del 50% del total (unidades y porcentual)</option><option value="pres">Mayoría simple de los presentes (unidades y porcentual)</option><option value="2/3">Dos tercios del total (unidades y porcentual)</option></select>
   </label>
+  <label class="row" style="justify-content:flex-start;gap:8px"><input type="checkbox" id="sAbierta"> Voto abierto (los propietarios pueden votar esta moción desde su teléfono)</label>
   <p class="note">Doble mayoría según art. 2060 del Código Civil y Comercial: se computa a la vez la cantidad de unidades y el porcentual. Las abstenciones no suman a ninguna opción.</p>
   <label>Nombre de este dispositivo <input id="sDev" placeholder="Ej.: celular Hugo"></label>
   <p class="note" id="sStatus" role="status" aria-live="polite">Sincronización en vivo con la API del panel.</p>
@@ -1037,10 +1038,15 @@ function renderMiPanel(){
   if(!MI){
     panel.innerHTML = `<div class="card"><h3>¿Sos propietario?</h3><p class="note">Votá desde tu teléfono.</p><button class="btn primary" id="btnReclamar" type="button">Reclamar mi unidad</button></div>`;
   } else {
+    const m=S.mociones[S.activa]; const abierta=!!(m&&m.abierta);
     const ufs=[MI.uf, ...(MI.representados||[])];
     panel.innerHTML = `<div class="card"><h3>Tus unidades</h3>`+
-      ufs.map(uf=>{ const u=ufInfo(uf); return `<div class="miuf"><b>${esc(u.piso||String(uf))}</b> ${esc(u.prop||'')}</div>`; }).join('')+
-      `<p class="note">Ya figurás presente. Cuando se abra la votación de una moción vas a poder votar acá.</p>`+
+      (m?`<p class="note">Moción: <b>${esc(m.titulo)}</b></p>`:'')+
+      (abierta?'':`<p class="note">La votación de esta moción todavía no está abierta.</p>`)+
+      ufs.map(uf=>{ const u=ufInfo(uf); const voto=(m&&m.votos)?m.votos[uf]:undefined;
+        return `<div class="miuf"><b>${esc(u.piso||String(uf))}</b> ${esc(u.prop||'')}<div class="vrow">`+
+          (m?m.opciones.map((o,i)=>`<button class="tog" aria-pressed="${voto===i?'true':'false'}" ${abierta?'':'disabled'} type="button" data-mivoto="${uf}" data-opt="${i}">${esc(o)}</button>`).join(''):'')+
+          `</div></div>`; }).join('')+
       `<div class="actions"><button class="btn sm" id="btnSalirMi" type="button">No soy esta unidad / salir</button></div></div>`;
   }
 }
@@ -1056,7 +1062,7 @@ function renderRoll(){
   const c = compute(M());
   $('#roll').innerHTML = `<div class="rollhead"><span class="note">Tocá para marcar <b>presente</b>; <b>P</b> = viene con poder.<br>Presentes <b>${c.presN}</b> · poderes <b>${c.poderN}</b> · quórum <b>${fp(c.partPct)}</b></span><button class="btn primary" id="btnVolver">Listo, ir a votar</button></div>` +
     groups.map(g=>`<div class="floor"><h2>${g.k}</h2><div class="grid">${g.items.map(u=>{ const p=!!S.presentes[u.uf], pd=!!S.poderes[u.uf];
-      return `<div class="chipu ${p?'on':pd?'poder':''}" data-uf="${u.uf}"><button class="main" data-act="rpres"><b>${esc(u.piso)}</b><span>${esc(u.prop)}</span></button><button class="pd" data-act="rpoder" title="Con poder">P</button></div>`; }).join('')}</div></div>`).join('');
+      return `<div class="chipu ${p?'on':pd?'poder':''}" data-uf="${u.uf}"><button class="main" data-act="rpres"><b>${esc(u.piso)}</b><span>${esc(u.prop)}</span></button><button class="pd" data-act="rpoder" title="Con poder">P</button>${(S.claims&&S.claims[u.uf]&&S.claims[u.uf].device!=='mod')?'<span class="phone" title="Reclamada desde un teléfono" aria-hidden="true">📱</span>':''}</div>`; }).join('')}</div></div>`).join('');
   $('#btnVolver').addEventListener('click', ()=>setMode('votar'));
 }
 function setMode(m){ mode=m; pinned=false; const roll = m==='lista'; $('#roll').hidden=!roll; $('#list').hidden=roll; $('.toolbar').hidden=roll; $('#btnLista').textContent = roll?'Volver a votar':'Pasar lista'; renderAll(); window.scrollTo(0,0); applyCompact(); }
@@ -1129,7 +1135,7 @@ $('#mociones').addEventListener('click', e=>{ const b=e.target.closest('button')
   S.activa=+b.dataset.i; save(); renderAll(); });
 
 // ---------- settings
-function openSettings(){ const m=M(); $('#sTitulo').value=m.titulo; $('#sRegla').value=m.regla; $('#sDev').value=CFG.dev; $('#sStatus').textContent = 'Sincronización en vivo con la API del panel. Todos los dispositivos comparten la votación.';
+function openSettings(){ const m=M(); $('#sTitulo').value=m.titulo; $('#sRegla').value=m.regla; $('#sAbierta').checked=!!m.abierta; $('#sDev').value=CFG.dev; $('#sStatus').textContent = 'Sincronización en vivo con la API del panel. Todos los dispositivos comparten la votación.';
   $('#sOpts').innerHTML = [0,1,2,3].map(i=>`<div class="opt"><i style="background:var(--${COLORS[i]})"></i><input data-opt="${i}" value="${esc(m.opciones[i]||'')}" placeholder="${i<2?'Opción '+(i+1):'(vacío = sin opción)'}"><span class="note">${i>=2?'opcional':''}</span></div>`).join('');
   $('#dlgSettings').showModal(); }
 $('#btnSettings').addEventListener('click', openSettings);
@@ -1138,6 +1144,7 @@ $('#sGuardar').addEventListener('click', e=>{ const m=M(); m.titulo=$('#sTitulo'
   opts.forEach((o,i)=>{ if(o){ map[i]=newOpts.length; newOpts.push(o);} });
   if(newOpts.length<2){ alert('Se necesitan al menos dos opciones.'); e.preventDefault(); return; }
   const nv={}; for(const k in m.votos){ if(map[m.votos[k]]!=null) nv[k]=map[m.votos[k]]; } m.votos=nv; m.opciones=newOpts;
+  S.mociones[S.activa].abierta=$('#sAbierta').checked;
   CFG.dev=$('#sDev').value.trim(); saveCfg(); save(); sync.send({t:'mociones', v:S.mociones}); renderAll(); });
 $('#sBorrar').addEventListener('click', ()=>{ if(S.mociones.length<=1){ alert('Tiene que quedar al menos una moción.'); return; } if(!confirm('¿Borrar esta moción y sus votos?')) return; S.mociones.splice(S.activa,1); S.activa=0; save(); sync.send({t:'mociones', v:S.mociones}); renderAll(); $('#dlgSettings').close(); });
 
@@ -1380,10 +1387,11 @@ $('#view-agenda').addEventListener('click', e=>{
   if(b.dataset.gotoMoc!=null){ S.activa=+b.dataset.gotoMoc; save(); setTab('votar'); return; }
   if(b.dataset.createMoc){ if(!needMod()) return; S.mociones.push({titulo:b.dataset.createMoc, opciones:['A favor','En contra','Abstención'], regla:'abs', votos:{}}); save(); sync.send({t:'mociones', v:S.mociones}); renderAll(); return; }
   const card=b.closest('[data-pt]'); if(card && b.dataset.ptAct){ if(!needMod()) return; const id=card.dataset.pt; const a=A()[id]||{}; const act=b.dataset.ptAct; let v={};
-    if(act==='curso'){ Object.keys(A()).forEach(k=>{ if(A()[k].estado==='curso'){ A()[k].estado='tratado'; A()[k].fin=Date.now(); sync.send({t:'agenda', id:k, v:{estado:'tratado', fin:A()[k].fin}}); } }); v={estado:'curso', inicio:Date.now()}; }
+    if(act==='curso'){ Object.keys(A()).forEach(k=>{ if(A()[k].estado==='curso'){ A()[k].estado='tratado'; A()[k].fin=Date.now(); const pk=C.agenda.find(p=>p.id===k); const mk=(pk&&pk.mocion)?mocIndexByTitle(pk.mocion):-1; if(mk>=0 && S.mociones[mk]) S.mociones[mk].abierta=false; sync.send({t:'agenda', id:k, v:{estado:'tratado', fin:A()[k].fin}}); } }); v={estado:'curso', inicio:Date.now()}; }
     else if(act==='tratado'){ v={estado:'tratado', fin:Date.now()}; }
     else if(act==='pendiente'){ v={estado:'pendiente'}; }
     else if(act==='nota'){ const t=prompt('Decisión o nota para el acta (punto '+id+'):', a.nota||''); if(t===null) return; v={nota:t}; }
+    const pt=C.agenda.find(p=>p.id===id); const mi=(pt&&pt.mocion)?mocIndexByTitle(pt.mocion):-1; if(mi>=0 && S.mociones[mi]){ if(act==='curso') S.mociones[mi].abierta=true; else if(act==='tratado'||act==='pendiente') S.mociones[mi].abierta=false; }
     A()[id]=Object.assign(a, v); save(); sync.send({t:'agenda', id, v}); renderAll(); }
 });
 $('#btnPalabra').addEventListener('click', ()=>{ ufOptions($('#palUf')); $('#palNombre').value=''; $('#dlgPalabra').showModal(); });
@@ -1411,6 +1419,10 @@ $('#recConfirm').addEventListener('click', async ()=>{
   else { toast((r.body&&r.body.detail&&r.body.detail.motivo)||'No se pudo reclamar'); }
 });
 $('#miPanel').addEventListener('click', async e=>{
+  const bv=e.target.closest('button[data-mivoto]');
+  if(bv){ const uf=+bv.dataset.mivoto, opt=+bv.dataset.opt; const m=S.mociones[S.activa]; const cur=(m&&m.votos)?m.votos[uf]:undefined; const opcion=(cur===opt?null:opt);
+    const r=await sync.act('/asamblea/voto',{device:DEVICE_ID, mocion:S.activa, uf, opcion}, false);
+    if(r.status!==200){ toast((r.body&&r.body.detail&&r.body.detail.motivo)||'No se pudo votar'); } return; }
   if(e.target.closest('#btnReclamar')){ abrirReclamar(); return; }
   if(e.target.closest('#btnSalirMi')){ if(MI){ for(const uf of [MI.uf, ...(MI.representados||[])]){ await sync.act('/asamblea/release',{device:DEVICE_ID, uf}, false); } } setMi(null); return; }
 });
