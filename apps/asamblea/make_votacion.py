@@ -851,12 +851,14 @@ const COLORS = ['o1','o2','o3','o4'];
 
 // ---------- state
 const CFG_KEY = KEY+'-cfg';
+let MOD_TOKEN = ''; try{ MOD_TOKEN = localStorage.getItem(KEY+'-modtok')||''; }catch(e){}
+const DEVICE_ID = (()=>{ try{ let d=localStorage.getItem(KEY+'-dev'); if(!d){ d='dev-'+Math.random().toString(36).slice(2,10); localStorage.setItem(KEY+'-dev', d);} return d; }catch(e){ return 'dev-x'; } })();
 const DEFAULT_URL = 'https://script.google.com/macros/s/AKfycbz_wM4sUwksIA6V6vPL-yt1f3UL3kNYo3NVgfMd_IBfgcWnfC54MsH224GYvp0A8_w/exec';
 let CFG = {url:DEFAULT_URL, dev:''}; try{ CFG = Object.assign(CFG, JSON.parse(localStorage.getItem(CFG_KEY)||'{}')); }catch(e){}
 if(!CFG.url) CFG.url = DEFAULT_URL;
 if(!CFG.dev){ CFG.dev = 'Teléfono ' + Math.floor(1000 + Math.random()*9000); try{ localStorage.setItem(CFG_KEY, JSON.stringify(CFG)); }catch(e){} }
 function saveCfg(){ try{ localStorage.setItem(CFG_KEY, JSON.stringify(CFG)); }catch(e){} }
-const fresh = ()=>({ presentes:{}, poderes:{}, activa:0, agenda:{}, palabra:[], respuestas:{}, objeciones:{}, cumplimiento:{ presidentePropietario:null, dosFirmantes:null, antelacionOk:null }, mociones:[ { titulo:'Que Ramón Gonzalez continúe como encargado', opciones:['A favor','En contra','Abstención'], regla:'abs', votos:{} }, { titulo:'Aprobar el reglamento interno con régimen de multas', opciones:['A favor','En contra','Abstención'], regla:'abs', votos:{} }, { titulo:'Constituir el tribunal de multas', opciones:['A favor','En contra','Abstención'], regla:'abs', votos:{} } ] });
+const fresh = ()=>({ presentes:{}, poderes:{}, claims:{}, activa:0, agenda:{}, palabra:[], respuestas:{}, objeciones:{}, cumplimiento:{ presidentePropietario:null, dosFirmantes:null, antelacionOk:null }, mociones:[ { titulo:'Que Ramón Gonzalez continúe como encargado', opciones:['A favor','En contra','Abstención'], regla:'abs', abierta:false, votos:{} }, { titulo:'Aprobar el reglamento interno con régimen de multas', opciones:['A favor','En contra','Abstención'], regla:'abs', abierta:false, votos:{} }, { titulo:'Constituir el tribunal de multas', opciones:['A favor','En contra','Abstención'], regla:'abs', abierta:false, votos:{} } ] });
 let S = fresh();
 try { const raw = localStorage.getItem(KEY); if(raw){ const p = JSON.parse(raw); if(p && p.mociones && p.mociones.length) S = p; } } catch(e){}
 if(!S.cumplimiento) S.cumplimiento = { presidentePropietario:null, dosFirmantes:null, antelacionOk:null };
@@ -1191,20 +1193,24 @@ $('#revCargar').addEventListener('click', ()=>{
   S.activa=0; save(); sync.send({t:'mociones', v:S.mociones}); renderAll(); $('#dlgRevision').close(); toast('Mociones cargadas.');
 });
 
-// ---------- sincronización con Google Sheets (Apps Script)
+// ---------- sincronización con la API del panel (estado compartido en Postgres)
 const sync = {
-  status:'inactiva', timer:null, queue:[], sending:false, lastServer:0,
-  dot(c){ $('#syncdot').className='syncdot '+(c||''); $('#syncdot').title='Sincronización: '+sync.status; },
-  start(){ clearInterval(sync.timer); if(!CFG.url){ sync.status='inactiva'; sync.dot(''); return; } sync.status='conectando'; sync.dot('busy');
-    sync.send({t:'init', units:UNITS.map(u=>[u.uf,u.piso,u.prop,u.tipo,u.pct])}); sync.pull(); sync.timer=setInterval(sync.pull, 4000); },
-  send(ev){ if(!CFG.url) return; ev.ts=Date.now(); ev.dev=CFG.dev||'sin nombre'; sync.queue.push(ev); sync.flush(); },
-  async flush(){ if(sync.sending||!sync.queue.length||!CFG.url) return; sync.sending=true; const batch=sync.queue.splice(0, sync.queue.length); sync.dot('busy');
-    try{ const r=await fetch(CFG.url,{method:'POST',body:JSON.stringify({events:batch}),redirect:'follow'}); const j=await r.json(); if(j&&j.state) sync.apply(j.state); sync.status='ok'; sync.dot('ok'); }
-    catch(e){ sync.queue.unshift(...batch); if(sync.status!=='error: '+e.message) toast('Sin conexión con la hoja: se reintenta solo'); sync.status='error: '+e.message; sync.dot('err'); }
-    sync.sending=false; if(sync.queue.length) setTimeout(sync.flush, 1500); },
-  async pull(){ if(!CFG.url||sync.sending||sync.queue.length) return; try{ const r=await fetch(CFG.url+(CFG.url.includes('?')?'&':'?')+'t='+Date.now(),{redirect:'follow'}); const j=await r.json(); if(j&&j.state) sync.apply(j.state); sync.status='ok'; sync.dot('ok'); }catch(e){ sync.status='error: '+e.message; sync.dot('err'); } },
-  apply(st){ if(!st||!st.mociones||!st.mociones.length) return; if((st.ts||0)<=sync.lastServer) return; sync.lastServer=st.ts||0;
-    const act=Math.min(S.activa, st.mociones.length-1); S={presentes:st.presentes||{}, poderes:st.poderes||{}, mociones:st.mociones, activa:act, agenda:st.agenda||S.agenda||{}, palabra:st.palabra||S.palabra||[], respuestas:st.respuestas||S.respuestas||{}, objeciones:st.objeciones||S.objeciones||{}, cumplimiento:st.cumplimiento||S.cumplimiento||{presidentePropietario:null,dosFirmantes:null,antelacionOk:null}}; if(st.agenda===undefined) sync.legacy=true; save(); renderAll(); }
+  status:'inactiva', timer:null, lastVersion:0, sending:false,
+  dot(c){ const d=$('#syncdot'); if(d){ d.className='syncdot '+(c||''); d.title='Sincronización: '+sync.status; } },
+  hdr(mod){ const h={'Content-Type':'application/json','X-Asamblea-Token':ASAMBLEA_TOKEN}; if(mod) h['X-Asamblea-Mod']=MOD_TOKEN; return h; },
+  start(){ clearInterval(sync.timer); if(!API_URL){ sync.status='inactiva'; sync.dot(''); return; } sync.status='conectando'; sync.dot('busy'); sync.pull(); sync.timer=setInterval(sync.pull, 2000); },
+  async pull(){ if(sync.sending) return; try{ const r=await fetch(API_URL+'/asamblea/estado?desde='+sync.lastVersion,{headers:sync.hdr(false)}); const j=await r.json(); if(j && !j.sin_cambios){ sync.lastVersion=j.version||sync.lastVersion; sync.apply(j); } sync.status='ok'; sync.dot('ok'); }catch(e){ sync.status='error'; sync.dot('err'); } },
+  // POST de una acción puntual; mod=true agrega el header de moderador.
+  async act(path, body, mod){ sync.sending=true; sync.dot('busy'); try{ const r=await fetch(API_URL+path,{method:'POST',headers:sync.hdr(mod),body:JSON.stringify(body)}); const j=await r.json().catch(()=>({})); sync.sending=false; await sync.pull(); return {status:r.status, body:j}; }catch(e){ sync.sending=false; sync.status='error'; sync.dot('err'); return {status:0, body:{}}; } },
+  // Push del doc "blando" completo (agenda/mociones/cumplimiento/…); lo usa el moderador.
+  pushDoc(){ const doc={ mociones:S.mociones.map(m=>({titulo:m.titulo,opciones:m.opciones,regla:m.regla,abierta:!!m.abierta})), activa:S.activa, agenda:S.agenda||{}, palabra:S.palabra||[], respuestas:S.respuestas||{}, objeciones:S.objeciones||{}, cumplimiento:S.cumplimiento||{}, units:UNITS.map(u=>({uf:u.uf,prop:u.prop,pct:u.pct})) }; return sync.act('/asamblea/mod/doc',{doc}, true); },
+  send(){}, // TODO Task 7: reemplazar por act()/pushDoc()
+  apply(st){ if(!st||!st.mociones) return; const act=Math.min(S.activa, Math.max(0,st.mociones.length-1));
+    S={ presentes:st.presentes||{}, poderes:st.poderes||{}, claims:st.claims||{},
+        mociones:st.mociones.map(m=>({titulo:m.titulo,opciones:m.opciones,regla:m.regla,abierta:!!m.abierta,votos:m.votos||{}})),
+        activa:act, agenda:st.agenda||{}, palabra:st.palabra||[], respuestas:st.respuestas||{}, objeciones:st.objeciones||{},
+        cumplimiento:st.cumplimiento||S.cumplimiento||{presidentePropietario:null,dosFirmantes:null,antelacionOk:null} };
+    save(); renderAll(); }
 };
 sync.start();
 // ---------- exportar
