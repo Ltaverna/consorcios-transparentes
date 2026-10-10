@@ -1236,7 +1236,7 @@ const sync = {
   start(){ clearInterval(sync.timer); if(!API_URL){ sync.status='inactiva'; sync.dot(''); return; } sync.status='conectando'; sync.dot('busy'); sync.pull(); sync.timer=setInterval(sync.pull, 2000); },
   async pull(){ if(sync.sending) return; try{ const r=await fetch(API_URL+'/asamblea/estado?desde='+sync.lastVersion,{headers:sync.hdr(false)}); const j=await r.json(); if(j && !j.sin_cambios){ sync.lastVersion=j.version||sync.lastVersion; sync.apply(j); } sync.status='ok'; sync.dot('ok'); }catch(e){ sync.status='error'; sync.dot('err'); } },
   // POST de una acción puntual; mod=true agrega el header de moderador.
-  async act(path, body, mod){ sync.sending=true; sync.dot('busy'); try{ const r=await fetch(API_URL+path,{method:'POST',headers:sync.hdr(mod),body:JSON.stringify(body)}); const j=await r.json().catch(()=>({})); sync.sending=false; await sync.pull(); return {status:r.status, body:j}; }catch(e){ sync.sending=false; sync.status='error'; sync.dot('err'); return {status:0, body:{}}; } },
+  async act(path, body, mod){ sync.sending=true; sync.dot('busy'); try{ const r=await fetch(API_URL+path,{method:'POST',headers:sync.hdr(mod),body:JSON.stringify(body)}); const j=await r.json().catch(()=>({})); sync.sending=false; if(mod && r.status===401){ toast('Secreto de moderador inválido. Cargalo de nuevo.'); pedirSecretoMod(); } await sync.pull(); return {status:r.status, body:j}; }catch(e){ sync.sending=false; sync.status='error'; sync.dot('err'); return {status:0, body:{}}; } },
   // Push del doc "blando" completo (agenda/mociones/cumplimiento/…); lo usa el moderador.
   _doc(){ return { mociones:S.mociones.map(m=>({titulo:m.titulo,opciones:m.opciones,regla:m.regla,abierta:!!m.abierta})), activa:S.activa, agenda:S.agenda||{}, palabra:S.palabra||[], respuestas:S.respuestas||{}, objeciones:S.objeciones||{}, cumplimiento:S.cumplimiento||{}, units:UNITS.map(u=>({uf:u.uf,prop:u.prop,pct:u.pct})) }; },
   pushDoc(){ return sync.act('/asamblea/mod/doc',{doc:sync._doc()}, true); },
@@ -1330,9 +1330,12 @@ const PIN = '2069';
 const DEADLINE = new Date(2026, 8, 18, 23, 59);
 let MOD = false; try{ MOD = localStorage.getItem(KEY+'-mod')==='1'; }catch(e){}
 function setMod(v){ MOD=v; try{ localStorage.setItem(KEY+'-mod', v?'1':'0'); }catch(e){} document.body.classList.toggle('mod', v); renderAll(); }
+let _modPromptOpen=false;
+function pedirSecretoMod(){ if(_modPromptOpen) return; _modPromptOpen=true; const t=prompt('Secreto de moderador (se guarda en este dispositivo):', MOD_TOKEN||''); _modPromptOpen=false; if(t!=null){ MOD_TOKEN=t.trim(); try{ localStorage.setItem(KEY+'-modtok', MOD_TOKEN); }catch(e){} renderAll(); } }
+if(MOD && !MOD_TOKEN){ setTimeout(pedirSecretoMod, 400); }   // moderador que ya estaba activo antes de que existiera el secreto
 document.body.classList.toggle('mod', MOD);
 function needMod(){ if(MOD) return true; $('#pinInput').value=''; $('#dlgPin').showModal(); return false; }
-$('#pinOk').addEventListener('click', e=>{ if($('#pinInput').value.trim()===PIN){ setMod(true); if(!MOD_TOKEN){ const t=prompt('Secreto de moderador (se guarda en este dispositivo):',''); if(t){ MOD_TOKEN=t.trim(); try{ localStorage.setItem(KEY+'-modtok', MOD_TOKEN); }catch(e){} } } toast('Modo moderador activado'); } else { e.preventDefault(); $('#pinInput').value=''; $('#pinInput').placeholder='PIN incorrecto'; } });
+$('#pinOk').addEventListener('click', e=>{ if($('#pinInput').value.trim()===PIN){ setMod(true); if(!MOD_TOKEN) pedirSecretoMod(); toast('Modo moderador activado'); } else { e.preventDefault(); $('#pinInput').value=''; $('#pinInput').placeholder='PIN incorrecto'; } });
 
 let TAB = 'agenda';
 let DOC_SUB = 'reglamento';
@@ -1370,7 +1373,7 @@ function ufOptions(sel, filter){ const list = UNITS.filter(filter||(()=>true)); 
 // ---- agenda
 function renderAgenda(){
   const q=quorumInfo();
-  $('#modbar').innerHTML = (MOD ? `<span><b>Modo moderador</b> activo en este dispositivo</span><button class="btn sm" id="btnModOff">Salir</button>` : `<span>Ves la asamblea en vivo. Para marcar presencia, votos y agenda:</span><button class="btn primary sm" id="btnModOn">Soy moderador</button>`);
+  $('#modbar').innerHTML = (MOD ? `<span><b>Modo moderador</b> activo en este dispositivo</span>${!MOD_TOKEN?'<button class="btn sm" id="btnModSecret" style="color:var(--critical)">Cargar secreto</button>':''}<button class="btn sm" id="btnModOff">Salir</button>` : `<span>Ves la asamblea en vivo. Para marcar presencia, votos y agenda:</span><button class="btn primary sm" id="btnModOn">Soy moderador</button>`);
   $('#quorumCard').innerHTML = `<h3>Quórum</h3><div class="prop"><div class="stat"><div>Presentes<b>${q.presN}</b></div><div>Con poder<b>${q.poderN}</b></div><div>Unidades<b>${q.partN} / ${N}</b></div><div>Porcentual<b>${fp(q.partPct)}</b></div></div>
     <div class="note">${q.firm ? '<b style="color:var(--good)">Hay 50 % + 1 del total: las decisiones son firmes.</b>' : 'Sin 50 % + 1 del total (59 unidades y más de 49,96 %): lo votado queda como <b>proposición</b> y se circula 15 días (art. 2060).'}</div></div>`;
   const pal = PAL();
@@ -1384,6 +1387,7 @@ function renderAgenda(){
 $('#view-agenda').addEventListener('click', e=>{
   const b=e.target.closest('button'); if(!b) return;
   if(b.id==='btnModOn') return needMod(); if(b.id==='btnModOff'){ setMod(false); return; }
+  if(b.id==='btnModSecret'){ pedirSecretoMod(); return; }
   if(b.dataset.palDone){ if(!needMod()) return; sync.send({t:'palabra', uf:+b.dataset.palDone, accion:'quitar'}); S.palabra=PAL().filter(p=>String(p.uf)!==b.dataset.palDone); save(); renderAll(); return; }
   if(b.dataset.gotoMoc!=null){ S.activa=+b.dataset.gotoMoc; save(); setTab('votar'); return; }
   if(b.dataset.createMoc){ if(!needMod()) return; S.mociones.push({titulo:b.dataset.createMoc, opciones:['A favor','En contra','Abstención'], regla:'abs', votos:{}}); save(); sync.send({t:'mociones', v:S.mociones}); renderAll(); return; }
