@@ -873,6 +873,7 @@ const fresh = ()=>({ presentes:{}, poderes:{}, claims:{}, activa:0, agenda:{}, p
 let S = fresh();
 try { const raw = localStorage.getItem(KEY); if(raw){ const p = JSON.parse(raw); if(p && p.mociones && p.mociones.length) S = p; } } catch(e){}
 if(!S.cumplimiento) S.cumplimiento = { presidentePropietario:null, dosFirmantes:null, antelacionOk:null };
+if(!S.claims) S.claims={}; if(S.mociones) S.mociones.forEach(m=>{ if(m.abierta===undefined) m.abierta=false; });
 function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
 const M = ()=>S.mociones[S.activa];
 const isAbst = (m,i)=>/^abst/i.test(m.opciones[i]||'');
