@@ -111,3 +111,15 @@ def test_reclamar_reemplaza_conjunto_del_device(db):
     assert ufs == {1, 6, 7, 8, 9}
     # 6 propietarios distintos sigue rechazado
     assert ae.reclamar(db, s, device="d", uf=1, representados=[2, 3, 4, 5, 6, 7], nombre="M")["ok"] is False
+
+
+def test_votar_null_borra_el_voto(db):
+    s = ae.sesion_activa(db)
+    s.doc = {"mociones": [{"titulo": "M", "opciones": ["A", "B"], "regla": "abs", "abierta": True}],
+             "units": [{"uf": 3, "prop": "X"}]}
+    db.commit()
+    ae.reclamar(db, s, device="d1", uf=3, representados=[], nombre="J")
+    assert ae.votar(db, s, device="d1", mocion=0, uf=3, opcion=1)["ok"] is True
+    assert ae.ensamblar_estado(db, s)["mociones"][0]["votos"] == {"3": 1}
+    assert ae.votar(db, s, device="d1", mocion=0, uf=3, opcion=None)["ok"] is True
+    assert ae.ensamblar_estado(db, s)["mociones"][0]["votos"] == {}

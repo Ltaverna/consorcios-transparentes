@@ -75,7 +75,8 @@ def voto(payload: dict = Body(...), x_asamblea_token: str | None = Header(defaul
     _auth(x_asamblea_token)
     s = ae.sesion_activa(db)
     r = ae.votar(db, s, device=payload["device"], mocion=int(payload["mocion"]),
-                 uf=int(payload["uf"]), opcion=int(payload["opcion"]))
+                 uf=int(payload["uf"]),
+                 opcion=(None if payload.get("opcion") is None else int(payload["opcion"])))
     if not r["ok"]:
         raise HTTPException(403, detail=r)
     return r
@@ -126,7 +127,8 @@ def mod_voto(payload: dict = Body(...), x_asamblea_token: str | None = Header(de
     _auth_mod(x_asamblea_token, x_asamblea_mod)
     s = ae.sesion_activa(db)
     return ae.votar(db, s, device="mod", mocion=int(payload["mocion"]), uf=int(payload["uf"]),
-                    opcion=int(payload["opcion"]), override=True)
+                    opcion=(None if payload.get("opcion") is None else int(payload["opcion"])),
+                    override=True)
 
 
 @router.post("/asamblea/mod/release")

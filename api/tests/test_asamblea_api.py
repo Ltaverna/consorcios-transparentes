@@ -117,3 +117,14 @@ def test_mod_reset_borra_todo(cliente, db):
     cliente.post("/asamblea/claim", json={"device": "d1", "uf": 3}, headers=H)
     cliente.post("/asamblea/mod/reset", json={}, headers=HM)
     assert cliente.get("/asamblea/estado", headers=H).json()["claims"] == {}
+
+
+def test_voto_null_borra_via_http(cliente, db):
+    _seed(db)
+    cliente.post("/asamblea/claim", json={"device": "d1", "uf": 3}, headers=H)
+    _abrir(db)
+    cliente.post("/asamblea/voto", json={"device": "d1", "mocion": 0, "uf": 3, "opcion": 0}, headers=H)
+    assert cliente.get("/asamblea/estado", headers=H).json()["mociones"][0]["votos"] == {"3": 0}
+    r = cliente.post("/asamblea/voto", json={"device": "d1", "mocion": 0, "uf": 3, "opcion": None}, headers=H)
+    assert r.status_code == 200
+    assert cliente.get("/asamblea/estado", headers=H).json()["mociones"][0]["votos"] == {}

@@ -126,9 +126,10 @@ def liberar(db: Session, s: AsambleaSesion, uf: int, device: str | None) -> dict
     return {"ok": True}
 
 
-def votar(db: Session, s: AsambleaSesion, device: str, mocion: int, uf: int, opcion: int,
+def votar(db: Session, s: AsambleaSesion, device: str, mocion: int, uf: int, opcion: int | None,
           override: bool = False) -> dict:
-    """Emite/cambia un voto. Sin override exige ventana abierta y que `device` sea dueño de `uf`."""
+    """Emite/cambia un voto. Sin override exige ventana abierta y que `device` sea dueño de `uf`.
+    Con opcion=None borra el voto existente (toggle-off)."""
     mociones = (s.doc or {}).get("mociones", [])
     if mocion < 0 or mocion >= len(mociones):
         return {"ok": False, "motivo": "moción inexistente"}
@@ -139,6 +140,11 @@ def votar(db: Session, s: AsambleaSesion, device: str, mocion: int, uf: int, opc
         if not c or c.device_id != device:
             return {"ok": False, "motivo": "Esa unidad no es tuya."}
     v = db.query(AsambleaVoto).filter_by(sesion_id=s.id, mocion_idx=int(mocion), uf=int(uf)).first()
+    if opcion is None:
+        if v:
+            db.delete(v)
+            db.commit()
+        return {"ok": True}
     if v:
         v.opcion_idx = int(opcion)
         v.device_id = device
