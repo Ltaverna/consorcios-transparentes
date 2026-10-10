@@ -45,10 +45,11 @@ def ensamblar_estado(db: Session, s: AsambleaSesion) -> dict:
     presentes, poderes, claims_out = {}, {}, {}
     for c in claims:
         k = str(c.uf)
-        if c.presente:
-            presentes[k] = True
+        # El cliente trata presencia y poder como excluyentes: titular → presentes, mandatario → poderes.
         if c.rol == "mandatario":
             poderes[k] = c.nombre or True
+        elif c.presente:
+            presentes[k] = True
         claims_out[k] = {"device": c.device_id, "rol": c.rol, "nombre": c.nombre}
     votos_por_mocion: dict[int, dict] = {}
     for v in votos:
@@ -103,7 +104,7 @@ def reclamar(db: Session, s: AsambleaSesion, device: str, uf: int,
             if tomadas.get(u) == device:
                 continue
             db.add(AsambleaClaim(sesion_id=s.id, uf=u, device_id=device, rol=rol,
-                                 presente=True, nombre=nombre if rol == "titular" else ""))
+                                 presente=True, nombre=nombre))
         db.commit()
     except IntegrityError:
         db.rollback()

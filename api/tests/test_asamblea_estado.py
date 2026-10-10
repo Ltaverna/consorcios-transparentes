@@ -123,3 +123,15 @@ def test_votar_null_borra_el_voto(db):
     assert ae.ensamblar_estado(db, s)["mociones"][0]["votos"] == {"3": 1}
     assert ae.votar(db, s, device="d1", mocion=0, uf=3, opcion=None)["ok"] is True
     assert ae.ensamblar_estado(db, s)["mociones"][0]["votos"] == {}
+
+
+def test_ensamblar_mandatario_va_a_poderes_no_presentes(db):
+    s = ae.sesion_activa(db)
+    s.doc = {"units": [{"uf": 1, "prop": "M"}, {"uf": 2, "prop": "A"}]}
+    db.commit()
+    # device d: uf1 titular (presente) + uf2 representada (mandatario)
+    ae.reclamar(db, s, device="d", uf=1, representados=[2], nombre="Mandatario")
+    est = ae.ensamblar_estado(db, s)
+    assert est["presentes"] == {"1": True}            # solo el titular
+    assert est["poderes"] == {"2": "Mandatario"}       # la representada va a poderes
+    assert "2" not in est["presentes"]                 # no duplicada
