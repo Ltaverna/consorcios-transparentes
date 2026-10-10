@@ -26,6 +26,7 @@ class Settings(BaseSettings):
     anthropic_modelo: str = "claude-sonnet-4-6"
     asamblea_token: str = ""                 # vacío = endpoint deshabilitado (401 siempre)
     asamblea_origin: str = "https://asamblea.neuralcore.dev"
+    asamblea_mod_token: str = ""             # secreto de moderador para acciones sensibles (vacío = override deshabilitado)
 
     model_config = {"env_prefix": "CT_", "env_file": ".env"}
 

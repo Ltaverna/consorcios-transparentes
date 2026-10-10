@@ -188,3 +188,39 @@ class Informe(Base):
     archivo_key: Mapped[str] = mapped_column(String(500))
     marca: Mapped[str] = mapped_column(String(120), default="")
     publicado_en: Mapped[datetime] = mapped_column(FechaUTC(), default=ahora)
+
+
+class AsambleaSesion(Base):
+    __tablename__ = "asamblea_sesion"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    consorcio_id: Mapped[int | None] = mapped_column(ForeignKey("consorcio.id"), default=None)
+    titulo: Mapped[str] = mapped_column(String(200), default="")
+    doc: Mapped[dict] = mapped_column(JSONDict, default=dict)   # estado "blando": mociones/agenda/palabra/…/units
+    version: Mapped[int] = mapped_column(Integer, default=1)
+    creada: Mapped[datetime] = mapped_column(FechaUTC(), default=ahora)
+    actualizada: Mapped[datetime] = mapped_column(FechaUTC(), default=ahora, onupdate=ahora)
+
+
+class AsambleaClaim(Base):
+    __tablename__ = "asamblea_claim"
+    __table_args__ = (UniqueConstraint("sesion_id", "uf", name="uq_claim_sesion_uf"),)
+    id: Mapped[int] = mapped_column(primary_key=True)
+    sesion_id: Mapped[int] = mapped_column(ForeignKey("asamblea_sesion.id"))
+    uf: Mapped[int] = mapped_column(Integer)
+    device_id: Mapped[str] = mapped_column(String(64))
+    rol: Mapped[str] = mapped_column(String(16), default="titular")   # 'titular' | 'mandatario'
+    presente: Mapped[bool] = mapped_column(Boolean, default=True)
+    nombre: Mapped[str] = mapped_column(String(120), default="")
+    creada: Mapped[datetime] = mapped_column(FechaUTC(), default=ahora)
+
+
+class AsambleaVoto(Base):
+    __tablename__ = "asamblea_voto"
+    __table_args__ = (UniqueConstraint("sesion_id", "mocion_idx", "uf", name="uq_voto_sesion_mocion_uf"),)
+    id: Mapped[int] = mapped_column(primary_key=True)
+    sesion_id: Mapped[int] = mapped_column(ForeignKey("asamblea_sesion.id"))
+    mocion_idx: Mapped[int] = mapped_column(Integer)
+    uf: Mapped[int] = mapped_column(Integer)
+    opcion_idx: Mapped[int] = mapped_column(Integer)
+    device_id: Mapped[str] = mapped_column(String(64), default="")
+    ts: Mapped[datetime] = mapped_column(FechaUTC(), default=ahora)
