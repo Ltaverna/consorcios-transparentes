@@ -297,6 +297,7 @@ input,select{font:inherit;color:var(--ink);background:var(--surface);border:1px 
 .mod-only{display:none} body.mod .mod-only{display:initial} body.mod .mod-only.actions,body.mod .mod-only.row{display:flex} body.mod .iconbtn.mod-only{display:inline-flex}
 .oradores{display:grid;gap:6px} .orador{display:flex;justify-content:space-between;align-items:center;gap:10px;background:var(--surface-2);border-radius:var(--r-sm);padding:10px 12px;font-size:15px}
 .orador .n{font-weight:700;color:var(--muted);min-width:22px;font-family:"Source Serif 4",Georgia,serif}
+.miuf{padding:8px 0;border-top:1px solid var(--hair)} #miPanel .chip{display:inline-flex;align-items:center;gap:4px;background:var(--surface-2);border-radius:999px;padding:3px 9px;margin:3px;font-size:13px} #miPanel .chip button{background:none;border:0;cursor:pointer;font:inherit;color:var(--muted)}
 .q{display:grid;gap:8px} .q .tema{font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
 .q p.txt{font-size:15.5px;line-height:1.5;color:var(--ink)} .q .doc{font-size:13px;color:var(--ink-2);padding:8px 12px;background:var(--surface-2);border-radius:var(--r-sm);border-left:3px solid var(--hair)}
 .q .resp{border-left:3px solid var(--good);padding:8px 12px;font-size:14.5px;background:var(--good-soft);border-radius:0 var(--r-sm) var(--r-sm) 0;color:var(--good-ink)}
@@ -697,6 +698,7 @@ dialog textarea{font:inherit;font-size:12.5px;width:100%;min-height:220px;border
 </div>
 
 <div class="wrap" id="votarWrap">
+  <div id="miPanel"></div>
   <div class="toolbar">
     <input id="q" type="search" placeholder="Buscar propietario, piso o UF…" aria-label="Buscar">
     <select id="filter" aria-label="Filtrar"><option value="">Todas las unidades</option><option value="present">Presentes y con poder</option><option value="absent">Ausentes</option><option value="unvoted">Presentes sin votar</option><option value="voted">Con voto</option><option value="depto">Departamentos y local</option><option value="cochera">Cocheras</option></select>
@@ -766,6 +768,15 @@ Modo moderador (PIN): en Agenda, botón "Soy moderador".</pre></div>
 </div>
 <dialog id="dlgPin"><form method="dialog" class="body"><h3>Modo moderador</h3><label>PIN <input id="pinInput" type="password" inputmode="numeric" autocomplete="off" placeholder="PIN"></label><p class="note">Habilita marcar presencia y votos, cambiar el punto en tratamiento, dar la palabra y registrar respuestas.</p><div class="row"><button class="btn" value="cancel">Cancelar</button><button class="btn primary" id="pinOk" value="ok">Entrar</button></div></form></dialog>
 <dialog id="dlgPalabra"><div class="body"><h3>Pedir la palabra</h3><div class="form"><label>Unidad <select id="palUf"></select></label><label>Nombre <input id="palNombre" placeholder="Nombre y apellido" autocomplete="name"></label></div><div class="row"><button class="btn" id="palCancel">Cancelar</button><button class="btn primary" id="palOk">Anotarme</button></div></div></dialog>
+<dialog id="dlgReclamar"><div class="body"><h3>Reclamar mi unidad</h3>
+  <div class="form">
+    <label>Tu unidad <select id="recUf"></select></label>
+    <label>Nombre <input id="recNombre" placeholder="Nombre y apellido" autocomplete="name"></label>
+    <div class="row" style="justify-content:flex-start;gap:8px"><label style="flex:1">¿Representás otra unidad? (carta poder) <select id="recRep"></select></label><button class="btn sm" type="button" id="recAddRep">Agregar</button></div>
+    <div id="recReps"></div>
+  </div>
+  <div class="row"><button class="btn" id="recCancel" type="button">Cancelar</button><button class="btn primary" id="recConfirm" type="button">Confirmar</button></div>
+</div></dialog>
 <dialog id="dlgObj"><div class="body"><h3>Registrar objeción</h3><p class="note" id="objTitulo"></p><div class="form"><label>Unidad <select id="objUf"></select></label><label>Nombre <input id="objNombre" placeholder="Nombre y apellido" autocomplete="name"></label><label>Motivo (opcional) <textarea id="objMotivo" rows="3"></textarea></label></div><div class="row"><button class="btn" id="objCancel">Cancelar</button><button class="btn primary" id="objOk">Objetar</button></div></div></dialog>
 
 <div class="bottom"><div class="wrap">
@@ -851,6 +862,9 @@ const COLORS = ['o1','o2','o3','o4'];
 const CFG_KEY = KEY+'-cfg';
 let MOD_TOKEN = ''; try{ MOD_TOKEN = localStorage.getItem(KEY+'-modtok')||''; }catch(e){}
 const DEVICE_ID = (()=>{ try{ let d=localStorage.getItem(KEY+'-dev'); if(!d){ d='dev-'+Math.random().toString(36).slice(2,10); localStorage.setItem(KEY+'-dev', d);} return d; }catch(e){ return 'dev-x'; } })();
+let MI = null; try{ MI = JSON.parse(localStorage.getItem(KEY+'-mi')||'null'); }catch(e){}
+function setMi(v){ MI=v; try{ localStorage.setItem(KEY+'-mi', JSON.stringify(v)); }catch(e){} renderAll(); }
+function ufInfo(uf){ return UNITS.find(x=>x.uf===+uf)||{}; }
 let CFG = {dev:''}; try{ CFG = Object.assign(CFG, JSON.parse(localStorage.getItem(CFG_KEY)||'{}')); }catch(e){}
 if(!CFG.dev){ CFG.dev = 'Teléfono ' + Math.floor(1000 + Math.random()*9000); try{ localStorage.setItem(CFG_KEY, JSON.stringify(CFG)); }catch(e){} }
 function saveCfg(){ try{ localStorage.setItem(CFG_KEY, JSON.stringify(CFG)); }catch(e){} }
@@ -1013,6 +1027,23 @@ function renderList(){
   $('#list').innerHTML = rows.map(rowHTML).join('') || `<div class="note" style="padding:20px;text-align:center">Ninguna unidad coincide.</div>`;
   $('#count').textContent = `${rows.length} de ${N}`;
 }
+function renderMiPanel(){
+  const panel=$('#miPanel'); if(!panel) return;
+  const esProp = !MOD;                 // el moderador ve la lista normal
+  const tb=$('.toolbar'); const lst=$('#list');
+  if(esProp){ if(lst) lst.hidden=true; if(tb) tb.hidden=true; }
+  else { if(lst) lst.hidden=(mode==='lista'); if(tb) tb.hidden=(mode==='lista'); }
+  if(!esProp){ panel.innerHTML=''; return; }
+  if(!MI){
+    panel.innerHTML = `<div class="card"><h3>¿Sos propietario?</h3><p class="note">Votá desde tu teléfono.</p><button class="btn primary" id="btnReclamar" type="button">Reclamar mi unidad</button></div>`;
+  } else {
+    const ufs=[MI.uf, ...(MI.representados||[])];
+    panel.innerHTML = `<div class="card"><h3>Tus unidades</h3>`+
+      ufs.map(uf=>{ const u=ufInfo(uf); return `<div class="miuf"><b>${esc(u.piso||String(uf))}</b> ${esc(u.prop||'')}</div>`; }).join('')+
+      `<p class="note">Ya figurás presente. Cuando se abra la votación de una moción vas a poder votar acá.</p>`+
+      `<div class="actions"><button class="btn sm" id="btnSalirMi" type="button">No soy esta unidad / salir</button></div></div>`;
+  }
+}
 function renderRow(uf){
   const el = document.querySelector(`.unit[data-uf="${uf}"]`); const u = UNITS.find(x=>x.uf===uf);
   if(el && u){ const tmp=document.createElement('div'); tmp.innerHTML=rowHTML(u); el.replaceWith(tmp.firstElementChild); }
@@ -1041,7 +1072,7 @@ $('#roll').addEventListener('click', e=>{ const b=e.target.closest('button[data-
   }
 });
 $('#btnLista').addEventListener('click', ()=>setMode(mode==='lista'?'votar':'lista'));
-function renderAll(){ renderTop(); if(mode==='lista') renderRoll(); else renderList(); }
+function renderAll(){ renderTop(); if(mode==='lista') renderRoll(); else renderList(); renderMiPanel(); }
 
 // ---------- actions
 function setPresent(u, val){ if(val){ S.presentes[u.uf]=true; delete S.poderes[u.uf]; } else { delete S.presentes[u.uf]; if(!S.poderes[u.uf]) for(const m of S.mociones) delete m.votos[u.uf]; } sync.send({t:'presente', uf:u.uf, v:!!val}); }
@@ -1358,6 +1389,31 @@ $('#view-agenda').addEventListener('click', e=>{
 $('#btnPalabra').addEventListener('click', ()=>{ ufOptions($('#palUf')); $('#palNombre').value=''; $('#dlgPalabra').showModal(); });
 $('#palCancel').addEventListener('click', ()=>$('#dlgPalabra').close());
 $('#palOk').addEventListener('click', ()=>{ const u=+$('#palUf').value; if(!u){ toast('Elegí tu unidad'); return; } const nombre=$('#palNombre').value.trim(); S.palabra=PAL().filter(p=>p.uf!==u).concat([{uf:u, nombre, ts:Date.now()}]); save(); sync.send({t:'palabra', uf:u, accion:'pedir', nombre}); $('#dlgPalabra').close(); renderAll(); toast('Anotado en la lista de oradores'); });
+let recRepsSel=[];
+function unidadesLibres(){ return UNITS.filter(u=> !S.claims[u.uf]); }
+function renderRecReps(){
+  const selfUf=+$('#recUf').value;
+  ufOptions($('#recRep'), u=> u.uf!==selfUf && !S.claims[u.uf] && !recRepsSel.includes(u.uf));
+  const nprops = new Set(recRepsSel.map(uf=>ufInfo(uf).prop)).size;
+  $('#recReps').innerHTML = recRepsSel.map(uf=>`<span class="chip">${esc(ufInfo(uf).piso)} <button type="button" data-rmrep="${uf}">×</button></span>`).join('') + `<div class="note">representás ${nprops}/5</div>`;
+}
+function abrirReclamar(){ recRepsSel=[]; ufOptions($('#recUf'), u=>!S.claims[u.uf]); $('#recNombre').value=''; renderRecReps(); $('#dlgReclamar').showModal(); }
+$('#recUf').addEventListener('change', renderRecReps);
+$('#recAddRep').addEventListener('click', ()=>{ const uf=+$('#recRep').value; if(!uf) return; if(recRepsSel.includes(uf)) return; const nprops=new Set(recRepsSel.concat(uf).map(x=>ufInfo(x).prop)).size; if(nprops>5){ toast('Hasta 5 propietarios (art. 25 h)'); return; } recRepsSel.push(uf); renderRecReps(); });
+$('#recReps').addEventListener('click', e=>{ const b=e.target.closest('button[data-rmrep]'); if(!b) return; recRepsSel=recRepsSel.filter(x=>x!==+b.dataset.rmrep); renderRecReps(); });
+$('#recCancel').addEventListener('click', ()=>$('#dlgReclamar').close());
+$('#recConfirm').addEventListener('click', async ()=>{
+  const uf=+$('#recUf').value; if(!uf){ toast('Elegí tu unidad'); return; }
+  const nombre=$('#recNombre').value.trim();
+  const r=await sync.act('/asamblea/claim', {device:DEVICE_ID, uf, representados:recRepsSel.slice(), nombre}, false);
+  if(r.status===200){ setMi({uf, nombre, representados:recRepsSel.slice()}); $('#dlgReclamar').close(); toast('Listo, ya podés votar desde tu teléfono'); }
+  else if(r.status===409){ toast('Esa unidad ya fue tomada'); sync.pull(); }
+  else { toast((r.body&&r.body.detail&&r.body.detail.motivo)||'No se pudo reclamar'); }
+});
+$('#miPanel').addEventListener('click', async e=>{
+  if(e.target.closest('#btnReclamar')){ abrirReclamar(); return; }
+  if(e.target.closest('#btnSalirMi')){ if(MI){ for(const uf of [MI.uf, ...(MI.representados||[])]){ await sync.act('/asamblea/release',{device:DEVICE_ID, uf}, false); } } setMi(null); return; }
+});
 
 // ---- preguntas
 function renderPreguntas(){
