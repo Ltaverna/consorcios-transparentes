@@ -79,3 +79,67 @@ def voto(payload: dict = Body(...), x_asamblea_token: str | None = Header(defaul
     if not r["ok"]:
         raise HTTPException(403, detail=r)
     return r
+
+
+def _auth_mod(x_asamblea_token, x_asamblea_mod):
+    _auth(x_asamblea_token)
+    if not settings.asamblea_mod_token or x_asamblea_mod != settings.asamblea_mod_token:
+        raise HTTPException(401, "Secreto de moderador inválido")
+
+
+@router.post("/asamblea/mod/doc")
+def mod_doc(payload: dict = Body(...), x_asamblea_token: str | None = Header(default=None),
+            x_asamblea_mod: str | None = Header(default=None), db: Session = Depends(get_db)):
+    _auth_mod(x_asamblea_token, x_asamblea_mod)
+    s = ae.sesion_activa(db)
+    ae.set_doc(db, s, payload["doc"])
+    return {"ok": True, "version": s.version}
+
+
+@router.post("/asamblea/mod/ventana")
+def mod_ventana(payload: dict = Body(...), x_asamblea_token: str | None = Header(default=None),
+                x_asamblea_mod: str | None = Header(default=None), db: Session = Depends(get_db)):
+    _auth_mod(x_asamblea_token, x_asamblea_mod)
+    s = ae.sesion_activa(db)
+    doc = dict(s.doc or {})
+    mociones = doc.get("mociones", [])
+    i = int(payload["mocion"])
+    if 0 <= i < len(mociones):
+        mociones[i] = {**mociones[i], "abierta": bool(payload["abierta"])}
+        doc["mociones"] = mociones
+        ae.set_doc(db, s, doc)
+    return {"ok": True}
+
+
+@router.post("/asamblea/mod/claim")
+def mod_claim(payload: dict = Body(...), x_asamblea_token: str | None = Header(default=None),
+              x_asamblea_mod: str | None = Header(default=None), db: Session = Depends(get_db)):
+    _auth_mod(x_asamblea_token, x_asamblea_mod)
+    s = ae.sesion_activa(db)
+    return ae.set_claim_mod(db, s, uf=int(payload["uf"]), presente=bool(payload.get("presente", True)),
+                            rol=payload.get("rol", "titular"), nombre=payload.get("nombre", ""))
+
+
+@router.post("/asamblea/mod/voto")
+def mod_voto(payload: dict = Body(...), x_asamblea_token: str | None = Header(default=None),
+             x_asamblea_mod: str | None = Header(default=None), db: Session = Depends(get_db)):
+    _auth_mod(x_asamblea_token, x_asamblea_mod)
+    s = ae.sesion_activa(db)
+    return ae.votar(db, s, device="mod", mocion=int(payload["mocion"]), uf=int(payload["uf"]),
+                    opcion=int(payload["opcion"]), override=True)
+
+
+@router.post("/asamblea/mod/release")
+def mod_release(payload: dict = Body(...), x_asamblea_token: str | None = Header(default=None),
+                x_asamblea_mod: str | None = Header(default=None), db: Session = Depends(get_db)):
+    _auth_mod(x_asamblea_token, x_asamblea_mod)
+    s = ae.sesion_activa(db)
+    return ae.liberar(db, s, uf=int(payload["uf"]), device=None)
+
+
+@router.post("/asamblea/mod/reset")
+def mod_reset(payload: dict = Body(default={}), x_asamblea_token: str | None = Header(default=None),
+              x_asamblea_mod: str | None = Header(default=None), db: Session = Depends(get_db)):
+    _auth_mod(x_asamblea_token, x_asamblea_mod)
+    s = ae.sesion_activa(db)
+    return ae.reset(db, s)

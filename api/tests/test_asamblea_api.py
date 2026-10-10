@@ -72,3 +72,48 @@ def test_release_permite_reclaim(cliente, db):
     cliente.post("/asamblea/claim", json={"device": "d1", "uf": 3}, headers=H)
     assert cliente.post("/asamblea/release", json={"device": "d1", "uf": 3}, headers=H).status_code == 200
     assert cliente.post("/asamblea/claim", json={"device": "d2", "uf": 3}, headers=H).json()["ok"] is True
+
+
+HM = {"X-Asamblea-Token": "secreto", "X-Asamblea-Mod": "modsecreto"}
+
+
+def test_mod_requiere_secreto(cliente, db):
+    _seed(db)
+    r = cliente.post("/asamblea/mod/ventana", json={"mocion": 0, "abierta": True}, headers=H)  # sin mod
+    assert r.status_code == 401
+
+
+def test_mod_doc_actualiza(cliente):
+    doc = {"mociones": [{"titulo": "N", "opciones": ["A", "B"], "regla": "abs", "abierta": False}],
+           "activa": 0, "units": []}
+    assert cliente.post("/asamblea/mod/doc", json={"doc": doc}, headers=HM).status_code == 200
+    assert cliente.get("/asamblea/estado", headers=H).json()["mociones"][0]["titulo"] == "N"
+
+
+def test_mod_ventana_abre(cliente, db):
+    _seed(db)
+    cliente.post("/asamblea/mod/ventana", json={"mocion": 0, "abierta": True}, headers=HM)
+    assert cliente.get("/asamblea/estado", headers=H).json()["mociones"][0]["abierta"] is True
+
+
+def test_mod_voto_override_sin_ventana(cliente, db):
+    _seed(db)  # ventana cerrada
+    assert cliente.post("/asamblea/mod/voto", json={"mocion": 0, "uf": 4, "opcion": 1},
+                        headers=HM).status_code == 200
+    assert cliente.get("/asamblea/estado", headers=H).json()["mociones"][0]["votos"] == {"4": 1}
+
+
+def test_mod_claim_y_release(cliente, db):
+    _seed(db)
+    cliente.post("/asamblea/mod/claim", json={"uf": 3, "presente": True, "rol": "titular", "nombre": "Ana"},
+                 headers=HM)
+    assert cliente.get("/asamblea/estado", headers=H).json()["presentes"] == {"3": True}
+    cliente.post("/asamblea/mod/release", json={"uf": 3}, headers=HM)
+    assert cliente.get("/asamblea/estado", headers=H).json()["presentes"] == {}
+
+
+def test_mod_reset_borra_todo(cliente, db):
+    _seed(db)
+    cliente.post("/asamblea/claim", json={"device": "d1", "uf": 3}, headers=H)
+    cliente.post("/asamblea/mod/reset", json={}, headers=HM)
+    assert cliente.get("/asamblea/estado", headers=H).json()["claims"] == {}
