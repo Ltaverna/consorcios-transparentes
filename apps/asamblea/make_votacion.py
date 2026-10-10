@@ -1332,10 +1332,10 @@ let MOD = false; try{ MOD = localStorage.getItem(KEY+'-mod')==='1'; }catch(e){}
 function setMod(v){ MOD=v; try{ localStorage.setItem(KEY+'-mod', v?'1':'0'); }catch(e){} document.body.classList.toggle('mod', v); renderAll(); }
 let _modPromptOpen=false;
 function pedirSecretoMod(){ if(_modPromptOpen) return; _modPromptOpen=true; const t=prompt('Secreto de moderador (se guarda en este dispositivo):', MOD_TOKEN||''); _modPromptOpen=false; if(t!=null){ MOD_TOKEN=t.trim(); try{ localStorage.setItem(KEY+'-modtok', MOD_TOKEN); }catch(e){} renderAll(); } }
-if(MOD && !MOD_TOKEN){ setTimeout(pedirSecretoMod, 400); }   // moderador que ya estaba activo antes de que existiera el secreto
+if(MOD && !MOD_TOKEN){ MOD_TOKEN=PIN; try{ localStorage.setItem(KEY+'-modtok', PIN); }catch(e){} }   // por ahora el secreto de servidor = PIN; al rotarlo, un 401 lo vuelve a pedir
 document.body.classList.toggle('mod', MOD);
 function needMod(){ if(MOD) return true; $('#pinInput').value=''; $('#dlgPin').showModal(); return false; }
-$('#pinOk').addEventListener('click', e=>{ if($('#pinInput').value.trim()===PIN){ setMod(true); if(!MOD_TOKEN) pedirSecretoMod(); toast('Modo moderador activado'); } else { e.preventDefault(); $('#pinInput').value=''; $('#pinInput').placeholder='PIN incorrecto'; } });
+$('#pinOk').addEventListener('click', e=>{ if($('#pinInput').value.trim()===PIN){ setMod(true); if(!MOD_TOKEN){ MOD_TOKEN=PIN; try{ localStorage.setItem(KEY+'-modtok', PIN); }catch(e){} } toast('Modo moderador activado'); } else { e.preventDefault(); $('#pinInput').value=''; $('#pinInput').placeholder='PIN incorrecto'; } });
 
 let TAB = 'agenda';
 let DOC_SUB = 'reglamento';
