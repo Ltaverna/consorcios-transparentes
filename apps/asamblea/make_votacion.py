@@ -310,7 +310,7 @@ input,select{font:inherit;color:var(--ink);background:var(--surface);border:1px 
 .form input,.form select,.form textarea{font:inherit;font-size:16px;padding:10px 12px;border:1px solid var(--hair);border-radius:var(--r-sm);background:var(--surface);color:var(--ink);width:100%}
 .objlist{display:grid;gap:6px} .obj{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center;background:var(--surface-2);border-radius:var(--r-sm);padding:8px 12px;font-size:14px}
 .docs a{color:var(--accent-ink);font-weight:600;text-decoration-thickness:1.5px;text-underline-offset:2px}
-pre.doc{white-space:pre-wrap;font:inherit;font-size:14.5px;line-height:1.55;color:var(--ink-2);margin:0}
+pre.doc{white-space:pre-wrap;font:inherit;font-size:14.5px;line-height:1.55;color:var(--ink-2);margin:0;text-align:justify;hyphens:auto;-webkit-hyphens:auto}
 
 /* ================================================================
    Pestaña Encargado y Reglamento — contenedor .doc (documento largo)
@@ -481,6 +481,7 @@ details.card[open]{ gap:12px; }
 .norm-texto-details{
   margin-top:8px;
 }
+#normativaList .card>p:not(.note){ text-align:justify; hyphens:auto; -webkit-hyphens:auto; }
 .norm-texto-details summary{
   cursor:pointer;
   font-size:13px;
@@ -505,6 +506,9 @@ details.card[open]{ gap:12px; }
 }
 .norm-texto-details[open] summary::before{ transform:rotate(90deg); }
 .norm-texto-body{
+  text-align:justify;
+  hyphens:auto;
+  -webkit-hyphens:auto;
   margin-top:10px;
   padding:12px 14px;
   background:var(--surface-2);
@@ -1407,10 +1411,10 @@ function setDocSub(sub){
   else if(sub==='encargado') renderEncargado();
 }
 document.querySelector('#view-docs').addEventListener('click', e=>{ const b=e.target.closest('button[data-docsub]'); if(b) setDocSub(b.dataset.docsub); });
-function setTab(t){ TAB=t; document.querySelectorAll('.tabs button').forEach(b=>b.setAttribute('aria-selected', String(b.dataset.tab===t)));
+function setTab(t){ const entraDocs = (t==='docs' && TAB!=='docs'); TAB=t; document.querySelectorAll('.tabs button').forEach(b=>b.setAttribute('aria-selected', String(b.dataset.tab===t)));
   const votar = t==='votar'; $('#top').classList.toggle('vhide', !votar); $('#votarWrap').classList.toggle('vhide', !votar); document.querySelector('.bottom').classList.toggle('vhide', !votar);
   ['agenda','preguntas','propos','docs'].forEach(v=>$('#view-'+v).classList.toggle('vhide', t!==v));
-  window.scrollTo(0,0); renderAll(); try{ localStorage.setItem(KEY+'-tab', t); }catch(e){} }
+  window.scrollTo(0,0); renderAll(); if(entraDocs) setDocSub(DOC_SUB); try{ localStorage.setItem(KEY+'-tab', t); }catch(e){} }
 document.querySelector('.tabs').addEventListener('click', e=>{ const b=e.target.closest('button[data-tab]'); if(b) setTab(b.dataset.tab); });
 // Navegación por teclado en los tablists (patrón ARIA: flechas mueven y activan)
 function tablistKeys(cont, selector){ cont.addEventListener('keydown', e=>{
@@ -1641,7 +1645,7 @@ buildPrint = function(){ _buildPrint(); const q=quorumInfo(); let h='';
 
 // ---- render hooks
 const _renderAll = renderAll;
-renderAll = function(){ _renderAll(); if(TAB==='agenda') renderAgenda(); else if(TAB==='preguntas') renderPreguntas(); else if(TAB==='propos') renderPropos(); else if(TAB==='docs'){ if(DOC_SUB==='reglamento') renderReglamento(); else if(DOC_SUB==='normativa') renderNormativa(); else if(DOC_SUB==='encargado') renderEncargado(); } applyCompact(); };
+renderAll = function(){ _renderAll(); if(TAB==='agenda') renderAgenda(); else if(TAB==='preguntas') renderPreguntas(); else if(TAB==='propos') renderPropos(); applyCompact(); };
 (function(){ let t='agenda'; try{ t=localStorage.getItem(KEY+'-tab')||'agenda'; }catch(e){} setTab(t); if(t==='docs') setDocSub(DOC_SUB); })();
 
 let tt; function toast(msg, ms){ const t=$('#toast'); t.textContent=msg; t.style.display='block'; clearTimeout(tt); tt=setTimeout(()=>t.style.display='none', ms||2500); }
