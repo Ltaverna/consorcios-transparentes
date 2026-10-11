@@ -14,7 +14,11 @@ from normativa import NORMATIVA
 REGLAMENTO = open(SC + "reglamento.md", encoding="utf-8").read()
 ENCARGADO = open(SC + "encargado.md", encoding="utf-8").read()
 INFORME_ADMIN = open(SC + "informe_admin.md", encoding="utf-8").read()
-CONTENT = json.dumps(dict(agenda=AGENDA, asamblea=ASAMBLEA, preguntas=PREGUNTAS, convocatoria=CONVOCATORIA, poder=PODER, reglamento=REGLAMENTO, normativa=NORMATIVA, encargado=ENCARGADO, informe_admin=INFORME_ADMIN), ensure_ascii=False).replace("</", "<\\/")
+try:
+    EXPENSAS = json.load(open(SC + "expensas.json", encoding="utf-8"))  # gitignoreado; lo genera tools/expensas_snapshot.py
+except FileNotFoundError:
+    EXPENSAS = []
+CONTENT = json.dumps(dict(agenda=AGENDA, asamblea=ASAMBLEA, preguntas=PREGUNTAS, convocatoria=CONVOCATORIA, poder=PODER, reglamento=REGLAMENTO, normativa=NORMATIVA, encargado=ENCARGADO, informe_admin=INFORME_ADMIN, expensas=EXPENSAS), ensure_ascii=False).replace("</", "<\\/")
 DATA = json.dumps(UNITS, ensure_ascii=False).replace("</", "<\\/")
 
 HTML = r"""<meta charset="utf-8">
@@ -576,6 +580,17 @@ details.card[open]{ gap:12px; }
 @media (max-width:640px){.doc-subnav button{font-size:13px;padding:10px 12px;min-height:44px}}
 .doc-sub{display:none;min-width:0;max-width:100%}.doc-sub.active{display:block}  /* ítem de grid: sin min-width:0 la tabla pre lo infla y el teléfono recorta el texto */
 
+/* Expensas: tendencia de 7 meses y tablas compactas */
+.exp-bars{display:flex;gap:6px;align-items:flex-end;height:90px;padding:6px 0 0}
+.exp-bars .col{flex:1 1 0;display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0}
+.exp-bars .col i{display:block;width:100%;max-width:38px;background:var(--o1);border-radius:4px 4px 0 0;min-height:4px}
+.exp-bars .col.last i{background:var(--accent)}
+.exp-bars .col b{font-size:10.5px;color:var(--muted);font-weight:600;white-space:nowrap}
+.exp-tabla{width:100%;border-collapse:collapse;font-size:13.5px}
+.exp-tabla td,.exp-tabla th{padding:6px 8px;border-bottom:1px solid var(--hair-2);text-align:left}
+.exp-tabla td.r,.exp-tabla th.r{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.exp-tabla tr:last-child td{border-bottom:0}
+.exp-tabla tfoot td{font-weight:700;color:var(--ink);border-top:2px solid var(--hair)}
 /* Botón flotante "subir" (pestaña Documentos, documentos largos) */
 .btntop{position:fixed;right:14px;bottom:calc(18px + env(safe-area-inset-bottom));z-index:15;width:48px;height:48px;border-radius:50%;background:var(--primary-bg);border:0;box-shadow:var(--shadow);display:flex;align-items:center;justify-content:center;color:var(--primary-ink);cursor:pointer}
 .btntop:hover{opacity:.9}
@@ -752,6 +767,7 @@ dialog textarea{font:inherit;font-size:12.5px;width:100%;min-height:220px;border
     <button role="tab" data-docsub="reglamento" aria-selected="true" aria-controls="docsub-reglamento">Reglamento</button>
     <button role="tab" data-docsub="normativa" aria-selected="false" aria-controls="docsub-normativa">Normativa</button>
     <button role="tab" data-docsub="encargado" aria-selected="false" aria-controls="docsub-encargado">Encargado</button>
+    <button role="tab" data-docsub="expensas" aria-selected="false" aria-controls="docsub-expensas">Expensas</button>
     <button role="tab" data-docsub="convocatoria" aria-selected="false" aria-controls="docsub-convocatoria">Convocatoria y poder</button>
   </nav>
 
@@ -771,6 +787,11 @@ dialog textarea{font:inherit;font-size:12.5px;width:100%;min-height:220px;border
     <input id="encBuscar" type="search" placeholder="Buscar…" aria-label="Buscar en el documento del encargado" style="width:100%;padding:10px;font-size:16px;margin-bottom:10px">
     <details id="encIndice" class="card"><summary>Índice</summary><nav id="encIndiceNav"></nav></details>
     <div id="encTexto" class="doc"></div>
+  </div>
+
+  <div class="doc-sub" id="docsub-expensas">
+    <p class="lead">Las últimas liquidaciones de expensas: lo crítico primero (gasto del mes, variación, deudores y si la liquidación cuadra al centavo), y el detalle de cada mes abajo.</p>
+    <div id="expensasList" style="display:grid;gap:12px"></div>
   </div>
 
   <div class="doc-sub" id="docsub-convocatoria">
@@ -1519,6 +1540,7 @@ function setDocSub(sub){
   if(sub==='reglamento') renderReglamento();
   else if(sub==='normativa') renderNormativa();
   else if(sub==='encargado') renderEncargado();
+  else if(sub==='expensas') renderExpensas();
   if(cambio) window.scrollTo(0,0);
 }
 document.querySelector('#view-docs').addEventListener('click', e=>{ const b=e.target.closest('button[data-docsub]'); if(b) setDocSub(b.dataset.docsub); });
@@ -1745,6 +1767,47 @@ function renderNormativa(){
   }).join('');
 }
 function irANormativa(id){ setTab('docs'); setDocSub('normativa'); setTimeout(()=>{ const el=$('#norm-'+id); if(el) el.scrollIntoView({behavior:'smooth',block:'start'}); }, 60); }
+
+// ---- expensas (lectura rápida primero, detalle por mes plegado)
+const MESES_ES=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+function nombreMes(per){ const [a,m]=String(per).split('-'); return (MESES_ES[(+m)-1]||per)+' '+a; }
+function renderExpensas(){
+  const xs=(C.expensas||[]).slice();   // viene ascendente por período
+  const cont=$('#expensasList'); if(!cont) return;
+  if(!xs.length){ cont.innerHTML='<div class="card"><p class="note">Todavía no hay datos de expensas cargados (se generan con tools/expensas_snapshot.py antes del build).</p></div>'; return; }
+  const ult=xs[xs.length-1], ant=xs.length>1?xs[xs.length-2]:null;
+  const varPct = ant? ((ult.total_gastos-ant.total_gastos)/ant.total_gastos*100) : null;
+  const maxG=Math.max(...xs.map(x=>x.total_gastos||0));
+  // Lectura rápida: el último mes en números grandes + tendencia
+  let h=`<div class="card prop"><h3>Lectura rápida · ${nombreMes(ult.periodo)}</h3>
+    <div class="stat">
+      <div>Gastos del mes<b>${fmt.format(ult.total_gastos||0)}</b></div>
+      <div>Variación vs ${ant?nombreMes(ant.periodo).split(' ')[0]:'—'}<b style="color:${varPct>10?'var(--critical)':varPct<0?'var(--good)':'var(--ink)'}">${varPct==null?'—':(varPct>0?'+':'')+varPct.toFixed(1).replace('.',',')+'%'}</b></div>
+      <div>Deudores<b>${(ult.deudores||[]).length} · ${fmt.format(ult.total_deudores||0)}</b></div>
+      <div>Liquidación<b style="color:${ult.cuadra?'var(--good)':'var(--critical)'};font-size:17px">${ult.cuadra?'cuadra ✓':'NO cuadra'}</b></div>
+    </div>
+    <div class="note">Gasto total por mes (últimos ${xs.length} meses):</div>
+    <div class="exp-bars">${xs.map((x,i)=>`<div class="col ${i===xs.length-1?'last':''}" title="${nombreMes(x.periodo)}: ${fmt.format(x.total_gastos||0)}"><i style="height:${Math.max(4,(x.total_gastos||0)/maxG*70)}px"></i><b>${nombreMes(x.periodo).slice(0,3)}</b></div>`).join('')}</div>
+    <div class="note">Deudores por mes: ${xs.map(x=>`${nombreMes(x.periodo).slice(0,3)} ${(x.deudores||[]).length}`).join(' · ')}</div>
+  </div>`;
+  // Detalle por mes, el más nuevo primero, plegado
+  for(const x of xs.slice().reverse()){
+    const cats=Object.entries(x.categorias||{}).sort((a,b)=>b[1]-a[1]);
+    const provs=(x.proveedores||[]);
+    const deus=(x.deudores||[]).slice().sort((a,b)=>b.deuda-a.deuda);
+    h+=`<details class="card"><summary style="cursor:pointer;font-weight:700;color:var(--ink);font-size:15px">${nombreMes(x.periodo)} · ${fmt.format(x.total_gastos||0)} · ${x.cuadra?'✓ cuadra':'✗ NO cuadra'} · ${deus.length} deudor${deus.length===1?'':'es'}</summary>
+      <div style="display:grid;gap:14px;padding-top:10px">
+        <div><h3 style="font-size:14px;margin-bottom:6px">Deudores (${deus.length}) — total ${fmt.format(x.total_deudores||0)}</h3>
+        ${deus.length?`<table class="exp-tabla"><thead><tr><th>Unidad</th><th>Propietario</th><th class="r">Deuda</th></tr></thead><tbody>${deus.map(d=>`<tr><td>${esc(d.piso_depto||d.uf)}</td><td>${esc(d.propietario||'')}</td><td class="r">${fmt.format(d.deuda||0)}</td></tr>`).join('')}</tbody><tfoot><tr><td colspan="2">Total</td><td class="r">${fmt.format(x.total_deudores||0)}</td></tr></tfoot></table>`:'<p class="note">Sin deudores informados.</p>'}</div>
+        <div><h3 style="font-size:14px;margin-bottom:6px">Gastos por categoría</h3>
+        <table class="exp-tabla"><tbody>${cats.map(([c,v])=>`<tr><td>${esc(c)}</td><td class="r">${fmt.format(v)}</td></tr>`).join('')}</tbody><tfoot><tr><td>Total</td><td class="r">${fmt.format(x.total_gastos||0)}</td></tr></tfoot></table></div>
+        <div><h3 style="font-size:14px;margin-bottom:6px">Pagos a proveedores (${provs.length})</h3>
+        <table class="exp-tabla"><thead><tr><th>Proveedor</th><th class="r">Pagos</th><th class="r">Total</th></tr></thead><tbody>${provs.slice(0,8).map(pv=>`<tr><td>${esc(pv.proveedor)}</td><td class="r">${pv.items}</td><td class="r">${fmt.format(pv.total)}</td></tr>`).join('')}</tbody></table>
+        ${provs.length>8?`<details style="margin-top:6px"><summary class="note" style="cursor:pointer">Ver los ${provs.length} proveedores</summary><table class="exp-tabla" style="margin-top:6px"><tbody>${provs.slice(8).map(pv=>`<tr><td>${esc(pv.proveedor)}</td><td class="r">${pv.items}</td><td class="r">${fmt.format(pv.total)}</td></tr>`).join('')}</tbody></table></details>`:''}</div>
+      </div></details>`;
+  }
+  cont.innerHTML=h;
+}
 
 // ---- documentos
 $('#docConv').textContent = C.convocatoria; $('#docPoder').textContent = C.poder;
