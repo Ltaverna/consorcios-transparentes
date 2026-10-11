@@ -576,6 +576,9 @@ details.card[open]{ gap:12px; }
 @media (max-width:640px){.doc-subnav button{font-size:13px;padding:10px 12px;min-height:44px}}
 .doc-sub{display:none;min-width:0;max-width:100%}.doc-sub.active{display:block}  /* ítem de grid: sin min-width:0 la tabla pre lo infla y el teléfono recorta el texto */
 
+/* Botón flotante "subir" (pestaña Documentos, documentos largos) */
+.btntop{position:fixed;right:14px;bottom:calc(18px + env(safe-area-inset-bottom));z-index:15;width:48px;height:48px;border-radius:50%;background:var(--surface);border:1px solid var(--hair);box-shadow:var(--shadow);display:flex;align-items:center;justify-content:center;color:var(--accent-ink);cursor:pointer}
+.btntop:hover{background:var(--surface-2)}
 /* ---- bottom bar */
 .bottom{position:fixed;left:0;right:0;bottom:0;z-index:10;background:var(--surface);border-top:1px solid var(--hair);padding:8px 16px calc(8px + env(safe-area-inset-bottom));box-shadow:var(--shadow-top)}
 .bottom .wrap{display:flex;gap:8px;justify-content:center;padding:0}
@@ -860,6 +863,7 @@ Modo moderador (PIN): en Agenda, botón "Soy moderador".</pre></div>
   <button class="btn primary" id="revCargar" type="button">Cargar estas mociones</button>
 </div></dialog>
 
+<button id="btnTop" class="btntop" hidden aria-label="Subir al inicio" title="Subir al inicio"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/></svg></button>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script id="data" type="application/json">__DATA__</script>
@@ -1518,6 +1522,9 @@ function setDocSub(sub){
   if(cambio) window.scrollTo(0,0);
 }
 document.querySelector('#view-docs').addEventListener('click', e=>{ const b=e.target.closest('button[data-docsub]'); if(b) setDocSub(b.dataset.docsub); });
+// Flechita "subir": visible en Documentos cuando bajaste más de media pantalla
+addEventListener('scroll', ()=>{ const b=$('#btnTop'); if(b) b.hidden = !(TAB==='docs' && window.scrollY>500); }, {passive:true});
+$('#btnTop').addEventListener('click', ()=>window.scrollTo({top:0, behavior:'smooth'}));
 function setTab(t){ const entraDocs = (t==='docs' && TAB!=='docs'); TAB=t; document.querySelectorAll('.tabs button').forEach(b=>b.setAttribute('aria-selected', String(b.dataset.tab===t)));
   const votar = t==='votar'; $('#top').classList.toggle('vhide', !votar); $('#votarWrap').classList.toggle('vhide', !votar); document.querySelector('.bottom').classList.toggle('vhide', !votar);
   ['agenda','preguntas','propos','docs'].forEach(v=>$('#view-'+v).classList.toggle('vhide', t!==v));
