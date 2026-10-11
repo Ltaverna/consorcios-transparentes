@@ -298,10 +298,12 @@ input,select{font:inherit;color:var(--ink);background:var(--surface);border:1px 
 .oradores{display:grid;gap:6px} .orador{display:flex;justify-content:space-between;align-items:center;gap:10px;background:var(--surface-2);border-radius:var(--r-sm);padding:10px 12px;font-size:15px}
 .orador .n{font-weight:700;color:var(--muted);min-width:22px;font-family:"Source Serif 4",Georgia,serif}
 .miuf{padding:8px 0;border-top:1px solid var(--hair)} .miuf .vrow{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap} .miuf .vrow .tog{flex:1 1 0;min-height:48px} .chipu .phone{font-size:12px;margin-left:2px} #miPanel .chip{display:inline-flex;align-items:center;gap:4px;background:var(--surface-2);border-radius:999px;padding:3px 9px;margin:3px;font-size:13px} #miPanel .chip button{background:none;border:0;cursor:pointer;font:inherit;color:var(--muted)}
-.q{display:grid;gap:8px} .q .tema{font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
-.q p.txt{font-size:15.5px;line-height:1.5;color:var(--ink)} .q .doc{font-size:13px;color:var(--ink-2);padding:8px 12px;background:var(--surface-2);border-radius:var(--r-sm);border-left:3px solid var(--hair)}
-.q .resp{border-left:3px solid var(--good);padding:8px 12px;font-size:14.5px;background:var(--good-soft);border-radius:0 var(--r-sm) var(--r-sm) 0;color:var(--good-ink)}
-.q textarea{width:100%;min-height:70px;font:inherit;font-size:16px;border:1px solid var(--hair);border-radius:var(--r-sm);padding:10px;background:var(--surface);color:var(--ink)}
+/* Tarjetas de Preguntas (scopeado a .card.q: una regla global .q le pegaba al span
+   .q del resumen compacto y lo apilaba en vertical) */
+.card.q{display:grid;gap:8px} .card.q .tema{font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.card.q p.txt{font-size:15.5px;line-height:1.5;color:var(--ink)} .card.q .doc{font-size:13px;color:var(--ink-2);padding:8px 12px;background:var(--surface-2);border-radius:var(--r-sm);border-left:3px solid var(--hair)}
+.card.q .resp{border-left:3px solid var(--good);padding:8px 12px;font-size:14.5px;background:var(--good-soft);border-radius:0 var(--r-sm) var(--r-sm) 0;color:var(--good-ink)}
+.card.q textarea{width:100%;min-height:70px;font:inherit;font-size:16px;border:1px solid var(--hair);border-radius:var(--r-sm);padding:10px;background:var(--surface);color:var(--ink)}
 .prop{display:grid;gap:8px}
 .prop .stat{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px}
 .prop .stat div{background:var(--surface-2);border-radius:var(--r-sm);padding:10px 12px;font-size:13px;color:var(--ink-2);border:1px solid var(--hair-2)}
