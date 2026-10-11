@@ -1790,6 +1790,20 @@ function renderExpensas(){
     <div class="exp-bars">${xs.map((x,i)=>`<div class="col ${i===xs.length-1?'last':''}" title="${nombreMes(x.periodo)}: ${fmt.format(x.total_gastos||0)}"><i style="height:${Math.max(4,(x.total_gastos||0)/maxG*70)}px"></i><b>${nombreMes(x.periodo).slice(0,3)}</b></div>`).join('')}</div>
     <div class="note">Deudores por mes: ${xs.map(x=>`${nombreMes(x.periodo).slice(0,3)} ${(x.deudores||[]).length}`).join(' · ')}</div>
   </div>`;
+  // Hallazgos verificados (con comprobante, pasaron la curaduría); los demás quedan "en revisión"
+  const todosH=[].concat(...xs.map(x=>(x.hallazgos||[]).map(hz=>({...hz, periodo:x.periodo}))));
+  const criticosH=todosH.filter(hz=>hz.sev==='CRÍTICO');
+  const enRev=xs.reduce((t,x)=>t+(x.hallazgos_revision||0),0);
+  if(todosH.length||enRev){
+    const pinta=hz=>`<div style="display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:8px;align-items:baseline;padding:7px 0;border-bottom:1px solid var(--hair-2)"><span class="pill" style="background:${hz.sev==='CRÍTICO'?'var(--critical-soft)':'var(--warn-soft)'};color:${hz.sev==='CRÍTICO'?'var(--critical-ink)':'var(--warn-ink)'}">${hz.sev==='CRÍTICO'?'Crítico':'Alto'}</span><span style="font-size:13.5px;line-height:1.45">${esc(hz.titulo)} <span class="note">(${nombreMes(hz.periodo).slice(0,3)})</span></span><b class="num" style="white-space:nowrap;font-size:13px">${hz.monto?fmt.format(Math.abs(hz.monto)):''}</b></div>`;
+    const top=criticosH.slice(0,5);
+    const resto=todosH.filter(hz=>!top.includes(hz));
+    h+=`<div class="card"><h3>Hallazgos verificados (${todosH.length})</h3>
+      <p class="note">Hechos verificados con su comprobante, elevados a la administración. Otros ${enRev} señalamientos siguen <b>en revisión</b> y no se publican hasta confirmarse.</p>
+      <div>${top.map(pinta).join('')}</div>
+      ${resto.length?`<details><summary class="note" style="cursor:pointer;padding:6px 0">Ver los ${resto.length} restantes</summary><div>${resto.map(pinta).join('')}</div></details>`:''}
+    </div>`;
+  }
   // Detalle por mes, el más nuevo primero, plegado
   for(const x of xs.slice().reverse()){
     const cats=Object.entries(x.categorias||{}).sort((a,b)=>b[1]-a[1]);
@@ -1801,6 +1815,9 @@ function renderExpensas(){
         ${deus.length?`<table class="exp-tabla"><thead><tr><th>Unidad</th><th>Propietario</th><th class="r">Deuda</th></tr></thead><tbody>${deus.map(d=>`<tr><td>${esc(d.piso_depto||d.uf)}</td><td>${esc(d.propietario||'')}</td><td class="r">${fmt.format(d.deuda||0)}</td></tr>`).join('')}</tbody><tfoot><tr><td colspan="2">Total</td><td class="r">${fmt.format(x.total_deudores||0)}</td></tr></tfoot></table>`:'<p class="note">Sin deudores informados.</p>'}</div>
         <div><h3 style="font-size:14px;margin-bottom:6px">Gastos por categoría</h3>
         <table class="exp-tabla"><tbody>${cats.map(([c,v])=>`<tr><td>${esc(c)}</td><td class="r">${fmt.format(v)}</td></tr>`).join('')}</tbody><tfoot><tr><td>Total</td><td class="r">${fmt.format(x.total_gastos||0)}</td></tr></tfoot></table></div>
+        ${(x.hallazgos&&x.hallazgos.length)||x.hallazgos_revision?`<div><h3 style="font-size:14px;margin-bottom:6px">Hallazgos del mes</h3>
+        ${(x.hallazgos||[]).map(hz=>`<div style="display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:8px;align-items:baseline;padding:6px 0;border-bottom:1px solid var(--hair-2)"><span class="pill" style="background:${hz.sev==='CRÍTICO'?'var(--critical-soft)':'var(--warn-soft)'};color:${hz.sev==='CRÍTICO'?'var(--critical-ink)':'var(--warn-ink)'}">${hz.sev==='CRÍTICO'?'Crítico':'Alto'}</span><span style="font-size:13.5px;line-height:1.45">${esc(hz.titulo)}</span><b class="num" style="white-space:nowrap;font-size:13px">${hz.monto?fmt.format(Math.abs(hz.monto)):''}</b></div>`).join('')||'<p class="note">Sin hallazgos verificados este mes.</p>'}
+        ${x.hallazgos_revision?`<p class="note" style="margin-top:6px">${x.hallazgos_revision} señalamiento${x.hallazgos_revision>1?'s':''} más en revisión (sin publicar).</p>`:''}</div>`:''}
         <div><h3 style="font-size:14px;margin-bottom:6px">Pagos a proveedores (${provs.length})</h3>
         <table class="exp-tabla"><thead><tr><th>Proveedor</th><th class="r">Pagos</th><th class="r">Total</th></tr></thead><tbody>${provs.slice(0,8).map(pv=>`<tr><td>${esc(pv.proveedor)}</td><td class="r">${pv.items}</td><td class="r">${fmt.format(pv.total)}</td></tr>`).join('')}</tbody></table>
         ${provs.length>8?`<details style="margin-top:6px"><summary class="note" style="cursor:pointer">Ver los ${provs.length} proveedores</summary><table class="exp-tabla" style="margin-top:6px"><tbody>${provs.slice(8).map(pv=>`<tr><td>${esc(pv.proveedor)}</td><td class="r">${pv.items}</td><td class="r">${fmt.format(pv.total)}</td></tr>`).join('')}</tbody></table></details>`:''}</div>

@@ -25,7 +25,14 @@ SELECT COALESCE(jsonb_agg(j ORDER BY j->>'periodo'), '[]'::jsonb) FROM (
                                   'total', round(sum(g.importe)::numeric,2),
                                   'items', count(*)) AS p,
                sum(g.importe) AS total
-        FROM gastos g WHERE g.liquidacion_id = l.id GROUP BY g.proveedor) q)
+        FROM gastos g WHERE g.liquidacion_id = l.id GROUP BY g.proveedor) q),
+    'hallazgos', (SELECT COALESCE(jsonb_agg(jsonb_build_object(
+                     'sev', h.severidad, 'titulo', h.titulo, 'monto', h.monto)
+                     ORDER BY CASE h.severidad WHEN 'CRÍTICO' THEN 0 ELSE 1 END, h.monto DESC),'[]'::jsonb)
+                  FROM hallazgos h WHERE h.liquidacion_id = l.id AND h.publicado
+                    AND h.severidad IN ('CRÍTICO','ALTO')),
+    'hallazgos_revision', (SELECT count(*) FROM hallazgos h
+                  WHERE h.liquidacion_id = l.id AND NOT h.publicado)
   ) AS j
   FROM liquidaciones l
   WHERE l.estado = 'procesada'
