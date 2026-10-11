@@ -27,12 +27,21 @@ SELECT COALESCE(jsonb_agg(j ORDER BY j->>'periodo'), '[]'::jsonb) FROM (
                sum(g.importe) AS total
         FROM gastos g WHERE g.liquidacion_id = l.id GROUP BY g.proveedor) q),
     'hallazgos', (SELECT COALESCE(jsonb_agg(jsonb_build_object(
-                     'sev', h.severidad, 'titulo', h.titulo, 'monto', h.monto)
+                     'sev', h.severidad, 'titulo', h.titulo, 'monto', h.monto,
+                     'pedir', CASE
+                        -- pagos triangulados de SACZEWICZYK: la pregunta central del dueño
+                        WHEN h.id IN (33,61) THEN h.recomendacion || ' Que se explique qué trabajo concreto se realizó y por qué el pago salió por fuera de la cuenta del consorcio.'
+                        WHEN h.id IN (8,22,24) THEN h.recomendacion || ' Detallar qué trabajos hizo este proveedor, con presupuestos y comprobantes.'
+                        ELSE h.recomendacion END)
                      ORDER BY CASE h.severidad WHEN 'CRÍTICO' THEN 0 ELSE 1 END, h.monto DESC),'[]'::jsonb)
                   FROM hallazgos h WHERE h.liquidacion_id = l.id AND h.publicado
-                    AND h.severidad IN ('CRÍTICO','ALTO')),
-    'hallazgos_revision', (SELECT count(*) FROM hallazgos h
-                  WHERE h.liquidacion_id = l.id AND NOT h.publicado)
+                    AND h.severidad IN ('CRÍTICO','ALTO')
+                    -- los 4 de "pago en efectivo" (32,34,35,4) no se publican en la app:
+                    -- el registro de caja dice EFECTIVO pero el dueño indica que el medio real fue otro
+                    AND h.id NOT IN (32,34,35,4)),
+    'hallazgos_revision', (SELECT count(*) + (SELECT count(*) FROM hallazgos h2
+                     WHERE h2.liquidacion_id = l.id AND h2.publicado AND h2.id IN (32,34,35,4))
+                  FROM hallazgos h WHERE h.liquidacion_id = l.id AND NOT h.publicado)
   ) AS j
   FROM liquidaciones l
   WHERE l.estado = 'procesada'
