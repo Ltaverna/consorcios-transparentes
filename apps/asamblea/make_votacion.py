@@ -574,7 +574,7 @@ details.card[open]{ gap:12px; }
 .doc-subnav button[aria-selected="true"]{background:var(--accent);color:#fff;border-color:var(--accent)}
 @media (hover:hover){.doc-subnav button:not([aria-selected="true"]):hover{background:var(--surface-2);border-color:var(--muted)}}
 @media (max-width:640px){.doc-subnav button{font-size:13px;padding:10px 12px;min-height:44px}}
-.doc-sub{display:none}.doc-sub.active{display:block}
+.doc-sub{display:none;min-width:0;max-width:100%}.doc-sub.active{display:block}  /* ítem de grid: sin min-width:0 la tabla pre lo infla y el teléfono recorta el texto */
 
 /* ---- bottom bar */
 .bottom{position:fixed;left:0;right:0;bottom:0;z-index:10;background:var(--surface);border-top:1px solid var(--hair);padding:8px 16px calc(8px + env(safe-area-inset-bottom));box-shadow:var(--shadow-top)}
