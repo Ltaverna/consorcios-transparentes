@@ -615,6 +615,9 @@ dialog textarea{font:inherit;font-size:12.5px;width:100%;min-height:220px;border
   .mini{font-size:14.5px}
   .tog.multi{font-size:13px}
   .chipu{min-height:62px} .chipu .main{padding:9px 12px} .chipu .main b{font-size:17px} .chipu .main span{font-size:13.5px} .chipu .pd{font-size:14px;padding:0 13px}
+  /* En pantalla angosta las píldoras envuelven: sin scroll lateral invisible */
+  .mocion{flex-wrap:wrap}
+  .doc-subnav{flex-wrap:wrap}
   .roll .grid{grid-template-columns:repeat(2,minmax(0,1fr))}
   .roll .floor h2{font-size:14px}
   .rollhead .note{font-size:14px}
@@ -640,9 +643,9 @@ dialog textarea{font:inherit;font-size:12.5px;width:100%;min-height:220px;border
 .cump-row{display:grid;grid-template-columns:auto 1fr auto;gap:5px 8px;align-items:center;font-size:12.5px;padding:3px 0;min-height:24px}
 .cump-row .cump-ico{font-size:13px;width:18px;text-align:center;flex:none;font-style:normal}
 .cump-row .cump-lbl{color:var(--ink-2);min-width:0;line-height:1.4}
-.cump-row .cump-actions{display:flex;gap:6px;align-items:center}
-.cump-row .cump-lnk{font-size:11px;color:var(--accent-ink);background:none;border:0;padding:0;cursor:pointer;white-space:nowrap;text-decoration:underline;text-underline-offset:2px}
-.cump-row .cump-tog{font-size:11px;padding:2px 8px;border-radius:4px;border:1px solid var(--hair);background:var(--surface-2);color:var(--ink-2);cursor:pointer;white-space:nowrap;transition:background-color .12s ease}
+.cump-row .cump-actions{display:flex;gap:12px;align-items:center}
+.cump-row .cump-lnk{font-size:11px;color:var(--accent-ink);background:none;border:0;padding:4px 2px;min-height:30px;display:inline-flex;align-items:center;cursor:pointer;white-space:nowrap;text-decoration:underline;text-underline-offset:2px}
+.cump-row .cump-tog{font-size:11px;padding:4px 10px;min-height:30px;display:inline-flex;align-items:center;border-radius:4px;border:1px solid var(--hair);background:var(--surface-2);color:var(--ink-2);cursor:pointer;white-space:nowrap;transition:background-color .12s ease}
 .cump-row .cump-tog:hover{background:var(--hair-2)}
 /* Estados semánticos con color + símbolo (nunca solo color) */
 .cump-row.ok .cump-ico{color:var(--good)}
@@ -679,11 +682,11 @@ dialog textarea{font:inherit;font-size:12.5px;width:100%;min-height:220px;border
 
 <nav class="tabs" role="tablist" aria-label="Secciones">
   <span class="brand">Rivadavia 2069</span>
-  <button role="tab" data-tab="agenda" aria-selected="true">Agenda</button>
-  <button role="tab" data-tab="votar" aria-selected="false">Votar</button>
-  <button role="tab" data-tab="preguntas" aria-selected="false">Preguntas</button>
-  <button role="tab" data-tab="propos" aria-selected="false">Proposiciones</button>
-  <button role="tab" data-tab="docs" aria-selected="false">Documentos</button>
+  <button role="tab" data-tab="agenda" aria-selected="true" aria-controls="view-agenda">Agenda</button>
+  <button role="tab" data-tab="votar" aria-selected="false" aria-controls="votarWrap">Votar</button>
+  <button role="tab" data-tab="preguntas" aria-selected="false" aria-controls="view-preguntas">Preguntas</button>
+  <button role="tab" data-tab="propos" aria-selected="false" aria-controls="view-propos">Proposiciones</button>
+  <button role="tab" data-tab="docs" aria-selected="false" aria-controls="view-docs">Documentos</button>
 </nav>
 <div id="connbar" hidden role="alert">Sin conexión — los cambios no se están compartiendo. Reintentando…</div>
 <div class="top" id="top">
@@ -734,10 +737,10 @@ dialog textarea{font:inherit;font-size:12.5px;width:100%;min-height:220px;border
 <div class="wrap view" id="view-docs">
   <h2 class="sec">Documentos</h2>
   <nav class="doc-subnav" role="tablist" aria-label="Sección de documentos">
-    <button role="tab" data-docsub="reglamento" aria-selected="true">Reglamento</button>
-    <button role="tab" data-docsub="normativa" aria-selected="false">Normativa</button>
-    <button role="tab" data-docsub="encargado" aria-selected="false">Encargado</button>
-    <button role="tab" data-docsub="convocatoria" aria-selected="false">Convocatoria y poder</button>
+    <button role="tab" data-docsub="reglamento" aria-selected="true" aria-controls="docsub-reglamento">Reglamento</button>
+    <button role="tab" data-docsub="normativa" aria-selected="false" aria-controls="docsub-normativa">Normativa</button>
+    <button role="tab" data-docsub="encargado" aria-selected="false" aria-controls="docsub-encargado">Encargado</button>
+    <button role="tab" data-docsub="convocatoria" aria-selected="false" aria-controls="docsub-convocatoria">Convocatoria y poder</button>
   </nav>
 
   <div class="doc-sub active" id="docsub-reglamento">
@@ -787,10 +790,10 @@ Modo moderador (PIN): en Agenda, botón "Soy moderador".</pre></div>
 <dialog id="dlgTexto"><div class="body"><h3 id="txtTitulo"></h3><p class="note" id="txtNota" hidden></p><input id="txtInput" autocomplete="off"><textarea id="txtArea" rows="5" style="font-family:inherit;font-size:16px;min-height:120px" hidden></textarea><div class="row"><button class="btn" id="txtCancel" type="button">Cancelar</button><button class="btn primary" id="txtOk" type="button">Guardar</button></div></div></dialog>
 
 <div class="bottom"><div class="wrap">
-  <button class="btn primary" id="btnLista">Pasar lista</button>
+  <button class="btn primary mod-only" id="btnLista">Pasar lista</button>
   <button class="btn" id="btnResumen">Acta</button>
   <button class="btn" id="btnExport">Exportar</button>
-  <button class="btn" id="btnMas" aria-label="Más opciones">Más <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></button>
+  <button class="btn mod-only" id="btnMas" aria-label="Más opciones">Más <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></button>
 </div></div>
 <dialog id="dlgMas"><div class="body">
   <h3>Más opciones</h3>
@@ -862,6 +865,7 @@ const TOTAL_PCT = UNITS.reduce((s,u)=>s+u.pct,0);
 const N = UNITS.length;
 const $ = s=>document.querySelector(s);
 const esc = s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const norm = s=>String(s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');   // búsqueda sin tildes
 const fp = v=>v.toFixed(2).replace('.',',')+'%';
 const KEY = 'votacion-rivadavia-2069-v5';
 const COLORS = ['o1','o2','o3','o4'];
@@ -1004,7 +1008,7 @@ function rowHTML(u){
   const same = UNITS.filter(x=>x.prop===u.prop).length;
   const unitCls = p ? 'present' : (pd ? 'poder-only' : 'absent');
   return `<div class="unit ${unitCls}" data-uf="${u.uf}">
-    <div class="who"><div class="uf"><b>${esc(u.piso)}</b><span>UF ${u.uf}</span>${u.tipo==='Cochera'?'<span>cochera</span>':''}${same>1?`<span title="Este propietario tiene ${same} unidades">${same} unidades</span>`:''}</div><div class="prop">${esc(u.prop)}</div></div>
+    <div class="who"><div class="uf"><b>${esc(u.piso)}</b><span>UF ${u.uf}</span>${u.tipo==='Cochera'?'<span>cochera</span>':''}${same>1?`<span title="Este propietario tiene ${same} unidades">${same} unidades</span>`:''}${(S.claims&&S.claims[u.uf]&&S.claims[u.uf].device!=='mod')?'<span style="color:var(--accent-ink);font-weight:600">📱 desde su teléfono</span>':''}</div><div class="prop">${esc(u.prop)}</div></div>
     <div class="coef num">${fp(u.pct)}</div>
     <div class="acts">
       <div class="r1"><button class="tog pres" data-act="pres" aria-pressed="${p}">Presente</button><button class="tog poder" data-act="poder" aria-pressed="${pd}">Poder</button>${same>1?`<button class="tog multi" data-act="multi" title="Aplicar presencia y voto a las ${same} unidades de ${esc(u.prop)}">× ${same}</button>`:''}</div>
@@ -1022,9 +1026,9 @@ function rowHTML(u){
   </div>`;
 }
 function filtered(){
-  const q = $('#q').value.trim().toLowerCase(), f = $('#filter').value; const m=M();
+  const q = norm($('#q').value.trim()), f = $('#filter').value; const m=M();
   return UNITS.filter(u=>{
-    if(q && !(`${u.prop} ${u.piso} ${u.uf}`.toLowerCase().includes(q))) return false;
+    if(q && !norm(`${u.prop} ${u.piso} ${u.uf}`).includes(q)) return false;
     const part = participa(u); const v = m.votos[u.uf];
     if(f==='present') return part; if(f==='absent') return !part; if(f==='unvoted') return part && v==null; if(f==='voted') return part && v!=null;
     if(f==='depto') return u.tipo!=='Cochera'; if(f==='cochera') return u.tipo==='Cochera';
@@ -1070,7 +1074,7 @@ function renderRoll(){
   const c = compute(M());
   $('#roll').innerHTML = `<div class="rollhead"><span class="note">Tocá para marcar <b>presente</b>; <b>P</b> = viene con poder.<br>Presentes <b>${c.presN}</b> · poderes <b>${c.poderN}</b> · quórum <b>${fp(c.partPct)}</b></span><button class="btn primary" id="btnVolver">Listo, ir a votar</button></div>` +
     groups.map(g=>`<div class="floor"><h2>${g.k}</h2><div class="grid">${g.items.map(u=>{ const p=!!S.presentes[u.uf], pd=!!S.poderes[u.uf];
-      return `<div class="chipu ${p?'on':pd?'poder':''}" data-uf="${u.uf}"><button class="main" data-act="rpres"><b>${esc(u.piso)}</b><span>${esc(u.prop)}</span></button><button class="pd" data-act="rpoder" title="Con poder">P</button>${(S.claims&&S.claims[u.uf]&&S.claims[u.uf].device!=='mod')?'<span class="phone" title="Reclamada desde un teléfono" aria-hidden="true">📱</span>':''}</div>`; }).join('')}</div></div>`).join('');
+      return `<div class="chipu ${p?'on':pd?'poder':''}" data-uf="${u.uf}"><button class="main" data-act="rpres"><b>${esc(u.piso)}</b><span>${esc(u.prop)}</span></button><button class="pd" data-act="rpoder" title="Con poder">P</button>${(S.claims&&S.claims[u.uf]&&S.claims[u.uf].device!=='mod')?'<span class="phone" role="img" aria-label="Tomada desde el teléfono del propietario" title="Tomada desde el teléfono del propietario">📱</span>':''}</div>`; }).join('')}</div></div>`).join('');
   $('#btnVolver').addEventListener('click', ()=>setMode('votar'));
 }
 function setMode(m){ mode=m; pinned=false; const roll = m==='lista'; $('#roll').hidden=!roll; $('#list').hidden=roll; $('.toolbar').hidden=roll; $('#btnLista').textContent = roll?'Volver a votar':'Pasar lista'; renderAll(); window.scrollTo(0,0); applyCompact(); }
@@ -1095,7 +1099,7 @@ function setPoder(u, mandatario){
     const r = CTLogica.puedeAsignarMandatario(mandatario, u.uf, S.poderes, UNITS);
     if(!r.ok){
       const el=$('#toast'); el.innerHTML=esc(r.motivo)+' <button onclick="irAReglamento(\'Representación\')" style="background:none;border:0;color:inherit;text-decoration:underline;cursor:pointer;font:inherit;padding:0">Ver art. 25 h</button>';
-      el.style.display='block'; clearTimeout(tt); tt=setTimeout(()=>el.style.display='none',4000);
+      el.style.display='block'; clearTimeout(tt); tt=setTimeout(()=>el.style.display='none',6000);
       return;
     }
     S.poderes[u.uf]=mandatario; delete S.presentes[u.uf];
@@ -1134,7 +1138,9 @@ $('#list').addEventListener('change', async e=>{
 });
 $('#q').addEventListener('input', renderList); $('#filter').addEventListener('change', renderList);
 let pinned=false;
-function applyCompact(){ const top=$('#top'); const c = mode==='lista' ? !pinned : (!pinned && window.scrollY>140); top.classList.toggle('compact', c); $('#btnCollapse').setAttribute('aria-expanded', String(!c)); }
+// Para el propietario/espectador el tablero completo (mociones, cumplimiento, veredictos)
+// es carga de moderador: arranca compacto y se expande tocando el resumen.
+function applyCompact(){ const top=$('#top'); const c = mode==='lista' ? !pinned : (!pinned && (window.scrollY>140 || !MOD)); top.classList.toggle('compact', c); $('#btnCollapse').setAttribute('aria-expanded', String(!c)); }
 $('#btnCollapse').addEventListener('click', ()=>{ pinned=!pinned; if(pinned) window.scrollTo({top:0}); applyCompact(); });
 $('#mini').addEventListener('click', ()=>{ pinned=true; window.scrollTo({top:0}); applyCompact(); });
 addEventListener('scroll', ()=>{ if(window.scrollY<=140) pinned=false; applyCompact(); }, {passive:true});
@@ -1207,7 +1213,7 @@ async function subirConvocatoria(file){
     const prop=await r.json();
     REV=(prop.mociones||[]).map(m=>({titulo:m.titulo,opciones:m.opciones||['A favor','En contra','Abstención'],regla:m.regla||'abs'}));
     renderRevision(prop); $('#dlgMas').close(); $('#dlgRevision').showModal();
-  }catch(err){ toast('No se pudo analizar: '+err.message+'. Podés cargar las mociones a mano.'); }
+  }catch(err){ toast('No se pudo analizar la convocatoria. Probá de nuevo en un rato o cargá las mociones a mano.', 5000); }
 }
 function renderRevision(prop){
   const md=prop.metadatos||{}, ag=prop.agenda||[];
@@ -1358,7 +1364,7 @@ const AS = C.asamblea||{};
 const DEADLINE = (()=>{ const base=AS.notificacion||AS.fecha; if(base){ const d=new Date(base+'T23:59:00'); d.setDate(d.getDate()+15); return d; } return new Date(2026,9,4,23,59); })();
 const DEADLINE_EST = !AS.notificacion;   // sin fecha de notificación: el plazo se estima desde la asamblea
 let MOD = false; try{ MOD = localStorage.getItem(KEY+'-mod')==='1'; }catch(e){}
-function setMod(v){ MOD=v; try{ localStorage.setItem(KEY+'-mod', v?'1':'0'); }catch(e){} document.body.classList.toggle('mod', v); renderAll(); }
+function setMod(v){ MOD=v; try{ localStorage.setItem(KEY+'-mod', v?'1':'0'); }catch(e){} document.body.classList.toggle('mod', v); if(!v && mode==='lista'){ setMode('votar'); return; } renderAll(); }
 // Diálogo de texto propio (reemplaza a prompt(): en móvil el nativo es chico, se
 // cierra con un toque accidental y no se puede estilar).
 let _txtResolve=null;
@@ -1402,6 +1408,13 @@ function setTab(t){ TAB=t; document.querySelectorAll('.tabs button').forEach(b=>
   ['agenda','preguntas','propos','docs'].forEach(v=>$('#view-'+v).classList.toggle('vhide', t!==v));
   window.scrollTo(0,0); renderAll(); try{ localStorage.setItem(KEY+'-tab', t); }catch(e){} }
 document.querySelector('.tabs').addEventListener('click', e=>{ const b=e.target.closest('button[data-tab]'); if(b) setTab(b.dataset.tab); });
+// Navegación por teclado en los tablists (patrón ARIA: flechas mueven y activan)
+function tablistKeys(cont, selector){ cont.addEventListener('keydown', e=>{
+  if(e.key!=='ArrowRight' && e.key!=='ArrowLeft') return;
+  const btns=[...cont.querySelectorAll(selector)]; const i=btns.indexOf(document.activeElement); if(i<0) return;
+  e.preventDefault(); const j=(i+(e.key==='ArrowRight'?1:-1)+btns.length)%btns.length; btns[j].focus(); btns[j].click(); }); }
+tablistKeys(document.querySelector('.tabs'), 'button[data-tab]');
+tablistKeys(document.querySelector('.doc-subnav'), 'button[data-docsub]');
 
 // gate marking to moderator
 const _listClick = $('#list');
@@ -1572,9 +1585,9 @@ function renderMarkdownEn(contenedorSel, indiceSel, md){
   if(q) filtrarDoc(contenedorSel, q);
 }
 function filtrarDoc(contenedorSel, q){
-  q = (q||'').trim().toLowerCase();
+  q = norm((q||'').trim());
   for(const el of $(contenedorSel).querySelectorAll(':scope > p, :scope > h1, :scope > h2, :scope > h3, :scope > h4, :scope > h5, :scope > h6, :scope > ul, :scope > ol, :scope > blockquote, :scope > pre, :scope > table, :scope > hr')){
-    el.style.display = (!q || el.textContent.toLowerCase().includes(q)) ? '' : 'none';
+    el.style.display = (!q || norm(el.textContent).includes(q)) ? '' : 'none';
   }
 }
 function renderReglamento(){
