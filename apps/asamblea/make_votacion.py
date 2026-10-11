@@ -1291,6 +1291,9 @@ const sync = {
         mociones:st.mociones.map(m=>({titulo:m.titulo,opciones:m.opciones,regla:m.regla,abierta:!!m.abierta,votos:m.votos||{}})),
         activa:act, agenda:st.agenda||{}, palabra:st.palabra||[], respuestas:st.respuestas||{}, objeciones:st.objeciones||{},
         cumplimiento:st.cumplimiento||S.cumplimiento||{presidentePropietario:null,dosFirmantes:null,antelacionOk:null} };
+    // El propietario sigue la votación en curso: si su moción activa no está abierta
+    // y hay otra abierta, saltar a la abierta (si no, se pierde la ventana de voto).
+    if(!MOD && MI && S.mociones.length){ const cur=S.mociones[S.activa]; if(!(cur&&cur.abierta)){ const ab=S.mociones.findIndex(m=>m.abierta); if(ab>=0) S.activa=ab; } }
     // Si mi unidad ya no figura reclamada por este dispositivo (reset o release del
     // moderador), avisar y volver al estado sin identidad: si no, cada voto da 403 mudo.
     if(MI){ const c=S.claims[MI.uf]; if(!c || c.device!==DEVICE_ID){ MI=null; try{ localStorage.setItem(KEY+'-mi','null'); }catch(e){} toast('Tu unidad fue liberada (reinicio del moderador). Si querés votar, volvé a identificarte.', 5000); } }
@@ -1637,7 +1640,7 @@ buildPrint = function(){ _buildPrint(); const q=quorumInfo(); let h='';
 
 // ---- render hooks
 const _renderAll = renderAll;
-renderAll = function(){ _renderAll(); if(TAB==='agenda') renderAgenda(); else if(TAB==='preguntas') renderPreguntas(); else if(TAB==='propos') renderPropos(); else if(TAB==='docs'){ if(DOC_SUB==='reglamento') renderReglamento(); else if(DOC_SUB==='normativa') renderNormativa(); else if(DOC_SUB==='encargado') renderEncargado(); } };
+renderAll = function(){ _renderAll(); if(TAB==='agenda') renderAgenda(); else if(TAB==='preguntas') renderPreguntas(); else if(TAB==='propos') renderPropos(); else if(TAB==='docs'){ if(DOC_SUB==='reglamento') renderReglamento(); else if(DOC_SUB==='normativa') renderNormativa(); else if(DOC_SUB==='encargado') renderEncargado(); } applyCompact(); };
 (function(){ let t='agenda'; try{ t=localStorage.getItem(KEY+'-tab')||'agenda'; }catch(e){} setTab(t); if(t==='docs') setDocSub(DOC_SUB); })();
 
 let tt; function toast(msg, ms){ const t=$('#toast'); t.textContent=msg; t.style.display='block'; clearTimeout(tt); tt=setTimeout(()=>t.style.display='none', ms||2500); }
