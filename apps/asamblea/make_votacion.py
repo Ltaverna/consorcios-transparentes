@@ -1365,7 +1365,7 @@ function buildPrint(){
 async function generarActaPdf(){
   await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
   await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js');
-  const doc = new window.jspdf.jsPDF({unit:'mm', format:'a4'});
+  const doc = new window.jspdf.jsPDF({unit:'mm', format:'a4', compress:true});
   const W=210, M=14, BX=M+52, BW=105;   // barras: arrancan en BX, ancho BW
   const HEX={o1:[26,95,180], o2:[185,76,0], o3:[75,85,99], o4:[10,107,62]};
   let y=16;
