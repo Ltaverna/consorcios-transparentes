@@ -14,12 +14,12 @@ riesgo mencionado por la Administración tenga fundamento concreto** y
 que se comparen, con el mismo criterio, las ventajas y desventajas de
 **continuar con Ramón** frente a **reemplazarlo**.
 
-> **Punto previo importante:** la fecha del primer cobro jubilatorio
-> (19/10) no debería confundirse automáticamente con la fecha jurídica
-> de otorgamiento del beneficio ni con una orden de cese. Si la
-> Administración pretende que Ramón deje de prestar servicios desde esa
-> fecha hasta la Asamblea, conviene que explique formalmente cuál será
-> su situación laboral durante ese período.
+> **Punto previo importante:** la jubilación ya está otorgada y su
+> cobro ya comenzó. Eso, por sí solo, no extingue la relación laboral:
+> la ley contempla expresamente que un trabajador jubilado continúe
+> trabajando para el mismo empleador (art. 253 LCT). Lo primero que
+> conviene pedir en la asamblea es que la Administración informe, con
+> respaldo formal, cuál es la situación laboral de Ramón al día de hoy.
 
 ------------------------------------------------------------------------
 
@@ -76,44 +76,43 @@ que se comparen, con el mismo criterio, las ventajas y desventajas de
 
 ------------------------------------------------------------------------
 
-## 1. Sobre el 19/10 y el supuesto cese de tareas
+## 1. La situación laboral al día de la asamblea
+
+Ramón ya tiene la jubilación otorgada y cobrada. La primera discusión
+no es una fecha: es saber en qué estado quedó la relación laboral y con
+qué respaldo formal.
 
 ### Preguntas
 
-1.  **¿Por qué se toma el 19/10, fecha del primer cobro de ANSES, como
-    fecha para que Ramón deje de prestar servicios?**
-2.  **¿Cuál es la norma concreta que establece que el primer cobro
-    produce por sí mismo el cese laboral?**
-3.  Si ANSES ya otorgó el beneficio antes del 19/10, **¿por qué el hecho
-    relevante sería el cobro y no el otorgamiento?**
-4.  **¿El Consorcio considera formalmente extinguida la relación laboral
-    a partir del 19/10?**
-5.  Si la respuesta es sí:
-    -   ¿se comunicará formalmente el cese?;
-    -   ¿se realizará la baja laboral?;
-    -   ¿se practicará liquidación final?;
-    -   ¿qué ocurrirá con ART, aportes y demás registraciones?
-6.  Si la respuesta es no, **¿bajo qué figura jurídica se le ordenaría
-    dejar de trabajar hasta que se reúna la Asamblea?**
-7.  **¿Durante ese período seguirá cobrando remuneración?**
-8.  **¿Seguirá cubierto por la ART?**
-9.  ¿Por qué generar un intervalo sin prestación si la LCT contempla
-    expresamente la posibilidad de que un trabajador jubilado continúe
-    trabajando para el mismo empleador?
+1.  **¿Cuál es hoy la situación laboral de Ramón: vigente, suspendida o
+    extinguida? ¿Con qué acto formal y con qué norma se respalda?**
+2.  **¿Qué norma establecería que cobrar la jubilación produce, por sí
+    solo, el cese del trabajo?**
+3.  Si el Consorcio la considera extinguida:
+    -   ¿se comunicó formalmente el cese?;
+    -   ¿se realizó la baja laboral?;
+    -   ¿se practicó la liquidación final?;
+    -   ¿qué ocurrió con ART, aportes y demás registraciones?
+4.  Si sigue vigente, **¿bajo qué figura continúa prestando servicios y
+    con qué alcance de tareas?**
+5.  **¿Está cobrando su remuneración con normalidad?**
+6.  **¿Está cubierto por la ART?**
+7.  Si se le pidió dejar de prestar tareas, **¿con qué figura jurídica y
+    por qué**, si la LCT contempla expresamente que un trabajador
+    jubilado continúe trabajando para el mismo empleador (art. 253)?
 
-### Ventaja de mantenerlo trabajando hasta la Asamblea
+### Ventaja de mantenerlo trabajando
 
 Se evita una situación laboral intermedia difícil de encuadrar, se
-mantiene el servicio del edificio y la Asamblea conserva la posibilidad
-de decidir posteriormente con toda la información disponible.
+mantiene el servicio del edificio y la Asamblea decide con la relación
+en curso y con toda la información disponible.
 
 ### Posible desventaja
 
 Si jurídicamente ya correspondiera instrumentar un cese y el Consorcio
 decidiera hacerlo, prolongar la relación puede generar obligaciones
 laborales adicionales. **Por eso debe determinarse primero cuál es la
-figura jurídica concreta**, no simplemente fijar el 19/10 porque es el
-día de cobro.
+figura jurídica concreta, con dictamen escrito del asesor laboral.**
 
 ------------------------------------------------------------------------
 
@@ -121,9 +120,9 @@ día de cobro.
 
 ### Preguntas
 
-1.  Si Ramón deja de prestar servicios el 19/10 pero permanece en la
-    vivienda hasta la Asamblea, **¿en qué carácter jurídico la ocuparía
-    durante ese período?**
+1.  Si Ramón dejara de prestar servicios pero permaneciera en la
+    vivienda, **¿en qué carácter jurídico la ocuparía durante ese
+    período?**
 2.  ¿La Administración considera terminado el derecho a la vivienda el
     mismo día que pretende que deje de trabajar?
 3.  El informe recomienda extinguir el vínculo, obtener la devolución de
@@ -557,13 +556,13 @@ parte es simplemente una posibilidad general**.
 Si hubiera que reducir todo a lo esencial, estas son las diez preguntas
 más importantes:
 
-1.  **¿Qué norma establece que Ramón debe dejar de trabajar el 19/10
-    simplemente porque ese día cobra por primera vez la jubilación?**
-2.  **Si deja de trabajar el 19/10 pero la Asamblea todavía no decidió,
-    cuál será exactamente su situación laboral hasta la Asamblea?**
-3.  **¿Seguirá cobrando y teniendo ART durante ese intervalo?**
-4.  **¿Qué ocurre con la vivienda durante ese período y en qué carácter
-    permanecería allí?**
+1.  **¿Cuál es hoy la situación laboral exacta de Ramón: vigente,
+    suspendida o extinguida, y con qué acto formal?**
+2.  **¿Qué norma establecería que cobrar la jubilación produce, por sí
+    solo, el cese del trabajo?**
+3.  **¿Está cobrando su remuneración y cubierto por la ART en este
+    momento?**
+4.  **¿En qué carácter ocupa hoy la vivienda?**
 5.  **¿Qué norma obliga a que entregue las llaves y desocupe para
     después volver a darle la vivienda si la Asamblea decide su
     continuidad?**

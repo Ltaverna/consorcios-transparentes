@@ -381,7 +381,10 @@ div.doc>h3:first-child{
 div.doc p{
   margin:.65rem 0;
   color:var(--ink-2);
+  text-align:justify;
 }
+div.doc li{ text-align:justify; }
+div.doc blockquote p{ text-align:justify; }
 
 /* --- Blockquotes: formulaciones sugeridas y preguntas clave --- */
 div.doc blockquote{
