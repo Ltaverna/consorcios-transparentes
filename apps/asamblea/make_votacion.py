@@ -886,12 +886,13 @@ try { const raw = localStorage.getItem(KEY); if(raw){ const p = JSON.parse(raw);
 if(!S.cumplimiento) S.cumplimiento = { presidentePropietario:null, dosFirmantes:null, antelacionOk:null };
 if(!S.claims) S.claims={}; if(S.mociones) S.mociones.forEach(m=>{ if(m.abierta===undefined) m.abierta=false; });
 function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
-const M = ()=>S.mociones[S.activa];
+const M = ()=>S.mociones[S.activa]||S.mociones[0];
 const isAbst = (m,i)=>/^abst/i.test(m.opciones[i]||'');
 const participa = u => !!S.presentes[u.uf] || !!S.poderes[u.uf];
 
 // ---------- compute
 function compute(m){
+  m = m || {opciones:[],votos:{},regla:'abs'};   // sin mociones: computar vacío, no explotar
   const opts = m.opciones.map((name,i)=>({name,i,pct:0,n:0,abst:isAbst(m,i)}));
   let presN=0, presPct=0, poderN=0, poderPct=0, votN=0, votPct=0;
   for(const u of UNITS){
@@ -1288,7 +1289,7 @@ const sync = {
   },
   apply(st){ if(!st||!st.mociones) return; const act=Math.min(S.activa, Math.max(0,st.mociones.length-1));
     S={ presentes:st.presentes||{}, poderes:st.poderes||{}, claims:st.claims||{},
-        mociones:st.mociones.map(m=>({titulo:m.titulo,opciones:m.opciones,regla:m.regla,abierta:!!m.abierta,votos:m.votos||{}})),
+        mociones:(st.mociones.length?st.mociones:fresh().mociones).map(m=>({titulo:m.titulo,opciones:m.opciones,regla:m.regla,abierta:!!m.abierta,votos:m.votos||{}})),
         activa:act, agenda:st.agenda||{}, palabra:st.palabra||[], respuestas:st.respuestas||{}, objeciones:st.objeciones||{},
         cumplimiento:st.cumplimiento||S.cumplimiento||{presidentePropietario:null,dosFirmantes:null,antelacionOk:null} };
     // El propietario sigue la votación en curso: si su moción activa no está abierta
