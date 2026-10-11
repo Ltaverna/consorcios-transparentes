@@ -590,7 +590,9 @@ dialog textarea{font:inherit;font-size:12.5px;width:100%;min-height:220px;border
 .opts .opt{display:grid;grid-template-columns:14px minmax(0,1fr) auto;gap:8px;align-items:center}
 .opts .opt input{min-width:0}
 .opts .opt i{width:12px;height:12px;border-radius:3px}
-.toast{position:fixed;left:50%;bottom:84px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:9px 16px;border-radius:var(--r-sm);font-size:13px;font-weight:500;display:none;z-index:20;box-shadow:var(--shadow);white-space:nowrap}
+.toast{position:fixed;left:50%;bottom:84px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:9px 16px;border-radius:var(--r-sm);font-size:13px;font-weight:500;display:none;z-index:20;box-shadow:var(--shadow);white-space:normal;max-width:min(480px,92vw);text-align:center}
+/* Barra de "sin conexión": persistente mientras el sondeo falla */
+#connbar{position:fixed;top:48px;left:0;right:0;z-index:11;background:var(--critical-soft);color:var(--critical-ink);font-size:13px;font-weight:600;text-align:center;padding:8px 12px;border-bottom:1px solid var(--critical);box-shadow:var(--shadow-sm)}
 
 /* ---- teléfono: todo más grande y claro (arm's-length readability) */
 @media (max-width:640px){
@@ -683,6 +685,7 @@ dialog textarea{font:inherit;font-size:12.5px;width:100%;min-height:220px;border
   <button role="tab" data-tab="propos" aria-selected="false">Proposiciones</button>
   <button role="tab" data-tab="docs" aria-selected="false">Documentos</button>
 </nav>
+<div id="connbar" hidden role="alert">Sin conexión — los cambios no se están compartiendo. Reintentando…</div>
 <div class="top" id="top">
   <div class="wrap">
     <div class="titlebar">
@@ -1232,16 +1235,26 @@ $('#revCargar').addEventListener('click', ()=>{
 
 // ---------- sincronización con la API del panel (estado compartido en Postgres)
 const sync = {
-  status:'inactiva', timer:null, lastVersion:0, sending:false,
+  status:'inactiva', timer:null, lastVersion:0, sending:false, _lostAt:0,
   dot(c){ const d=$('#syncdot'); if(d){ d.className='syncdot '+(c||''); d.title='Sincronización: '+sync.status; } },
+  // Barra de sin-conexión: aparece si el sondeo viene fallando hace >5s, se va al reconectar.
+  connMark(bad){ const b=$('#connbar'); if(!b) return;
+    if(bad){ if(!sync._lostAt) sync._lostAt=Date.now(); if(Date.now()-sync._lostAt>5000) b.hidden=false; }
+    else { sync._lostAt=0; b.hidden=true; } },
   hdr(mod){ const h={'Content-Type':'application/json','X-Asamblea-Token':ASAMBLEA_TOKEN}; if(mod) h['X-Asamblea-Mod']=MOD_TOKEN; return h; },
   start(){ clearInterval(sync.timer); if(!API_URL){ sync.status='inactiva'; sync.dot(''); return; } sync.status='conectando'; sync.dot('busy'); sync.pull(); sync.timer=setInterval(sync.pull, 2000); },
-  async pull(){ if(sync.sending) return; try{ const r=await fetch(API_URL+'/asamblea/estado?desde='+sync.lastVersion,{headers:sync.hdr(false)}); const j=await r.json(); if(j && !j.sin_cambios){ sync.lastVersion=j.version||sync.lastVersion; sync.apply(j); } sync.status='ok'; sync.dot('ok'); }catch(e){ sync.status='error'; sync.dot('err'); } },
+  async pull(){ if(sync.sending) return; try{ const r=await fetch(API_URL+'/asamblea/estado?desde='+sync.lastVersion,{headers:sync.hdr(false)}); const j=await r.json(); if(j && !j.sin_cambios){ sync.lastVersion=j.version||sync.lastVersion; sync.apply(j); } sync.status='ok'; sync.dot('ok'); sync.connMark(false); }catch(e){ sync.status='error'; sync.dot('err'); sync.connMark(true); } },
   // POST de una acción puntual; mod=true agrega el header de moderador.
   async act(path, body, mod){ sync.sending=true; sync.dot('busy'); try{ const r=await fetch(API_URL+path,{method:'POST',headers:sync.hdr(mod),body:JSON.stringify(body)}); const j=await r.json().catch(()=>({})); sync.sending=false; if(mod && r.status===401){ toast('Secreto de moderador inválido. Cargalo de nuevo.'); pedirSecretoMod(); } await sync.pull(); return {status:r.status, body:j}; }catch(e){ sync.sending=false; sync.status='error'; sync.dot('err'); return {status:0, body:{}}; } },
+  // Escritura de moderador CON aviso al fallar (si falla en silencio, el pull de 2s
+  // revierte el cambio local y la app "parece trabada").
+  async actMod(path, body){ const r=await sync.act(path, body, true);
+    if(r.status===0) toast('Sin conexión: el cambio no se compartió. Revisá internet y repetilo.', 4500);
+    else if(r.status>=400 && r.status!==401) toast('No se pudo guardar el cambio (error del servidor). Probá de nuevo.', 4500);
+    return r; },
   // Push del doc "blando" completo (agenda/mociones/cumplimiento/…); lo usa el moderador.
   _doc(){ return { mociones:S.mociones.map(m=>({titulo:m.titulo,opciones:m.opciones,regla:m.regla,abierta:!!m.abierta})), activa:S.activa, agenda:S.agenda||{}, palabra:S.palabra||[], respuestas:S.respuestas||{}, objeciones:S.objeciones||{}, cumplimiento:S.cumplimiento||{}, units:UNITS.map(u=>({uf:u.uf,prop:u.prop,pct:u.pct})) }; },
-  pushDoc(){ return sync.act('/asamblea/mod/doc',{doc:sync._doc()}, true); },
+  pushDoc(){ return sync.actMod('/asamblea/mod/doc',{doc:sync._doc()}); },
   // POST de bajo nivel SIN pull al final; lo usa pushFullState para escrituras en bloque.
   async post(path, body, mod){ try{ const r=await fetch(API_URL+path,{method:'POST',headers:sync.hdr(mod),body:JSON.stringify(body)}); const j=await r.json().catch(()=>({})); return {status:r.status, body:j}; }catch(e){ return {status:0, body:{}}; } },
   // Reconstruye todo el estado remoto desde el S local (un solo pull al final).
@@ -1255,12 +1268,12 @@ const sync = {
   // Traductor: mapea el protocolo viejo de eventos a los endpoints de la API (gateado por moderador).
   send(ev){ if(!MOD) return;
     switch(ev.t){
-      case 'presente': return ev.v ? sync.act('/asamblea/mod/claim',{uf:ev.uf, presente:true, rol:'titular', nombre:(UNITS.find(u=>u.uf===+ev.uf)||{}).prop||''}, true)
-                                   : sync.act('/asamblea/mod/release',{uf:ev.uf}, true);
-      case 'poder': return (ev.v===false||ev.v==null) ? sync.act('/asamblea/mod/release',{uf:ev.uf}, true)
-                           : sync.act('/asamblea/mod/claim',{uf:ev.uf, presente:true, rol:'mandatario', nombre:(typeof ev.v==='string'?ev.v:'')}, true);
-      case 'voto': return sync.act('/asamblea/mod/voto',{mocion:(ev.m!=null?ev.m:S.activa), uf:ev.uf, opcion:(ev.v==null?null:ev.v)}, true);
-      case 'reset': return sync.act('/asamblea/mod/reset',{}, true);
+      case 'presente': return ev.v ? sync.actMod('/asamblea/mod/claim',{uf:ev.uf, presente:true, rol:'titular', nombre:(UNITS.find(u=>u.uf===+ev.uf)||{}).prop||''})
+                                   : sync.actMod('/asamblea/mod/release',{uf:ev.uf});
+      case 'poder': return (ev.v===false||ev.v==null) ? sync.actMod('/asamblea/mod/release',{uf:ev.uf})
+                           : sync.actMod('/asamblea/mod/claim',{uf:ev.uf, presente:true, rol:'mandatario', nombre:(typeof ev.v==='string'?ev.v:'')});
+      case 'voto': return sync.actMod('/asamblea/mod/voto',{mocion:(ev.m!=null?ev.m:S.activa), uf:ev.uf, opcion:(ev.v==null?null:ev.v)});
+      case 'reset': return sync.actMod('/asamblea/mod/reset',{});
       case 'state': return sync.pushFullState();
       default: return sync.pushDoc();   // agenda/mociones/cumplimiento/respuesta/objecion/palabra: empuja el doc
     }
@@ -1270,6 +1283,9 @@ const sync = {
         mociones:st.mociones.map(m=>({titulo:m.titulo,opciones:m.opciones,regla:m.regla,abierta:!!m.abierta,votos:m.votos||{}})),
         activa:act, agenda:st.agenda||{}, palabra:st.palabra||[], respuestas:st.respuestas||{}, objeciones:st.objeciones||{},
         cumplimiento:st.cumplimiento||S.cumplimiento||{presidentePropietario:null,dosFirmantes:null,antelacionOk:null} };
+    // Si mi unidad ya no figura reclamada por este dispositivo (reset o release del
+    // moderador), avisar y volver al estado sin identidad: si no, cada voto da 403 mudo.
+    if(MI){ const c=S.claims[MI.uf]; if(!c || c.device!==DEVICE_ID){ MI=null; try{ localStorage.setItem(KEY+'-mi','null'); }catch(e){} toast('Tu unidad fue liberada (reinicio del moderador). Si querés votar, volvé a identificarte.', 5000); } }
     save(); renderAll(); }
 };
 sync.start();
@@ -1437,8 +1453,11 @@ $('#recConfirm').addEventListener('click', async ()=>{
 $('#miPanel').addEventListener('click', async e=>{
   const bv=e.target.closest('button[data-mivoto]');
   if(bv){ const uf=+bv.dataset.mivoto, opt=+bv.dataset.opt; const m=S.mociones[S.activa]; const cur=(m&&m.votos)?m.votos[uf]:undefined; const opcion=(cur===opt?null:opt);
+    // Optimista: reflejar el voto al instante (el pull que sigue reconcilia o revierte).
+    if(m){ if(opcion==null) delete m.votos[uf]; else m.votos[uf]=opcion; }
+    renderMiPanel(); renderTop();
     const r=await sync.act('/asamblea/voto',{device:DEVICE_ID, mocion:S.activa, uf, opcion}, false);
-    if(r.status!==200){ toast((r.body&&r.body.detail&&r.body.detail.motivo)||'No se pudo votar'); } return; }
+    if(r.status!==200){ toast((r.body&&r.body.detail&&r.body.detail.motivo)||'No se pudo votar. Revisá la conexión y probá de nuevo.', 4500); } return; }
   if(e.target.closest('#btnReclamar')){ abrirReclamar(); return; }
   if(e.target.closest('#btnSalirMi')){ if(MI){ for(const uf of [MI.uf, ...(MI.representados||[])]){ await sync.act('/asamblea/release',{device:DEVICE_ID, uf}, false); } } setMi(null); return; }
 });
@@ -1582,7 +1601,7 @@ const _renderAll = renderAll;
 renderAll = function(){ _renderAll(); if(TAB==='agenda') renderAgenda(); else if(TAB==='preguntas') renderPreguntas(); else if(TAB==='propos') renderPropos(); else if(TAB==='docs'){ if(DOC_SUB==='reglamento') renderReglamento(); else if(DOC_SUB==='normativa') renderNormativa(); else if(DOC_SUB==='encargado') renderEncargado(); } };
 (function(){ let t='agenda'; try{ t=localStorage.getItem(KEY+'-tab')||'agenda'; }catch(e){} setTab(t); if(t==='docs') setDocSub(DOC_SUB); })();
 
-let tt; function toast(msg){ const t=$('#toast'); t.textContent=msg; t.style.display='block'; clearTimeout(tt); tt=setTimeout(()=>t.style.display='none',1800); }
+let tt; function toast(msg, ms){ const t=$('#toast'); t.textContent=msg; t.style.display='block'; clearTimeout(tt); tt=setTimeout(()=>t.style.display='none', ms||2500); }
 renderAll();
 })();
 </script>
