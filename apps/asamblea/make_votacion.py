@@ -836,8 +836,8 @@ Modo moderador (PIN): en Agenda, botón "Soy moderador".</pre></div>
 
 <dialog id="dlgExport"><div class="body">
   <h3>Exportar</h3>
-  <p class="note">Excel con el estado por unidad y los resultados; PDF a través de la impresión del navegador (en el celular: Imprimir → Guardar como PDF).</p>
-  <div class="row" style="justify-content:flex-start"><button class="btn primary" id="btnXlsx">Excel (.xlsx)</button><button class="btn primary" id="btnPdf">PDF / imprimir acta</button><button class="btn" id="btnExportCerrar">Cerrar</button></div>
+  <p class="note"><b>Acta en PDF</b>: se genera con los gráficos de resultados y, en el teléfono, se comparte directo por correo o WhatsApp (en la compu se descarga). <b>Excel</b>: estado por unidad y resultados. <b>Imprimir</b>: por el diálogo del navegador.</p>
+  <div class="row" style="justify-content:flex-start"><button class="btn primary" id="btnPdfShare">Acta en PDF</button><button class="btn primary" id="btnXlsx">Excel (.xlsx)</button><button class="btn" id="btnPdf">Imprimir</button><button class="btn" id="btnExportCerrar">Cerrar</button></div>
   <p class="note" id="exportNote" role="status" aria-live="polite"></p>
 </div></dialog>
 <div id="printArea" hidden></div>
@@ -1341,7 +1341,11 @@ async function exportXlsx(){
       XLSX.utils.book_append_sheet(wb, ws, ('Moción '+(k+1)+' - '+m.titulo).replace(/[\[\]\*\/\\?:]/g,' ').slice(0,31)); });
     const er=exportRows(); const wu=XLSX.utils.aoa_to_sheet([er.head].concat(er.rows)); wu['!cols']=[{wch:6},{wch:10},{wch:32},{wch:13},{wch:14},{wch:9},{wch:12}]; XLSX.utils.book_append_sheet(wb, wu, 'Unidades');
     const d=new Date(); const name=`Votacion Rivadavia 2069 ${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}${String(d.getMinutes()).padStart(2,'0')}.xlsx`;
-    XLSX.writeFile(wb, name); $('#exportNote').textContent='Descargado: '+name; }
+    const arr=XLSX.write(wb,{bookType:'xlsx',type:'array'}); const file=new File([arr], name, {type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+    if(navigator.canShare && navigator.canShare({files:[file]})){
+      try{ await navigator.share({files:[file], title:name}); $('#exportNote').textContent='Excel compartido.'; }
+      catch(e){ if(e && e.name==='AbortError'){ $('#exportNote').textContent='Compartir cancelado.'; } else { XLSX.writeFile(wb, name); $('#exportNote').textContent='Descargado: '+name; } }
+    } else { XLSX.writeFile(wb, name); $('#exportNote').textContent='Descargado: '+name; } }
   catch(e){ $('#exportNote').textContent='No se pudo exportar: '+e.message+'. Si estás viendo la app dentro de claude.ai, abrila desde asamblea.neuralcore.dev para descargar.'; }
   b.disabled=false; b.textContent=lbl;
 }
@@ -1357,6 +1361,99 @@ function buildPrint(){
   h+=`<div class="sig"><div>Presidente de la asamblea</div><div>Secretario</div><div>Propietario</div></div>`;
   $('#printArea').innerHTML=h;
 }
+// ---------- acta en PDF con gráficos + compartir (correo/WhatsApp vía share nativo)
+async function generarActaPdf(){
+  await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
+  await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js');
+  const doc = new window.jspdf.jsPDF({unit:'mm', format:'a4'});
+  const W=210, M=14, BX=M+52, BW=105;   // barras: arrancan en BX, ancho BW
+  const HEX={o1:[26,95,180], o2:[185,76,0], o3:[75,85,99], o4:[10,107,62]};
+  let y=16;
+  const salto = h=>{ if(y+h>282){ doc.addPage(); y=16; } };
+  const d=new Date();
+  doc.setFont('helvetica','bold'); doc.setFontSize(15);
+  doc.text('Asamblea · Consorcio de Propietarios Rivadavia 2069', M, y); y+=6;
+  doc.setFont('helvetica','normal'); doc.setFontSize(9.5); doc.setTextColor(100);
+  doc.text(((AS.titulo||'Asamblea')+' · generado el '+d.toLocaleDateString('es-AR')+' '+d.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'})), M, y); y+=7; doc.setTextColor(0);
+  // Quórum
+  const c0=compute(S.mociones[0]);
+  doc.autoTable({ startY:y, head:[['Quórum','Unidades','Porcentual']],
+    body:[['Presentes',String(c0.presN),fp(c0.presPct)],['Por poder',String(c0.poderN),fp(c0.poderPct)],['Total',c0.partN+' de '+N,fp(c0.partPct)+' de '+fp(TOTAL_PCT)]],
+    theme:'grid', styles:{fontSize:9}, headStyles:{fillColor:[15,23,42]}, margin:{left:M,right:M} });
+  y=doc.lastAutoTable.finalY+8;
+  // Mociones: título + barras de colores con marca de umbral + resultado
+  S.mociones.forEach((m,k)=>{
+    const c=compute(m);
+    salto(14+c.opts.length*9);
+    doc.setFont('helvetica','bold'); doc.setFontSize(11);
+    const tl=doc.splitTextToSize('Moción '+(k+1)+': '+m.titulo, W-2*M);
+    doc.text(tl, M, y); y+=tl.length*5+2;
+    doc.setFontSize(9); doc.setFont('helvetica','normal');
+    c.opts.forEach(o=>{
+      salto(9);
+      const col=HEX[COLORS[o.i%4]];
+      doc.setTextColor(0); doc.text(String(o.name).slice(0,30), M, y+3);
+      doc.setFillColor(234,236,242); doc.rect(BX, y, BW, 4.2, 'F');
+      const w=Math.max(0, Math.min(BW, o.pct/TOTAL_PCT*BW));
+      doc.setFillColor(col[0],col[1],col[2]); if(w>0.1) doc.rect(BX, y, w, 4.2, 'F');
+      const v=verdict(m,c,o);
+      if(v && !o.abst){ const tx=BX+Math.min(BW, v.needPct/TOTAL_PCT*BW); doc.setFillColor(15,23,42); doc.rect(tx-0.3, y-1, 0.6, 6.2, 'F'); }
+      doc.setTextColor(60); doc.text(fp(o.pct)+' · '+o.n+' UF', BX+BW+3, y+3); doc.setTextColor(0);
+      y+=8;
+    });
+    const win=c.opts.filter(o=>!o.abst).sort((a,b)=>b.pct-a.pct)[0];
+    const vw=win?verdict(m,c,win):null;
+    doc.setFontSize(8.5); doc.setTextColor(100);
+    doc.text('Regla: '+({abs:'mayoría absoluta del total',pres:'mayoría simple de presentes','2/3':'dos tercios del total'}[m.regla])+'.  La marca negra indica el umbral de aprobación.', M, y);
+    const hayVotos=c.opts.reduce((t,o)=>t+o.n,0)>0;
+    if(!hayVotos){ doc.setTextColor(130); doc.text('Sin votos todavía', M, y+4.5); }
+    else if(vw){ doc.setFont('helvetica','bold'); doc.setTextColor(vw.ok?10:150, vw.ok?107:40, vw.ok?62:40); doc.text(vw.ok?('APROBADA: '+win.name):'No alcanza la mayoría', M, y+4.5); doc.setFont('helvetica','normal'); }
+    doc.setTextColor(0); y+=10;
+  });
+  // Orden del día
+  salto(30);
+  doc.autoTable({ startY:y, head:[['#','Punto del orden del día','Estado','Decisión / nota']],
+    body:C.agenda.map(pt=>{ const a=A()[pt.id]||{}; return [pt.id, pt.titulo, a.estado==='tratado'?'Tratado':a.estado==='curso'?'En curso':'Pendiente', a.nota||'']; }),
+    theme:'grid', styles:{fontSize:8.5}, headStyles:{fillColor:[15,23,42]}, columnStyles:{0:{cellWidth:8},2:{cellWidth:20}}, margin:{left:M,right:M} });
+  y=doc.lastAutoTable.finalY+6;
+  // Respuestas registradas (si hay)
+  const conResp=(C.preguntas||[]).filter(x=>RESP()[x.id]&&RESP()[x.id].texto);
+  if(conResp.length){ salto(24);
+    doc.autoTable({ startY:y, head:[['Pregunta a la administración','Respuesta']],
+      body:conResp.map(x=>[x.pregunta, RESP()[x.id].texto]), theme:'grid', styles:{fontSize:8.5}, headStyles:{fillColor:[15,23,42]}, margin:{left:M,right:M} });
+    y=doc.lastAutoTable.finalY+6; }
+  // Carácter de las decisiones
+  const q=quorumInfo(); salto(16);
+  doc.setFontSize(9);
+  const car=q.firm ? 'Se alcanzó el 50 % + 1 del total de propietarios (unidades y porcentual): las decisiones son firmes.'
+    : 'No se alcanzó el 50 % + 1 del total: las decisiones se consideran proposiciones y se circulan a los ausentes por 15 días (vencimiento '+DEADLINE.toLocaleDateString('es-AR')+'), conforme al art. 2060 del Código Civil y Comercial.';
+  const cl=doc.splitTextToSize('Carácter de las decisiones: '+car, W-2*M); doc.text(cl, M, y); y+=cl.length*4+6;
+  // Detalle por unidad (participantes)
+  const er=exportRows(); const parts=er.rows.filter(r=>r[5]||r[6]);
+  if(parts.length){ salto(24);
+    doc.autoTable({ startY:y, head:[er.head.map(h=>String(h).slice(0,24))],
+      body:parts.map(r=>r.map((x,i)=>i===4?fp(x):String(x==null?'':x))), theme:'grid', styles:{fontSize:7.5}, headStyles:{fillColor:[15,23,42]}, margin:{left:M,right:M} });
+    y=doc.lastAutoTable.finalY+10; }
+  // Firmas
+  salto(26); y+=10;
+  [['Presidente de la asamblea',M],['Secretario',M+64],['Propietario',M+128]].forEach(([t,x])=>{ doc.setDrawColor(0); doc.line(x, y, x+52, y); doc.setFontSize(8); doc.text(t, x, y+4); });
+  return doc;
+}
+async function compartirActa(){
+  const b=$('#btnPdfShare'); b.disabled=true; const lbl=b.textContent; b.textContent='Generando…'; $('#exportNote').textContent='Preparando el acta…';
+  try{
+    const doc=await generarActaPdf();
+    const d=new Date(); const name=`Acta Rivadavia 2069 ${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}${String(d.getMinutes()).padStart(2,'0')}.pdf`;
+    const blob=doc.output('blob'); const file=new File([blob], name, {type:'application/pdf'});
+    if(navigator.canShare && navigator.canShare({files:[file]})){
+      try{ await navigator.share({files:[file], title:name}); $('#exportNote').textContent='Acta compartida.'; return; }
+      catch(e){ if(e && e.name==='AbortError'){ $('#exportNote').textContent='Compartir cancelado.'; return; } }
+    }
+    doc.save(name); $('#exportNote').textContent='Acta descargada: '+name+' ('+Math.round(blob.size/1024)+' KB)';
+  }catch(e){ $('#exportNote').textContent='No se pudo generar el acta: '+e.message; }
+  finally{ b.disabled=false; b.textContent=lbl; }
+}
+$('#btnPdfShare').addEventListener('click', compartirActa);
 $('#btnExport').addEventListener('click', ()=>{ $('#exportNote').textContent=''; $('#dlgExport').showModal(); });
 $('#btnExportCerrar').addEventListener('click', ()=>$('#dlgExport').close());
 $('#btnXlsx').addEventListener('click', exportXlsx);
