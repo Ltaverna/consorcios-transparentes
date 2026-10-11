@@ -27,6 +27,8 @@ HTML = r"""<meta charset="utf-8">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Asamblea 2069">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <title>Asamblea Rivadavia 2069</title>
 <meta name="description" content="Cómputo de asamblea del Consorcio Rivadavia 2069: presentes, poderes, votos y porcentajes en tiempo real.">
 <!-- ui-ux-pro-max tokens v2: Accessible & Ethical / Government-Institutional
@@ -1844,10 +1846,52 @@ renderAll = function(){ _renderAll(); if(TAB==='agenda') renderAgenda(); else if
 
 let tt; function toast(msg, ms){ const t=$('#toast'); t.textContent=msg; t.style.display='block'; clearTimeout(tt); tt=setTimeout(()=>t.style.display='none', ms||2500); }
 renderAll();
+// PWA: service worker red-primero (la caché solo responde sin conexión)
+if('serviceWorker' in navigator && location.protocol==='https:'){ try{ navigator.serviceWorker.register('sw.js'); }catch(e){} }
 })();
 </script>
 """
 out = HTML.replace("__DATA__", DATA).replace("__CONTENT__", CONTENT).replace("__LOGICA__", LOGICA).replace("__MARKED__", MARKED).replace("__API_URL__", API_URL).replace("__ASAMBLEA_TOKEN__", ASAMBLEA_TOKEN)
 open(SC + "votacion-rivadavia-2069.html", "w", encoding="utf-8").write(out)
 open(SC + "pages-out/index.html", "w", encoding="utf-8").write("<!doctype html>\n<html lang=\"es\">\n" + out + "\n</html>\n")
-print("ok")
+
+# ---- PWA: manifest + service worker + íconos (a pages-out, junto al index)
+import hashlib, shutil
+VERSION = hashlib.md5(out.encode()).hexdigest()[:10]
+MANIFEST = {
+    "name": "Asamblea Rivadavia 2069",
+    "short_name": "Asamblea 2069",
+    "description": "Asamblea del Consorcio Rivadavia 2069: votación en vivo, expensas, reglamento y documentos.",
+    "lang": "es", "start_url": "/", "scope": "/", "display": "standalone",
+    "background_color": "#0f172a", "theme_color": "#1b2536",
+    "icons": [
+        {"src": "icon-192.png", "sizes": "192x192", "type": "image/png"},
+        {"src": "icon-512.png", "sizes": "512x512", "type": "image/png"},
+        {"src": "icon-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"},
+    ],
+}
+open(SC + "pages-out/manifest.webmanifest", "w", encoding="utf-8").write(json.dumps(MANIFEST, ensure_ascii=False))
+SW = """// Service worker de la app de asamblea - RED PRIMERO.
+// La cache solo responde cuando no hay conexion: nunca sirve una version vieja
+// teniendo red (leccion aprendida de los problemas de cache de este proyecto).
+const V = 'asamblea-__V__';
+self.addEventListener('install', e => self.skipWaiting());
+self.addEventListener('activate', e => e.waitUntil(
+  caches.keys().then(ks => Promise.all(ks.filter(k => k !== V).map(k => caches.delete(k)))).then(() => self.clients.claim())));
+self.addEventListener('fetch', e => {
+  const req = e.request;
+  if (req.method !== 'GET') return;
+  const url = new URL(req.url);
+  const cacheable = url.origin === location.origin || url.host === 'fonts.googleapis.com' || url.host === 'fonts.gstatic.com' || url.host === 'cdnjs.cloudflare.com';
+  if (!cacheable) return;             // la API y todo lo demas pasan directo
+  if (url.pathname.startsWith('/asamblea')) return;  // por si la API compartiera origen
+  e.respondWith(
+    fetch(req).then(res => { if (res && res.ok) { const copia = res.clone(); caches.open(V).then(c => c.put(req, copia)); } return res; })
+      .catch(() => caches.match(req, {ignoreSearch: url.pathname === '/'}))
+  );
+});
+""".replace('__V__', VERSION)
+open(SC + "pages-out/sw.js", "w", encoding="utf-8").write(SW)
+for icono in ("icon-192.png", "icon-512.png", "icon-512-maskable.png", "apple-touch-icon.png"):
+    shutil.copy(SC + "pwa/" + icono, SC + "pages-out/" + icono)
+print("ok (pwa " + VERSION + ")")
