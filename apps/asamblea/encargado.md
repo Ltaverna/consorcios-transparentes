@@ -1,10 +1,12 @@
-# Preguntas para el Consejo sobre la continuidad de Ramón González
+# Preguntas sobre la continuidad del encargado Ramón González
 
 ## Objetivo
 
 Este documento ordena las preguntas que conviene formular a la
-Administración y al asesor letrado antes de que el Consejo o la Asamblea
-decidan si Ramón continúa como encargado luego de obtener su jubilación.
+Administración y al asesor letrado antes de que la Asamblea decida si
+Ramón continúa como encargado luego de obtener su jubilación. Está
+pensado para que cualquier propietario pueda seguir la discusión punto
+por punto.
 
 No parte de que la continuidad sea necesariamente conveniente ni de que
 el reemplazo sea necesariamente perjudicial. El objetivo es que **cada
@@ -412,288 +414,132 @@ costosa resulta incompleto.
 
 ------------------------------------------------------------------------
 
-## Lectura crítica del enfoque del informe: posibles sesgos e intencionalidad aparente
+## El análisis de riesgos del informe, punto por punto
 
-Este punto conviene plantearlo **en segundo plano y no como acusación
-principal**. No puede afirmarse, sólo a partir del texto, que la
-Administración haya actuado con una intención discriminatoria o con el
-propósito deliberado de obtener el reemplazo de Ramón. Lo que sí puede
-observarse críticamente es **cómo está construido el argumento**.
-
-El informe declara que pretende ofrecer una evaluación equilibrada y
-llega a afirmar que *"la edad por sí sola no es un impedimento"*. Sin
-embargo, buena parte de los riesgos desarrollados inmediatamente después
-se vinculan directa o indirectamente con que Ramón tiene 70 años:
-eventual disminución de capacidad física, mayor accidentabilidad,
-supuestas restricciones de ART, incapacidad, fallecimiento y problemas
-futuros con la vivienda.
-
-Eso permite formular una observación más prudente y difícil de rechazar:
-
-> **Sin atribuir intenciones personales a la Administración, corresponde
-> preguntarse si la selección y el desarrollo de los riesgos no terminan
-> orientando al lector hacia una conclusión desfavorable a la
-> continuidad, particularmente cuando algunos riesgos se presentan como
-> propios de Ramón pese a que también existirían con cualquier
-> trabajador.**
-
-La mejor forma de poner a prueba esa posible orientación no es discutir
-intenciones, sino **pedir evidencia para cada afirmación y exigir una
-comparación simétrica con la alternativa de contratar a otra persona**.
+El informe declara buscar una evaluación equilibrada y afirma que *"la
+edad por sí sola no es un impedimento"*. Varios de los riesgos que
+desarrolla, sin embargo, se vinculan con la edad del encargado. Para
+decidir sobre hechos y no sobre hipótesis, conviene pedir el respaldo
+concreto de cada afirmación y comparar cada riesgo contra la alternativa
+real: contratar a otro encargado, que también es un trabajador con los
+mismos derechos y contingencias.
 
 ### 1. "A los 70 años puede disminuir su capacidad física"
 
-**Qué sugiere el informe:** que la edad hace previsible una disminución
-de la capacidad necesaria para el puesto.
+**Qué dice el informe:** que la edad hace previsible una disminución de
+la capacidad necesaria para el puesto.
 
-**Qué falta para sostenerlo en el caso concreto:** una evaluación
-individual de Ramón. El informe no acompaña un examen de aptitud,
-estadísticas de ausentismo, antecedentes de accidentes, restricciones
-médicas ni tareas que actualmente no pueda realizar.
+**Qué conviene pedir:** una evaluación individual. El informe no
+acompaña un examen de aptitud, estadísticas de ausentismo, antecedentes
+de accidentes ni tareas que actualmente no pueda realizar.
 
-**Cómo plantearlo críticamente:**
-
-> Si el propio informe sostiene que el criterio debe ser la aptitud y no
-> la edad, ¿qué evidencia objetiva existe de que Ramón actualmente no
-> pueda realizar las tareas de su categoría?
-
-**Preguntas adicionales:**
+**Preguntas:**
 
 -   ¿Qué tareas concretas se considera que no podría realizar?
--   ¿Quién determinó esa limitación?
--   ¿Existe evaluación médica laboral?
--   ¿Cuál fue su desempeño efectivo durante el último año?
--   ¿Cuántos accidentes laborales tuvo en los últimos años?
--   ¿Se exigiría el mismo examen de aptitud al eventual reemplazante?
+-   ¿Quién determinó esa limitación y con qué evaluación médica laboral?
+-   ¿Cuál fue su desempeño y su ausentismo en los últimos años?
+-   ¿Se exigiría el mismo examen de aptitud a un eventual reemplazante?
 
-**Posible conclusión:** si no existe evidencia individual, debe hablarse
-de un riesgo hipotético a controlar, no de una desventaja comprobada de
-Ramón.
-
-------------------------------------------------------------------------
+Si no existe evidencia individual, se trata de un riesgo hipotético a
+controlar con evaluaciones periódicas, no de una desventaja comprobada.
 
 ### 2. "A los 70 años aumenta considerablemente el riesgo de accidentes"
 
-**Qué sugiere el informe:** que mantener a Ramón expone especialmente al
-Consorcio.
+**Qué conviene pedir:** los datos en los que se basa la afirmación.
 
-**Qué debería pedirse:** datos concretos.
-
-> ¿En qué estadística, informe de la ART o evaluación de seguridad se
-> basa la afirmación de que el riesgo concreto de Ramón es
-> "considerablemente" mayor?
-
-También debería preguntarse:
+**Preguntas:**
 
 -   ¿Cuál es la siniestralidad histórica de Ramón?
--   ¿La ART hizo alguna observación sobre él?
+-   ¿La ART hizo alguna observación sobre él en particular?
 -   ¿Existen tareas de alto riesgo que puedan reorganizarse?
--   ¿Cuál sería la siniestralidad esperada del reemplazante?
+-   ¿Cuál sería la siniestralidad esperable de un reemplazante?
 
-**Refutación crítica:** un riesgo poblacional general, aun si existiera
-estadísticamente, no demuestra por sí solo la falta de aptitud de una
-persona concreta.
+Un dato estadístico general sobre la edad no demuestra, por sí solo, la
+falta de aptitud de una persona concreta.
 
-------------------------------------------------------------------------
+### 3. "Muchas ART rechazan cobertura plena o aumentan la alícuota"
 
-### 3. "Muchas ART rechazan cobertura plena o aumentan significativamente la alícuota"
+**Qué conviene pedir:** la verificación con la ART del propio Consorcio.
+Si el riesgo es real, debería existir una comunicación, cotización o
+condición contractual concreta.
 
-Este es uno de los puntos en los que conviene ser más exigentes.
+**Preguntas:**
 
-**Qué sugiere el informe:** que continuar con Ramón podría generar un
-problema serio de cobertura o costo para el Consorcio.
+-   ¿Nuestra ART informó que la continuidad de Ramón genera una
+    exclusión, restricción o aumento de alícuota? ¿Puede acompañarse esa
+    documentación?
+-   Si no se verificó con nuestra ART, ¿por qué se computa como una
+    desventaja concreta?
+-   Si se contratara un encargado nuevo, ¿cuál sería el costo de ART
+    comparable?
 
-**Qué debería existir si el riesgo es real:** una comunicación,
-cotización o condición contractual de la ART del propio Consorcio.
+### 4. Enfermedad, incapacidad y fallecimiento
 
-**Pregunta directa:**
+**Qué conviene distinguir:** estas contingencias existen con cualquier
+trabajador. La comparación correcta no es "Ramón versus ningún
+trabajador", sino "Ramón versus otro encargado".
 
-> ¿La ART del Consorcio informó efectivamente que la continuidad de
-> Ramón generará una exclusión, restricción o aumento de alícuota? En
-> caso afirmativo, ¿puede acompañarse esa documentación?
+**Preguntas:**
 
-Si no existe documentación:
+-   ¿Cuáles de estos riesgos son específicos de Ramón y cuáles
+    existirían igual con cualquier empleado?
+-   ¿Se calculó el riesgo incremental real de una alternativa respecto
+    de la otra?
 
-> ¿Por qué se incluye como desventaja concreta de la continuidad una
-> situación que no se verificó con nuestra ART?
+### 5. La vivienda del encargado
 
-**Refutación crítica:** distinguir una posibilidad abstracta de un costo
-o problema efectivamente existente.
+**Qué conviene distinguir:** el riesgo de restitución de la vivienda
+existe con cualquier encargado con vivienda, actual o futuro, y merece
+regulación contractual clara en todos los casos.
 
-------------------------------------------------------------------------
+**Preguntas:**
 
-### 4. Enfermedad, incapacidad y fallecimiento como "puntos en contra"
+-   ¿Existe algún antecedente concreto de Ramón que indique riesgo de no
+    devolución, o es un riesgo general del puesto?
+-   Si es general, ¿por qué se computa solo contra la continuidad y no
+    también contra la alternativa de reemplazo?
 
-Aquí puede verse uno de los principales problemas de construcción del
-informe.
+### 6. El cierre previo con entrega de llaves
 
-**Qué sugiere:** que mantener a Ramón incorpora esos riesgos.
+El informe califica como "indispensable" extinguir el vínculo, con baja,
+liquidación, desocupación y devolución de llaves, antes de una eventual
+nueva contratación.
 
-**Problema:** enfermedad, incapacidad, accidente y fallecimiento son
-contingencias que también existen respecto de un trabajador nuevo.
+**Preguntas:**
 
-La pregunta adecuada es:
+-   ¿Qué norma concreta exige esa secuencia cuando existe la posibilidad
+    de continuidad laboral posterior a la jubilación (art. 253 LCT)?
+-   ¿Es una obligación legal o una estrategia sugerida por el asesor? Si
+    es una estrategia, ¿qué riesgo evita y qué costos y riesgos nuevos
+    genera el intervalo sin relación laboral?
+-   ¿Qué ocurre con la vivienda durante ese intervalo?
 
-> ¿Por qué estas contingencias aparecen como desventajas de mantener a
-> Ramón si el Consorcio continuaría expuesto a contingencias laborales
-> equivalentes al contratar un reemplazante?
+Es importante no confundir una estrategia jurídica posible con una
+obligación legal.
 
-Y luego:
+### 7. Comparar ventajas y riesgos con la misma vara
 
-> ¿Se calculó cuál es el riesgo incremental real de una alternativa
-> respecto de la otra?
-
-**Refutación crítica:** el escenario correcto de comparación no es
-*Ramón versus ningún trabajador*, sino **Ramón versus otro encargado**.
-
-------------------------------------------------------------------------
-
-### 5. La vivienda presentada principalmente como riesgo
-
-**Qué sugiere el informe:** que mantener a Ramón puede dificultar
-recuperar posteriormente la vivienda.
-
-El riesgo de restitución existe y merece prevención. Pero falta analizar
-la otra cara:
-
--   Ramón ya ocupa legítimamente la vivienda por su trabajo.
--   Si continúa como encargado con vivienda, la situación puede
-    documentarse.
--   Un futuro encargado con vivienda también generará una relación
-    jurídica respecto de esa unidad.
--   El Consorcio no elimina necesariamente el riesgo de restitución
-    simplemente cambiando de encargado.
+Las ventajas de la continuidad aparecen en el informe como prácticas
+(conocimiento del edificio, sin adaptación), mientras que los riesgos se
+desarrollan como jurídicos y económicos. Para que la comparación sea
+pareja, los riesgos y costos del reemplazo merecen el mismo nivel de
+detalle: selección, rotación, adaptación, capacitación, ART del nuevo
+trabajador, sus licencias y contingencias, su eventual indemnización
+futura y su vivienda.
 
 **Pregunta:**
 
-> ¿El riesgo señalado corresponde específicamente a Ramón por algún
-> antecedente concreto de resistencia a restituir la vivienda, o es un
-> riesgo general de cualquier encargado con vivienda?
-
-Si es general:
-
-> ¿Por qué se contabiliza como argumento contra la continuidad de Ramón
-> y no también como riesgo de la alternativa de reemplazo?
-
-------------------------------------------------------------------------
-
-### 6. La propuesta de "entregar las llaves y volver a entrar"
-
-El informe califica el cierre previo como "indispensable" y propone
-baja, liquidación, desocupación y devolución de llaves antes de una
-eventual nueva contratación.
-
-La pregunta no debería ser inicialmente "esto está mal", sino:
-
-> **¿Cuál es la disposición normativa específica que hace indispensable
-> la desocupación física y entrega de llaves cuando existe la
-> posibilidad de continuidad laboral posterior a la jubilación?**
-
-Después:
-
--   ¿Es una obligación legal o una estrategia aconsejada por el abogado?
--   Si es una estrategia, ¿qué riesgo concreto pretende evitar?
--   ¿Qué beneficio jurídico obtiene el Consorcio?
--   ¿Qué riesgo genera el intervalo sin relación laboral?
--   ¿Qué ocurre con Ramón y la vivienda durante ese intervalo?
--   ¿Por qué se prefiere esa solución frente a la continuidad
-    contemplada por el art. 253 LCT?
-
-**Punto crítico:** no confundir una **estrategia jurídica posible** con
-una **obligación legal indispensable**.
-
-------------------------------------------------------------------------
-
-### 7. La forma de presentar las ventajas y las desventajas
-
-Hay una asimetría que merece ser discutida.
-
-Las ventajas se presentan principalmente como:
-
--   conocimiento del edificio;
--   ausencia de adaptación;
--   relación conocida;
--   posibilidad de capacitar al ayudante.
-
-Las desventajas, en cambio, se desarrollan como:
-
--   riesgos jurídicos;
--   accidentes;
--   incapacidad;
--   fallecimiento;
--   ART;
--   vivienda;
--   sindicato;
--   fraude laboral;
--   antigüedad;
--   licencias.
-
-Esto produce naturalmente una percepción de que las ventajas son
-meramente prácticas y los riesgos son jurídicamente graves.
-
-**Pregunta para el Consejo:**
-
 > ¿Por qué no se cuantificaron también los riesgos jurídicos, económicos
-> y operativos de reemplazar a Ramón?
+> y operativos de reemplazar a Ramón, con el mismo detalle que los de su
+> continuidad?
 
-Por ejemplo:
-
--   selección equivocada;
--   rotación;
--   nuevo período de adaptación;
--   desconocimiento de instalaciones;
--   errores durante la transición;
--   capacitación;
--   supervisión;
--   ART del nuevo trabajador;
--   enfermedades y accidentes del nuevo trabajador;
--   licencias;
--   eventual indemnización futura;
--   vivienda del nuevo encargado, si corresponde.
-
-**Refutación crítica:** para que el informe sea verdaderamente
-comparativo, **cada columna debería utilizar el mismo estándar de
-análisis**.
+Una prueba simple de objetividad: si Ramón tuviera 55 años con el mismo
+desempeño, aptitud y siniestralidad, ¿cuáles de los riesgos del informe
+desaparecerían? Los que dependen solo de la edad necesitan respaldo con
+datos del caso concreto; los que no, corresponde computarlos igual para
+las dos alternativas.
 
 ------------------------------------------------------------------------
-
-### 8. Una forma prudente de plantear la posible intencionalidad
-
-No recomendaría decir:
-
-> "La Administración hizo un informe para echar a Ramón."
-
-Eso atribuye una intención que no podemos demostrar y desplaza la
-discusión hacia un conflicto personal.
-
-Una formulación mucho más sólida sería:
-
-> **"Nos preocupa que, aun cuando el informe declara buscar un análisis
-> equilibrado, la selección y el desarrollo de determinados riesgos
-> puedan producir un sesgo desfavorable hacia la continuidad. Por eso
-> solicitamos que cada riesgo sea respaldado con información concreta y
-> que se incorporen con igual profundidad los riesgos y costos de la
-> alternativa de reemplazo."**
-
-Otra, un poco más incisiva:
-
-> **"No cuestionamos que estos riesgos puedan analizarse. Lo que
-> queremos determinar es cuáles son riesgos reales y específicos de
-> Ramón, cuáles son hipótesis generales asociadas a su edad y cuáles
-> existirían exactamente igual con cualquier reemplazante."**
-
-Y una tercera pregunta que puede ser particularmente efectiva:
-
-> **"Si en lugar de tener 70 años Ramón tuviera 55, pero conservara
-> exactamente el mismo desempeño, aptitud, siniestralidad y condiciones
-> laborales actuales, ¿cuáles de los riesgos enumerados en este informe
-> desaparecerían realmente?"**
-
-Esa pregunta permite detectar cuánto del análisis responde a
-**circunstancias objetivas** y cuánto depende implícitamente de la edad.
-
-------------------------------------------------------------------------
-
 
 ## Pregunta final que ordena toda la discusión
 
@@ -708,8 +554,8 @@ parte es simplemente una posibilidad general**.
 
 # Preguntas clave para hacer en la Asamblea
 
-Si hubiera que reducir todo a las preguntas más importantes, propondría
-estas:
+Si hubiera que reducir todo a lo esencial, estas son las diez preguntas
+más importantes:
 
 1.  **¿Qué norma establece que Ramón debe dejar de trabajar el 19/10
     simplemente porque ese día cobra por primera vez la jubilación?**
