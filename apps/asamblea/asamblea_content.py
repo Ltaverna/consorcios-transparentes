@@ -1,4 +1,14 @@
-# Contenido de la asamblea extraordinaria del 3/09/2026 - Rivadavia 2067/69/71
+# Contenido de la asamblea - Rivadavia 2067/69/71
+# Próxima asamblea: 20/10/2026. La convocatoria todavía no llegó: el orden del día de abajo
+# es el de la asamblea del 3/09/2026 y se renueva cuando llegue la convocatoria nueva.
+ASAMBLEA = dict(
+    titulo="Asamblea extraordinaria",
+    fecha="2026-10-20",        # ISO; la UI la formatea en es-AR
+    hora="19:00",
+    nota="Orden del día a confirmar: la convocatoria de esta asamblea todavía no llegó. Los puntos de abajo son los de la asamblea anterior.",
+    notificacion=None,          # fecha ISO de notificación a los ausentes (plazo art. 2060). None = se estima 15 días desde la asamblea.
+)
+
 AGENDA = [
  dict(id="1", titulo="Designación de presidente, secretario y dos firmantes del acta",
       decidir="Elegir quién preside, quién toma el acta y dos propietarios que la rubrican.",

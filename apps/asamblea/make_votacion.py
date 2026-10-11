@@ -9,12 +9,12 @@ MARKED = open(SC + "vendor/marked.min.js", encoding="utf-8").read()
 UNITS = json.load(open(SC + "votacion_units.json"))
 API_URL = os.environ.get("CT_ASAMBLEA_API_URL", "https://api-consorcio.neuralcore.dev")
 ASAMBLEA_TOKEN = os.environ.get("CT_ASAMBLEA_TOKEN", "")
-from asamblea_content import AGENDA, PREGUNTAS, CONVOCATORIA, PODER
+from asamblea_content import AGENDA, ASAMBLEA, PREGUNTAS, CONVOCATORIA, PODER
 from normativa import NORMATIVA
 REGLAMENTO = open(SC + "reglamento.md", encoding="utf-8").read()
 ENCARGADO = open(SC + "encargado.md", encoding="utf-8").read()
 INFORME_ADMIN = open(SC + "informe_admin.md", encoding="utf-8").read()
-CONTENT = json.dumps(dict(agenda=AGENDA, preguntas=PREGUNTAS, convocatoria=CONVOCATORIA, poder=PODER, reglamento=REGLAMENTO, normativa=NORMATIVA, encargado=ENCARGADO, informe_admin=INFORME_ADMIN), ensure_ascii=False).replace("</", "<\\/")
+CONTENT = json.dumps(dict(agenda=AGENDA, asamblea=ASAMBLEA, preguntas=PREGUNTAS, convocatoria=CONVOCATORIA, poder=PODER, reglamento=REGLAMENTO, normativa=NORMATIVA, encargado=ENCARGADO, informe_admin=INFORME_ADMIN), ensure_ascii=False).replace("</", "<\\/")
 DATA = json.dumps(UNITS, ensure_ascii=False).replace("</", "<\\/")
 
 HTML = r"""<meta charset="utf-8">
@@ -711,8 +711,9 @@ dialog textarea{font:inherit;font-size:12.5px;width:100%;min-height:220px;border
 
 <div class="wrap view" id="view-agenda">
   <div class="modbar" id="modbar"></div>
-  <h2 class="sec">Asamblea extraordinaria · 3 de septiembre de 2026, 19:00</h2>
-  <p class="lead">Seis puntos del orden del día. En cada uno: qué hay que decidir, qué conviene pedir, y la moción con su resultado en vivo. Tocá "Pedir la palabra" para anotarte en la lista de oradores.</p>
+  <h2 class="sec" id="agendaTitulo">Asamblea</h2>
+  <p class="note" id="agendaNota" hidden style="background:var(--warn-soft);color:var(--warn-ink);padding:9px 12px;border-radius:6px;font-weight:600"></p>
+  <p class="lead">El orden del día, punto por punto: qué hay que decidir, qué conviene pedir, y la moción con su resultado en vivo. Tocá "Pedir la palabra" para anotarte en la lista de oradores.</p>
   <div class="card" id="quorumCard"></div>
   <div class="card"><h3>Lista de oradores</h3><div class="oradores" id="oradores"></div><div class="actions"><button class="btn primary sm" id="btnPalabra">Pedir la palabra</button></div></div>
   <div id="agendaList" style="display:grid;gap:12px"></div>
@@ -759,9 +760,10 @@ dialog textarea{font:inherit;font-size:12.5px;width:100%;min-height:220px;border
     <div class="card docs"><h3>Convocatoria</h3><pre class="doc" id="docConv"></pre></div>
     <div class="card docs"><h3>Modelo de poder</h3><pre class="doc" id="docPoder"></pre></div>
     <div class="card docs"><h3>Cómo se usa esta app</h3><pre class="doc">Agenda: seguí el punto en tratamiento y anotate para hablar.
-Votar: el moderador marca presentes, poderes y votos; todos ven el resultado en vivo con la doble mayoría (unidades y porcentual).
-Preguntas: las preguntas a la administración con su documento de respaldo y la respuesta registrada.
-Proposiciones: si no hubo 50 % + 1, lo votado es proposición; los ausentes pueden objetar hasta el 18/09/2026.
+Votar (propietarios): tocá "Votar desde mi teléfono", elegí tu unidad una sola vez y votá cada moción cuando el moderador la abre. Si tenés cartas poder, podés sumar las unidades que representás (hasta 5 propietarios, art. 25 h).
+Votar (moderador): marca presentes, poderes y votos de quienes no usan teléfono; todos ven el resultado en vivo con la doble mayoría (unidades y porcentual).
+Preguntas: las preguntas a la administración con su respuesta registrada.
+Proposiciones: si no hubo 50 % + 1, lo votado es proposición; los ausentes pueden objetarla hasta 15 días después de notificados (art. 2060).
 Documentos: reglamento, normativa, informe del encargado, convocatoria y poder.
 Modo moderador (PIN): en Agenda, botón "Soy moderador".</pre></div>
   </div>
@@ -1046,7 +1048,7 @@ function renderMiPanel(){
       (abierta?'':`<p class="note">La votación de esta moción todavía no está abierta.</p>`)+
       ufs.map(uf=>{ const u=ufInfo(uf); const voto=(m&&m.votos)?m.votos[uf]:undefined;
         return `<div class="miuf"><b>${esc(u.piso||String(uf))}</b> ${esc(u.prop||'')}<div class="vrow">`+
-          (m?m.opciones.map((o,i)=>`<button class="tog" aria-pressed="${voto===i?'true':'false'}" ${abierta?'':'disabled'} type="button" data-mivoto="${uf}" data-opt="${i}">${esc(o)}</button>`).join(''):'')+
+          (m?m.opciones.map((o,i)=>`<button class="tog ${COLORS[i%4]}" aria-pressed="${voto===i?'true':'false'}" ${abierta?'':'disabled'} type="button" data-mivoto="${uf}" data-opt="${i}">${esc(o)}</button>`).join(''):'')+
           `</div></div>`; }).join('')+
       `<div class="actions"><button class="btn sm" id="btnSalirMi" type="button">No soy esta unidad / salir</button></div></div>`;
   }
@@ -1327,7 +1329,16 @@ $('#btnPdf').addEventListener('click', ()=>{ buildPrint(); $('#dlgExport').close
 const C = JSON.parse(document.getElementById('content').textContent);
 const fmt = new Intl.NumberFormat('es-AR',{style:'currency',currency:'ARS',maximumFractionDigits:0});
 const PIN = '2069';
-const DEADLINE = new Date(2026, 8, 18, 23, 59);
+// Fecha/hora de la asamblea y plazo del art. 2060 vienen del contenido (asamblea_content.py)
+const AS = C.asamblea||{};
+(function(){
+  const t=$('#agendaTitulo');
+  if(t){ let f=''; if(AS.fecha){ try{ f=new Date(AS.fecha+'T00:00:00').toLocaleDateString('es-AR',{day:'numeric',month:'long',year:'numeric'}); }catch(e){ f=AS.fecha; } }
+    t.textContent = (AS.titulo||'Asamblea') + (f?' · '+f:'') + (AS.hora?', '+AS.hora+' h':''); }
+  const n=$('#agendaNota'); if(n && AS.nota){ n.textContent=AS.nota; n.hidden=false; }
+})();
+const DEADLINE = (()=>{ const base=AS.notificacion||AS.fecha; if(base){ const d=new Date(base+'T23:59:00'); d.setDate(d.getDate()+15); return d; } return new Date(2026,9,4,23,59); })();
+const DEADLINE_EST = !AS.notificacion;   // sin fecha de notificación: el plazo se estima desde la asamblea
 let MOD = false; try{ MOD = localStorage.getItem(KEY+'-mod')==='1'; }catch(e){}
 function setMod(v){ MOD=v; try{ localStorage.setItem(KEY+'-mod', v?'1':'0'); }catch(e){} document.body.classList.toggle('mod', v); renderAll(); }
 let _modPromptOpen=false;
@@ -1445,7 +1456,7 @@ $('#view-preguntas').addEventListener('click', e=>{ const b=e.target.closest('bu
 function renderPropos(){
   const q=quorumInfo(); const ausentes = UNITS.filter(u=>!participa(u)); const ausN=ausentes.length, ausPct=ausentes.reduce((s,u)=>s+u.pct,0);
   $('#proposLead').innerHTML = q.firm ? `Hubo ${q.partN} unidades y ${fp(q.partPct)} del porcentual: <b>se alcanzó el 50 % + 1 del total</b>, las decisiones son firmes y no corresponde el régimen de proposiciones.` :
-    `Quórum: ${q.partN} unidades y ${fp(q.partPct)}. <b>No se alcanzó el 50 % + 1 del total</b>, así que cada moción votada es una proposición (art. 2060 CCyC). Los propietarios ausentes (${ausN} unidades, ${fp(ausPct)}) pueden objetarla hasta el <b>${DEADLINE.toLocaleDateString('es-AR')}</b>. Criterio de esta app: la proposición queda objetada si las objeciones alcanzan la mayoría de los ausentes en unidades y en porcentual.`;
+    `Quórum: ${q.partN} unidades y ${fp(q.partPct)}. <b>No se alcanzó el 50 % + 1 del total</b>, así que cada moción votada es una proposición (art. 2060 CCyC). Los propietarios ausentes (${ausN} unidades, ${fp(ausPct)}) pueden objetarla hasta el <b>${DEADLINE.toLocaleDateString('es-AR')}</b>${DEADLINE_EST?' <span class="note">(estimado: 15 días desde la asamblea; se ajusta cuando se registre la fecha de notificación a los ausentes)</span>':''}. Criterio de esta app: la proposición queda objetada si las objeciones alcanzan la mayoría de los ausentes en unidades y en porcentual.`;
   const vencida = Date.now()>DEADLINE.getTime();
   $('#proposList').innerHTML = S.mociones.map((m,i)=>{ const c=compute(m); const win=c.opts.filter(o=>!o.abst).sort((a,b)=>b.pct-a.pct)[0]; const objs=OBJ()[i]||{}; const oe=Object.keys(objs).map(k=>({uf:+k, ...objs[k]})).filter(o=>uf(o.uf)); const opoN=oe.length, opoPct=oe.reduce((s,o)=>s+uf(o.uf).pct,0);
     const votada = c.opts.reduce((s,o)=>s+o.n,0)>0;
