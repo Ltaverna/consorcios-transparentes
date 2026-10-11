@@ -773,16 +773,18 @@ Modo moderador (PIN): en Agenda, botón "Soy moderador".</pre></div>
 </div>
 <dialog id="dlgPin"><form method="dialog" class="body"><h3>Modo moderador</h3><label>PIN <input id="pinInput" type="password" inputmode="numeric" autocomplete="off" placeholder="PIN"></label><p class="note">Habilita marcar presencia y votos, cambiar el punto en tratamiento, dar la palabra y registrar respuestas.</p><div class="row"><button class="btn" value="cancel">Cancelar</button><button class="btn primary" id="pinOk" value="ok">Entrar</button></div></form></dialog>
 <dialog id="dlgPalabra"><div class="body"><h3>Pedir la palabra</h3><div class="form"><label>Unidad <select id="palUf"></select></label><label>Nombre <input id="palNombre" placeholder="Nombre y apellido" autocomplete="name"></label></div><div class="row"><button class="btn" id="palCancel">Cancelar</button><button class="btn primary" id="palOk">Anotarme</button></div></div></dialog>
-<dialog id="dlgReclamar"><div class="body"><h3>Reclamar mi unidad</h3>
+<dialog id="dlgReclamar"><div class="body"><h3>Identificá tu unidad</h3>
   <div class="form">
     <label>Tu unidad <select id="recUf"></select></label>
     <label>Nombre <input id="recNombre" placeholder="Nombre y apellido" autocomplete="name"></label>
     <div class="row" style="justify-content:flex-start;gap:8px"><label style="flex:1">¿Representás otra unidad? (carta poder) <select id="recRep"></select></label><button class="btn sm" type="button" id="recAddRep">Agregar</button></div>
     <div id="recReps"></div>
+    <p class="note" id="recResumen" style="font-weight:600;color:var(--ink)" hidden></p>
   </div>
   <div class="row"><button class="btn" id="recCancel" type="button">Cancelar</button><button class="btn primary" id="recConfirm" type="button">Confirmar</button></div>
 </div></dialog>
 <dialog id="dlgObj"><div class="body"><h3>Registrar objeción</h3><p class="note" id="objTitulo"></p><div class="form"><label>Unidad <select id="objUf"></select></label><label>Nombre <input id="objNombre" placeholder="Nombre y apellido" autocomplete="name"></label><label>Motivo (opcional) <textarea id="objMotivo" rows="3"></textarea></label></div><div class="row"><button class="btn" id="objCancel">Cancelar</button><button class="btn primary" id="objOk">Objetar</button></div></div></dialog>
+<dialog id="dlgTexto"><div class="body"><h3 id="txtTitulo"></h3><p class="note" id="txtNota" hidden></p><input id="txtInput" autocomplete="off"><textarea id="txtArea" rows="5" style="font-family:inherit;font-size:16px;min-height:120px" hidden></textarea><div class="row"><button class="btn" id="txtCancel" type="button">Cancelar</button><button class="btn primary" id="txtOk" type="button">Guardar</button></div></div></dialog>
 
 <div class="bottom"><div class="wrap">
   <button class="btn primary" id="btnLista">Pasar lista</button>
@@ -1042,7 +1044,7 @@ function renderMiPanel(){
   else { if(lst) lst.hidden=(mode==='lista'); if(tb) tb.hidden=(mode==='lista'); }
   if(!esProp){ panel.innerHTML=''; return; }
   if(!MI){
-    panel.innerHTML = `<div class="card"><h3>¿Sos propietario?</h3><p class="note">Votá desde tu teléfono.</p><button class="btn primary" id="btnReclamar" type="button">Reclamar mi unidad</button></div>`;
+    panel.innerHTML = `<div class="card"><h3>¿Sos propietario?</h3><p class="note">Identificá tu unidad una sola vez; después votás cada moción cuando el moderador la abre.</p><button class="btn primary" id="btnReclamar" type="button">Votar desde mi teléfono</button></div>`;
   } else {
     const m=S.mociones[S.activa]; const abierta=!!(m&&m.abierta);
     const ufs=[MI.uf, ...(MI.representados||[])];
@@ -1117,13 +1119,13 @@ $('#list').addEventListener('click', e=>{
   }
   save(); renderTop(); renderRow(u.uf);
 });
-$('#list').addEventListener('change', e=>{
+$('#list').addEventListener('change', async e=>{
   const sel=e.target.closest('select[data-act="poderSel"]'); if(!sel) return;
   const uf=+sel.closest('.unit').dataset.uf; const u=UNITS.find(x=>x.uf===uf);
   const val=sel.value;
   if(!val){ setPoder(u, null); save(); renderTop(); renderRow(uf); return; }
   if(val==='tercero'){
-    const nombre=(prompt('Nombre completo del tercero con carta poder:')||'').trim();
+    const nombre=((await pedirTexto({titulo:'Tercero con carta poder', nota:'Representa a '+u.piso+' · '+u.prop+'.', placeholder:'Nombre completo'}))||'').trim();
     if(!nombre){ sel.value=typeof S.poderes[uf]==='string'&&S.poderes[uf].startsWith('tercero:')?'tercero':''; return; }
     setPoder(u, 'tercero:'+nombre); save(); renderTop(); renderRow(uf);
   } else {
@@ -1181,7 +1183,7 @@ $('#btnPresCancel').addEventListener('click', ()=>$('#dlgPresentes').close());
 $('#btnPresOk').addEventListener('click', ()=>{ const toks=$('#presInput').value.toUpperCase().split(/[\s,;]+/).filter(Boolean); let n=0;
   for(const t of toks){ const u=UNITS.find(x=>String(x.uf)===t || x.piso.toUpperCase()===t || x.piso.toUpperCase().replace('-','')===t.replace('-','')); if(u){ setPresent(u,true); n++; } }
   save(); renderAll(); $('#dlgPresentes').close(); toast(`${n} unidades marcadas presentes`); });
-$('#btnPresTodos').addEventListener('click', ()=>{ for(const u of UNITS) setPresent(u,true); save(); renderAll(); $('#dlgPresentes').close(); });
+$('#btnPresTodos').addEventListener('click', ()=>{ if(!confirm('¿Marcar las '+N+' unidades como presentes? El quórum queda al 100 %.')) return; for(const u of UNITS) setPresent(u,true); save(); renderAll(); $('#dlgPresentes').close(); });
 $('#btnPresNinguno').addEventListener('click', ()=>{ if(!confirm('¿Quitar la presencia de todas las unidades? Los votos también se borran.')) return; S.presentes={}; S.poderes={}; for(const m of S.mociones) m.votos={}; save(); sync.send({t:'state', v:S}); renderAll(); $('#dlgPresentes').close(); });
 
 // ---------- planilla
@@ -1357,8 +1359,26 @@ const DEADLINE = (()=>{ const base=AS.notificacion||AS.fecha; if(base){ const d=
 const DEADLINE_EST = !AS.notificacion;   // sin fecha de notificación: el plazo se estima desde la asamblea
 let MOD = false; try{ MOD = localStorage.getItem(KEY+'-mod')==='1'; }catch(e){}
 function setMod(v){ MOD=v; try{ localStorage.setItem(KEY+'-mod', v?'1':'0'); }catch(e){} document.body.classList.toggle('mod', v); renderAll(); }
+// Diálogo de texto propio (reemplaza a prompt(): en móvil el nativo es chico, se
+// cierra con un toque accidental y no se puede estilar).
+let _txtResolve=null;
+function pedirTexto(o){ o=o||{};
+  $('#txtTitulo').textContent=o.titulo||'';
+  const n=$('#txtNota'); if(o.nota){ n.textContent=o.nota; n.hidden=false; } else { n.hidden=true; }
+  const multi=!!o.multilinea; $('#txtInput').hidden=multi; $('#txtArea').hidden=!multi;
+  const el=multi?$('#txtArea'):$('#txtInput'); el.value=o.valor||''; el.placeholder=o.placeholder||'';
+  $('#dlgTexto').showModal(); setTimeout(()=>{ try{ el.focus(); }catch(e){} }, 60);
+  return new Promise(res=>{ _txtResolve=res; });
+}
+function _txtDone(v){ if(_txtResolve){ const r=_txtResolve; _txtResolve=null; r(v); } }
+$('#txtOk').addEventListener('click', ()=>{ const multi=!$('#txtArea').hidden; const v=(multi?$('#txtArea'):$('#txtInput')).value; $('#dlgTexto').close(); _txtDone(v); });
+$('#txtCancel').addEventListener('click', ()=>{ $('#dlgTexto').close(); _txtDone(null); });
+$('#dlgTexto').addEventListener('cancel', ()=>_txtDone(null));
 let _modPromptOpen=false;
-function pedirSecretoMod(){ if(_modPromptOpen) return; _modPromptOpen=true; const t=prompt('Secreto de moderador (se guarda en este dispositivo):', MOD_TOKEN||''); _modPromptOpen=false; if(t!=null){ MOD_TOKEN=t.trim(); try{ localStorage.setItem(KEY+'-modtok', MOD_TOKEN); }catch(e){} renderAll(); } }
+async function pedirSecretoMod(){ if(_modPromptOpen) return; _modPromptOpen=true;
+  const t=await pedirTexto({titulo:'Secreto de moderador', nota:'Se guarda en este dispositivo.', valor:MOD_TOKEN||'', placeholder:'Secreto'});
+  _modPromptOpen=false;
+  if(t!=null){ MOD_TOKEN=t.trim(); try{ localStorage.setItem(KEY+'-modtok', MOD_TOKEN); }catch(e){} renderAll(); } }
 if(MOD && !MOD_TOKEN){ MOD_TOKEN=PIN; try{ localStorage.setItem(KEY+'-modtok', PIN); }catch(e){} }   // por ahora el secreto de servidor = PIN; al rotarlo, un 401 lo vuelve a pedir
 document.body.classList.toggle('mod', MOD);
 function needMod(){ if(MOD) return true; $('#pinInput').value=''; $('#dlgPin').showModal(); return false; }
@@ -1418,13 +1438,15 @@ $('#view-agenda').addEventListener('click', e=>{
   if(b.dataset.palDone){ if(!needMod()) return; sync.send({t:'palabra', uf:+b.dataset.palDone, accion:'quitar'}); S.palabra=PAL().filter(p=>String(p.uf)!==b.dataset.palDone); save(); renderAll(); return; }
   if(b.dataset.gotoMoc!=null){ S.activa=+b.dataset.gotoMoc; save(); setTab('votar'); return; }
   if(b.dataset.createMoc){ if(!needMod()) return; S.mociones.push({titulo:b.dataset.createMoc, opciones:['A favor','En contra','Abstención'], regla:'abs', votos:{}}); save(); sync.send({t:'mociones', v:S.mociones}); renderAll(); return; }
-  const card=b.closest('[data-pt]'); if(card && b.dataset.ptAct){ if(!needMod()) return; const id=card.dataset.pt; const a=A()[id]||{}; const act=b.dataset.ptAct; let v={};
-    if(act==='curso'){ Object.keys(A()).forEach(k=>{ if(A()[k].estado==='curso'){ A()[k].estado='tratado'; A()[k].fin=Date.now(); const pk=C.agenda.find(p=>p.id===k); const mk=(pk&&pk.mocion)?mocIndexByTitle(pk.mocion):-1; if(mk>=0 && S.mociones[mk]) S.mociones[mk].abierta=false; sync.send({t:'agenda', id:k, v:{estado:'tratado', fin:A()[k].fin}}); } }); v={estado:'curso', inicio:Date.now()}; }
-    else if(act==='tratado'){ v={estado:'tratado', fin:Date.now()}; }
-    else if(act==='pendiente'){ v={estado:'pendiente'}; }
-    else if(act==='nota'){ const t=prompt('Decisión o nota para el acta (punto '+id+'):', a.nota||''); if(t===null) return; v={nota:t}; }
-    const pt=C.agenda.find(p=>p.id===id); const mi=(pt&&pt.mocion)?mocIndexByTitle(pt.mocion):-1; if(mi>=0 && S.mociones[mi]){ if(act==='curso') S.mociones[mi].abierta=true; else if(act==='tratado'||act==='pendiente') S.mociones[mi].abierta=false; }
-    A()[id]=Object.assign(a, v); save(); sync.send({t:'agenda', id, v}); renderAll(); }
+  const card=b.closest('[data-pt]'); if(card && b.dataset.ptAct){ if(!needMod()) return; const id=card.dataset.pt; const a=A()[id]||{}; const act=b.dataset.ptAct;
+    const aplicar = v=>{
+      const pt=C.agenda.find(p=>p.id===id); const mi=(pt&&pt.mocion)?mocIndexByTitle(pt.mocion):-1;
+      if(mi>=0 && S.mociones[mi]){ if(act==='curso') S.mociones[mi].abierta=true; else if(act==='tratado'||act==='pendiente') S.mociones[mi].abierta=false; }
+      A()[id]=Object.assign(a, v); save(); sync.send({t:'agenda', id, v}); renderAll(); };
+    if(act==='curso'){ Object.keys(A()).forEach(k=>{ if(A()[k].estado==='curso'){ A()[k].estado='tratado'; A()[k].fin=Date.now(); const pk=C.agenda.find(p=>p.id===k); const mk=(pk&&pk.mocion)?mocIndexByTitle(pk.mocion):-1; if(mk>=0 && S.mociones[mk]) S.mociones[mk].abierta=false; sync.send({t:'agenda', id:k, v:{estado:'tratado', fin:A()[k].fin}}); } }); aplicar({estado:'curso', inicio:Date.now()}); }
+    else if(act==='tratado'){ aplicar({estado:'tratado', fin:Date.now()}); }
+    else if(act==='pendiente'){ aplicar({estado:'pendiente'}); }
+    else if(act==='nota'){ pedirTexto({titulo:'Decisión o nota para el acta (punto '+id+')', valor:a.nota||'', multilinea:true}).then(t=>{ if(t!==null) aplicar({nota:t}); }); } }
 });
 $('#btnPalabra').addEventListener('click', ()=>{ ufOptions($('#palUf')); $('#palNombre').value=''; $('#dlgPalabra').showModal(); });
 $('#palCancel').addEventListener('click', ()=>$('#dlgPalabra').close());
@@ -1435,7 +1457,11 @@ function renderRecReps(){
   const selfUf=+$('#recUf').value;
   ufOptions($('#recRep'), u=> u.uf!==selfUf && !S.claims[u.uf] && !recRepsSel.includes(u.uf));
   const nprops = new Set(recRepsSel.map(uf=>ufInfo(uf).prop)).size;
-  $('#recReps').innerHTML = recRepsSel.map(uf=>`<span class="chip">${esc(ufInfo(uf).piso)} <button type="button" data-rmrep="${uf}">×</button></span>`).join('') + `<div class="note">representás ${nprops}/5</div>`;
+  $('#recReps').innerHTML = recRepsSel.map(uf=>`<span class="chip">${esc(ufInfo(uf).piso)} <button type="button" data-rmrep="${uf}">×</button></span>`).join('') + (recRepsSel.length?`<div class="note">representás ${nprops}/5</div>`:'');
+  // Resumen de identidad: confirmar quién vas a ser evita bloquear una unidad ajena por error.
+  const res=$('#recResumen'); const u=ufInfo(selfUf);
+  if(selfUf && u.uf){ res.textContent=`Vas a quedar como ${u.piso} · ${u.prop}${recRepsSel.length?` y representar ${recRepsSel.length} unidad${recRepsSel.length>1?'es':''} más`:''}. Tu unidad queda tomada por este teléfono: confirmá solo si sos vos.`; res.hidden=false; }
+  else { res.hidden=true; }
 }
 function abrirReclamar(){ recRepsSel=[]; ufOptions($('#recUf'), u=>!S.claims[u.uf]); $('#recNombre').value=''; renderRecReps(); $('#dlgReclamar').showModal(); }
 $('#recUf').addEventListener('change', renderRecReps);
@@ -1447,8 +1473,8 @@ $('#recConfirm').addEventListener('click', async ()=>{
   const nombre=$('#recNombre').value.trim();
   const r=await sync.act('/asamblea/claim', {device:DEVICE_ID, uf, representados:recRepsSel.slice(), nombre}, false);
   if(r.status===200){ setMi({uf, nombre, representados:recRepsSel.slice()}); $('#dlgReclamar').close(); toast('Listo, ya podés votar desde tu teléfono'); }
-  else if(r.status===409){ toast('Esa unidad ya fue tomada'); sync.pull(); }
-  else { toast((r.body&&r.body.detail&&r.body.detail.motivo)||'No se pudo reclamar'); }
+  else if(r.status===409){ toast('Esa unidad ya fue tomada desde otro teléfono. Si es tuya, pedile al moderador que la libere.', 5000); sync.pull(); }
+  else { toast((r.body&&r.body.detail&&r.body.detail.motivo)||'No se pudo tomar la unidad. Revisá la conexión y probá de nuevo.', 4500); }
 });
 $('#miPanel').addEventListener('click', async e=>{
   const bv=e.target.closest('button[data-mivoto]');
@@ -1469,7 +1495,7 @@ function renderPreguntas(){
     ${r&&r.texto?`<div class="resp"><b>Respuesta de la administración</b> (${hhmm(r.ts)}): ${esc(r.texto)}</div>`:'<div class="note">Sin respuesta registrada.</div>'}
     <div class="mod-only actions"><button class="btn sm" data-resp="${q.id}">${r&&r.texto?'Editar respuesta':'Registrar respuesta'}</button></div></div>`; }).join('');
 }
-$('#view-preguntas').addEventListener('click', e=>{ const b=e.target.closest('button[data-resp]'); if(!b) return; if(!needMod()) return; const id=b.dataset.resp; const cur=(RESP()[id]||{}).texto||''; const t=prompt('Respuesta dada por la administración:', cur); if(t===null) return; RESP()[id]={texto:t, ts:Date.now()}; save(); sync.send({t:'respuesta', qid:id, texto:t}); renderAll(); });
+$('#view-preguntas').addEventListener('click', async e=>{ const b=e.target.closest('button[data-resp]'); if(!b) return; if(!needMod()) return; const id=b.dataset.resp; const cur=(RESP()[id]||{}).texto||''; const t=await pedirTexto({titulo:'Respuesta de la administración', valor:cur, multilinea:true, placeholder:'Qué respondió la administración…'}); if(t===null) return; RESP()[id]={texto:t, ts:Date.now()}; save(); sync.send({t:'respuesta', qid:id, texto:t}); renderAll(); });
 
 // ---- proposiciones
 function renderPropos(){
