@@ -201,7 +201,7 @@ input,select{font:inherit;color:var(--ink);background:var(--surface);border:1px 
 .verdict.ok{background:var(--good-soft);color:var(--good-ink)} .verdict.no{background:var(--surface-2);color:var(--muted)} .verdict.pend{background:var(--warn-soft);color:var(--warn-ink)}
 .top.collapsed .results,.top.collapsed .mocion,.top.collapsed .cump{display:none}
 .mini{display:none;gap:6px 14px;flex-wrap:wrap;font-size:14px;align-items:center}
-.mini b{font-weight:700} .mini i{width:9px;height:9px;border-radius:2px;display:inline-block;margin-right:5px;vertical-align:middle}
+.mini b{font-weight:700} .mini>span{white-space:nowrap} .mini i{width:9px;height:9px;border-radius:2px;display:inline-block;margin-right:5px;vertical-align:middle}
 .mini .q{color:var(--muted);font-weight:500}
 .top.compact .mocion,.top.compact .quorum,.top.compact .results,.top.compact .titlebar,.top.compact .cump{display:none}
 .top.compact .mini{cursor:pointer;padding-right:26px;position:relative}
@@ -619,8 +619,8 @@ dialog textarea{font:inherit;font-size:12.5px;width:100%;min-height:220px;border
   .mini{font-size:14.5px}
   .tog.multi{font-size:13px}
   .chipu{min-height:62px} .chipu .main{padding:9px 12px} .chipu .main b{font-size:17px} .chipu .main span{font-size:13.5px} .chipu .pd{font-size:14px;padding:0 13px}
-  /* En pantalla angosta las píldoras envuelven: sin scroll lateral invisible */
-  .mocion{flex-wrap:wrap}
+  /* Mociones: una fila con scroll y degradado que indica que hay más a la derecha */
+  .mocion{-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 28px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 28px),transparent)}
   .doc-subnav{flex-wrap:wrap}
   .roll .grid{grid-template-columns:repeat(2,minmax(0,1fr))}
   .roll .floor h2{font-size:14px}
@@ -672,7 +672,7 @@ dialog textarea{font:inherit;font-size:12.5px;width:100%;min-height:220px;border
 #printArea .sig{margin-top:40px;display:flex;gap:40px} #printArea .sig div{flex:1;border-top:1px solid #000;padding-top:4px;font-size:12px}
 @media print{ body{background:#fff;padding:0} .top,.toolbar,.list,.roll,.bottom,.toast,dialog{display:none!important} #printArea{display:block!important} @page{margin:14mm} }
 
-#dlgRevision{max-height:90vh;display:flex;flex-direction:column}
+#dlgRevision[open]{max-height:90vh;display:flex;flex-direction:column}
 #dlgRevision .body{flex:1;overflow-y:auto;display:grid;gap:14px}
 #dlgRevision .rev-footer{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;padding:14px 20px;border-top:1px solid var(--hair);background:var(--surface);flex-shrink:0}
 #revMociones{display:grid;gap:10px}
@@ -986,8 +986,11 @@ function renderCumplimiento(c){
     ? `${noCount} incumplimiento${noCount>1?'s':''} · ${okCount}/${allRows.length} ✓`
     : `${okCount}/${allRows.length} ✓`;
   const summaryColor = noCount > 0 ? 'var(--critical-ink)' : 'var(--good-ink)';
-  // Preservar estado colapsado previo
-  const prevCollapsed = ($('#cumplimiento')||{}).classList && $('#cumplimiento').classList.contains('cump-collapsed');
+  // Preservar estado colapsado previo; primer render en móvil: colapsado por defecto
+  const el0 = $('#cumplimiento');
+  const primera = !(el0 && el0.querySelector('.cump-header'));
+  const prevCollapsed = primera ? matchMedia('(max-width:640px)').matches
+                                : (el0.classList && el0.classList.contains('cump-collapsed'));
   let html = `<div class="cump-header"><h2>Cumplimiento del reglamento</h2><span class="cump-summary" style="color:${summaryColor}">${summaryTxt}</span><button class="cump-toggle" aria-label="Mostrar/ocultar cumplimiento" onclick="toggleCump()">${prevCollapsed?'ver detalle':'ocultar'}</button></div>`;
   for(const r of rows){
     if(r.auto){
@@ -1402,6 +1405,7 @@ let TAB = 'agenda';
 let DOC_SUB = 'reglamento';
 try{ DOC_SUB = localStorage.getItem(KEY+'-docsub')||'reglamento'; }catch(e){}
 function setDocSub(sub){
+  const cambio = DOC_SUB!==sub;
   DOC_SUB=sub;
   document.querySelectorAll('.doc-subnav button').forEach(b=>b.setAttribute('aria-selected', String(b.dataset.docsub===sub)));
   document.querySelectorAll('.doc-sub').forEach(el=>el.classList.toggle('active', el.id==='docsub-'+sub));
@@ -1409,6 +1413,7 @@ function setDocSub(sub){
   if(sub==='reglamento') renderReglamento();
   else if(sub==='normativa') renderNormativa();
   else if(sub==='encargado') renderEncargado();
+  if(cambio) window.scrollTo(0,0);
 }
 document.querySelector('#view-docs').addEventListener('click', e=>{ const b=e.target.closest('button[data-docsub]'); if(b) setDocSub(b.dataset.docsub); });
 function setTab(t){ const entraDocs = (t==='docs' && TAB!=='docs'); TAB=t; document.querySelectorAll('.tabs button').forEach(b=>b.setAttribute('aria-selected', String(b.dataset.tab===t)));
