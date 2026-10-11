@@ -577,8 +577,8 @@ details.card[open]{ gap:12px; }
 .doc-sub{display:none;min-width:0;max-width:100%}.doc-sub.active{display:block}  /* ítem de grid: sin min-width:0 la tabla pre lo infla y el teléfono recorta el texto */
 
 /* Botón flotante "subir" (pestaña Documentos, documentos largos) */
-.btntop{position:fixed;right:14px;bottom:calc(18px + env(safe-area-inset-bottom));z-index:15;width:48px;height:48px;border-radius:50%;background:var(--surface);border:1px solid var(--hair);box-shadow:var(--shadow);display:flex;align-items:center;justify-content:center;color:var(--accent-ink);cursor:pointer}
-.btntop:hover{background:var(--surface-2)}
+.btntop{position:fixed;right:14px;bottom:calc(18px + env(safe-area-inset-bottom));z-index:15;width:48px;height:48px;border-radius:50%;background:var(--primary-bg);border:0;box-shadow:var(--shadow);display:flex;align-items:center;justify-content:center;color:var(--primary-ink);cursor:pointer}
+.btntop:hover{opacity:.9}
 /* ---- bottom bar */
 .bottom{position:fixed;left:0;right:0;bottom:0;z-index:10;background:var(--surface);border-top:1px solid var(--hair);padding:8px 16px calc(8px + env(safe-area-inset-bottom));box-shadow:var(--shadow-top)}
 .bottom .wrap{display:flex;gap:8px;justify-content:center;padding:0}
