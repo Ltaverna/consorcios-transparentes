@@ -321,7 +321,7 @@ pre.doc{white-space:pre-wrap;font:inherit;font-size:14.5px;line-height:1.55;colo
 
 /* Contenedor raíz: ancho de lectura cómodo, espacio generoso */
 div.doc{
-  max-width:68ch;          /* ~65–70 chars/línea: punto óptimo de lectura */
+  max-width:min(68ch,100%); /* ~65–70 chars/línea, pero nunca más ancho que la pantalla */
   font-size:15px;
   line-height:1.75;
   color:var(--ink-2);
