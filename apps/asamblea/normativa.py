@@ -94,7 +94,7 @@ NORMATIVA = [
             "antigüedad e indemnizaciones del encargado. Es el convenio que se cita en el análisis del punto "
             "del encargado (antigüedad de 12 años, horas extra, adicionales)."
         ),
-        fuente="Convenio colectivo del sector (FATERYH/SUTERH) — verificar la versión vigente",
-        url="https://www.argentina.gob.ar/trabajo/convenios",
+        fuente="FATERYH (federación firmante del convenio) — texto completo del CCT 589/10",
+        url="https://fateryh.org.ar/convenio-colectivo-589-10/",
     ),
 ]

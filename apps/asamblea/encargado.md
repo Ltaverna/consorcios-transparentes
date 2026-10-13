@@ -51,6 +51,32 @@ problema en potencia.
 
 ------------------------------------------------------------------------
 
+## Qué favorece la continuidad: datos verificables
+
+Para ponderar las dos alternativas con la misma vara, estos puntos
+juegan a favor de la continuidad y son comprobables:
+
+-   **La ley la contempla expresamente:** el art. 253 LCT regula el
+    trabajo del jubilado para el mismo empleador; no es una figura
+    forzada ni un atajo.
+-   **Exposición indemnizatoria mínima:** la antigüedad indemnizatoria
+    corre desde la jubilación (art. 253): ante un futuro despido, la
+    indemnización se calcula sobre la antigüedad nueva.
+-   **Cargas sociales menores:** el consorcio paga solo la contribución
+    jubilatoria (sin PAMI, Fondo de Empleo ni asignaciones familiares),
+    menos que por cualquier trabajador activo nuevo.
+-   **Sin costo de recambio:** no hay búsqueda, selección, capacitación
+    ni curva de aprendizaje; 13 años de conocimiento del edificio que
+    el propio informe de la administración reconoce como ventaja.
+-   **Los riesgos citados no desaparecen con un reemplazo:** enfermedad,
+    accidente, incapacidad, fallecimiento, ART y vivienda existen igual
+    con cualquier encargado. Por eso la única comparación válida es la
+    de costos completos de ambas alternativas (sección 11): si se
+    sostiene que "no conviene", corresponde mostrar ese cuadro con
+    números de los dos lados.
+
+------------------------------------------------------------------------
+
 ## Matriz rápida para discutir cada argumento
 
   ----------------------------------------------------------------------
