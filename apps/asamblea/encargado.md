@@ -23,6 +23,34 @@ que se comparen, con el mismo criterio, las ventajas y desventajas de
 
 ------------------------------------------------------------------------
 
+## La vía segura si se decide la continuidad
+
+Si la asamblea quiere que Ramón continúe, el objetivo es uno solo: que
+se haga **con los papeles en regla**, para que la continuidad no genere
+un problema después. Son cinco recaudos concretos, todos a cargo de la
+administración:
+
+1.  **Cierre documentado:** la extinción por jubilación (art. 252)
+    instrumentada y archivada: notificación, baja y liquidación final.
+2.  **Contrato nuevo por escrito** (art. 253), con la **vivienda como
+    prestación accesoria** incluida en el texto, y la **fecha desde la
+    que corre la nueva antigüedad** dejada por escrito.
+3.  **Plazo elegido a conciencia:** plazo fijo con causa escrita (la
+    transición) y preaviso del vencimiento agendado, o tiempo
+    indeterminado con salida del art. 253. Cualquiera de los dos sirve
+    si está bien hecho.
+4.  **Alta correcta:** examen preocupacional, alta en ART y declaración
+    en ARCA con el código de jubilado (las cargas son menores; ver más
+    abajo).
+5.  **Dictamen escrito del asesor laboral** que respalde la
+    instrumentación elegida.
+
+Con esos cinco puntos cubiertos, la continuidad es la alternativa de
+menor riesgo y menor costo; sin ellos, cualquier alternativa es un
+problema en potencia.
+
+------------------------------------------------------------------------
+
 ## Matriz rápida para discutir cada argumento
 
   ----------------------------------------------------------------------
@@ -242,6 +270,18 @@ Matices que conviene tener presentes:
     (extinción del art. 252 instrumentada, o la fecha del beneficio si
     siguió sin interrupción) y el contrato nuevo debe dejar **por
     escrito** desde cuándo corre la nueva antigüedad.
+
+### Cargas sociales ante ARCA: son menores, no iguales
+
+-   **El trabajador jubilado aporta solo el 11 % jubilatorio** (SIPA);
+    no se le retiene PAMI ni obra social: su neto de bolsillo sube.
+-   **El consorcio paga solo la contribución jubilatoria (SIPA):** se
+    eliminan las contribuciones a PAMI, al Fondo Nacional de Empleo y a
+    asignaciones familiares. La **ART y el seguro de vida obligatorio
+    se pagan igual** que con cualquier trabajador.
+-   En la práctica: se declara en el F. 931 de ARCA con el código de
+    jubilado. Pedir que el contador confirme el encuadre en el primer
+    recibo.
 
 ### Preguntas
 
