@@ -1,6 +1,6 @@
 # Informe de la administración — continuidad del encargado
 
-> Documento que la Administración presentó al Consejo sobre la continuidad del Sr. Ramón González luego de la jubilación. Se transcribe acá para tenerlo a la vista en la asamblea; **las preguntas del Consejo (más abajo) se refieren punto por punto a este informe.**
+> Documento que la Administración presentó al Consejo sobre la continuidad del Sr. Ramón González luego de la jubilación. Se transcribe acá para tenerlo a la vista en la asamblea; **las preguntas (más abajo) se refieren punto por punto a este informe.** Contexto: este informe es **anterior** a la carta documento del 9/10/2026 con la que la administración notificó la extinción del contrato al 19/10 (ver el punto previo del documento de preguntas, más abajo).
 
 ## 1. Objeto del informe
 

@@ -167,21 +167,19 @@ disposición, y 30 días para la vivienda. Las preguntas pasan a ser de
 
 ### Preguntas
 
-1.  Si Ramón dejara de prestar servicios pero permaneciera en la
-    vivienda, **¿en qué carácter jurídico la ocuparía durante ese
-    período?**
-2.  ¿La Administración considera terminado el derecho a la vivienda el
-    mismo día que pretende que deje de trabajar?
-3.  El informe recomienda extinguir el vínculo, obtener la devolución de
-    las llaves y la desocupación y luego eventualmente volver a
-    contratarlo. **¿Qué artículo de la LCT, de la Ley 12.981 o del CCT
-    589/10 exige necesariamente esa secuencia?**
-4.  Si la Asamblea decide que continúe como encargado con vivienda,
-    **¿qué utilidad práctica tendría hacerlo desocupar para luego volver
-    a otorgarle la misma vivienda?**
-5.  ¿Existe un riesgo concreto actual de que Ramón no restituya la
+1.  La carta documento ya fijó la restitución en 30 días (vencen
+    alrededor del 18/11, **después** de la asamblea). **Si el punto 4
+    aprueba el contrato nuevo con vivienda, ¿la administración confirma
+    que la restitución queda sin efecto?**
+2.  Si la asamblea decide la continuidad con vivienda, **¿qué utilidad
+    práctica tendría hacerlo desocupar para luego volver a otorgarle la
+    misma unidad?** ¿Qué artículo de la LCT, la Ley 12.981 o el CCT
+    589/10 exige necesariamente esa secuencia?
+3.  Mientras corre el plazo, ¿en qué carácter ocupa la vivienda y quién
+    lo documenta?
+4.  ¿Existe un riesgo concreto actual de que Ramón no restituya la
     vivienda o se está analizando solamente un riesgo hipotético?
-6.  ¿Se comparó ese riesgo con la posibilidad de documentar expresamente
+5.  ¿Se comparó ese riesgo con la posibilidad de documentar expresamente
     que la vivienda continúa siendo una prestación accesoria del vínculo
     laboral?
 
@@ -654,16 +652,18 @@ parte es simplemente una posibilidad general**.
 
 # Preguntas clave para hacer en la Asamblea
 
-Si hubiera que reducir todo a lo esencial, estas son las diez preguntas
+Si hubiera que reducir todo a lo esencial, estas son las doce preguntas
 más importantes:
 
-1.  **¿Cuál es hoy la situación laboral exacta de Ramón: vigente,
-    suspendida o extinguida, y con qué acto formal?**
-2.  **¿Qué norma establecería que cobrar la jubilación produce, por sí
-    solo, el cese del trabajo?**
-3.  **¿Está cobrando su remuneración y cubierto por la ART en este
-    momento?**
-4.  **¿En qué carácter ocupa hoy la vivienda?**
+1.  **¿Hubo intimación previa del art. 252 (requisito del artículo)?
+    Pedir copia y fecha para el acta.**
+2.  **La extinción se fijó en el primer cobro (19/10): ¿cuál fue la
+    fecha de concesión del beneficio y cómo impacta en la liquidación
+    final?**
+3.  **¿La liquidación final y los certificados del art. 80 están
+    completos?** (Ramón puede retirarlos bajo reserva si tiene dudas.)
+4.  **Entre el 19/10 y la firma del contrato nuevo, ¿quién cubre las
+    tareas y cómo se evita que haya trabajo de hecho sin alta?**
 5.  **¿Qué norma obliga a que entregue las llaves y desocupe para
     después volver a darle la vivienda si la Asamblea decide su
     continuidad?**
@@ -698,8 +698,8 @@ Una formulación más objetiva sería:
 > **"Considerando el desempeño demostrado, la aptitud actual, el costo
 > laboral comparado, la cobertura de ART, la situación de la vivienda,
 > la experiencia acumulada y las necesidades futuras del edificio, ¿es
-> más conveniente para el Consorcio mantener a Ramón, establecer una
-> continuidad transitoria con plan de sucesión o proceder a su
+> más conveniente para el Consorcio celebrar el contrato nuevo con
+> Ramón (por tiempo indeterminado o a plazo con revisión) o buscar un
 > reemplazo?"**
 
 Ese enfoque permite discutir **hechos, costos y riesgos concretos**, en
