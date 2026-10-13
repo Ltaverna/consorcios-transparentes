@@ -217,45 +217,87 @@ conviene asumirlo sin cotización.**
 
 ------------------------------------------------------------------------
 
-## 5. Sobre antigüedad e indemnización
+## 5. Antigüedad e indemnización: qué dice la ley vigente
 
-El informe señala correctamente que el art. 253 LCT contiene reglas
-especiales para el trabajador jubilado, pero mezcla antigüedad
-indemnizatoria, adicional por antigüedad, vacaciones y licencias.
+> **Respuesta corta: para una futura indemnización por despido, la
+> antigüedad arranca de cero desde la jubilación.** El art. 253 de la
+> LCT (último párrafo) establece que *"sólo se computará como
+> antigüedad el tiempo de servicios posterior al cese"*; y desde la
+> ley 27.426 (2017) la misma regla rige aunque el trabajador siga sin
+> interrupción: la antigüedad corre desde la fecha del beneficio
+> jubilatorio. Los 13 años anteriores no entran en esa cuenta.
+
+Matices que conviene tener presentes:
+
+-   **El piso:** la indemnización nunca es menor a un mes de sueldo, y
+    el preaviso con la antigüedad nueva es de un mes.
+-   **La base de cálculo** es el sueldo vigente al momento del futuro
+    despido: se resetean los años, no el sueldo.
+-   **El recibo mensual es otra discusión:** el adicional por
+    antigüedad del CCT 589/10 y las vacaciones/licencias pueden seguir
+    computando los años totales (art. 18 LCT y criterio sindical y de
+    parte de la justicia). Es la "contradicción normativa" que el
+    propio informe de la administración admite.
+-   **Condición práctica:** el corte debe quedar bien documentado
+    (extinción del art. 252 instrumentada, o la fecha del beneficio si
+    siguió sin interrupción) y el contrato nuevo debe dejar **por
+    escrito** desde cuándo corre la nueva antigüedad.
 
 ### Preguntas
 
-1.  **¿Qué conceptos concretos considera la Administración que comienzan
-    nuevamente desde la jubilación?**
-2.  ¿Está hablando de:
-    -   indemnización por antigüedad;
-    -   adicional salarial por antigüedad;
-    -   vacaciones;
-    -   licencias;
-    -   o de todos ellos?
-3.  ¿Cuál es el fundamento legal o convencional para cada concepto?
-4.  ¿Cómo se aplica el CCT 589/10 a cada uno?
-5.  ¿Qué diferencia práctica existe entre:
-    -   continuidad sin interrupción después de la jubilación; y
-    -   cese efectivo seguido de una nueva contratación?
-6.  ¿Cuál sería la exposición indemnizatoria estimada en cada
-    alternativa?
-
-### Ventaja de continuar
-
-La LCT contempla expresamente la continuidad del trabajador jubilado y
-establece reglas específicas para la antigüedad posterior.
-
-### Desventaja/riesgo
-
-Puede haber cuestiones interpretativas entre la LCT y determinados
-beneficios convencionales. Conviene resolverlas antes mediante un
-dictamen laboral específico y no mediante una cláusula genérica de
-"antigüedad cero".
+1.  **¿El contrato nuevo deja constancia escrita de que la antigüedad
+    indemnizatoria corre desde la jubilación (art. 253)?**
+2.  **¿Qué criterio se aplicará al adicional por antigüedad del CCT
+    589/10 en el recibo: los años totales o desde el nuevo contrato?**
+3.  ¿Cómo se computarán vacaciones y licencias?
+4.  ¿Cuál es la exposición indemnizatoria estimada en cada
+    alternativa (continuidad frente a reemplazo)?
 
 ------------------------------------------------------------------------
 
-## 6. Sobre vacaciones y licencias
+## 6. ¿Se puede un contrato a plazo fijo de 12 meses?
+
+> **Sí, es legalmente posible** (arts. 90 a 93 LCT, máximo cinco
+> años), con dos requisitos: que sea **por escrito con plazo expreso**
+> y que exista una **causa objetiva que justifique el plazo**. La
+> transición prevista en el punto 5 del orden del día es una causa
+> genuina, y conviene escribirla en el contrato. Sin causa válida, el
+> contrato se considera por tiempo indeterminado; la carga de la
+> prueba es del consorcio.
+
+Cómo funciona y qué cuesta:
+
+-   **Preaviso del vencimiento:** entre dos meses y un mes antes del
+    final hay que notificar por escrito que el contrato termina. Si
+    nadie preavisa, se convierte en indeterminado.
+-   **Al cumplirse los 12 meses:** corresponde media indemnización
+    (arts. 250 y 247) sobre la antigüedad nueva: aproximadamente medio
+    sueldo. Previsible y de bajo costo.
+-   **Cortarlo antes del vencimiento sin causa:** indemnización más
+    daños y perjuicios (en la práctica, los sueldos que faltaban hasta
+    el final). Romper un plazo fijo anticipado es **más caro** que
+    despedir en un contrato por tiempo indeterminado.
+-   **La alternativa:** contrato por tiempo indeterminado con salida
+    del art. 253 (preaviso más alrededor de un sueldo, en cualquier
+    momento). Da una flexibilidad parecida sin la rigidez del plazo;
+    el plazo fijo conviene si la asamblea quiere una **fecha de
+    revisión obligatoria** (a los 12 meses se vuelve a decidir sí o
+    sí).
+-   **Encuadre:** el encargado se rige además por la Ley 12.981 y el
+    CCT 589/10 (titular, suplente, jornalizado): el encuadre del
+    contrato transitorio debe definirlo el asesor laboral por escrito.
+
+### Preguntas
+
+1.  **¿El contrato propuesto es a plazo fijo con causa escrita, o por
+    tiempo indeterminado con salida del art. 253?**
+2.  ¿Quién queda a cargo de preavisar el vencimiento en término?
+3.  ¿Cuánto cuesta terminar cada alternativa, al vencimiento y antes
+    del plazo?
+
+------------------------------------------------------------------------
+
+## 7. Sobre vacaciones y licencias
 
 ### Preguntas
 
@@ -281,7 +323,7 @@ el costo laboral puede ser superior al de un trabajador nuevo. Debe
 
 ------------------------------------------------------------------------
 
-## 7. Sobre enfermedad, incapacidad y fallecimiento
+## 8. Sobre enfermedad, incapacidad y fallecimiento
 
 El informe los presenta como riesgos de mantener a Ramón.
 
@@ -310,7 +352,7 @@ caso un incremento objetivo y cuantificable del riesgo.
 
 ------------------------------------------------------------------------
 
-## 8. Sobre los 13 años de experiencia
+## 9. Sobre los 13 años de experiencia
 
 El informe reconoce como ventajas el conocimiento del edificio,
 proveedores, rutinas y la ausencia de curva de aprendizaje.
@@ -344,7 +386,7 @@ Debe complementarse con evaluación periódica y objetivos claros.
 
 ------------------------------------------------------------------------
 
-## 9. Sobre el ayudante y una transición ordenada
+## 10. Sobre el ayudante y una transición ordenada
 
 Esta puede ser una tercera alternativa entre "Ramón continúa
 indefinidamente" y "Ramón se va ahora".
@@ -372,7 +414,7 @@ relación laboral.
 
 ------------------------------------------------------------------------
 
-## 10. La comparación económica que falta
+## 11. La comparación económica que falta
 
 Antes de decidir, sería conveniente que la Administración presente **dos
 costos completos y comparables**.
@@ -577,6 +619,12 @@ más importantes:
     costo anual completo de reemplazarlo?**
 10. **¿Se evaluó una continuidad transitoria para que Ramón capacite al
     ayudante y se realice una sucesión ordenada?**
+11. **¿El contrato nuevo deja por escrito que la antigüedad
+    indemnizatoria corre desde la jubilación (art. 253), y qué criterio
+    se aplica al adicional por antigüedad del CCT 589/10 en el recibo?**
+12. **Si se propone un plazo fijo (por ejemplo, 12 meses): ¿con qué
+    causa escrita, quién preavisa el vencimiento y qué costaría
+    cortarlo antes?**
 
 ------------------------------------------------------------------------
 
