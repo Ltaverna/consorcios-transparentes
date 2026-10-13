@@ -14,12 +14,16 @@ riesgo mencionado por la Administración tenga fundamento concreto** y
 que se comparen, con el mismo criterio, las ventajas y desventajas de
 **continuar con Ramón** frente a **reemplazarlo**.
 
-> **Punto previo importante:** la jubilación ya está otorgada y su
-> cobro ya comenzó. Eso, por sí solo, no extingue la relación laboral:
-> la ley contempla expresamente que un trabajador jubilado continúe
-> trabajando para el mismo empleador (art. 253 LCT). Lo primero que
-> conviene pedir en la asamblea es que la Administración informe, con
-> respaldo formal, cuál es la situación laboral de Ramón al día de hoy.
+> **Punto previo importante:** la administración notificó a Ramón, por
+> carta documento del 9/10/2026 (recibida el 13/10), la **extinción del
+> contrato por el art. 252 LCT con efecto al 19/10/2026** —la fecha
+> fijada por ANSES para el primer cobro—, sin indemnización por
+> antigüedad, con 30 días corridos para restituir la vivienda (vencen
+> alrededor del 18/11, después de la asamblea) y la liquidación final y
+> certificados (art. 80 LCT y PS 6.2) a disposición. La asamblea del
+> 20/10 delibera entonces con el contrato ya extinguido: lo que decide
+> el punto 4 es si se celebra el **contrato nuevo** del art. 253, que
+> la ley contempla expresamente. La extinción notificada no lo impide.
 
 ------------------------------------------------------------------------
 
@@ -32,6 +36,8 @@ administración:
 
 1.  **Cierre documentado:** la extinción por jubilación (art. 252)
     instrumentada y archivada: notificación, baja y liquidación final.
+    **La administración ya lo inició** con la carta documento del
+    9/10/2026 (efecto 19/10); falta verificar la intimación previa.
 2.  **Contrato nuevo por escrito** (art. 253), con la **vivienda como
     prestación accesoria** incluida en el texto, y la **fecha desde la
     que corre la nueva antigüedad** dejada por escrito.
@@ -130,43 +136,30 @@ juegan a favor de la continuidad y son comprobables:
 
 ------------------------------------------------------------------------
 
-## 1. La situación laboral al día de la asamblea
+## 1. La situación laboral: extinguida el 19/10, a verificar
 
-Ramón ya tiene la jubilación otorgada y cobrada. La primera discusión
-no es una fecha: es saber en qué estado quedó la relación laboral y con
-qué respaldo formal.
+Con la carta documento del 9/10 la situación quedó definida: contrato
+extinguido al 19/10 (art. 252), liquidación final y certificados a
+disposición, y 30 días para la vivienda. Las preguntas pasan a ser de
+**verificación**, y son pocas:
 
-### Preguntas
-
-1.  **¿Cuál es hoy la situación laboral de Ramón: vigente, suspendida o
-    extinguida? ¿Con qué acto formal y con qué norma se respalda?**
-2.  **¿Qué norma establecería que cobrar la jubilación produce, por sí
-    solo, el cese del trabajo?**
-3.  Si el Consorcio la considera extinguida:
-    -   ¿se comunicó formalmente el cese?;
-    -   ¿se realizó la baja laboral?;
-    -   ¿se practicó la liquidación final?;
-    -   ¿qué ocurrió con ART, aportes y demás registraciones?
-4.  Si sigue vigente, **¿bajo qué figura continúa prestando servicios y
-    con qué alcance de tareas?**
-5.  **¿Está cobrando su remuneración con normalidad?**
-6.  **¿Está cubierto por la ART?**
-7.  Si se le pidió dejar de prestar tareas, **¿con qué figura jurídica y
-    por qué**, si la LCT contempla expresamente que un trabajador
-    jubilado continúe trabajando para el mismo empleador (art. 253)?
-
-### Ventaja de mantenerlo trabajando
-
-Se evita una situación laboral intermedia difícil de encuadrar, se
-mantiene el servicio del edificio y la Asamblea decide con la relación
-en curso y con toda la información disponible.
-
-### Posible desventaja
-
-Si jurídicamente ya correspondiera instrumentar un cese y el Consorcio
-decidiera hacerlo, prolongar la relación puede generar obligaciones
-laborales adicionales. **Por eso debe determinarse primero cuál es la
-figura jurídica concreta, con dictamen escrito del asesor laboral.**
+1.  **¿Hubo intimación previa del art. 252 y de qué fecha?** Es el
+    requisito del artículo (la carta alude a "nuestra comunicación
+    anterior"): pedir copia para el acta.
+2.  El art. 252 extingue el contrato con la **concesión** del beneficio
+    (o al año de la intimación): ¿por qué se tomó la fecha del primer
+    cobro (19/10)? Confirmar la fecha exacta y su efecto en la
+    liquidación final.
+3.  ¿La liquidación final y los certificados del art. 80 están
+    completos? Ramón puede retirarlos y, ante cualquier duda, recibirlos
+    **bajo reserva** con asesoramiento propio.
+4.  **Si el 20/10 la asamblea aprueba el contrato nuevo con vivienda,
+    ¿la administración confirma que la restitución queda sin efecto y
+    que el alta nueva se instrumenta de inmediato?**
+5.  Entre el 19/10 y la firma del contrato nuevo, ¿quién cubre las
+    tareas? Ramón **no debería trabajar de hecho sin registración** en
+    ese intervalo: generaría una relación de hecho nueva, un problema
+    evitable con un alta a tiempo.
 
 ------------------------------------------------------------------------
 
