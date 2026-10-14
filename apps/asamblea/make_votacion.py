@@ -792,12 +792,11 @@ dialog textarea{font:inherit;font-size:12.5px;width:100%;min-height:220px;border
   </div>
 
   <div class="doc-sub" id="docsub-expensas">
-    <p class="lead">Las últimas liquidaciones de expensas: lo crítico primero (gasto del mes, variación, deudores y si la liquidación cuadra al centavo), y el detalle de cada mes abajo.</p>
+    <p class="lead">Las últimas liquidaciones de expensas: lo crítico primero (gasto del mes, variación, deudores y si la liquidación cuadra al centavo), y el detalle de cada mes abajo. <a href="/informe-expensas.html" target="_blank" rel="noopener">Informe detallado de julio y agosto</a> (con comprobantes verificados).</p>
     <div id="expensasList" style="display:grid;gap:12px"></div>
   </div>
 
   <div class="doc-sub" id="docsub-convocatoria">
-    <div class="card docs"><h3>Informe de expensas (julio y agosto 2026)</h3><p class="lead">Gastos, proveedores, deudores, flujo de fondos, hallazgos y comprobantes verificados.</p><div class="actions"><a class="btn primary sm" href="/informe-expensas.html" target="_blank" rel="noopener">Abrir informe</a><a class="btn sm" href="/analisis-expensas.xlsx">Descargar Excel</a></div></div>
     <div class="card docs"><h3>Convocatoria</h3><pre class="doc" id="docConv"></pre></div>
     <div class="card docs"><h3>Modelo de poder</h3><pre class="doc" id="docPoder"></pre></div>
     <div class="card docs"><h3>¿Estás fuera de la ciudad? Enviá el poder por correo</h3>
