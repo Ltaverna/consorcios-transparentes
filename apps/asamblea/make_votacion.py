@@ -808,7 +808,8 @@ dialog textarea{font:inherit;font-size:12.5px;width:100%;min-height:220px;border
 3. Envialo al correo de la administración ANTES de la asamblea, con
    copia a tu mandatario, pidiendo acuse de recibo.
 4. Tu mandatario lleva una copia impresa a la asamblea.</pre>
-      <p class="note">Modelo de correo (copiá y completá):</p>
+      <div class="actions"><a class="btn primary sm" href="mailto:gracielalmazare@gmail.com?subject=Carta%20poder%20%E2%80%94%20Asamblea%2020/10/2026%20%E2%80%94%20UF%20___%20%E2%80%94%20Rivadavia%202067/69/71&body=Sra.%20Administradora%3A%0AAdjunto%20la%20carta%20poder%20firmada%20para%20la%20asamblea%20extraordinaria%20del%2020/10/2026%2C%20por%20la%20que%20autorizo%20a%20%5Bnombre%20y%20apellido%5D%2C%20DNI%20___%2C%20propietario/a%20de%20la%20UF%20___%2C%20a%20representarme%2C%20conforme%20al%20art.%2025%20inc.%20h%20del%20Reglamento%20de%20Copropiedad%20%28%22ser%C3%A1%20suficiente%20la%20presentaci%C3%B3n%20de%20una%20carta%20poder%22%29.%0ASolicito%20acuse%20de%20recibo%20por%20este%20medio.%20Mi%20mandatario%20llevar%C3%A1%20adem%C3%A1s%20una%20copia%20impresa%20a%20la%20asamblea.%0A%0A%5BNombre%20y%20apellido%5D%20%E2%80%94%20Propietario/a%20UF%20___%20%E2%80%94%20DNI%20___">Enviar poder por correo</a></div>
+      <p class="note">El botón abre tu correo con el destinatario (gracielalmazare@gmail.com), el asunto y el texto ya cargados: completá los datos, adjuntá la foto del poder firmado y envialo. O copiá el modelo:</p>
       <pre class="doc">Asunto: Carta poder — Asamblea 20/10/2026 — UF ___ — Rivadavia 2067/69/71
 
 Sra. Administradora:
@@ -1864,7 +1865,11 @@ buildPrint = function(){ _buildPrint(); const q=quorumInfo(); let h='';
 // ---- render hooks
 const _renderAll = renderAll;
 renderAll = function(){ _renderAll(); if(TAB==='agenda') renderAgenda(); else if(TAB==='preguntas') renderPreguntas(); else if(TAB==='propos') renderPropos(); applyCompact(); };
-(function(){ let t='agenda'; try{ t=localStorage.getItem(KEY+'-tab')||'agenda'; }catch(e){} setTab(t); if(t==='docs') setDocSub(DOC_SUB); })();
+(function(){ let t='agenda'; try{ t=localStorage.getItem(KEY+'-tab')||'agenda'; }catch(e){}
+  // Link directo: #votar, #docs-convocatoria, #docs-expensas, #docs-encargado, etc.
+  const m=(location.hash||'').match(/^#(agenda|votar|preguntas|propos|docs)(?:-(reglamento|normativa|encargado|expensas|convocatoria))?$/);
+  if(m){ t=m[1]; if(m[2]) DOC_SUB=m[2]; }
+  setTab(t); if(t==='docs') setDocSub(DOC_SUB); })();
 
 let tt; function toast(msg, ms){ const t=$('#toast'); t.textContent=msg; t.style.display='block'; clearTimeout(tt); tt=setTimeout(()=>t.style.display='none', ms||2500); }
 renderAll();
