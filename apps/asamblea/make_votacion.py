@@ -800,6 +800,28 @@ dialog textarea{font:inherit;font-size:12.5px;width:100%;min-height:220px;border
     <div class="card docs"><h3>Informe de expensas (julio y agosto 2026)</h3><p class="lead">Gastos, proveedores, deudores, flujo de fondos, hallazgos y comprobantes verificados.</p><div class="actions"><a class="btn primary sm" href="/informe-expensas.html" target="_blank" rel="noopener">Abrir informe</a><a class="btn sm" href="/analisis-expensas.xlsx">Descargar Excel</a></div></div>
     <div class="card docs"><h3>Convocatoria</h3><pre class="doc" id="docConv"></pre></div>
     <div class="card docs"><h3>Modelo de poder</h3><pre class="doc" id="docPoder"></pre></div>
+    <div class="card docs"><h3>¿Estás fuera de la ciudad? Enviá el poder por correo</h3>
+      <p class="lead">El reglamento de copropiedad (art. 25, inc. h) dice que para hacerse representar <b>"será suficiente la presentación de una carta poder"</b> — no exige original en mano. Si no podés acercarte:</p>
+      <pre class="doc">1. Completá el poder de arriba con tus datos y los de tu mandatario
+   (un propietario que asista; puede representar hasta 5 propietarios).
+2. Firmalo y sacale una foto nítida o escanealo.
+3. Envialo al correo de la administración ANTES de la asamblea, con
+   copia a tu mandatario, pidiendo acuse de recibo.
+4. Tu mandatario lleva una copia impresa a la asamblea.</pre>
+      <p class="note">Modelo de correo (copiá y completá):</p>
+      <pre class="doc">Asunto: Carta poder — Asamblea 20/10/2026 — UF ___ — Rivadavia 2067/69/71
+
+Sra. Administradora:
+Adjunto la carta poder firmada para la asamblea extraordinaria del
+20/10/2026, por la que autorizo a [nombre y apellido], DNI ___,
+propietario/a de la UF ___, a representarme, conforme al art. 25
+inc. h del Reglamento de Copropiedad ("será suficiente la
+presentación de una carta poder").
+Solicito acuse de recibo por este medio. Mi mandatario llevará
+además una copia impresa a la asamblea.
+
+[Nombre y apellido] — Propietario/a UF ___ — DNI ___</pre>
+    </div>
     <div class="card docs"><h3>Cómo se usa esta app</h3><pre class="doc">Agenda: seguí el punto en tratamiento y anotate para hablar.
 Votar (propietarios): tocá "Votar desde mi teléfono", elegí tu unidad una sola vez y votá cada moción cuando el moderador la abre. Si tenés cartas poder, podés sumar las unidades que representás (hasta 5 propietarios, art. 25 h).
 Votar (moderador): marca presentes, poderes y votos de quienes no usan teléfono; todos ven el resultado en vivo con la doble mayoría (unidades y porcentual).
