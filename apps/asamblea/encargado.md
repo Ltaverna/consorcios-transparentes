@@ -62,6 +62,11 @@ problema en potencia.
 Para ponderar las dos alternativas con la misma vara, estos puntos
 juegan a favor de la continuidad y son comprobables:
 
+-   **El propio comunicado del Consejo (15/10) lo reconoce:** entre sus
+    puntos a favor lista que *"el costo previsional es menor al de un
+    trabajador activo no jubilado"* y que *"el art. 253 LCT computa la
+    antigüedad desde la nueva alta"*. Los dos argumentos económicos
+    centrales ya no están en discusión.
 -   **La ley la contempla expresamente:** el art. 253 LCT regula el
     trabajo del jubilado para el mismo empleador; no es una figura
     forzada ni un atajo.
@@ -182,6 +187,10 @@ disposición, y 30 días para la vivienda. Las preguntas pasan a ser de
 5.  ¿Se comparó ese riesgo con la posibilidad de documentar expresamente
     que la vivienda continúa siendo una prestación accesoria del vínculo
     laboral?
+6.  El propio comunicado propone un **acuerdo homologado** para la
+    restitución: ese mismo instrumento sirve, con igual fuerza, para
+    documentar la vivienda como prestación accesoria del contrato nuevo
+    — ¿por qué usarlo solo para desocupar y no para continuar?
 
 ### Ventaja de la continuidad
 
@@ -314,6 +323,10 @@ Matices que conviene tener presentes:
 
 ## 6. ¿Se puede un contrato a plazo fijo de 12 meses?
 
+El comunicado del Consejo (15/10) afirma que *"el nuevo contrato no se
+puede realizar sobre el acuerdo de un plazo determinado"*. El texto de
+la ley dice otra cosa:
+
 > **Sí, es legalmente posible** (arts. 90 a 93 LCT, máximo cinco
 > años), con dos requisitos: que sea **por escrito con plazo expreso**
 > y que exista una **causa objetiva que justifique el plazo**. La
@@ -321,6 +334,14 @@ Matices que conviene tener presentes:
 > genuina, y conviene escribirla en el contrato. Sin causa válida, el
 > contrato se considera por tiempo indeterminado; la carga de la
 > prueba es del consorcio.
+
+El comunicado también dice que el contrato nuevo *"se extingue solo por
+renuncia o despido"*. Es incompleto: además se extingue por
+**vencimiento del plazo** (si es a plazo fijo, art. 93), por **mutuo
+acuerdo** (art. 241) y por la **salida especial del art. 253** —el
+empleador puede extinguir invocando la condición de jubilado, con
+preaviso e indemnización por la antigüedad nueva—, que el propio
+comunicado lista entre los puntos a favor.
 
 Cómo funciona y qué cuesta:
 
@@ -514,8 +535,8 @@ costosa resulta incompleto.
 
 ## El análisis de riesgos del informe, punto por punto
 
-El informe declara buscar una evaluación equilibrada y afirma que *"la
-edad por sí sola no es un impedimento"*. Varios de los riesgos que
+El comunicado declara que *"el criterio no debería ser la edad del
+encargado, sino su aptitud para la función"*. Varios de los riesgos que
 desarrolla, sin embargo, se vinculan con la edad del encargado. Para
 decidir sobre hechos y no sobre hipótesis, conviene pedir el respaldo
 concreto de cada afirmación y comparar cada riesgo contra la alternativa
@@ -681,9 +702,11 @@ más importantes:
 11. **¿El contrato nuevo deja por escrito que la antigüedad
     indemnizatoria corre desde la jubilación (art. 253), y qué criterio
     se aplica al adicional por antigüedad del CCT 589/10 en el recibo?**
-12. **Si se propone un plazo fijo (por ejemplo, 12 meses): ¿con qué
-    causa escrita, quién preavisa el vencimiento y qué costaría
-    cortarlo antes?**
+12. **El comunicado afirma que no se puede pactar un plazo determinado:
+    ¿cuál es el fundamento normativo, frente a los arts. 90 a 93 de la
+    LCT que lo regulan expresamente?** Si se propone plazo fijo: ¿con
+    qué causa escrita, quién preavisa el vencimiento y qué costaría
+    cortarlo antes?
 
 ------------------------------------------------------------------------
 
