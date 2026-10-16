@@ -831,7 +831,7 @@ Documentos: reglamento, normativa, informe del encargado, convocatoria y poder.
 Modo moderador (PIN): en Agenda, botón "Soy moderador".</pre></div>
   </div>
 </div>
-<dialog id="dlgPin"><form method="dialog" class="body"><h3>Modo moderador</h3><label>PIN <input id="pinInput" type="password" inputmode="numeric" autocomplete="off" placeholder="PIN"></label><p class="note">Habilita marcar presencia y votos, cambiar el punto en tratamiento, dar la palabra y registrar respuestas.</p><div class="row"><button class="btn" value="cancel">Cancelar</button><button class="btn primary" id="pinOk" value="ok">Entrar</button></div></form></dialog>
+<dialog id="dlgPin"><form method="dialog" class="body"><h3>Modo moderador</h3><label>PIN <input id="pinInput" type="password" inputmode="numeric" autocomplete="off" placeholder="PIN"></label><p class="note">Habilita marcar presencia y votos, cambiar el punto en tratamiento, dar la palabra y registrar respuestas.</p><div class="row"><button class="btn" type="button" id="pinCancel">Cancelar</button><button class="btn primary" id="pinOk" value="ok">Entrar</button></div></form></dialog>
 <dialog id="dlgPalabra"><div class="body"><h3>Pedir la palabra</h3><div class="form"><label>Unidad <select id="palUf"></select></label><label>Nombre <input id="palNombre" placeholder="Nombre y apellido" autocomplete="name"></label></div><div class="row"><button class="btn" id="palCancel">Cancelar</button><button class="btn primary" id="palOk">Anotarme</button></div></div></dialog>
 <dialog id="dlgReclamar"><div class="body"><h3>Identificá tu unidad</h3>
   <div class="form">
@@ -876,7 +876,7 @@ Modo moderador (PIN): en Agenda, botón "Soy moderador".</pre></div>
   <p class="note">Doble mayoría según art. 2060 del Código Civil y Comercial: se computa a la vez la cantidad de unidades y el porcentual. Las abstenciones no suman a ninguna opción.</p>
   <label>Nombre de este dispositivo <input id="sDev" placeholder="Ej.: celular Hugo"></label>
   <p class="note" id="sStatus" role="status" aria-live="polite">Sincronización en vivo con la API del panel.</p>
-  <div class="row"><button class="btn danger" id="sBorrar" type="button">Borrar esta moción</button><button class="btn" value="cancel">Cancelar</button><button class="btn primary" id="sGuardar" value="ok">Guardar</button></div>
+  <div class="row"><button class="btn danger" id="sBorrar" type="button">Borrar esta moción</button><button class="btn" type="button" id="sCancel">Cancelar</button><button class="btn primary" id="sGuardar" value="ok">Guardar</button></div>
 </form></dialog>
 
 <dialog id="dlgResumen"><div class="body">
@@ -1110,7 +1110,7 @@ function renderMiPanel(){
   else { if(lst) lst.hidden=(mode==='lista'); if(tb) tb.hidden=(mode==='lista'); }
   if(!esProp){ panel.innerHTML=''; return; }
   if(!MI){
-    panel.innerHTML = `<div class="card"><h3>¿Sos propietario?</h3><p class="note">Identificá tu unidad una sola vez; después votás cada moción cuando el moderador la abre.</p><button class="btn primary" id="btnReclamar" type="button">Votar desde mi teléfono</button></div>`;
+    panel.innerHTML = `<div class="card"><h3>¿Sos propietario?</h3><p class="note">Identificá tu unidad una sola vez; después votás cada moción cuando el moderador la abre.</p><button class="btn primary" id="btnReclamar" type="button">Votar desde mi teléfono</button><p class="note" style="margin-top:4px"><button id="btnSoyMod" type="button" style="background:none;border:0;padding:0;color:var(--accent-ink);text-decoration:underline;text-underline-offset:2px;cursor:pointer;font:inherit">¿Sos el moderador? Ingresá con el PIN</button></p></div>`;
   } else {
     const m=S.mociones[S.activa]; const abierta=!!(m&&m.abierta);
     const ufs=[MI.uf, ...(MI.representados||[])];
@@ -1222,6 +1222,7 @@ $('#sGuardar').addEventListener('click', e=>{ const m=M(); m.titulo=$('#sTitulo'
   const nv={}; for(const k in m.votos){ if(map[m.votos[k]]!=null) nv[k]=map[m.votos[k]]; } m.votos=nv; m.opciones=newOpts;
   S.mociones[S.activa].abierta=$('#sAbierta').checked;
   CFG.dev=$('#sDev').value.trim(); saveCfg(); save(); sync.send({t:'mociones', v:S.mociones}); renderAll(); });
+$('#sCancel').addEventListener('click', ()=>$('#dlgSettings').close());
 $('#sBorrar').addEventListener('click', ()=>{ if(S.mociones.length<=1){ alert('Tiene que quedar al menos una moción.'); return; } if(!confirm('¿Borrar esta moción y sus votos?')) return; S.mociones.splice(S.activa,1); S.activa=0; save(); sync.send({t:'mociones', v:S.mociones}); renderAll(); $('#dlgSettings').close(); });
 
 // ---------- resumen
@@ -1550,6 +1551,7 @@ async function pedirSecretoMod(){ if(_modPromptOpen) return; _modPromptOpen=true
 if(MOD && !MOD_TOKEN){ MOD_TOKEN=PIN; try{ localStorage.setItem(KEY+'-modtok', PIN); }catch(e){} }   // por ahora el secreto de servidor = PIN; al rotarlo, un 401 lo vuelve a pedir
 document.body.classList.toggle('mod', MOD);
 function needMod(){ if(MOD) return true; $('#pinInput').value=''; $('#dlgPin').showModal(); return false; }
+$('#pinCancel').addEventListener('click', ()=>$('#dlgPin').close());
 $('#pinOk').addEventListener('click', e=>{ if($('#pinInput').value.trim()===PIN){ setMod(true); if(!MOD_TOKEN){ MOD_TOKEN=PIN; try{ localStorage.setItem(KEY+'-modtok', PIN); }catch(e){} } toast('Modo moderador activado'); } else { e.preventDefault(); $('#pinInput').value=''; $('#pinInput').placeholder='PIN incorrecto'; } });
 
 let TAB = 'agenda';
@@ -1665,6 +1667,7 @@ $('#miPanel').addEventListener('click', async e=>{
     renderMiPanel(); renderTop();
     const r=await sync.act('/asamblea/voto',{device:DEVICE_ID, mocion:S.activa, uf, opcion}, false);
     if(r.status!==200){ toast((r.body&&r.body.detail&&r.body.detail.motivo)||'No se pudo votar. Revisá la conexión y probá de nuevo.', 4500); } return; }
+  if(e.target.closest('#btnSoyMod')){ needMod(); return; }
   if(e.target.closest('#btnReclamar')){ abrirReclamar(); return; }
   if(e.target.closest('#btnSalirMi')){ if(MI){ for(const uf of [MI.uf, ...(MI.representados||[])]){ await sync.act('/asamblea/release',{device:DEVICE_ID, uf}, false); } } setMi(null); return; }
 });
