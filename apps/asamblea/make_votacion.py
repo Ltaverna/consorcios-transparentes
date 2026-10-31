@@ -1817,6 +1817,23 @@ function renderExpensas(){
     <div class="exp-bars">${xs.map((x,i)=>`<div class="col ${i===xs.length-1?'last':''}" title="${nombreMes(x.periodo)}: ${fmt.format(x.total_gastos||0)}"><i style="height:${Math.max(4,(x.total_gastos||0)/maxG*70)}px"></i><b>${nombreMes(x.periodo).slice(0,3)}</b></div>`).join('')}</div>
     <div class="note">Deudores por mes: ${xs.map(x=>`${nombreMes(x.periodo).slice(0,3)} ${(x.deudores||[]).length}`).join(' · ')}</div>
   </div>`;
+  // Top proveedores externos del ejercicio: suma los agregados mensuales y excluye lo que
+  // no es un contratista elegido (sueldos, cargas y aportes de ley, servicios públicos,
+  // impuestos, bancos, honorarios de administración).
+  {
+    const EXCL=[/^Consorcio RIVADAVIA/i,/^ARCA/i,/^EDESUR/i,/^METROGAS/i,/^AYSA/i,/^AGIP/i,/^BANCO/i,/^SUTERH/i,/^FATERYH/i,/CROCAMO/i];
+    const acc={};
+    xs.forEach(x=>(x.proveedores||[]).forEach(p=>{ if(EXCL.some(r=>r.test(p.proveedor))) return; const a=acc[p.proveedor]||(acc[p.proveedor]={proveedor:p.proveedor,total:0,items:0}); a.total+=p.total; a.items+=p.items; }));
+    const prov=Object.values(acc).sort((a,b)=>b.total-a.total);
+    const totG=xs.reduce((t,x)=>t+(x.total_gastos||0),0);
+    const top=prov.slice(0,12), resto=prov.slice(12);
+    const fila=pv=>`<tr><td>${esc(pv.proveedor)}</td><td class="r">${pv.items}</td><td class="r">${fmt.format(pv.total)}</td><td class="r note">${(pv.total/totG*100).toFixed(1).replace('.',',')}%</td></tr>`;
+    h+=`<div class="card"><h3>Top proveedores externos del ejercicio</h3>
+      <p class="note">Suma de ${nombreMes(xs[0].periodo)} a ${nombreMes(xs[xs.length-1].periodo)} (meses auditados). No incluye sueldos ni cargas sociales, aportes de ley (SUTERH/FATERYH), servicios públicos, impuestos, gastos bancarios ni honorarios de administración. El % es sobre el gasto total del período (${fmt.format(totG)}).</p>
+      <table class="exp-tabla"><thead><tr><th>Proveedor</th><th class="r">Pagos</th><th class="r">Total</th><th class="r">%</th></tr></thead><tbody>${top.map(fila).join('')}</tbody></table>
+      ${resto.length?`<details style="margin-top:6px"><summary class="note" style="cursor:pointer">Ver los ${prov.length} proveedores externos</summary><table class="exp-tabla" style="margin-top:6px"><tbody>${resto.map(fila).join('')}</tbody></table></details>`:''}
+    </div>`;
+  }
   // Hallazgos verificados (con comprobante, pasaron la curaduría); los demás quedan "en revisión"
   const todosH=[].concat(...xs.map(x=>(x.hallazgos||[]).map(hz=>({...hz, periodo:x.periodo}))));
   const criticosH=todosH.filter(hz=>hz.sev==='CRÍTICO');
