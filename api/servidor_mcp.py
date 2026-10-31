@@ -36,7 +36,14 @@ class ClienteApi:
         req = urllib.request.Request(self.base + "/auth/login", data=body,
                                      headers={"Content-Type": "application/json"})
         with self.opener.open(req, timeout=30) as r:
-            r.read()
+            set_cookies = r.headers.get_all("Set-Cookie") or []
+        # Sobre http:// interno (CT_API_URL=http://api:8080) el CookieJar no reenvía la
+        # cookie Secure; la API acepta el mismo JWT como Bearer (ver security.sesion).
+        for sc in set_cookies:
+            if sc.startswith("ct_sesion=") and sc.split(";", 1)[0].split("=", 1)[1]:
+                self.opener.addheaders.append(
+                    ("Authorization", "Bearer " + sc.split(";", 1)[0].split("=", 1)[1]))
+                break
 
     def get(self, path, params=None):
         limpio = {k: v for k, v in (params or {}).items() if v not in (None, "", 0)}
