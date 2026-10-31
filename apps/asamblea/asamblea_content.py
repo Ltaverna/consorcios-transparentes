@@ -63,6 +63,9 @@ PREGUNTAS = [
  dict(id="p10", tema="Autorización y seguro de la obra del 13-B", monto=18513799,
       pregunta="Sobre la misma obra de 12-B y 13-B ($18,5M): (1) ¿qué instancia autorizó el gasto — administración sola, consejo o asamblea — y dónde consta esa decisión? Es el gasto extraordinario más grande del ejercicio y no pasó por asamblea; (2) el consorcio paga todos los meses el Seguro Integral (Allianz, póliza 250230772503): ¿se denunció el siniestro a la aseguradora y qué respondió? Si no se denunció, ¿por qué?; y (3) el proveedor principal del piso (Saczewiczyk, $5,25M) facturó con numeración 7 y 8, es decir casi sin actividad previa: ¿cómo se lo seleccionó y qué antecedentes de trabajo tiene?",
       doc="Expensas de julio y agosto 2026; póliza Allianz 250230772503; facturas 7 y 8 de Saczewiczyk"),
+ dict(id="p11", tema="Pagos a la cuenta de una propietaria", monto=3457392,
+      pregunta="En la obra del 13-B, pagos que el consorcio hizo contra facturas de Saczewiczyk (saldo de $2.552.000 y pintura de $700.000) y de LEV Rental ($205.392) se transfirieron a la cuenta de Acosta Rosana, propietaria del 13-B, y no a la del proveedor que emitió cada factura. Pedimos que se explique por qué el dinero del consorcio salió a la cuenta de una propietaria: si ella adelantó esos pagos a los proveedores y el consorcio le reintegró, que se acompañen los comprobantes de lo que efectivamente pagó a cada uno; y que a futuro todo pago salga directo de la cuenta del consorcio al proveedor que factura.",
+      doc="Expensas de julio y agosto 2026; comprobantes de transferencia a nombre de Acosta Rosana"),
  dict(id="p3", tema="Trabajos dentro de unidades privadas", monto=56785208,
       pregunta="'Mantenimientos en unidades' sumó $56,8M en el ejercicio completo (18,8 % del gasto total; en julio fue el 31 % del mes). ¿Cuál es el criterio para pagar con expensas de todos trabajos dentro de departamentos privados? Entendemos que cañerías y columnas comunes sí corresponden; pedimos el criterio por escrito para pintura, placards y terminaciones interiores.",
       doc="Liquidaciones de octubre 2025 a octubre 2026, rubro Mantenimientos en unidades"),
@@ -70,8 +73,8 @@ PREGUNTAS = [
       pregunta="El estado financiero del ejercicio cierra con disponibilidades de $1.848.489: menos del 6 % de un mes de gastos ($32,2M en octubre). El saldo arrancó el ejercicio en $7,3M, y en julio y agosto las disponibilidades no cubrían las facturas pendientes. ¿Cuál es la composición actual de la caja (banco y efectivo por separado) y hay un plan para constituir un fondo de reserva que evite esta fragilidad?",
       doc="Estado financiero y estado patrimonial octubre 2025 – octubre 2026 (30/10/2026)"),
  dict(id="p5", tema="Deuda por expensas", monto=6126492,
-      pregunta="La deuda por expensas pasó de $1,7M en enero a $6,1M en septiembre (15 unidades). El caso mayor es la cochera UC-1 (DEL VALLE), con $1,64M equivalentes a 14 meses. ¿Qué gestión de cobro se inició en cada caso, hay convenios de pago y cuáles pasaron a gestión judicial?",
-      doc="Listado de deudores de la expensa de septiembre 2026"),
+      pregunta="La deuda por expensas creció durante el ejercicio (de $1,7M en enero a más de $6M). El caso mayor es la cochera UC-1 (DEL VALLE): a octubre acumula $1.871.040, equivalentes a 21,9 meses de expensa (en septiembre eran 14 meses) y al 37 % de toda la deuda del edificio. ¿Qué gestión de cobro se inició en cada caso, hay convenios de pago y cuáles pasaron a gestión judicial?",
+      doc="Listado de deudores de las expensas de septiembre y octubre 2026"),
  dict(id="p6", tema="Presupuestos y conformidad de obras grandes", monto=23800000,
       pregunta="Para las dos obras más grandes del ejercicio — calefacción columna sector F ($14M, Peñaloza: anticipo $5M más factura 202 de $9M) y ascensor 3 ($9,8M, Laufken) — ¿pueden mostrar el presupuesto aprobado, si hubo más de una cotización, y el acta de conformidad o certificación del trabajo terminado? En la obra de calefacción, además, la factura del anticipo se emitió 11 días después del pago: ¿cuál es el circuito de aprobación previa?",
       doc="Expensas de julio a octubre 2026; presupuestos 4001 (Laufken) y de Peñaloza"),
@@ -81,6 +84,9 @@ PREGUNTAS = [
  dict(id="p8", tema="Cobros pendientes del ejercicio", monto=30525973,
       pregunta="El estado patrimonial muestra 'cobros pendientes' por $30,5M al cierre, contra $18,5M al inicio del ejercicio: un aumento del 65 %. Entendemos que incluye las expensas del mes recién emitidas; pedimos que informen cuánto de ese monto es deuda vencida de ejercicios o meses anteriores, y cómo evolucionó esa deuda vencida durante el año.",
       doc="Estado patrimonial octubre 2025 – octubre 2026 (30/10/2026)"),
+ dict(id="p12", tema="Servicio de cámaras a nombre del encargado", monto=87703,
+      pregunta="El servicio de internet de las cámaras de seguridad del edificio (FLOW) viene facturado a nombre personal de Ramón González, el encargado, y no del consorcio. Se repite todos los meses (noviembre 2025, diciembre, agosto, septiembre y octubre 2026, entre $64.000 y $88.000 mensuales). Pedimos que la cuenta se ponga a nombre del consorcio (CUIT 33-60039145-9), para que el servicio no quede atado a la persona del empleado y la factura sea del consorcio.",
+      doc="Expensas de noviembre 2025 a octubre 2026; facturas de FLOW"),
 ]
 
 CONVOCATORIA = """Administración Almazare, RPA 5911.
