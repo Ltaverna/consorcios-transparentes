@@ -89,6 +89,7 @@ class EstadoFinanciero:
     ing_adelantadas: float = 0.0
     otros_ingresos: float = 0.0
     egresos: float = 0.0
+    egresos_anteriores: float = 0.0  # pagos de gastos devengados en liquidaciones anteriores
     saldo_cierre: float = 0.0
 
 

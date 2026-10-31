@@ -166,11 +166,29 @@ def _parse_gastos(lines: list[str], liq: Liquidacion) -> None:
             x = mtail.start(1)
             colname = _nearest_col(x, cols)
             head = ln[: mtail.start()].strip()
-            cur = dict(n=n, categoria=cat, head=head, body=[], columna=colname, importe=num(total), pct=float(pct), col_amt=num(col_amt))
+            cur = dict(n=n, categoria=cat, head=head, body=[], columna=colname, importe=num(total), pct=float(pct), col_amt=num(col_amt), x_fin=mtail.end(1))
             continue
         if cur is not None:
             cur["body"].append(s)
     close()
+
+    # Columna por cluster de bordes derechos: los importes van alineados a la derecha y el
+    # borde de cada columna es estable (varía ≤4 col. entre páginas; entre columnas hay ≥16),
+    # mientras que la letra más cercana falla con importes cortos (visto en 2025-12, $300 de
+    # MAXICOPY corrido hasta la posición de B pero contado en A). Si la cantidad de clusters
+    # no coincide con la de letras, queda la asignación por letra más cercana.
+    letras = sorted(cols, key=lambda k: cols[k])
+    if len(letras) > 1 and items:
+        clusters: list[list[int]] = []
+        for x in sorted(it["x_fin"] for it in items):
+            if clusters and x - clusters[-1][-1] <= 8:
+                clusters[-1].append(x)
+            else:
+                clusters.append([x])
+        if len(clusters) == len(letras):
+            for it in items:
+                idx = next(i for i, c in enumerate(clusters) if c[0] <= it["x_fin"] <= c[-1])
+                it["columna"] = letras[idx]
 
     for it in items:
         text = it["head"] + " " + " ".join(it["body"])
@@ -229,11 +247,20 @@ def _parse_deudores(lines: list[str], liq: Liquidacion) -> None:
 
 # ------------------------------------------------------------------ estado financiero / cuentas / patrimonial
 def _grab(lines: list[str], label: str, start: int, end: int) -> Optional[float]:
-    for ln in lines[start:end]:
+    for j in range(start, min(end, len(lines))):
+        ln = lines[j]
         if ln.strip().lower().startswith(label.lower()):
             amts = RE_AMT.findall(ln)
             if amts:
                 return num(amts[-1])
+            # pdftotext a veces deja el importe en un renglón propio pegado al rótulo
+            # (visto en 2026-10 con "Ingresos por pago de intereses"): aceptar un vecino
+            # inmediato solo si ese renglón no tiene nada más que el importe.
+            for vecino in (lines[j - 1] if j > start else "",
+                           lines[j + 1] if j + 1 < min(end, len(lines)) else ""):
+                s = vecino.strip()
+                if s and re.fullmatch(AMT, s):
+                    return num(s)
     return None
 
 
@@ -248,6 +275,11 @@ def _parse_estado(lines: list[str], liq: Liquidacion) -> None:
         e.saldo_anterior = g("SALDO ANTERIOR"); e.ing_termino = g("Ingresos por pago de expensas en término"); e.ing_adeudadas = g("Ingresos por pago de expensas adeudadas")
         e.ing_intereses = g("Ingresos por pago de intereses"); e.ing_adelantadas = g("Ingresos por expensas adelantadas"); e.otros_ingresos = g("Otros ingresos")
         e.egresos = abs(g("Egresos por gastos del mes")); e.saldo_cierre = g("Saldo al cierre")
+    # pagos de gastos devengados en liquidaciones anteriores (sección propia, p. ej. 2025-11):
+    # integran los egresos del estado financiero pero no el total de gastos del mes
+    ia = next((i for i, l in enumerate(lines) if "LIQUIDACIONES ANTERIORES" in l.upper()), None)
+    if ia is not None:
+        liq.estado.egresos_anteriores = _grab(lines, "Total devengados", ia, ia + 40) or 0.0
     if i1 is not None and i2 is not None:
         name = None; blk: dict = {}
         for ln in lines[i1 + 1: i2]:
@@ -301,24 +333,35 @@ RE_ROW = re.compile(r"^\s*(\d{1,3})\s+(LOC-?|PB-[A-Z]|\d{1,2}-[A-Z]|UC-\d{1,2})\
 RE_TOK = re.compile(r"\$ (-?[\d,]+\.\d{2})|(\d+\.\d{2})%")
 
 
+RE_CLASE = re.compile(r"(?<![A-Za-z.])([A-E])(?![A-Za-z.])")  # los puntos excluyen C.A.B.A.
+
+
 def _class_positions(lines: list[str], row_idx: int) -> dict[str, int]:
-    """Posiciones (columna de caracteres) de las letras de clase (A, B, D) en el encabezado previo a la fila."""
+    """Posiciones (columna de caracteres) de las letras de clase (A..E) en el encabezado previo a la fila.
+
+    Desde 2026-10 las letras pueden venir repartidas en hasta 3 líneas (C arriba,
+    B/E al medio, A/D abajo): se combinan las líneas contiguas hacia arriba."""
     for i in range(row_idx, max(0, row_idx - 12), -1):
         ln = lines[i]
-        found = {m.group(1): m.start() for m in re.finditer(r"(?<![A-Za-z])([ABD])(?![A-Za-z])", ln)}
+        found = {m.group(1): m.start() for m in RE_CLASE.finditer(ln)}
         if found and not RE_AMT.search(ln) and "Uf" not in ln:
-            # puede haber letras repartidas en 2 líneas: combinar con la anterior
-            prev = lines[i - 1] if i > 0 else ""
-            for m in re.finditer(r"(?<![A-Za-z])([ABD])(?![A-Za-z])", prev):
-                found.setdefault(m.group(1), m.start())
+            for j in range(i - 1, max(0, i - 3) - 1, -1):
+                mas = {m.group(1): m.start() for m in RE_CLASE.finditer(lines[j])}
+                if not mas or RE_AMT.search(lines[j]):
+                    break
+                for k, v in mas.items():
+                    found.setdefault(k, v)
             return found
     return {}
 
 
 def _class_names(n: int, hdr: list[str]) -> list[str]:
-    """Las clases van de izquierda a derecha en orden alfabético. Con 3 clases, si el encabezado menciona D es A, B, D."""
+    """Las clases van de izquierda a derecha en orden alfabético. Si el encabezado trae
+    exactamente n letras, se usan esas (ya ordenadas por posición)."""
+    if hdr and len(hdr) == n:
+        return list(hdr)
     if n >= 4:
-        return ["A", "B", "C", "D"][:n]
+        return ["A", "B", "C", "D", "E"][:n]
     if n == 3:
         return ["A", "B", "D"] if ("D" in hdr or not hdr) else ["A", "B", "C"]
     return ["A", "B"][:max(n, 1)]
@@ -328,12 +371,17 @@ def _parse_unidades(lines: list[str], liq: Liquidacion) -> None:
     raw_rows: list[dict] = []
     classes_hdr: list[str] = []
     in_section = False
+    dos_vtos = False
     for idx, ln in enumerate(lines):
         if "ESTADO DE CUENTAS Y PRORRATEO" in ln:
             in_section = True
             if not classes_hdr:
                 pos = _class_positions(lines[idx: idx + 12], 11) if idx + 12 <= len(lines) else {}
                 classes_hdr = sorted(pos, key=lambda k: pos[k])
+            # desde 2026-10 la tabla trae "1° Vto / 2° Vto" en lugar de "A Pagar":
+            # la identidad por fila usa el 1° vencimiento y el 2° se descarta
+            if not dos_vtos:
+                dos_vtos = any(re.search(r"2\s*[°º]?\s*Vto", l) for l in lines[idx: idx + 12])
             continue
         if not in_section:
             continue
@@ -353,6 +401,8 @@ def _parse_unidades(lines: list[str], liq: Liquidacion) -> None:
                 for c, v in zip(classes, pairs):
                     liq.prorrateo_total[c] = v
                 amts = [num(t.group(1)) for t in toks if t.group(1) is not None]
+                if dos_vtos and len(amts) >= 5:
+                    amts = amts[:-1]   # descartar el 2° vencimiento: la cola vuelve a ser total/gpart/red/a-pagar
                 liq.prorrateo_total["_a_pagar"] = amts[-1]
                 liq.prorrateo_total["_total_mes"] = amts[-4] if len(amts) >= 4 else 0.0
                 liq.prorrateo_total["_gpart"] = amts[-3] if len(amts) >= 4 else 0.0
@@ -375,6 +425,8 @@ def _parse_unidades(lines: list[str], liq: Liquidacion) -> None:
         while i < len(tail) and tail[i][0] == "%" and i + 1 < len(tail) and tail[i + 1][0] == "$":
             pairs.append((tail[i][1], tail[i + 1][1])); i += 2
         rest_amts = [t[1] for t in tail[i:]]
+        if dos_vtos and len(rest_amts) >= 3:
+            rest_amts = rest_amts[:-1]   # descartar el 2° vencimiento
         gpart = 0.0
         if len(rest_amts) == 4:
             total, gpart, red, apagar = rest_amts
@@ -441,7 +493,10 @@ def _checks(liq: Liquidacion) -> None:
         _check(liq, "Estado financiero: saldo anterior + ingresos - egresos = cierre", e.saldo_cierre,
                round(e.saldo_anterior + e.ing_termino + e.ing_adeudadas + e.ing_intereses + e.ing_adelantadas + e.otros_ingresos - e.egresos, 2))
         if liq.total_gastos is not None:
-            _check(liq, "Egresos del estado financiero = total de gastos", liq.total_gastos, e.egresos)
+            _check(liq, "Egresos del estado financiero = total de gastos",
+                   round(liq.total_gastos + e.egresos_anteriores, 2), e.egresos,
+                   detalle=(f"incluye ${e.egresos_anteriores:,.2f} de gastos de liquidaciones anteriores"
+                            if e.egresos_anteriores else ""))
     for c in liq.cuentas:
         _check(liq, f"Cuenta {c.nombre}: saldo anterior + ingresos - egresos = cierre", c.saldo_cierre, round(c.saldo_ant + c.ingresos - c.egresos, 2))
     if liq.cuentas and e.saldo_cierre:
