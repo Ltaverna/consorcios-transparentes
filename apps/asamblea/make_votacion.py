@@ -311,9 +311,9 @@ input,select{font:inherit;color:var(--ink);background:var(--surface);border:1px 
 .card.q .resp{border-left:3px solid var(--good);padding:8px 12px;font-size:14.5px;background:var(--good-soft);border-radius:0 var(--r-sm) var(--r-sm) 0;color:var(--good-ink)}
 .card.q textarea{width:100%;min-height:70px;font:inherit;font-size:16px;border:1px solid var(--hair);border-radius:var(--r-sm);padding:10px;background:var(--surface);color:var(--ink)}
 .prop{display:grid;gap:8px}
-.prop .stat{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px}
-.prop .stat div{background:var(--surface-2);border-radius:var(--r-sm);padding:10px 12px;font-size:13px;color:var(--ink-2);border:1px solid var(--hair-2)}
-.prop .stat b{display:block;font-family:"Source Serif 4",Georgia,serif;font-size:22px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;margin-bottom:2px}
+.stat{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px}
+.stat div{background:var(--surface-2);border-radius:var(--r-sm);padding:10px 12px;font-size:13px;color:var(--ink-2);border:1px solid var(--hair-2)}
+.stat b{display:block;font-family:"Source Serif 4",Georgia,serif;font-size:22px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;margin-bottom:2px}
 .form{display:grid;gap:10px} .form label{display:grid;gap:4px;font-size:13.5px;color:var(--ink-2);font-weight:500}
 .form input,.form select,.form textarea{font:inherit;font-size:16px;padding:10px 12px;border:1px solid var(--hair);border-radius:var(--r-sm);background:var(--surface);color:var(--ink);width:100%}
 .objlist{display:grid;gap:6px} .obj{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center;background:var(--surface-2);border-radius:var(--r-sm);padding:8px 12px;font-size:14px}
@@ -588,6 +588,13 @@ details.card[open]{ gap:12px; }
 .exp-bars .col i{display:block;width:100%;max-width:38px;background:var(--o1);border-radius:4px 4px 0 0;min-height:4px}
 .exp-bars .col.last i{background:var(--accent)}
 .exp-bars .col b{font-size:10.5px;color:var(--muted);font-weight:600;white-space:nowrap}
+.exp-cat{display:grid;gap:9px;margin-top:4px}
+.exp-cat .row{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:13px;margin-bottom:3px}
+.exp-cat .row span:first-child{color:var(--ink-2);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.exp-cat .row b{font-variant-numeric:tabular-nums;color:var(--ink);white-space:nowrap}
+.exp-cat .row .pct{color:var(--muted);min-width:46px;text-align:right}
+.exp-cat .track{height:9px;background:var(--surface-2);border-radius:5px;overflow:hidden}
+.exp-cat .track i{display:block;height:100%;border-radius:5px}
 .exp-tabla{width:100%;border-collapse:collapse;font-size:13.5px}
 .exp-tabla td,.exp-tabla th{padding:6px 8px;border-bottom:1px solid var(--hair-2);text-align:left}
 .exp-tabla td.r,.exp-tabla th.r{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
@@ -792,7 +799,7 @@ dialog textarea{font:inherit;font-size:12.5px;width:100%;min-height:220px;border
   </div>
 
   <div class="doc-sub" id="docsub-expensas">
-    <p class="lead">Las últimas liquidaciones de expensas: lo crítico primero (gasto del mes, variación, deudores y si la liquidación cuadra al centavo), y el detalle de cada mes abajo. <a href="/informe-expensas.html" target="_blank" rel="noopener">Informe detallado de julio y agosto</a> (con comprobantes verificados).</p>
+    <p class="lead">Las liquidaciones del ejercicio completo (octubre 2025 a octubre 2026), auditadas de forma independiente y cuadradas al centavo. Primero la lectura rápida del último mes y del ejercicio, después el gasto por rubro, los proveedores, los hallazgos verificados y el detalle de cada mes.</p>
     <div id="expensasList" style="display:grid;gap:12px"></div>
   </div>
 
@@ -1803,20 +1810,44 @@ function renderExpensas(){
   const cont=$('#expensasList'); if(!cont) return;
   if(!xs.length){ cont.innerHTML='<div class="card"><p class="note">Todavía no hay datos de expensas cargados (se generan con tools/expensas_snapshot.py antes del build).</p></div>'; return; }
   const ult=xs[xs.length-1], ant=xs.length>1?xs[xs.length-2]:null;
-  const varPct = ant? ((ult.total_gastos-ant.total_gastos)/ant.total_gastos*100) : null;
   const maxG=Math.max(...xs.map(x=>x.total_gastos||0));
-  // Lectura rápida: el último mes en números grandes + tendencia
+  // Bloque de 4 números grandes de un mes, con la variación contra el mes previo. Se reusa
+  // en la lectura rápida del último mes y en el detalle plegado de cada mes.
+  const sb=(x,prev)=>{ const v=prev?((x.total_gastos-prev.total_gastos)/prev.total_gastos*100):null; return `<div class="stat">
+      <div>Gastos del mes<b>${fmt.format(x.total_gastos||0)}</b></div>
+      <div>Variación vs ${prev?nombreMes(prev.periodo).split(' ')[0]:'—'}<b style="color:${v>10?'var(--critical)':v<0?'var(--good)':'var(--ink)'}">${v==null?'—':(v>0?'+':'')+v.toFixed(1).replace('.',',')+'%'}</b></div>
+      <div>Deudores<b>${(x.deudores||[]).length} · ${fmt.format(x.total_deudores||0)}</b></div>
+      <div>Liquidación<b style="color:${x.cuadra?'var(--good)':'var(--critical)'};font-size:17px">${x.cuadra?'cuadra ✓':'NO cuadra'}</b></div>
+    </div>`; };
+  // Lectura rápida del último mes + tendencia de gasto y deudores
   let h=`<div class="card prop"><h3>Lectura rápida · ${nombreMes(ult.periodo)}</h3>
-    <div class="stat">
-      <div>Gastos del mes<b>${fmt.format(ult.total_gastos||0)}</b></div>
-      <div>Variación vs ${ant?nombreMes(ant.periodo).split(' ')[0]:'—'}<b style="color:${varPct>10?'var(--critical)':varPct<0?'var(--good)':'var(--ink)'}">${varPct==null?'—':(varPct>0?'+':'')+varPct.toFixed(1).replace('.',',')+'%'}</b></div>
-      <div>Deudores<b>${(ult.deudores||[]).length} · ${fmt.format(ult.total_deudores||0)}</b></div>
-      <div>Liquidación<b style="color:${ult.cuadra?'var(--good)':'var(--critical)'};font-size:17px">${ult.cuadra?'cuadra ✓':'NO cuadra'}</b></div>
-    </div>
-    <div class="note">Gasto total por mes (últimos ${xs.length} meses):</div>
+    ${sb(ult,ant)}
+    <div class="note">Gasto total por mes (${xs.length} meses del ejercicio):</div>
     <div class="exp-bars">${xs.map((x,i)=>`<div class="col ${i===xs.length-1?'last':''}" title="${nombreMes(x.periodo)}: ${fmt.format(x.total_gastos||0)}"><i style="height:${Math.max(4,(x.total_gastos||0)/maxG*70)}px"></i><b>${nombreMes(x.periodo).slice(0,3)}</b></div>`).join('')}</div>
     <div class="note">Deudores por mes: ${xs.map(x=>`${nombreMes(x.periodo).slice(0,3)} ${(x.deudores||[]).length}`).join(' · ')}</div>
   </div>`;
+  // Lectura rápida del ejercicio completo + gráfico de en qué se gastó, por rubro
+  {
+    const totG=xs.reduce((t,x)=>t+(x.total_gastos||0),0);
+    const prom=totG/xs.length;
+    const pico=xs.reduce((a,x)=>(x.total_gastos||0)>(a.total_gastos||0)?x:a);
+    const cuadran=xs.filter(x=>x.cuadra).length;
+    const catAcc={};
+    xs.forEach(x=>Object.entries(x.categorias||{}).forEach(([c,v])=>{ catAcc[c]=(catAcc[c]||0)+v; }));
+    const cats=Object.entries(catAcc).sort((a,b)=>b[1]-a[1]);
+    const CPAL=['var(--o1)','var(--o2)','var(--o4)','var(--o3)','var(--accent)'];
+    const barras=cats.map(([c,v],i)=>`<div><div class="row"><span>${esc(c)}</span><b>${fmt.format(v)}</b><span class="pct">${(v/totG*100).toFixed(1).replace('.',',')}%</span></div><div class="track"><i style="width:${Math.max(1,v/cats[0][1]*100).toFixed(1)}%;background:${CPAL[Math.min(i,CPAL.length-1)]}"></i></div></div>`).join('');
+    h+=`<div class="card prop"><h3>Lectura rápida · Ejercicio ${nombreMes(xs[0].periodo)} – ${nombreMes(ult.periodo)}</h3>
+      <div class="stat">
+        <div>Gasto total del ejercicio<b>${fmt.format(totG)}</b></div>
+        <div>Promedio por mes<b>${fmt.format(prom)}</b></div>
+        <div>Mes más caro<b style="font-size:15px">${nombreMes(pico.periodo).split(' ')[0]} · ${fmt.format(pico.total_gastos)}</b></div>
+        <div>Liquidaciones que cuadran<b style="color:var(--good)">${cuadran} / ${xs.length}</b></div>
+      </div>
+      <div class="note" style="margin-top:4px">En qué se gastó el ejercicio, por rubro:</div>
+      <div class="exp-cat">${barras}</div>
+    </div>`;
+  }
   // Top proveedores externos del ejercicio: suma los agregados mensuales y excluye lo que
   // no es un contratista elegido (sueldos, cargas y aportes de ley, servicios públicos,
   // impuestos, bancos, honorarios de administración).
@@ -1848,13 +1879,17 @@ function renderExpensas(){
       ${resto.length?`<details><summary class="note" style="cursor:pointer;padding:6px 0">Ver los ${resto.length} restantes</summary><div>${resto.map(pinta).join('')}</div></details>`:''}
     </div>`;
   }
-  // Detalle por mes, el más nuevo primero, plegado
-  for(const x of xs.slice().reverse()){
+  // Detalle por mes, el más nuevo primero, plegado. En orden invertido el mes previo
+  // (para la variación de la lectura rápida) es el siguiente de la lista.
+  const rev=xs.slice().reverse();
+  for(let ri=0; ri<rev.length; ri++){
+    const x=rev[ri], prev=rev[ri+1]||null;
     const cats=Object.entries(x.categorias||{}).sort((a,b)=>b[1]-a[1]);
     const provs=(x.proveedores||[]);
     const deus=(x.deudores||[]).slice().sort((a,b)=>b.deuda-a.deuda);
     h+=`<details class="card"><summary style="cursor:pointer;font-weight:700;color:var(--ink);font-size:15px">${nombreMes(x.periodo)} · ${fmt.format(x.total_gastos||0)} · ${x.cuadra?'✓ cuadra':'✗ NO cuadra'} · ${deus.length} deudor${deus.length===1?'':'es'}</summary>
       <div style="display:grid;gap:14px;padding-top:10px">
+        ${sb(x,prev)}
         <div><h3 style="font-size:14px;margin-bottom:6px">Deudores (${deus.length}) — total ${fmt.format(x.total_deudores||0)}</h3>
         ${deus.length?`<table class="exp-tabla"><thead><tr><th>Unidad</th><th>Propietario</th><th class="r">Deuda</th></tr></thead><tbody>${deus.map(d=>`<tr><td>${esc(d.piso_depto||d.uf)}</td><td>${esc(d.propietario||'')}</td><td class="r">${fmt.format(d.deuda||0)}</td></tr>`).join('')}</tbody><tfoot><tr><td colspan="2">Total</td><td class="r">${fmt.format(x.total_deudores||0)}</td></tr></tfoot></table>`:'<p class="note">Sin deudores informados.</p>'}</div>
         <div><h3 style="font-size:14px;margin-bottom:6px">Gastos por categoría</h3>
