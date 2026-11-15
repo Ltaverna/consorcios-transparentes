@@ -128,7 +128,7 @@ if datos:
 pgraw = subprocess.run(
     ["docker", "compose", "exec", "-T", "db", "psql", "-U", "consorcio", "-d", "consorcio", "-tAF", "\t", "-c",
      "SELECT l.periodo, round(g.importe::numeric), left(g.concepto,72) FROM gastos g JOIN liquidaciones l ON l.id=g.liquidacion_id "
-     "WHERE l.estado='procesada' AND g.proveedor ILIKE '%PE%ALOZA%' ORDER BY g.importe DESC"],
+     "WHERE l.estado='procesada' AND g.proveedor ILIKE '%PE%ALOZA%' ORDER BY l.periodo, g.importe DESC"],
     cwd=os.path.abspath(raiz), capture_output=True, text=True, check=True).stdout
 pen = []; pen_tot = 0.0
 for ln in pgraw.splitlines():

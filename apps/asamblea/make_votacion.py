@@ -749,7 +749,8 @@ dialog textarea{font:inherit;font-size:12.5px;width:100%;min-height:220px;border
   <span class="brand">Rivadavia 2069</span>
   <button role="tab" data-tab="agenda" aria-selected="true" aria-controls="view-agenda">Agenda</button>
   <button role="tab" data-tab="votar" aria-selected="false" aria-controls="votarWrap">Votar</button>
-  <button role="tab" data-tab="preguntas" aria-selected="false" aria-controls="view-preguntas">Preguntas</button>
+  <button role="tab" data-tab="analisis" aria-selected="false" aria-controls="view-analisis">Análisis</button>
+  <button role="tab" data-tab="consultar" aria-selected="false" aria-controls="view-consultar">Consultar</button>
   <button role="tab" data-tab="propos" aria-selected="false" aria-controls="view-propos">Proposiciones</button>
   <button role="tab" data-tab="docs" aria-selected="false" aria-controls="view-docs">Documentos</button>
 </nav>
@@ -789,10 +790,21 @@ dialog textarea{font:inherit;font-size:12.5px;width:100%;min-height:220px;border
   <div class="card"><h3>Lista de oradores</h3><div class="oradores" id="oradores"></div><div class="actions"><button class="btn primary sm" id="btnPalabra">Pedir la palabra</button></div></div>
   <div id="agendaList" style="display:grid;gap:12px"></div>
 </div>
-<div class="wrap view" id="view-preguntas">
-  <h2 class="sec">Preguntas a la administración</h2>
-  <p class="lead">Preguntas para la administración de esta asamblea. Las respuestas que dé quedan registradas. Para las preguntas sobre la continuidad del encargado, ver la pestaña Encargado.</p>
-  <div id="preguntasList" style="display:grid;gap:12px"></div>
+<div class="wrap view" id="view-analisis">
+  <h2 class="sec">Análisis del ejercicio</h2>
+  <p class="lead">Síntesis del ejercicio completo (octubre 2025 a octubre 2026): en qué se gastó, los proveedores más grandes y las discrepancias generales, con porcentajes. El detalle con comprobantes está en Documentos → Expensas y Preguntas.</p>
+  <div id="anaTexto" class="doc"></div>
+</div>
+<div class="wrap view" id="view-consultar">
+  <h2 class="sec">Consultar</h2>
+  <p class="lead">Consultá los gastos del edificio. Tocá un botón para ver un gráfico al instante, o escribí tu pregunta y te respondo con los datos del ejercicio (octubre 2025 a octubre 2026).</p>
+  <div class="quick" id="consQuick"></div>
+  <div class="chat-log" id="chatLog"></div>
+  <form id="chatForm" class="chat-input" autocomplete="off">
+    <input id="chatInput" type="text" enterkeyhint="send" placeholder="Ej: ¿cuánto se gastó en ascensores?" aria-label="Escribí tu pregunta" maxlength="300">
+    <button class="btn primary" type="submit" id="chatSend">Preguntar</button>
+  </form>
+  <p class="note" style="margin-top:8px">Las respuestas salen de las liquidaciones auditadas. Pueden tener imprecisiones: ante la duda, verificá en Documentos → Expensas.</p>
 </div>
 <div class="wrap view" id="view-propos">
   <h2 class="sec">Proposiciones y objeciones</h2>
@@ -803,12 +815,11 @@ dialog textarea{font:inherit;font-size:12.5px;width:100%;min-height:220px;border
   <h2 class="sec">Documentos</h2>
   <nav class="doc-subnav" role="tablist" aria-label="Sección de documentos">
     <button role="tab" data-docsub="reglamento" aria-selected="true" aria-controls="docsub-reglamento">Reglamento</button>
+    <button role="tab" data-docsub="convocatoria" aria-selected="false" aria-controls="docsub-convocatoria">Convocatoria y poder</button>
+    <button role="tab" data-docsub="expensas" aria-selected="false" aria-controls="docsub-expensas">Expensas</button>
+    <button role="tab" data-docsub="preguntas" aria-selected="false" aria-controls="docsub-preguntas">Preguntas</button>
     <button role="tab" data-docsub="normativa" aria-selected="false" aria-controls="docsub-normativa">Normativa</button>
     <button role="tab" data-docsub="encargado" aria-selected="false" aria-controls="docsub-encargado">Encargado</button>
-    <button role="tab" data-docsub="analisis" aria-selected="false" aria-controls="docsub-analisis">Análisis</button>
-    <button role="tab" data-docsub="consultar" aria-selected="false" aria-controls="docsub-consultar">Consultar</button>
-    <button role="tab" data-docsub="expensas" aria-selected="false" aria-controls="docsub-expensas">Expensas</button>
-    <button role="tab" data-docsub="convocatoria" aria-selected="false" aria-controls="docsub-convocatoria">Convocatoria y poder</button>
   </nav>
 
   <div class="doc-sub active" id="docsub-reglamento">
@@ -829,20 +840,9 @@ dialog textarea{font:inherit;font-size:12.5px;width:100%;min-height:220px;border
     <div id="encTexto" class="doc"></div>
   </div>
 
-  <div class="doc-sub" id="docsub-analisis">
-    <p class="lead">Síntesis del ejercicio completo (octubre 2025 a octubre 2026): en qué se gastó, los proveedores más grandes y las discrepancias generales, con porcentajes. El detalle con comprobantes está en Expensas y en Preguntas.</p>
-    <div id="anaTexto" class="doc"></div>
-  </div>
-
-  <div class="doc-sub" id="docsub-consultar">
-    <p class="lead">Consultá los gastos del edificio. Tocá un botón para ver un gráfico al instante, o escribí tu pregunta y te respondo con los datos del ejercicio (octubre 2025 a octubre 2026).</p>
-    <div class="quick" id="consQuick"></div>
-    <div class="chat-log" id="chatLog"></div>
-    <form id="chatForm" class="chat-input" autocomplete="off">
-      <input id="chatInput" type="text" enterkeyhint="send" placeholder="Ej: ¿cuánto se gastó en ascensores?" aria-label="Escribí tu pregunta" maxlength="300">
-      <button class="btn primary" type="submit" id="chatSend">Preguntar</button>
-    </form>
-    <p class="note" style="margin-top:8px">Las respuestas salen de las liquidaciones auditadas. Pueden tener imprecisiones: ante la duda, verificá en la pestaña Expensas.</p>
+  <div class="doc-sub" id="docsub-preguntas">
+    <p class="lead">Preguntas para la administración de esta asamblea, con monto y documento de respaldo. Las respuestas que dé quedan registradas. Para las preguntas sobre la continuidad del encargado, ver Encargado.</p>
+    <div id="preguntasList" style="display:grid;gap:12px"></div>
   </div>
 
   <div class="doc-sub" id="docsub-expensas">
@@ -1611,6 +1611,8 @@ $('#pinOk').addEventListener('click', e=>{ if($('#pinInput').value.trim()===PIN)
 let TAB = 'agenda';
 let DOC_SUB = 'reglamento';
 try{ DOC_SUB = localStorage.getItem(KEY+'-docsub')||'reglamento'; }catch(e){}
+// Guarda: si quedó guardada una sub-pestaña que ya no existe (analisis/consultar pasaron arriba), volver al default
+if(['reglamento','convocatoria','expensas','preguntas','normativa','encargado'].indexOf(DOC_SUB)<0) DOC_SUB='reglamento';
 function setDocSub(sub){
   const cambio = DOC_SUB!==sub;
   DOC_SUB=sub;
@@ -1620,8 +1622,7 @@ function setDocSub(sub){
   if(sub==='reglamento') renderReglamento();
   else if(sub==='normativa') renderNormativa();
   else if(sub==='encargado') renderEncargado();
-  else if(sub==='analisis') renderAnalisis();
-  else if(sub==='consultar') renderConsultar();
+  else if(sub==='preguntas') renderPreguntas();
   else if(sub==='expensas') renderExpensas();
   if(cambio) window.scrollTo(0,0);
 }
@@ -1631,7 +1632,7 @@ addEventListener('scroll', ()=>{ const b=$('#btnTop'); if(b) b.hidden = !(TAB===
 $('#btnTop').addEventListener('click', ()=>window.scrollTo({top:0, behavior:'smooth'}));
 function setTab(t){ const entraDocs = (t==='docs' && TAB!=='docs'); TAB=t; document.querySelectorAll('.tabs button').forEach(b=>b.setAttribute('aria-selected', String(b.dataset.tab===t)));
   const votar = t==='votar'; $('#top').classList.toggle('vhide', !votar); $('#votarWrap').classList.toggle('vhide', !votar); document.querySelector('.bottom').classList.toggle('vhide', !votar);
-  ['agenda','preguntas','propos','docs'].forEach(v=>$('#view-'+v).classList.toggle('vhide', t!==v));
+  ['agenda','analisis','consultar','propos','docs'].forEach(v=>$('#view-'+v).classList.toggle('vhide', t!==v));
   window.scrollTo(0,0); renderAll(); if(entraDocs) setDocSub(DOC_SUB); try{ localStorage.setItem(KEY+'-tab', t); }catch(e){} }
 document.querySelector('.tabs').addEventListener('click', e=>{ const b=e.target.closest('button[data-tab]'); if(b) setTab(b.dataset.tab); });
 // Navegación por teclado en los tablists (patrón ARIA: flechas mueven y activan)
@@ -1735,7 +1736,7 @@ function renderPreguntas(){
     ${r&&r.texto?`<div class="resp"><b>Respuesta de la administración</b> (${hhmm(r.ts)}): ${esc(r.texto)}</div>`:'<div class="note">Sin respuesta registrada.</div>'}
     <div class="mod-only actions"><button class="btn sm" data-resp="${q.id}">${r&&r.texto?'Editar respuesta':'Registrar respuesta'}</button></div></div>`; }).join('');
 }
-$('#view-preguntas').addEventListener('click', async e=>{ const b=e.target.closest('button[data-resp]'); if(!b) return; if(!needMod()) return; const id=b.dataset.resp; const cur=(RESP()[id]||{}).texto||''; const t=await pedirTexto({titulo:'Respuesta de la administración', valor:cur, multilinea:true, placeholder:'Qué respondió la administración…'}); if(t===null) return; RESP()[id]={texto:t, ts:Date.now()}; save(); sync.send({t:'respuesta', qid:id, texto:t}); renderAll(); });
+$('#docsub-preguntas').addEventListener('click', async e=>{ const b=e.target.closest('button[data-resp]'); if(!b) return; if(!needMod()) return; const id=b.dataset.resp; const cur=(RESP()[id]||{}).texto||''; const t=await pedirTexto({titulo:'Respuesta de la administración', valor:cur, multilinea:true, placeholder:'Qué respondió la administración…'}); if(t===null) return; RESP()[id]={texto:t, ts:Date.now()}; save(); sync.send({t:'respuesta', qid:id, texto:t}); renderAll(); });
 
 // ---- proposiciones
 function renderPropos(){
@@ -2053,10 +2054,11 @@ buildPrint = function(){ _buildPrint(); const q=quorumInfo(); let h='';
 
 // ---- render hooks
 const _renderAll = renderAll;
-renderAll = function(){ _renderAll(); if(TAB==='agenda') renderAgenda(); else if(TAB==='preguntas') renderPreguntas(); else if(TAB==='propos') renderPropos(); applyCompact(); };
+renderAll = function(){ _renderAll(); if(TAB==='agenda') renderAgenda(); else if(TAB==='analisis') renderAnalisis(); else if(TAB==='consultar') renderConsultar(); else if(TAB==='propos') renderPropos(); applyCompact(); };
 (function(){ let t='agenda'; try{ t=localStorage.getItem(KEY+'-tab')||'agenda'; }catch(e){}
+  if(['agenda','votar','analisis','consultar','propos','docs'].indexOf(t)<0) t='agenda';  // 'preguntas' pasó a Documentos
   // Link directo: #votar, #docs-convocatoria, #docs-expensas, #docs-encargado, etc.
-  const m=(location.hash||'').match(/^#(agenda|votar|preguntas|propos|docs)(?:-(reglamento|normativa|encargado|analisis|consultar|expensas|convocatoria))?$/);
+  const m=(location.hash||'').match(/^#(agenda|votar|analisis|consultar|propos|docs)(?:-(reglamento|normativa|encargado|preguntas|expensas|convocatoria))?$/);
   if(m){ t=m[1]; if(m[2]) DOC_SUB=m[2]; }
   setTab(t); if(t==='docs') setDocSub(DOC_SUB); })();
 
