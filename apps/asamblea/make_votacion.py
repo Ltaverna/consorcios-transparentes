@@ -606,6 +606,16 @@ details.card[open]{ gap:12px; }
 .chat-msg.user{align-self:flex-end;background:var(--primary-bg);color:var(--primary-ink);border-bottom-right-radius:3px}
 .chat-msg.bot{align-self:flex-start;background:var(--surface-2);color:var(--ink);border:1px solid var(--hair-2);border-bottom-left-radius:3px}
 .chat-msg.think{color:var(--muted)}
+.chat-msg.md{white-space:normal}
+.chat-msg.md>*:first-child{margin-top:0}.chat-msg.md>*:last-child{margin-bottom:0}
+.chat-msg.md p{margin:0 0 7px}
+.chat-msg.md ul,.chat-msg.md ol{margin:5px 0;padding-left:18px}
+.chat-msg.md li{margin:3px 0}
+.chat-msg.md strong{font-weight:700;color:var(--ink)}
+.chat-msg.md h1,.chat-msg.md h2,.chat-msg.md h3,.chat-msg.md h4{font-size:14.5px;margin:7px 0 3px;font-weight:700}
+.chat-msg.md table{border-collapse:collapse;font-size:13px;margin:5px 0;width:100%}
+.chat-msg.md th,.chat-msg.md td{border:1px solid var(--hair-2);padding:4px 7px;text-align:left}
+.chat-msg.md code{background:var(--surface);border:1px solid var(--hair-2);border-radius:4px;padding:1px 4px;font-size:12.5px}
 .chat-log .card{align-self:stretch;margin:2px 0}
 .chat-input{display:flex;gap:6px}
 .chat-input input{flex:1 1 auto;min-width:0;padding:11px 12px;font-size:16px;border:1px solid var(--hair);border-radius:var(--r-sm);background:var(--surface);color:var(--ink)}
@@ -1850,7 +1860,12 @@ function _mesUlt(){ const xs=C.expensas||[]; return nombreMes((xs[xs.length-1]||
 function tablaUF(titulo, cols, filas){ return `<div class="card"><h3 style="font-size:15px;margin-bottom:8px">${esc(titulo)}</h3><table class="exp-tabla"><thead><tr>`+cols.map(c=>`<th${c[1]?' class="r"':''}>${esc(c[0])}</th>`).join('')+`</tr></thead><tbody>`+filas.map(tr=>`<tr>`+tr.map(td=>`<td${td[1]?' class="r"':''}>${esc(td[0])}</td>`).join('')+`</tr>`).join('')+`</tbody></table></div>`; }
 let chatHist=[];
 function renderChat(thinking){ const log=$('#chatLog'); if(!log) return;
-  let h=chatHist.map(m=>(m.texto?`<div class="chat-msg ${m.rol==='yo'?'user':'bot'}">${esc(m.texto)}</div>`:'')+(m.grafico&&m.grafico.datos?barChart(m.grafico.titulo,m.grafico.datos):'')+(m.html||'')).join('');
+  let h=chatHist.map(m=>{
+    const burbuja = !m.texto ? '' : (m.rol==='yo'
+      ? `<div class="chat-msg user">${esc(m.texto)}</div>`
+      : `<div class="chat-msg bot md">${marked.parse(m.texto)}</div>`);
+    return burbuja + (m.grafico&&m.grafico.datos?barChart(m.grafico.titulo,m.grafico.datos):'') + (m.html||'');
+  }).join('');
   if(thinking) h+=`<div class="chat-msg bot think">Pensando…</div>`;
   log.innerHTML=h; requestAnimationFrame(()=>{ log.scrollTop=log.scrollHeight; });
 }
