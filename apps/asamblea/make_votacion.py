@@ -14,11 +14,12 @@ from normativa import NORMATIVA
 REGLAMENTO = open(SC + "reglamento.md", encoding="utf-8").read()
 ENCARGADO = open(SC + "encargado.md", encoding="utf-8").read()
 INFORME_ADMIN = open(SC + "informe_admin.md", encoding="utf-8").read()
+ANALISIS = open(SC + "analisis.md", encoding="utf-8").read()
 try:
     EXPENSAS = json.load(open(SC + "expensas.json", encoding="utf-8"))  # gitignoreado; lo genera tools/expensas_snapshot.py
 except FileNotFoundError:
     EXPENSAS = []
-CONTENT = json.dumps(dict(agenda=AGENDA, asamblea=ASAMBLEA, preguntas=PREGUNTAS, convocatoria=CONVOCATORIA, poder=PODER, reglamento=REGLAMENTO, normativa=NORMATIVA, encargado=ENCARGADO, informe_admin=INFORME_ADMIN, expensas=EXPENSAS), ensure_ascii=False).replace("</", "<\\/")
+CONTENT = json.dumps(dict(agenda=AGENDA, asamblea=ASAMBLEA, preguntas=PREGUNTAS, convocatoria=CONVOCATORIA, poder=PODER, reglamento=REGLAMENTO, normativa=NORMATIVA, encargado=ENCARGADO, informe_admin=INFORME_ADMIN, analisis=ANALISIS, expensas=EXPENSAS), ensure_ascii=False).replace("</", "<\\/")
 DATA = json.dumps(UNITS, ensure_ascii=False).replace("</", "<\\/")
 
 HTML = r"""<meta charset="utf-8">
@@ -776,6 +777,7 @@ dialog textarea{font:inherit;font-size:12.5px;width:100%;min-height:220px;border
     <button role="tab" data-docsub="reglamento" aria-selected="true" aria-controls="docsub-reglamento">Reglamento</button>
     <button role="tab" data-docsub="normativa" aria-selected="false" aria-controls="docsub-normativa">Normativa</button>
     <button role="tab" data-docsub="encargado" aria-selected="false" aria-controls="docsub-encargado">Encargado</button>
+    <button role="tab" data-docsub="analisis" aria-selected="false" aria-controls="docsub-analisis">Análisis</button>
     <button role="tab" data-docsub="expensas" aria-selected="false" aria-controls="docsub-expensas">Expensas</button>
     <button role="tab" data-docsub="convocatoria" aria-selected="false" aria-controls="docsub-convocatoria">Convocatoria y poder</button>
   </nav>
@@ -796,6 +798,11 @@ dialog textarea{font:inherit;font-size:12.5px;width:100%;min-height:220px;border
     <input id="encBuscar" type="search" placeholder="Buscar…" aria-label="Buscar en el documento del encargado" style="width:100%;padding:10px;font-size:16px;margin-bottom:10px">
     <details id="encIndice" class="card"><summary>Índice</summary><nav id="encIndiceNav"></nav></details>
     <div id="encTexto" class="doc"></div>
+  </div>
+
+  <div class="doc-sub" id="docsub-analisis">
+    <p class="lead">Síntesis del ejercicio completo (octubre 2025 a octubre 2026): en qué se gastó, los proveedores más grandes y las discrepancias generales, con porcentajes. El detalle con comprobantes está en Expensas y en Preguntas.</p>
+    <div id="anaTexto" class="doc"></div>
   </div>
 
   <div class="doc-sub" id="docsub-expensas">
@@ -1573,6 +1580,7 @@ function setDocSub(sub){
   if(sub==='reglamento') renderReglamento();
   else if(sub==='normativa') renderNormativa();
   else if(sub==='encargado') renderEncargado();
+  else if(sub==='analisis') renderAnalisis();
   else if(sub==='expensas') renderExpensas();
   if(cambio) window.scrollTo(0,0);
 }
@@ -1783,6 +1791,7 @@ function renderEncargado(){
   filtrarDoc('#encTexto', ($('#encBuscar')||{}).value||'');
 }
 $('#encBuscar').addEventListener('input', e=>filtrarDoc('#encTexto', e.target.value));
+function renderAnalisis(){ const c=$('#anaTexto'); if(c) c.innerHTML = marked.parse(_preprocMd(C.analisis||'')); }
 
 // ---- normativa
 function renderNormativa(){
@@ -1921,7 +1930,7 @@ const _renderAll = renderAll;
 renderAll = function(){ _renderAll(); if(TAB==='agenda') renderAgenda(); else if(TAB==='preguntas') renderPreguntas(); else if(TAB==='propos') renderPropos(); applyCompact(); };
 (function(){ let t='agenda'; try{ t=localStorage.getItem(KEY+'-tab')||'agenda'; }catch(e){}
   // Link directo: #votar, #docs-convocatoria, #docs-expensas, #docs-encargado, etc.
-  const m=(location.hash||'').match(/^#(agenda|votar|preguntas|propos|docs)(?:-(reglamento|normativa|encargado|expensas|convocatoria))?$/);
+  const m=(location.hash||'').match(/^#(agenda|votar|preguntas|propos|docs)(?:-(reglamento|normativa|encargado|analisis|expensas|convocatoria))?$/);
   if(m){ t=m[1]; if(m[2]) DOC_SUB=m[2]; }
   setTab(t); if(t==='docs') setDocSub(DOC_SUB); })();
 
