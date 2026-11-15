@@ -1841,11 +1841,14 @@ const CONS_Q={
                  return ['Calefacción: Peñaloza vs. Roth (total del ejercicio)', [{etiqueta:'Peñaloza',valor:f('PEÑALOZA')||f('PENALOZA')},{etiqueta:'Roth',valor:f('ROTH')}]]; },
 };
 function renderConsultar(){ const q=$('#consQuick'); if(q && !q.children.length){
-  q.innerHTML=[['rubros','📊 ¿En qué se gastó?'],['prov','🏗️ Top proveedores'],['meses','📅 Gasto por mes'],['calef','🔥 Peñaloza vs Roth']].map(([k,l])=>`<button type="button" data-cq="${k}">${esc(l)}</button>`).join('');
+  q.innerHTML=[['rubros','📊 ¿En qué se gastó?'],['prov','🏗️ Top proveedores'],['meses','📅 Gasto por mes'],['calef','🔥 Peñaloza vs Roth'],['ufgasto','🏠 Top 10 expensas por UF'],['deudint','💸 Top 10 deudores + interés']].map(([k,l])=>`<button type="button" data-cq="${k}">${esc(l)}</button>`).join('');
 } renderChat(false); }
+function _unidadesUlt(){ const xs=C.expensas||[]; return ((xs[xs.length-1]||{}).unidades)||[]; }
+function _mesUlt(){ const xs=C.expensas||[]; return nombreMes((xs[xs.length-1]||{}).periodo||''); }
+function tablaUF(titulo, cols, filas){ return `<div class="card"><h3 style="font-size:15px;margin-bottom:8px">${esc(titulo)}</h3><table class="exp-tabla"><thead><tr>`+cols.map(c=>`<th${c[1]?' class="r"':''}>${esc(c[0])}</th>`).join('')+`</tr></thead><tbody>`+filas.map(tr=>`<tr>`+tr.map(td=>`<td${td[1]?' class="r"':''}>${esc(td[0])}</td>`).join('')+`</tr>`).join('')+`</tbody></table></div>`; }
 let chatHist=[];
 function renderChat(thinking){ const log=$('#chatLog'); if(!log) return;
-  let h=chatHist.map(m=>`<div class="chat-msg ${m.rol==='yo'?'user':'bot'}">${esc(m.texto)}</div>`+(m.grafico&&m.grafico.datos?barChart(m.grafico.titulo,m.grafico.datos):'')).join('');
+  let h=chatHist.map(m=>(m.texto?`<div class="chat-msg ${m.rol==='yo'?'user':'bot'}">${esc(m.texto)}</div>`:'')+(m.grafico&&m.grafico.datos?barChart(m.grafico.titulo,m.grafico.datos):'')+(m.html||'')).join('');
   if(thinking) h+=`<div class="chat-msg bot think">Pensando…</div>`;
   log.innerHTML=h; requestAnimationFrame(()=>{ log.scrollTop=log.scrollHeight; });
 }
@@ -1861,7 +1864,19 @@ async function chatPreguntar(preg){ preg=(preg||'').trim(); if(!preg) return;
   }catch(e){ chatHist.push({rol:'bot', texto:'Sin conexión. Revisá internet y probá de nuevo.'}); }
   if(btn) btn.disabled=false; renderChat(false); if(inp) inp.focus();
 }
-$('#consQuick').addEventListener('click', e=>{ const b=e.target.closest('button[data-cq]'); if(!b) return; const f=CONS_Q[b.dataset.cq]; if(!f) return; const [t,d]=f(); chatHist.push({rol:'bot', texto:t, grafico:{titulo:t, datos:d}}); renderChat(false); });
+$('#consQuick').addEventListener('click', e=>{ const b=e.target.closest('button[data-cq]'); if(!b) return; const k=b.dataset.cq;
+  if(k==='ufgasto' || k==='deudint'){ const u=_unidadesUlt(), mes=_mesUlt();
+    if(!u.length){ chatHist.push({rol:'bot', texto:'Todavía no hay datos por unidad cargados.'}); renderChat(false); return; }
+    if(k==='ufgasto'){ const top=u.filter(x=>+x.mes>0).sort((a,b)=>b.mes-a.mes).slice(0,10);
+      const html=tablaUF(`Top 10 unidades por expensa — ${mes}`, [['Unidad'],['Propietario'],['Expensa',1]],
+        top.map(x=>[[x.pd||x.uf],[x.prop||''],[fmt.format(+x.mes||0),1]]));
+      chatHist.push({rol:'bot', texto:'', html}); }
+    else { const top=u.filter(x=>+x.deuda>0).sort((a,b)=>b.deuda-a.deuda).slice(0,10);
+      const html=tablaUF(`Top 10 deudores con interés aplicado — ${mes}`, [['Unidad'],['Propietario'],['Deuda',1],['Interés',1]],
+        top.map(x=>[[x.pd||x.uf],[x.prop||''],[fmt.format(+x.deuda||0),1],[fmt.format(+x.inte||0),1]]));
+      chatHist.push({rol:'bot', texto:'', html}); }
+    renderChat(false); return; }
+  const f=CONS_Q[k]; if(!f) return; const [t,d]=f(); chatHist.push({rol:'bot', texto:t, grafico:{titulo:t, datos:d}}); renderChat(false); });
 $('#chatForm').addEventListener('submit', e=>{ e.preventDefault(); chatPreguntar($('#chatInput').value); });
 
 // ---- normativa

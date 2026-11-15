@@ -11,6 +11,19 @@ Uso:  python3 tools/expensas_snapshot.py [N_MESES]   (default 7)
 import json, subprocess, sys, os
 
 N = int(sys.argv[1]) if len(sys.argv) > 1 else 7
+
+# Criterio de "hallazgo verificado" para el app, aplicado a TODOS los meses (dato derivado,
+# no cambia la base). Se muestran CRÍTICO/ALTO salvo el ruido que el dueño decidió no publicar:
+# efectivo (el medio real fue otro), pagos a "Cuenta Banco" sin nombre, artefactos técnicos
+# (archivo ya adjunto / comprobante ya respaldaba), transferencias de sueldos sin respaldo,
+# volatilidad ("subió X%"), desvíos de escala salarial, y las transferencias cuenta/impuestos
+# (BANCO/ARCA) que no son sobrepagos a proveedores.
+EXCL = ("h.severidad IN ('CRÍTICO','ALTO') "
+        "AND h.titulo NOT ILIKE '%efectivo%' AND h.titulo NOT ILIKE '%Cuenta Banco%' "
+        "AND h.titulo NOT ILIKE '%ya respaldaba%' AND h.titulo NOT ILIKE '%mismo archivo está adjunto%' "
+        "AND h.titulo NOT ILIKE '%transferencia declarada%no está respaldada%' "
+        "AND h.titulo NOT ILIKE '%: subió %' AND h.titulo NOT ILIKE '%escala%' "
+        "AND h.titulo NOT ILIKE '%sobre la referencia%' AND h.titulo NOT ILIKE '%Transferencia por %'")
 SQL = f"""
 SELECT COALESCE(jsonb_agg(j ORDER BY j->>'periodo'), '[]'::jsonb) FROM (
   SELECT jsonb_build_object(
@@ -34,14 +47,16 @@ SELECT COALESCE(jsonb_agg(j ORDER BY j->>'periodo'), '[]'::jsonb) FROM (
                         WHEN h.id IN (8,22,24) THEN h.recomendacion || ' Detallar qué trabajos hizo este proveedor, con presupuestos y comprobantes.'
                         ELSE h.recomendacion END)
                      ORDER BY CASE h.severidad WHEN 'CRÍTICO' THEN 0 ELSE 1 END, h.monto DESC),'[]'::jsonb)
-                  FROM hallazgos h WHERE h.liquidacion_id = l.id AND h.publicado
-                    AND h.severidad IN ('CRÍTICO','ALTO')
-                    -- los 4 de "pago en efectivo" (32,34,35,4) no se publican en la app:
-                    -- el registro de caja dice EFECTIVO pero el dueño indica que el medio real fue otro
-                    AND h.id NOT IN (32,34,35,4)),
-    'hallazgos_revision', (SELECT count(*) + (SELECT count(*) FROM hallazgos h2
-                     WHERE h2.liquidacion_id = l.id AND h2.publicado AND h2.id IN (32,34,35,4))
-                  FROM hallazgos h WHERE h.liquidacion_id = l.id AND NOT h.publicado)
+                  FROM hallazgos h WHERE h.liquidacion_id = l.id AND {EXCL}),
+    'hallazgos_revision', (SELECT count(*) FROM hallazgos h
+                  WHERE h.liquidacion_id = l.id AND h.severidad IN ('CRÍTICO','ALTO') AND NOT ({EXCL})),
+    -- unidades slim SOLO del último período (para los botones Top 10 por UF / deudores con interés)
+    'unidades', CASE WHEN l.periodo = (SELECT max(periodo) FROM liquidaciones WHERE estado='procesada')
+       THEN (SELECT COALESCE(jsonb_agg(jsonb_build_object(
+               'uf', u->'uf', 'pd', u->>'piso_depto', 'prop', u->>'propietario',
+               'mes', u->'total_mes', 'pagar', u->'a_pagar', 'deuda', u->'deuda', 'inte', u->'interes')), '[]'::jsonb)
+             FROM jsonb_array_elements(COALESCE(l.datos->'unidades','[]'::jsonb)) u)
+       ELSE '[]'::jsonb END
   ) AS j
   FROM liquidaciones l
   WHERE l.estado = 'procesada'

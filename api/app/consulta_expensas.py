@@ -5,10 +5,17 @@ la lista de gastos individuales) armado desde la base, y responde SOLO con esos 
 La API key vive en el backend (settings.anthropic_api_key); nunca en el cliente.
 El contexto va en un bloque cacheado (prompt caching) para que repetir preguntas sea barato.
 """
+import os
+
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from .config import settings
+
+try:
+    _REGLAMENTO = open(os.path.join(os.path.dirname(__file__), "reglamento.md"), encoding="utf-8").read()
+except OSError:
+    _REGLAMENTO = ""
 
 SYSTEM_BASE = (
     "Sos un asistente de datos de las expensas de un consorcio (edificio Rivadavia 2069), "
@@ -21,7 +28,12 @@ SYSTEM_BASE = (
     "describí hechos (montos, proveedores, fechas).\n"
     "- Cuando una comparación o evolución se entienda mejor con un gráfico, además del texto "
     "completá el campo 'grafico' con datos simples (2 a 12 valores). Si no aporta, dejalo vacío.\n"
-    "- El ejercicio va de octubre 2025 a octubre 2026 (13 meses). Respondé siempre con la herramienta responder."
+    "- El ejercicio va de octubre 2025 a octubre 2026 (13 meses).\n"
+    "- Además de los gastos, tenés el REGLAMENTO DE COPROPIEDAD completo y la deuda e interés de cada "
+    "unidad mes a mes: podés responder sobre artículos del reglamento (mora y punitorios, quórum, "
+    "mayorías, prohibiciones, facultades del administrador, fondo de reserva, etc.) y sobre quién "
+    "acrecienta su deuda y desde cuándo. Citá el artículo cuando corresponda.\n"
+    "- Respondé siempre con la herramienta responder."
 )
 
 _TOOL = {
@@ -126,10 +138,40 @@ def construir_contexto(db: Session) -> str:
         P.append(f"\nDEUDORES al último mes ({_mes(ult)}):")
         for d in deudores:
             P.append(f"- {d.get('piso_depto', d.get('uf', ''))} {d.get('propietario', '')}: {_plata(d.get('deuda', 0))}")
+
+    P.append("\nRÉGIMEN DE MORA (reglamento de copropiedad, artículo décimo): el copropietario que no paga "
+             "dentro de los primeros 10 días corridos queda en mora de pleno derecho; corre un interés "
+             "compensatorio y punitorio del 10% MENSUAL a favor del consorcio, desde la fecha en que debió "
+             "pagar hasta cancelar. Pasados otros 10 días, previa intimación fehaciente, el moroso puede ser "
+             "demandado por vía ejecutiva (el certificado de deuda del administrador es título ejecutivo).")
+
+    # Deuda e interés de CADA unidad, mes a mes (de datos->unidades): permite ver quién
+    # acrecienta la deuda y desde cuándo, y el interés (punitorio) aplicado cada mes.
+    unid = db.execute(text(
+        "SELECT l.periodo, u->>'piso_depto' AS pd, u->>'propietario' AS prop, (u->>'uf')::int AS uf, "
+        "(u->>'deuda')::numeric AS deuda, (u->>'interes')::numeric AS interes "
+        "FROM liquidaciones l, jsonb_array_elements(COALESCE(l.datos->'unidades','[]'::jsonb)) u "
+        "WHERE l.estado='procesada' ORDER BY (u->>'uf')::int, l.periodo")).mappings().all()
+    poruf = {}
+    for r in unid:
+        poruf.setdefault(r["uf"], {"pd": r["pd"], "prop": r["prop"], "serie": []})
+        poruf[r["uf"]]["serie"].append((r["periodo"], float(r["deuda"] or 0), float(r["interes"] or 0)))
+    condeuda = [(uf, d) for uf, d in poruf.items() if any(s[1] > 0 for s in d["serie"])]
+    if condeuda:
+        P.append("\nDEUDA E INTERÉS POR UNIDAD, MES A MES (solo unidades que tuvieron deuda en algún mes; "
+                 "por cada mes con saldo: deuda / interés punitorio aplicado ese mes):")
+        for uf, d in condeuda:
+            tramos = [f"{_mes(p).split()[0][:3]}{p[2:4]} deuda {_plata(de)}" + (f" int {_plata(i)}" if i else "")
+                      for p, de, i in d["serie"] if de > 0 or i > 0]
+            P.append(f"- {d['pd']} {d['prop']} (UF {uf}): " + " | ".join(tramos))
+
     P.append("\nGASTOS INDIVIDUALES (período | proveedor | rubro | importe | factura | concepto):")
     for g in gastos:
         P.append(f"{g['periodo']} | {g['proveedor']} | {g['categoria']} | {_plata(g['importe'])} | "
                  f"{g['factura_nro'] or '-'} | {g['c']}")
+
+    if _REGLAMENTO:
+        P.append("\n\n===== REGLAMENTO DE COPROPIEDAD (texto completo) =====\n" + _REGLAMENTO)
 
     _cache["firma"], _cache["texto"] = firma, "\n".join(P)
     return _cache["texto"]
