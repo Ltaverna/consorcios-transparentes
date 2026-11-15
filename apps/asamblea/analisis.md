@@ -36,9 +36,22 @@ Entre **plomería, calefacción y ascensores**, tres proveedores (Peñaloza, Lau
 
 ## Las tres discrepancias generales
 
-### 1. El departamento 13-B: $18,5 millones, sin presupuesto integral
+### 1. Los departamentos 12-B y 13-B: $18,5 millones, sin presupuesto integral
 
-Entre mayo y septiembre, la reparación de la calefacción y la reconstrucción de los pisos del 13-B costó **$18.513.799**, repartidos en **13 facturas de 7 proveedores** distintos a lo largo de 5 meses. Es **el gasto extraordinario más grande del ejercicio** y no pasó por asamblea. No se ve un presupuesto total aprobado antes de empezar.
+Entre mayo y septiembre, la reparación de la calefacción y la reconstrucción de los pisos de los departamentos **12-B y 13-B** costó **$18.513.799**, repartidos en **13 facturas de 7 proveedores** distintos a lo largo de 5 meses. Es **el gasto extraordinario más grande del ejercicio** y no pasó por asamblea. No se ve un presupuesto total aprobado antes de empezar. Cómo se divide:
+
+| Trabajo | Proveedor | Unidad | Monto |
+|---|---|---|---|
+| Cambio de serpentinas de calefacción | Roth | 12-B y 13-B | $7.950.000 |
+| Rotura y recolocación del piso | Saczewiczyk | 13-B | $5.252.000 |
+| Porcelanato | LO & CO | 13-B | $2.003.457 |
+| Contrapiso y cielorraso | Gómez | 12-B y 13-B | $2.600.000 |
+| Plastificado de pisos | López Ramírez | 12-B | $400.000 |
+| Alquiler de equipos | LEV Rental | 13-B | $205.392 |
+| Materiales (pastinas y otros) | Sanitarios Conesa | 13-B | $102.950 |
+| **Total** | | | **$18.513.799** |
+
+El cambio de serpentinas es instalación común; la reposición de porcelanato de primera marca, el plastificado y la pintura interior son discutibles.
 
 *Qué pedimos:* el informe del origen del trabajo, el presupuesto integral aprobado y el criterio de qué parte es común (cañerías) y qué parte es del departamento (terminaciones).
 

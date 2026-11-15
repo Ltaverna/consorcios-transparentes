@@ -1,10 +1,12 @@
 import os
 
-from fastapi import APIRouter, Body, Depends, File, Header, HTTPException, UploadFile
+from fastapi import APIRouter, Body, Depends, File, Header, HTTPException, Request, UploadFile
 from sqlalchemy.orm import Session
 
 from .. import asamblea_estado as ae
+from .. import consulta_expensas
 from .. import convocatoria
+from .. import security
 from ..config import settings
 from ..db import get_db
 
@@ -35,6 +37,25 @@ def convocatoria_a_mociones(archivo: UploadFile = File(...),
 def _auth(x_asamblea_token: str | None):
     if not settings.asamblea_token or x_asamblea_token != settings.asamblea_token:
         raise HTTPException(401, "Token inválido")
+
+
+@router.post("/asamblea/consulta")
+def consulta_expensas_chat(request: Request, payload: dict = Body(...),
+                           x_asamblea_token: str | None = Header(default=None),
+                           db: Session = Depends(get_db)):
+    """Chat de expensas (público, detrás del token de la app). Rate limit por IP."""
+    _auth(x_asamblea_token)
+    if not (settings.anthropic_api_key2 or settings.anthropic_api_key):
+        raise HTTPException(503, "El chat no está disponible en este momento.")
+    if not security.limiter_chat.permitir(f"{security.ip_cliente(request)}|chat"):
+        raise HTTPException(429, "Muchas consultas seguidas; esperá un ratito y probá de nuevo.")
+    pregunta = (payload.get("pregunta") or "").strip()
+    if not pregunta:
+        raise HTTPException(400, "Falta la pregunta.")
+    try:
+        return consulta_expensas.responder(db, pregunta, payload.get("historial"))
+    except Exception as e:
+        raise HTTPException(502, f"No se pudo responder: {e}")
 
 
 @router.get("/asamblea/estado")

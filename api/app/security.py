@@ -95,6 +95,10 @@ limiter_login = RateLimiter()
 # que el contenedor MCP haga polling intenso sin bloquear a usuarios legítimos.
 limiter_mcp_token = RateLimiter(maximo=60, ventana=300)
 
+# Chat de expensas (público, llama a la API de Claude): acota el costo por IP.
+# 15 preguntas en 5 minutos por IP alcanza de sobra para un propietario curioso.
+limiter_chat = RateLimiter(maximo=15, ventana=300)
+
 # Un kid desconocido dispara re-fetch de las JWKS (PyJWT maneja la rotación de claves de
 # Google); por eso el rate limit del endpoint corre ANTES de verificar.
 _JWKS_GOOGLE = jwt.PyJWKClient("https://www.googleapis.com/oauth2/v3/certs")

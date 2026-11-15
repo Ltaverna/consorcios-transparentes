@@ -24,6 +24,8 @@ class Settings(BaseSettings):
     embeddings_dimensiones: int = 0          # 0 = no mandar el parámetro (usa el default del modelo)
     anthropic_api_key: str = ""              # vacía = análisis de convocatoria deshabilitado
     anthropic_modelo: str = "claude-sonnet-4-6"
+    anthropic_api_key2: str = ""             # key DEDICADA del chat público (CT_ANTHROPIC_API_KEY2; si vacía, cae a anthropic_api_key)
+    chat_modelo: str = "claude-opus-4-8"     # modelo del chat de expensas (público, con rate limit)
     asamblea_token: str = ""                 # vacío = endpoint deshabilitado (401 siempre)
     asamblea_origin: str = "https://asamblea.neuralcore.dev"
     asamblea_mod_token: str = ""             # secreto de moderador para acciones sensibles (vacío = override deshabilitado)

@@ -596,6 +596,20 @@ details.card[open]{ gap:12px; }
 .exp-cat .row .pct{color:var(--muted);min-width:46px;text-align:right}
 .exp-cat .track{height:9px;background:var(--surface-2);border-radius:5px;overflow:hidden}
 .exp-cat .track i{display:block;height:100%;border-radius:5px}
+/* Chat de expensas */
+.quick{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px}
+.quick button{padding:9px 13px;border-radius:999px;border:1px solid var(--hair);background:var(--surface);font-size:13px;font-weight:600;color:var(--ink-2);cursor:pointer;min-height:40px}
+@media (hover:hover){.quick button:hover{background:var(--surface-2);border-color:var(--muted)}}
+.chat-log{display:flex;flex-direction:column;gap:8px;margin:10px 0;max-height:min(52vh,460px);overflow-y:auto;scroll-behavior:smooth}
+.chat-log:empty{margin:0}
+.chat-msg{max-width:90%;padding:9px 12px;border-radius:13px;font-size:14px;line-height:1.5;white-space:pre-wrap;word-break:break-word}
+.chat-msg.user{align-self:flex-end;background:var(--primary-bg);color:var(--primary-ink);border-bottom-right-radius:3px}
+.chat-msg.bot{align-self:flex-start;background:var(--surface-2);color:var(--ink);border:1px solid var(--hair-2);border-bottom-left-radius:3px}
+.chat-msg.think{color:var(--muted)}
+.chat-log .card{align-self:stretch;margin:2px 0}
+.chat-input{display:flex;gap:6px}
+.chat-input input{flex:1 1 auto;min-width:0;padding:11px 12px;font-size:16px;border:1px solid var(--hair);border-radius:var(--r-sm);background:var(--surface);color:var(--ink)}
+.chat-input .btn{white-space:nowrap}
 .exp-tabla{width:100%;border-collapse:collapse;font-size:13.5px}
 .exp-tabla td,.exp-tabla th{padding:6px 8px;border-bottom:1px solid var(--hair-2);text-align:left}
 .exp-tabla td.r,.exp-tabla th.r{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
@@ -778,6 +792,7 @@ dialog textarea{font:inherit;font-size:12.5px;width:100%;min-height:220px;border
     <button role="tab" data-docsub="normativa" aria-selected="false" aria-controls="docsub-normativa">Normativa</button>
     <button role="tab" data-docsub="encargado" aria-selected="false" aria-controls="docsub-encargado">Encargado</button>
     <button role="tab" data-docsub="analisis" aria-selected="false" aria-controls="docsub-analisis">Análisis</button>
+    <button role="tab" data-docsub="consultar" aria-selected="false" aria-controls="docsub-consultar">Consultar</button>
     <button role="tab" data-docsub="expensas" aria-selected="false" aria-controls="docsub-expensas">Expensas</button>
     <button role="tab" data-docsub="convocatoria" aria-selected="false" aria-controls="docsub-convocatoria">Convocatoria y poder</button>
   </nav>
@@ -803,6 +818,17 @@ dialog textarea{font:inherit;font-size:12.5px;width:100%;min-height:220px;border
   <div class="doc-sub" id="docsub-analisis">
     <p class="lead">Síntesis del ejercicio completo (octubre 2025 a octubre 2026): en qué se gastó, los proveedores más grandes y las discrepancias generales, con porcentajes. El detalle con comprobantes está en Expensas y en Preguntas.</p>
     <div id="anaTexto" class="doc"></div>
+  </div>
+
+  <div class="doc-sub" id="docsub-consultar">
+    <p class="lead">Consultá los gastos del edificio. Tocá un botón para ver un gráfico al instante, o escribí tu pregunta y te respondo con los datos del ejercicio (octubre 2025 a octubre 2026).</p>
+    <div class="quick" id="consQuick"></div>
+    <div class="chat-log" id="chatLog"></div>
+    <form id="chatForm" class="chat-input" autocomplete="off">
+      <input id="chatInput" type="text" enterkeyhint="send" placeholder="Ej: ¿cuánto se gastó en ascensores?" aria-label="Escribí tu pregunta" maxlength="300">
+      <button class="btn primary" type="submit" id="chatSend">Preguntar</button>
+    </form>
+    <p class="note" style="margin-top:8px">Las respuestas salen de las liquidaciones auditadas. Pueden tener imprecisiones: ante la duda, verificá en la pestaña Expensas.</p>
   </div>
 
   <div class="doc-sub" id="docsub-expensas">
@@ -1581,6 +1607,7 @@ function setDocSub(sub){
   else if(sub==='normativa') renderNormativa();
   else if(sub==='encargado') renderEncargado();
   else if(sub==='analisis') renderAnalisis();
+  else if(sub==='consultar') renderConsultar();
   else if(sub==='expensas') renderExpensas();
   if(cambio) window.scrollTo(0,0);
 }
@@ -1793,6 +1820,50 @@ function renderEncargado(){
 $('#encBuscar').addEventListener('input', e=>filtrarDoc('#encTexto', e.target.value));
 function renderAnalisis(){ const c=$('#anaTexto'); if(c) c.innerHTML = marked.parse(_preprocMd(C.analisis||'')); }
 
+// ---- Consultar: gráficos rápidos (cliente) + chat (API con Claude)
+const _CPAL=['var(--o1)','var(--o2)','var(--o4)','var(--o3)','var(--accent)'];
+function barChart(titulo, datos){
+  if(!datos || !datos.length) return '';
+  const max=Math.max(...datos.map(d=>Math.abs(+d.valor||0)))||1;
+  return `<div class="card"><h3 style="font-size:15px;margin-bottom:8px">${esc(titulo||'')}</h3><div class="exp-cat">`+
+    datos.map((d,i)=>`<div><div class="row"><span>${esc(d.etiqueta)}</span><b>${fmt.format(+d.valor||0)}</b></div><div class="track"><i style="width:${Math.max(1,Math.abs(+d.valor||0)/max*100).toFixed(1)}%;background:${_CPAL[i%_CPAL.length]}"></i></div></div>`).join('')+
+    `</div></div>`;
+}
+function _agg(key){ const a={}; (C.expensas||[]).forEach(x=>Object.entries(x[key]||{}).forEach(([k,v])=>a[k]=(a[k]||0)+v)); return Object.entries(a).map(([etiqueta,valor])=>({etiqueta,valor})).sort((p,q)=>q.valor-p.valor); }
+function _provTotales(){ const EXCL=[/^Consorcio RIVADAVIA/i,/^ARCA/i,/^EDESUR/i,/^METROGAS/i,/^AYSA/i,/^AGIP/i,/^BANCO/i,/^SUTERH/i,/^FATERYH/i,/CROCAMO/i];
+  const a={}; (C.expensas||[]).forEach(x=>(x.proveedores||[]).forEach(p=>{ if(EXCL.some(r=>r.test(p.proveedor))) return; a[p.proveedor]=(a[p.proveedor]||0)+p.total; }));
+  return Object.entries(a).map(([etiqueta,valor])=>({etiqueta,valor})).sort((p,q)=>q.valor-p.valor); }
+const CONS_Q={
+  rubros:  ()=>['En qué se gastó el ejercicio, por rubro', _agg('categorias')],
+  prov:    ()=>['Proveedores externos con más pagos del ejercicio', _provTotales().slice(0,10)],
+  meses:   ()=>['Gasto total por mes', (C.expensas||[]).map(x=>({etiqueta:nombreMes(x.periodo).split(' ')[0], valor:x.total_gastos||0}))],
+  calef:   ()=>{ const p=_provTotales(); const f=n=>(p.find(d=>d.etiqueta.toUpperCase().includes(n))||{valor:0}).valor;
+                 return ['Calefacción: Peñaloza vs. Roth (total del ejercicio)', [{etiqueta:'Peñaloza',valor:f('PEÑALOZA')||f('PENALOZA')},{etiqueta:'Roth',valor:f('ROTH')}]]; },
+};
+function renderConsultar(){ const q=$('#consQuick'); if(q && !q.children.length){
+  q.innerHTML=[['rubros','📊 ¿En qué se gastó?'],['prov','🏗️ Top proveedores'],['meses','📅 Gasto por mes'],['calef','🔥 Peñaloza vs Roth']].map(([k,l])=>`<button type="button" data-cq="${k}">${esc(l)}</button>`).join('');
+} renderChat(false); }
+let chatHist=[];
+function renderChat(thinking){ const log=$('#chatLog'); if(!log) return;
+  let h=chatHist.map(m=>`<div class="chat-msg ${m.rol==='yo'?'user':'bot'}">${esc(m.texto)}</div>`+(m.grafico&&m.grafico.datos?barChart(m.grafico.titulo,m.grafico.datos):'')).join('');
+  if(thinking) h+=`<div class="chat-msg bot think">Pensando…</div>`;
+  log.innerHTML=h; requestAnimationFrame(()=>{ log.scrollTop=log.scrollHeight; });
+}
+async function chatPreguntar(preg){ preg=(preg||'').trim(); if(!preg) return;
+  chatHist.push({rol:'yo', texto:preg}); renderChat(true);
+  const inp=$('#chatInput'), btn=$('#chatSend'); if(inp) inp.value=''; if(btn) btn.disabled=true;
+  try{
+    const r=await fetch(API_URL+'/asamblea/consulta',{method:'POST',headers:{'Content-Type':'application/json','X-Asamblea-Token':ASAMBLEA_TOKEN},
+      body:JSON.stringify({pregunta:preg, historial:chatHist.slice(0,-1).slice(-6).map(m=>({rol:m.rol==='yo'?'propietario':'asistente', texto:m.texto}))})});
+    if(r.status===429){ chatHist.push({rol:'bot', texto:'Hubo muchas consultas seguidas. Esperá unos segundos y probá de nuevo.'}); }
+    else if(!r.ok){ chatHist.push({rol:'bot', texto:'No pude responder en este momento. Probá de nuevo en un rato.'}); }
+    else { const j=await r.json(); chatHist.push({rol:'bot', texto:(j.texto||'(sin respuesta)'), grafico:j.grafico}); }
+  }catch(e){ chatHist.push({rol:'bot', texto:'Sin conexión. Revisá internet y probá de nuevo.'}); }
+  if(btn) btn.disabled=false; renderChat(false); if(inp) inp.focus();
+}
+$('#consQuick').addEventListener('click', e=>{ const b=e.target.closest('button[data-cq]'); if(!b) return; const f=CONS_Q[b.dataset.cq]; if(!f) return; const [t,d]=f(); chatHist.push({rol:'bot', texto:t, grafico:{titulo:t, datos:d}}); renderChat(false); });
+$('#chatForm').addEventListener('submit', e=>{ e.preventDefault(); chatPreguntar($('#chatInput').value); });
+
 // ---- normativa
 function renderNormativa(){
   const items = C.normativa || [];
@@ -1930,7 +2001,7 @@ const _renderAll = renderAll;
 renderAll = function(){ _renderAll(); if(TAB==='agenda') renderAgenda(); else if(TAB==='preguntas') renderPreguntas(); else if(TAB==='propos') renderPropos(); applyCompact(); };
 (function(){ let t='agenda'; try{ t=localStorage.getItem(KEY+'-tab')||'agenda'; }catch(e){}
   // Link directo: #votar, #docs-convocatoria, #docs-expensas, #docs-encargado, etc.
-  const m=(location.hash||'').match(/^#(agenda|votar|preguntas|propos|docs)(?:-(reglamento|normativa|encargado|analisis|expensas|convocatoria))?$/);
+  const m=(location.hash||'').match(/^#(agenda|votar|preguntas|propos|docs)(?:-(reglamento|normativa|encargado|analisis|consultar|expensas|convocatoria))?$/);
   if(m){ t=m[1]; if(m[2]) DOC_SUB=m[2]; }
   setTab(t); if(t==='docs') setDocSub(DOC_SUB); })();
 
