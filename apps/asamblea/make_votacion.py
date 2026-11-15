@@ -617,6 +617,10 @@ details.card[open]{ gap:12px; }
 .chat-msg.md th,.chat-msg.md td{border:1px solid var(--hair-2);padding:4px 7px;text-align:left}
 .chat-msg.md code{background:var(--surface);border:1px solid var(--hair-2);border-radius:4px;padding:1px 4px;font-size:12.5px}
 .chat-log .card{align-self:stretch;margin:2px 0}
+.chat-sug{display:flex;flex-direction:column;gap:5px;align-items:flex-start;margin-top:3px}
+.sugbtn{text-align:left;padding:8px 12px;border-radius:12px;border:1px solid var(--accent-soft);background:var(--accent-soft);color:var(--accent-ink);font-size:13px;font-weight:600;cursor:pointer;max-width:92%;line-height:1.35}
+.sugbtn::before{content:"↳ ";opacity:.55}
+@media(hover:hover){.sugbtn:hover{border-color:var(--accent)}}
 .chat-input{display:flex;gap:6px}
 .chat-input input{flex:1 1 auto;min-width:0;padding:11px 12px;font-size:16px;border:1px solid var(--hair);border-radius:var(--r-sm);background:var(--surface);color:var(--ink)}
 .chat-input .btn{white-space:nowrap}
@@ -1867,6 +1871,11 @@ function renderChat(thinking){ const log=$('#chatLog'); if(!log) return;
     return burbuja + (m.grafico&&m.grafico.datos?barChart(m.grafico.titulo,m.grafico.datos):'') + (m.html||'');
   }).join('');
   if(thinking) h+=`<div class="chat-msg bot think">Pensando…</div>`;
+  // Sugerencias de seguimiento: solo bajo la última respuesta del asistente
+  const last=chatHist[chatHist.length-1];
+  if(!thinking && last && last.rol==='bot' && last.sugerencias && last.sugerencias.length){
+    h+=`<div class="chat-sug">`+last.sugerencias.map(s=>`<button type="button" class="sugbtn">${esc(s)}</button>`).join('')+`</div>`;
+  }
   log.innerHTML=h; requestAnimationFrame(()=>{ log.scrollTop=log.scrollHeight; });
 }
 async function chatPreguntar(preg){ preg=(preg||'').trim(); if(!preg) return;
@@ -1877,7 +1886,7 @@ async function chatPreguntar(preg){ preg=(preg||'').trim(); if(!preg) return;
       body:JSON.stringify({pregunta:preg, historial:chatHist.slice(0,-1).slice(-6).map(m=>({rol:m.rol==='yo'?'propietario':'asistente', texto:m.texto}))})});
     if(r.status===429){ chatHist.push({rol:'bot', texto:'Hubo muchas consultas seguidas. Esperá unos segundos y probá de nuevo.'}); }
     else if(!r.ok){ chatHist.push({rol:'bot', texto:'No pude responder en este momento. Probá de nuevo en un rato.'}); }
-    else { const j=await r.json(); chatHist.push({rol:'bot', texto:(j.texto||'(sin respuesta)'), grafico:j.grafico}); }
+    else { const j=await r.json(); chatHist.push({rol:'bot', texto:(j.texto||'(sin respuesta)'), grafico:j.grafico, sugerencias:j.sugerencias||[]}); }
   }catch(e){ chatHist.push({rol:'bot', texto:'Sin conexión. Revisá internet y probá de nuevo.'}); }
   if(btn) btn.disabled=false; renderChat(false); if(inp) inp.focus();
 }
@@ -1905,6 +1914,7 @@ $('#consQuick').addEventListener('click', e=>{ const b=e.target.closest('button[
     renderChat(false); return; }
   const f=CONS_Q[k]; if(!f) return; const [t,d]=f(); chatHist.push({rol:'bot', texto:t, grafico:{titulo:t, datos:d}}); renderChat(false); });
 $('#chatForm').addEventListener('submit', e=>{ e.preventDefault(); chatPreguntar($('#chatInput').value); });
+$('#chatLog').addEventListener('click', e=>{ const b=e.target.closest('.sugbtn'); if(b) chatPreguntar(b.textContent); });
 
 // ---- normativa
 function renderNormativa(){
