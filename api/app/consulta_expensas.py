@@ -156,6 +156,14 @@ def construir_contexto(db: Session) -> str:
     for r in unid:
         poruf.setdefault(r["uf"], {"pd": r["pd"], "prop": r["prop"], "serie": []})
         poruf[r["uf"]]["serie"].append((r["periodo"], float(r["deuda"] or 0), float(r["interes"] or 0)))
+    if poruf:
+        P.append(f"\nPADRÓN COMPLETO (todas las unidades, con su deuda al último mes, {_mes(ult)}). "
+                 "Si preguntan por un propietario que no está en la lista de deudores, buscalo acá: "
+                 "deuda $0 = está al día.")
+        for uf in sorted(poruf):
+            d = poruf[uf]
+            du = d["serie"][-1][1] if d["serie"] else 0.0
+            P.append(f"- {d['pd']} {d['prop']} (UF {uf}): deuda {_plata(du)}")
     condeuda = [(uf, d) for uf, d in poruf.items() if any(s[1] > 0 for s in d["serie"])]
     if condeuda:
         P.append("\nDEUDA E INTERÉS POR UNIDAD, MES A MES (solo unidades que tuvieron deuda en algún mes; "

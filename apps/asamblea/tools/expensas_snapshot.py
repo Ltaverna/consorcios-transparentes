@@ -81,21 +81,48 @@ def _deptos(t):
     return {f"{f}-{l}" for f, l in out}
 graw = subprocess.run(
     ["docker", "compose", "exec", "-T", "db", "psql", "-U", "consorcio", "-d", "consorcio", "-tAF", "\t", "-c",
-     "SELECT round(g.importe::numeric), g.concepto FROM gastos g JOIN liquidaciones l ON l.id=g.liquidacion_id WHERE l.estado='procesada'"],
+     "SELECT round(g.importe::numeric), g.proveedor, g.concepto FROM gastos g JOIN liquidaciones l ON l.id=g.liquidacion_id WHERE l.estado='procesada'"],
     cwd=os.path.abspath(raiz), capture_output=True, text=True, check=True).stdout
-acc = _c.defaultdict(float); tot = 0.0
+acc = _c.defaultdict(float); items = _c.defaultdict(list); tot = 0.0
 for ln in graw.splitlines():
-    if "\t" not in ln: continue
-    imp, con = ln.split("\t", 1)
-    try: imp = float(imp)
+    parts = ln.split("\t", 2)
+    if len(parts) < 3: continue
+    try: imp = float(parts[0])
     except ValueError: continue
+    prov, con = parts[1], parts[2]
     ds = _deptos(con)
     if ds:
-        for d in ds: acc[d] += imp / len(ds)
+        share = imp / len(ds)
+        for d in ds:
+            acc[d] += share
+            items[d].append((prov, con[:60].strip(), share))
         tot += imp
 rank = sorted(acc.items(), key=lambda x: -x[1])[:12]
+if datos and tot:
+    datos[-1]["gasto_uf"] = [{
+        "uf": d, "total": round(v, 2), "pct": round(v / tot * 100, 1),
+        "items": [{"prov": p, "con": c, "monto": round(m, 2)}
+                  for p, c, m in sorted(items[d], key=lambda x: -x[2])[:5]]
+    } for d, v in rank]
+
+# Top gastos individuales más grandes del ejercicio
+_MES = ["", "Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"]
+def _mesc(p):
+    try: a, m = p.split("-"); return f"{_MES[int(m)]} {a[2:]}"
+    except Exception: return p
+tgraw = subprocess.run(
+    ["docker", "compose", "exec", "-T", "db", "psql", "-U", "consorcio", "-d", "consorcio", "-tAF", "\t", "-c",
+     "SELECT l.periodo, g.proveedor, round(g.importe::numeric) FROM gastos g JOIN liquidaciones l ON l.id=g.liquidacion_id "
+     "WHERE l.estado='procesada' ORDER BY g.importe DESC LIMIT 12"],
+    cwd=os.path.abspath(raiz), capture_output=True, text=True, check=True).stdout
+topg = []
+for ln in tgraw.splitlines():
+    parts = ln.split("\t", 2)
+    if len(parts) < 3: continue
+    try: topg.append({"mes": _mesc(parts[0]), "prov": parts[1], "monto": float(parts[2])})
+    except ValueError: continue
 if datos:
-    datos[-1]["gasto_uf"] = [{"uf": d, "total": round(v, 2), "pct": round(v / tot * 100, 1)} for d, v in rank] if tot else []
+    datos[-1]["top_gastos"] = topg
 
 destino = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "expensas.json")
 json.dump(datos, open(destino, "w", encoding="utf-8"), ensure_ascii=False)
