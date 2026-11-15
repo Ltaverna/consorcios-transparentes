@@ -1841,7 +1841,7 @@ const CONS_Q={
                  return ['Calefacción: Peñaloza vs. Roth (total del ejercicio)', [{etiqueta:'Peñaloza',valor:f('PEÑALOZA')||f('PENALOZA')},{etiqueta:'Roth',valor:f('ROTH')}]]; },
 };
 function renderConsultar(){ const q=$('#consQuick'); if(q && !q.children.length){
-  q.innerHTML=[['rubros','📊 ¿En qué se gastó?'],['prov','🏗️ Top proveedores'],['meses','📅 Gasto por mes'],['calef','🔥 Peñaloza vs Roth'],['ufgasto','🏠 Top 10 expensas por UF'],['deudint','💸 Top 10 deudores + interés']].map(([k,l])=>`<button type="button" data-cq="${k}">${esc(l)}</button>`).join('');
+  q.innerHTML=[['rubros','📊 ¿En qué se gastó?'],['prov','🏗️ Top proveedores'],['meses','📅 Gasto por mes'],['calef','🔥 Peñaloza vs Roth'],['ufgastado','🔧 Top 10 gasto por depto'],['ufgasto','🏠 Top 10 expensas por UF'],['deudint','💸 Top 10 deudores + interés']].map(([k,l])=>`<button type="button" data-cq="${k}">${esc(l)}</button>`).join('');
 } renderChat(false); }
 function _unidadesUlt(){ const xs=C.expensas||[]; return ((xs[xs.length-1]||{}).unidades)||[]; }
 function _mesUlt(){ const xs=C.expensas||[]; return nombreMes((xs[xs.length-1]||{}).periodo||''); }
@@ -1865,6 +1865,11 @@ async function chatPreguntar(preg){ preg=(preg||'').trim(); if(!preg) return;
   if(btn) btn.disabled=false; renderChat(false); if(inp) inp.focus();
 }
 $('#consQuick').addEventListener('click', e=>{ const b=e.target.closest('button[data-cq]'); if(!b) return; const k=b.dataset.cq;
+  if(k==='ufgastado'){ const xs=C.expensas||[]; const g=((xs[xs.length-1]||{}).gasto_uf)||[];
+    if(!g.length){ chatHist.push({rol:'bot', texto:'Todavía no hay datos de gasto por departamento.'}); renderChat(false); return; }
+    const html=tablaUF('Top 10 gasto por departamento (ejercicio) — aprox. por mención en el concepto',
+      [['Depto'],['Gastado',1],['%',1]], g.slice(0,10).map(x=>[[x.uf],[fmt.format(x.total),1],[String(x.pct).replace('.',',')+'%',1]]));
+    chatHist.push({rol:'bot', texto:'', html}); renderChat(false); return; }
   if(k==='ufgasto' || k==='deudint'){ const u=_unidadesUlt(), mes=_mesUlt();
     if(!u.length){ chatHist.push({rol:'bot', texto:'Todavía no hay datos por unidad cargados.'}); renderChat(false); return; }
     if(k==='ufgasto'){ const top=u.filter(x=>+x.mes>0).sort((a,b)=>b.mes-a.mes).slice(0,10);

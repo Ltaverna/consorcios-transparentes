@@ -68,6 +68,35 @@ out = subprocess.run(
     ["docker", "compose", "exec", "-T", "db", "psql", "-U", "consorcio", "-d", "consorcio", "-t", "-A", "-c", SQL],
     cwd=os.path.abspath(raiz), capture_output=True, text=True, check=True).stdout.strip()
 datos = json.loads(out)
+
+# Gasto por UF particular: depto mencionado en el concepto del gasto. Aproximado —
+# si un gasto menciona varios deptos, el importe se reparte parejo entre ellos. Se
+# adjunta al último período (dato del ejercicio completo), para el botón "Top gasto por UF".
+import re as _re, collections as _c
+def _deptos(t):
+    t = t.upper(); out = set()
+    for m in _re.finditer(r'(?<!\d)(1[0-4]|[1-9])\s*[°º/\-]?\s*([A-G])(?![A-Z])', t): out.add((int(m.group(1)), m.group(2)))
+    for m in _re.finditer(r'PISO\s*(1[0-4]|[1-9])[^A-Z0-9]{0,18}(?:DPTO|DEPTO|DEPARTAMENTO)\.?\s*([A-G])(?![A-Z])', t): out.add((int(m.group(1)), m.group(2)))
+    for m in _re.finditer(r'(?:DPTO|DEPTO|DEPARTAMENTO)\.?\s*([A-G])(?![A-Z])[^A-Z0-9]{0,18}PISO\s*(1[0-4]|[1-9])', t): out.add((int(m.group(2)), m.group(1)))
+    return {f"{f}-{l}" for f, l in out}
+graw = subprocess.run(
+    ["docker", "compose", "exec", "-T", "db", "psql", "-U", "consorcio", "-d", "consorcio", "-tAF", "\t", "-c",
+     "SELECT round(g.importe::numeric), g.concepto FROM gastos g JOIN liquidaciones l ON l.id=g.liquidacion_id WHERE l.estado='procesada'"],
+    cwd=os.path.abspath(raiz), capture_output=True, text=True, check=True).stdout
+acc = _c.defaultdict(float); tot = 0.0
+for ln in graw.splitlines():
+    if "\t" not in ln: continue
+    imp, con = ln.split("\t", 1)
+    try: imp = float(imp)
+    except ValueError: continue
+    ds = _deptos(con)
+    if ds:
+        for d in ds: acc[d] += imp / len(ds)
+        tot += imp
+rank = sorted(acc.items(), key=lambda x: -x[1])[:12]
+if datos:
+    datos[-1]["gasto_uf"] = [{"uf": d, "total": round(v, 2), "pct": round(v / tot * 100, 1)} for d, v in rank] if tot else []
+
 destino = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "expensas.json")
 json.dump(datos, open(destino, "w", encoding="utf-8"), ensure_ascii=False)
 print(f"ok: {len(datos)} períodos -> {os.path.abspath(destino)}")
