@@ -617,6 +617,7 @@ details.card[open]{ gap:12px; }
 .chat-msg.md th,.chat-msg.md td{border:1px solid var(--hair-2);padding:4px 7px;text-align:left}
 .chat-msg.md code{background:var(--surface);border:1px solid var(--hair-2);border-radius:4px;padding:1px 4px;font-size:12.5px}
 .chat-log .card{align-self:stretch;margin:2px 0}
+.chat-intent{font-size:12px;color:var(--muted);font-style:italic;align-self:flex-start;max-width:92%;margin:1px 0 -2px}
 .chat-sug{display:flex;flex-direction:column;gap:5px;align-items:flex-start;margin-top:3px}
 .sugbtn{text-align:left;padding:8px 12px;border-radius:12px;border:1px solid var(--accent-soft);background:var(--accent-soft);color:var(--accent-ink);font-size:13px;font-weight:600;cursor:pointer;max-width:92%;line-height:1.35}
 .sugbtn::before{content:"↳ ";opacity:.55}
@@ -1864,10 +1865,11 @@ function tablaUF(titulo, cols, filas){ return `<div class="card"><h3 style="font
 let chatHist=[];
 function renderChat(thinking){ const log=$('#chatLog'); if(!log) return;
   let h=chatHist.map(m=>{
+    const intent = (m.rol==='bot' && m.interpretacion) ? `<div class="chat-intent">↪ Entendí: ${esc(m.interpretacion)}</div>` : '';
     const burbuja = !m.texto ? '' : (m.rol==='yo'
       ? `<div class="chat-msg user">${esc(m.texto)}</div>`
       : `<div class="chat-msg bot md">${marked.parse(m.texto)}</div>`);
-    return burbuja + (m.grafico&&m.grafico.datos?barChart(m.grafico.titulo,m.grafico.datos):'') + (m.html||'');
+    return intent + burbuja + (m.grafico&&m.grafico.datos?barChart(m.grafico.titulo,m.grafico.datos):'') + (m.html||'');
   }).join('');
   if(thinking) h+=`<div class="chat-msg bot think">Pensando…</div>`;
   // Sugerencias de seguimiento: solo bajo la última respuesta del asistente
@@ -1885,7 +1887,7 @@ async function chatPreguntar(preg){ preg=(preg||'').trim(); if(!preg) return;
       body:JSON.stringify({pregunta:preg, historial:chatHist.slice(0,-1).slice(-6).map(m=>({rol:m.rol==='yo'?'propietario':'asistente', texto:m.texto}))})});
     if(r.status===429){ chatHist.push({rol:'bot', texto:'Hubo muchas consultas seguidas. Esperá unos segundos y probá de nuevo.'}); }
     else if(!r.ok){ chatHist.push({rol:'bot', texto:'No pude responder en este momento. Probá de nuevo en un rato.'}); }
-    else { const j=await r.json(); chatHist.push({rol:'bot', texto:(j.texto||'(sin respuesta)'), grafico:j.grafico, sugerencias:j.sugerencias||[]}); }
+    else { const j=await r.json(); chatHist.push({rol:'bot', texto:(j.texto||'(sin respuesta)'), grafico:j.grafico, interpretacion:j.interpretacion||'', sugerencias:j.sugerencias||[]}); }
   }catch(e){ chatHist.push({rol:'bot', texto:'Sin conexión. Revisá internet y probá de nuevo.'}); }
   if(btn) btn.disabled=false; renderChat(false); if(inp) inp.focus();
 }

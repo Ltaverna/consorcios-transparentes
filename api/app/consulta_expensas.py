@@ -46,6 +46,9 @@ SYSTEM_BASE = (
     "las expensas o el reglamento. No inventes ni opines fuera de los datos.\n"
     "- No des asesoramiento legal o contable definitivo; para interpretaciones, sugerí consultarlo con el "
     "Consejo de Administración o con la administración.\n"
+    "- En 'interpretacion': si la pregunta vino vaga, incompleta o con errores de tipeo, poné SOLO la "
+    "pregunta reformulada y clara (sin 'entendí que...', empezá directo con la pregunta, ej: "
+    "'¿Cuánto cobró Peñaloza en todo el ejercicio?'). Si la pregunta ya era clara, dejá 'interpretacion' vacía.\n"
     "- En 'sugerencias' proponé 2 o 3 preguntas de seguimiento cortas, concretas y respondibles con estos "
     "datos, relacionadas con tu respuesta (dejalo vacío si no aplica).\n"
     "- Respondé siempre con la herramienta responder."
@@ -77,6 +80,10 @@ _TOOL = {
                     },
                 },
                 "required": ["tipo", "titulo", "datos"],
+            },
+            "interpretacion": {
+                "type": "string",
+                "description": "Si la pregunta vino vaga o con errores, la versión reformulada/clara; si ya era clara, vacío.",
             },
             "sugerencias": {
                 "type": "array",
@@ -231,5 +238,8 @@ def responder(db: Session, pregunta: str, historial: list | None = None) -> dict
                 out.pop("grafico", None)
             sug = out.get("sugerencias")
             sug = [str(s).strip() for s in sug if str(s).strip()][:3] if isinstance(sug, list) else []
-            return {"texto": out.get("texto", ""), "grafico": out.get("grafico"), "sugerencias": sug}
-    return {"texto": "No pude generar una respuesta. Probá reformular la pregunta.", "grafico": None, "sugerencias": []}
+            interp = str(out.get("interpretacion") or "").strip()
+            return {"texto": out.get("texto", ""), "grafico": out.get("grafico"),
+                    "interpretacion": interp, "sugerencias": sug}
+    return {"texto": "No pude generar una respuesta. Probá reformular la pregunta.",
+            "grafico": None, "interpretacion": "", "sugerencias": []}
