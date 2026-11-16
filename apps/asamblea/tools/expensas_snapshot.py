@@ -74,10 +74,19 @@ datos = json.loads(out)
 # adjunta al último período (dato del ejercicio completo), para el botón "Top gasto por UF".
 import re as _re, collections as _c
 def _deptos(t):
+    # Extracción CONSERVADORA del depto: evita falsos positivos como los centavos de un
+    # monto seguidos de letra ("$3.216.170,10 A ESTA SUMA" leía "10-A"). Solo cuenta si:
+    # (a) hay palabra clave de unidad antes del piso+letra; (b) el piso+letra usa un separador
+    # EXPLÍCITO (°/º/// -), nunca un espacio ni un decimal de $; o (c) el cruce PISO↔DPTO.
     t = t.upper(); out = set()
-    for m in _re.finditer(r'(?<!\d)(1[0-4]|[1-9])\s*[°º/\-]?\s*([A-G])(?![A-Z])', t): out.add((int(m.group(1)), m.group(2)))
-    for m in _re.finditer(r'PISO\s*(1[0-4]|[1-9])[^A-Z0-9]{0,18}(?:DPTO|DEPTO|DEPARTAMENTO)\.?\s*([A-G])(?![A-Z])', t): out.add((int(m.group(1)), m.group(2)))
-    for m in _re.finditer(r'(?:DPTO|DEPTO|DEPARTAMENTO)\.?\s*([A-G])(?![A-Z])[^A-Z0-9]{0,18}PISO\s*(1[0-4]|[1-9])', t): out.add((int(m.group(2)), m.group(1)))
+    for m in _re.finditer(r'(?:DEPARTAMENTO|DPTO|DEPTO|DTO|UNIDAD|PISO)S?\.?[\s/]*N?[°º]?\s*(1[0-4]|[1-9])\s*[°º/\-]?\s*([A-G])(?![A-Za-z])', t):
+        out.add((int(m.group(1)), m.group(2)))
+    for m in _re.finditer(r'(?<![\d,.])(1[0-4]|[1-9])\s*[°º/\-]\s*([A-G])(?![A-Za-z])', t):
+        out.add((int(m.group(1)), m.group(2)))
+    for m in _re.finditer(r'PISO\s*(1[0-4]|[1-9])[^A-Z0-9]{0,18}(?:DPTO|DEPTO|DEPARTAMENTO)\.?\s*([A-G])(?![A-Za-z])', t):
+        out.add((int(m.group(1)), m.group(2)))
+    for m in _re.finditer(r'(?:DPTO|DEPTO|DEPARTAMENTO)\.?\s*([A-G])(?![A-Za-z])[^A-Z0-9]{0,18}PISO\s*(1[0-4]|[1-9])', t):
+        out.add((int(m.group(2)), m.group(1)))
     return {f"{f}-{l}" for f, l in out}
 graw = subprocess.run(
     ["docker", "compose", "exec", "-T", "db", "psql", "-U", "consorcio", "-d", "consorcio", "-tAF", "\t", "-c",
