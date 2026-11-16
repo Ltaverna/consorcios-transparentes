@@ -200,6 +200,23 @@ def construir_contexto(db: Session) -> str:
                       for p, de, i in d["serie"] if de > 0 or i > 0]
             P.append(f"- {d['pd']} {d['prop']} (UF {uf}): " + " | ".join(tramos))
 
+    hall = db.execute(text(
+        "SELECT l.periodo, h.titulo FROM hallazgos h JOIN liquidaciones l ON l.id=h.liquidacion_id "
+        "WHERE l.estado='procesada' AND h.severidad IN ('CRÍTICO','ALTO') "
+        "AND h.titulo NOT ILIKE '%efectivo%' AND h.titulo NOT ILIKE '%Cuenta Banco%' "
+        "AND h.titulo NOT ILIKE '%ya respaldaba%' AND h.titulo NOT ILIKE '%mismo archivo está adjunto%' "
+        "AND h.titulo NOT ILIKE '%transferencia declarada%no está respaldada%' "
+        "AND h.titulo NOT ILIKE '%: subió %' AND h.titulo NOT ILIKE '%escala%' "
+        "AND h.titulo NOT ILIKE '%sobre la referencia%' AND h.titulo NOT ILIKE '%Transferencia por %' "
+        "ORDER BY l.periodo")).all()
+    if hall:
+        P.append("\nHALLAZGOS DE LA AUDITORÍA (hechos verificados con comprobante). IMPORTANTE: cuando te "
+                 "pregunten por un gasto, un proveedor o una factura, revisá acá si tiene un hallazgo asociado "
+                 "— pago a una cuenta que no es la del proveedor, factura a nombre de un tercero o propietario, "
+                 "posible duplicado, etc. — y mencionalo en la respuesta:")
+        for per, tit in hall:
+            P.append(f"- ({_mes(per).split()[0][:3]}{per[2:4]}) {tit}")
+
     P.append("\nGASTOS INDIVIDUALES (período | proveedor | rubro | importe | factura | concepto):")
     for g in gastos:
         P.append(f"{g['periodo']} | {g['proveedor']} | {g['categoria']} | {_plata(g['importe'])} | "
